@@ -1,9 +1,9 @@
-package dev.weaponboy.command_library.Subsystem;
+package dev.weaponboy.command_library.CommandLibrary.Subsystem;
 
 import java.util.ArrayList;
 
-import dev.weaponboy.command_library.Commands.Command;
-import dev.weaponboy.command_library.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 
 @SuppressWarnings("unused")
 public abstract class SubSystem implements SubSystemInt{
@@ -25,8 +25,6 @@ public abstract class SubSystem implements SubSystemInt{
     }
 
     protected void executeEX(){
-
-        System.out.println(currentCommand.isFinished());
 
         if (currentCommand.isFinished() && !commands.isEmpty()){
             currentCommand = commands.get(0);

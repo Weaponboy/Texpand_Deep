@@ -1,13 +1,15 @@
-package dev.weaponboy.command_library.OpmodeEX;
+package dev.weaponboy.command_library.CommandLibrary.OpmodeEX;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import dev.weaponboy.command_library.Scheduler;
-import dev.weaponboy.command_library.Testing_ControlSystem.SchedulerTest;
+import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Subsystems.DriveBase;
 
 public abstract class OpModeEX extends OpMode {
 
-    public Scheduler scheduler = new Scheduler(this);
+    public DriveBase driveBase = new DriveBase(this);
+
+    private Scheduler scheduler = new Scheduler(this, new SubSystem[] {driveBase});
 
     public abstract void initEX();
 
