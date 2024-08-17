@@ -1,4 +1,4 @@
-package dev.weaponboy.command_library.Commands;
+package dev.weaponboy.command_library.CommandLibrary.Commands;
 
 public interface Command {
 

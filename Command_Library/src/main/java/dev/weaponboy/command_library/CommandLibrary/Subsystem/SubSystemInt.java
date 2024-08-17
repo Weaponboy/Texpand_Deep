@@ -1,6 +1,6 @@
-package dev.weaponboy.command_library.Subsystem;
+package dev.weaponboy.command_library.CommandLibrary.Subsystem;
 
-import dev.weaponboy.command_library.Commands.Command;
+import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 
 public interface SubSystemInt {
 
