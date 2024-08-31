@@ -2,7 +2,7 @@ package dev.weaponboy.command_library.CommandLibrary.Commands;
 
 import java.util.function.BooleanSupplier;
 
-public class LambdaCommand implements Command{
+public class  LambdaCommand implements Command{
 
     BooleanSupplier isFinished;
     Runnable init;
