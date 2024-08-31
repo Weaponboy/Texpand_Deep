@@ -3,9 +3,9 @@ package dev.weaponboy.command_library.Examples.Subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import dev.weaponboy.command_library.Commands.LambdaCommand;
-import dev.weaponboy.command_library.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystem.SubSystem;
+import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 public class DriveBase extends SubSystem {
 
