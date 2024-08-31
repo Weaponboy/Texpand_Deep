@@ -20,7 +20,7 @@ public class DriveBase extends SubSystem {
     double strafe;
     public DriveBase(OpModeEX opModeEX){
 
-        registerSubsystem(opModeEX,);
+        registerSubsystem(opModeEX,driveCommand);
     }
 
     @Override
