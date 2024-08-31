@@ -25,7 +25,7 @@ public class DriveBase extends SubSystem {
         executeEX();
     }
 
-    public LambdaCommand PIDControl = new LambdaCommand(
+   public LambdaCommand PIDControl = new LambdaCommand(
             () -> {
                 slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
