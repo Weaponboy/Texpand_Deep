@@ -1,23 +1,34 @@
-package dev.weaponboy.command_library.Examples.Subsystems;
+package dev.weaponboy.command_library.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import dev.weaponboy.command_library.Commands.LambdaCommand;
-import dev.weaponboy.command_library.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystem.SubSystem;
+import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
+import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 public class DriveBase extends SubSystem {
+    DcMotorEx leftFD;
+    DcMotorEx rightFD;
+    DcMotorEx backRD;
+    DcMotorEx backLD;
 
-    DcMotorEx slideMotor;
-
+    double vertikal ;
+    double turn ;
+    double strafe;
     public DriveBase(OpModeEX opModeEX){
-        registerSubsystem(opModeEX, PIDControl);
+
+        registerSubsystem(opModeEX,);
     }
 
     @Override
     public void init() {
-        slideMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "motor1");
+        leftFD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "leftFD");
+        rightFD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "rightFD");
+        backLD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "backLD");
+        backRD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "backRD");
     }
 
     @Override
@@ -25,14 +36,23 @@ public class DriveBase extends SubSystem {
         executeEX();
     }
 
-   public LambdaCommand PIDControl = new LambdaCommand(
+    public Command drivePowers (double vertikal, double turn, double strafe){
+        this.vertikal =vertikal;
+        this.strafe =strafe;
+        this.turn =turn;
+
+        return driveCommand;
+    }
+    LambdaCommand driveCommand = new LambdaCommand(
             () -> {
-                slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                System.out.println("init");
             },
-            () -> slideMotor.setPower(0.5),
-            () -> slideMotor.getCurrentPosition() > 2000
-
+            () -> {
+                leftFD.setPower(vertikal-strafe-turn);
+                rightFD.setPower(vertikal+strafe+turn);
+                backLD.setPower(vertikal+strafe-turn);
+                backRD.setPower(vertikal-strafe+turn);
+            },
+            () -> true
     );
-
 }
