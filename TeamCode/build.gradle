@@ -26,5 +26,6 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
     implementation project(path: ':Command_Library')
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.14'
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
