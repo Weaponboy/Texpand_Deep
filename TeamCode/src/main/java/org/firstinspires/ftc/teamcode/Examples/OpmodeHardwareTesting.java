@@ -17,7 +17,7 @@ public class OpmodeHardwareTesting extends OpMode {
 
     ElapsedTime time = new ElapsedTime();
 
-    boolean counter = false;
+    int counter = 0;
     double startTime =  0;
     double firstSetTime =  0;
     double endTime =  0;
@@ -35,31 +35,49 @@ public class OpmodeHardwareTesting extends OpMode {
 //        motor = hardwareMap.get(DcMotor.class, "motor");
 
         time.reset();
+
+        motor1.update(0.1);
+        motor2.update(0.1);
+        motor3.update(0.1);
+        motor4.update(0.1);
     }
 
     @Override
     public void loop() {
         startTime = time.milliseconds();
 
-        if(!counter){
+        if(counter == 20){
             firstSetTime = time.milliseconds();
 //            motor1.update(0.1);
 //            motor2.update(0.1);
 //            motor3.update(0.1);
 //            motor4.update(0.1);
 
-            motor1.setPower(0.1);
-            motor2.setPower(0.1);
-            motor3.setPower(0.1);
-            motor4.setPower(0.1);
+            motor1.update(0.3);
+            motor2.update(0.3);
+            motor3.update(0.3);
+            motor4.update(0.3);
 
-            counter = true;
+            counter++;
         }
 
-//        if (motor1.getSetPowerFuture().isDone()){
-////            motor1.update(0.2);
-//            System.out.println("first motor Done: " + motor1.getSetPowerFuture().isDone());
-//        }
+        if (motor1.getSetPowerFuture().isDone() && counter > 20){
+            System.out.println("first motor Done: " + motor1.getSetPowerFuture().isDone());
+        }
+
+        if (motor2.getSetPowerFuture().isDone() && counter > 20){
+            System.out.println("second motor Done: " + motor2.getSetPowerFuture().isDone());
+        }
+
+        if (motor3.getSetPowerFuture().isDone() && counter > 20){
+            System.out.println("third motor Done: " + motor3.getSetPowerFuture().isDone());
+        }
+
+        if (motor4.getSetPowerFuture().isDone() && counter > 20){
+            System.out.println("forth motor Done: " + motor4.getSetPowerFuture().isDone());
+        }
+
+        counter++;
 
         System.out.println("loop time: " + ((time.milliseconds()-startTime)));
 

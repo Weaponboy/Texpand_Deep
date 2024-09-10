@@ -25,7 +25,7 @@ public class Motor_Scheduler {
 
     public void initMotor(String motorName, HardwareMap hardwareMap){
         motor = hardwareMap.get(DcMotorEx.class, motorName);
-        this.executor = Executors.newFixedThreadPool(2);
+        this.executor = Executors.newFixedThreadPool(1);
     }
 
     public void update(Double power){
@@ -36,6 +36,7 @@ public class Motor_Scheduler {
 //        }
 
         setPowerFuture = setPowerAsync(power);
+        getPowerFuture = getPowerAsync();
 
 //        if (setPowerFuture == null){
 //
