@@ -13,9 +13,9 @@ public class OpMode extends OpModeEX {
     @Override
     public void loopEX() {
 
-        driveBase.queueCommand(driveBase.drivePower(1, 1, 0));
+        driveBase.queueCommand(driveBase.drivePowers(1, 1, 0));
 
-        driveBase.overrideCurrent(true, driveBase.drivePower(0,0,0));
+        driveBase.overrideCurrent(true, driveBase.drivePowers(0,0,0));
 
         requestOpModeStop();
 
