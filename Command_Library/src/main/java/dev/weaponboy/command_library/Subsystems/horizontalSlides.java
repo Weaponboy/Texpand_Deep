@@ -15,13 +15,16 @@ double milimetersPerTick =2.42;
     public void execute() {
         executeEX();
     }
+
     @Override
     public void init() {
         horizontalMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "horizontalMotor");
     }
+
     public horizontalSlides(OpModeEX opModeEX) {
         super(opModeEX);
     }
+
     LambdaCommand defaultCommand = new LambdaCommand(
             () -> System.out.println("init"),
             () -> System.out.println("execute"),
