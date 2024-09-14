@@ -1,4 +1,4 @@
-package dev.weaponboy.vision.Testing_SIM;
+package dev.weaponboy.vision.SamplePipelines;
 
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
@@ -10,31 +10,55 @@ import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
-public class GetColor implements VisionProcessor {
+public class singleSampleTargeting implements VisionProcessor, CameraStreamSource {
+
+    private final AtomicReference<Bitmap> lastFrame =
+            new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
+
+    Telemetry telemetry;
+
+    public singleSampleTargeting(){
+
+    }
+
+    public singleSampleTargeting(Telemetry telemetry){
+        this.telemetry = telemetry;
+    }
 
     ArrayList<Rect> redRects = new ArrayList<>();
     ArrayList<Rect> blueRects = new ArrayList<>();
     ArrayList<Rect> yellowRects = new ArrayList<>();
+
+    ArrayList<MatOfPoint> sortedRedContours = new ArrayList<>();
+//    ArrayList<MatOfPoint> yellowContours = new ArrayList<>();
+//    ArrayList<MatOfPoint> blueContours = new ArrayList<>();
 
     Mat yellowMat = new Mat();
     Mat redMat = new Mat();
@@ -47,8 +71,8 @@ public class GetColor implements VisionProcessor {
     Scalar blueLower = new Scalar(80,55,30);
     Scalar blueHigher = new Scalar(170,255,255);
 
-    Scalar redLower = new Scalar(0,90,20);
-    Scalar redHigher = new Scalar(10,255,255);
+    Scalar redLower = new Scalar(0,80,0);
+    Scalar redHigher = new Scalar(15,255,255);
 
     Scalar yellowLower = new Scalar(10,110,110);
     Scalar yellowHigher = new Scalar(40,255,255);
@@ -67,9 +91,20 @@ public class GetColor implements VisionProcessor {
     Point bottomLeft = new Point(0,0);
     Point bottomRight = new Point(0,0);
 
+    Point[] vertices;
+
+    Point centerPoint = new Point();
+    Point xLeft = new Point();
+    Point xRight = new Point();
+
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
+        lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
+    }
 
+    @Override
+    public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
+        continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
     }
 
     @Override
@@ -96,55 +131,73 @@ public class GetColor implements VisionProcessor {
         findContours(redMat, redContours, redHierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         findContours(yellowMat, yellowContours, yellowHierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-//        for (int i = 0; i < blueContours.size(); i++){
-//            Rect rect = boundingRect(blueContours.get(i));
-//            blueRects.add(rect);
-//        }
-        for (int i = 0; i < redContours.size(); i++){
-            Rect rect = boundingRect(redContours.get(i));
-            redRects.add(rect);
-        }
-//        for (int i = 0; i < yellowContours.size(); i++){
-//            Rect rect = boundingRect(yellowContours.get(i));
-//            yellowRects.add(rect);
-//        }
-
-        for (MatOfPoint contour : redContours) {
-
-            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
-            double epsilon = 0.02 * Imgproc.arcLength(contour2f, true);
-            MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(contour2f, approx, epsilon, true);
-
-            if (approx.total() == 4) {
-                Point[] points = approx.toArray();
-
-                Arrays.sort(points, Comparator.comparingDouble(p -> p.y));
-
-//                topLeft = points[0];
-//                topRight = points[1];
-//
-//                bottomLeft = points[2];
-//                bottomRight = points[3];
-
-                topLeft = points[0].x < points[1].x ? points[0] : points[1];
-                topRight = points[0].x > points[1].x ? points[0] : points[1];
-
-                bottomLeft = points[2].x < points[3].x ? points[2] : points[3];
-                bottomRight = points[2].x > points[3].x ? points[2] : points[3];
-
-//                Imgproc.line(frame, topLeft, topRight, new Scalar(0, 255, 0), 2);
-//                Imgproc.line(frame, topLeft, bottomLeft, new Scalar(0, 255, 0), 2);
-//                Imgproc.line(frame, topRight, bottomRight, new Scalar(0, 255, 0), 2);
-//                Imgproc.line(frame, bottomLeft, bottomRight, new Scalar(0, 255, 0), 2);
+        for (int i = 0; i < blueContours.size(); i++){
+            Rect rect = boundingRect(blueContours.get(i));
+            if (rect.area() > 1000){
+                blueRects.add(rect);
             }
         }
 
-//        redMat.copyTo(frame);
+        for (int i = 0; i < redContours.size(); i++){
+            Rect rect = boundingRect(redContours.get(i));
+            if (rect.area() > 2000){
+                redRects.add(rect);
+                sortedRedContours.add(redContours.get(i));
+            }
+        }
+
+        for (int i = 0; i < yellowContours.size(); i++){
+            Rect rect = boundingRect(yellowContours.get(i));
+            if (rect.area() > 1000){
+                yellowRects.add(rect);
+            }
+        }
+
+        for (MatOfPoint contour : sortedRedContours) {
+
+            telemetry.addData("contour.toArray().length", contour.toArray().length);
+            telemetry.update();
+
+            List<Point> contourPointsX = Arrays.asList(contour.toArray());
+            ArrayList<Point> farXPoints = new ArrayList<>();
+            List<Point> contourPointsLowerX = Arrays.asList(contour.toArray());
+            List<Point> contourPointsUpperX = Arrays.asList(contour.toArray());
+
+            xRight = Collections.max(contourPointsUpperX, Comparator.comparingDouble(p -> p.x));
+
+            for (int i = 0; i < contourPointsX.size(); i++){
+                if (Math.abs(xRight.x - contourPointsX.get(i).x) < 3){
+                    farXPoints.add(contourPointsX.get(i));
+                }
+            }
+
+            farXPoints.sort(Comparator.comparingDouble(p -> p.y));
+            centerPoint = farXPoints.subList(0, 1).get(0);
+
+            contourPointsLowerX.sort(Comparator.comparingDouble(p -> p.x));
+            xLeft = contourPointsLowerX.subList(0, 1).get(0);
+
+//            double hypot = (Math.abs(Math.hypot(xRight.x - xLeft.x, xRight.y - xLeft.y)))/2;
+            double deltaX = (xRight.x - xLeft.x)/2;
+            double deltaY = (xRight.y - xLeft.y)/2;
+
+            centerPoint = new Point(xLeft.x + deltaX, xLeft.y + deltaY);
+
+            telemetry.addData("yTop", centerPoint);
+            telemetry.update();
+
+        }
+
+        redMat.copyTo(frame);
 
         blueContours.clear();
         yellowContours.clear();
         redContours.clear();
+        sortedRedContours.clear();
+
+        Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
+        Utils.matToBitmap(frame, b);
+        lastFrame.set(b);
         return null;
     }
 
@@ -152,37 +205,40 @@ public class GetColor implements VisionProcessor {
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
         setUpPaints(scaleCanvasDensity);
 
-//        if (!blueRects.isEmpty()){
-//            for (int i = 0; i < blueRects.size()-1; i++){
-//                canvas.drawRect(makeGraphicsRect(blueRects.get(i), scaleBmpPxToCanvasPx), blue);
-//            }
-//        }
-//
-//        if (!yellowRects.isEmpty()){
-//            for (int i = 0; i < yellowRects.size()-1; i++){
-//                canvas.drawRect(makeGraphicsRect(yellowRects.get(i), scaleBmpPxToCanvasPx), yellow);
-//            }
-//        }
+        if (!blueRects.isEmpty()){
+            for (int i = 0; i < blueRects.size(); i++){
+                canvas.drawRect(makeGraphicsRect(blueRects.get(i), scaleBmpPxToCanvasPx), blue);
+            }
+        }
 
-//        if (!redRects.isEmpty()){
-//            for (int i = 0; i < redRects.size()-1; i++){
-//                canvas.drawRect(makeGraphicsRect(redRects.get(i), scaleBmpPxToCanvasPx), red);
-//            }
-//        }
+        if (!yellowRects.isEmpty()){
+            for (int i = 0; i < yellowRects.size(); i++){
+                canvas.drawRect(makeGraphicsRect(yellowRects.get(i), scaleBmpPxToCanvasPx), yellow);
+            }
+        }
+
+        if (!redRects.isEmpty()){
+            for (int i = 0; i < redRects.size(); i++){
+                canvas.drawRect(makeGraphicsRect(redRects.get(i), scaleBmpPxToCanvasPx), red);
+            }
+        }
 
 //        canvas.drawLine((float) topLeft.x * scaleBmpPxToCanvasPx, (float) topLeft.y * scaleBmpPxToCanvasPx, (float) topRight.x * scaleBmpPxToCanvasPx, (float) topRight.y * scaleBmpPxToCanvasPx, blue); // Top edge
 //        canvas.drawLine((float) topLeft.x * scaleBmpPxToCanvasPx, (float) topLeft.y * scaleBmpPxToCanvasPx, (float) bottomLeft.x * scaleBmpPxToCanvasPx, (float) bottomLeft.y * scaleBmpPxToCanvasPx, blue); // Left edge
 //        canvas.drawLine((float) topRight.x * scaleBmpPxToCanvasPx, (float) topRight.y * scaleBmpPxToCanvasPx, (float) bottomRight.x * scaleBmpPxToCanvasPx, (float) bottomRight.y * scaleBmpPxToCanvasPx, blue); // Right edge
 //        canvas.drawLine((float) bottomLeft.x * scaleBmpPxToCanvasPx, (float) bottomLeft.y * scaleBmpPxToCanvasPx, (float) bottomRight.x * scaleBmpPxToCanvasPx, (float) bottomRight.y * scaleBmpPxToCanvasPx, blue); // Bottom edge
 
-        canvas.drawText("test",  200, 200 , red);
-//        canvas.drawCircle((float) topLeft.x, (float) topLeft.y, 5, blue); // Draw a small circle at top-left
-//        canvas.drawCircle((float) topRight.x, (float) topRight.y, 5, blue); // Draw a small circle at top-right
-//        canvas.drawCircle((float) bottomLeft.x, (float) bottomLeft.y, 5, blue); // Draw a small circle at bottom-left
-//        canvas.drawCircle((float) bottomRight.x, (float) bottomRight.y, 5, blue);
+//        for(int i = 0; i < 4; i++){
+//            canvas.drawLine((float) vertices[i].x * scaleBmpPxToCanvasPx, (float) vertices[i].y * scaleBmpPxToCanvasPx, (float) vertices[(i +1) %4].x * scaleBmpPxToCanvasPx, (float) vertices[(i +1) %4].y * scaleBmpPxToCanvasPx, red);
+//        }
 
-        System.out.println(topLeft.x);
-        System.out.println(topLeft.y);
+        canvas.drawCircle((float) centerPoint.x+3, (float) centerPoint.y+3, 6, blue); // Draw a small circle at top-left
+        canvas.drawCircle((float) xLeft.x+3, (float) xLeft.y+3, 6, blue); // Draw a small circle at top-right
+        canvas.drawCircle((float) xRight.x+3, (float) xRight.y+3, 6, blue); // Draw a small circle at bottom-left
+//        canvas.drawCircle((float) bottomRight.x, (float) bottomRight.y, 5, blue);
+//
+//        System.out.println(topLeft.x);
+//        System.out.println(topLeft.y);
 //        System.out.println("bottomLeft: (" + bottomLeft.x + ", " + bottomLeft.y + ")");
 //        System.out.println("bottomRight: (" + bottomRight.x + ", " + bottomRight.y + ")");
     }
@@ -217,4 +273,6 @@ public class GetColor implements VisionProcessor {
         redRects.clear();
         blueRects.clear();
     }
+
+
 }
