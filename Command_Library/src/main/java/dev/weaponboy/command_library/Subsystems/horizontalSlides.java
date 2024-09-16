@@ -15,6 +15,8 @@ DcMotorEx horizontalMotor;
 ServoControllerEx forebarMainPivot;
 ServoControllerEx forebarSecondPivot;
 ServoControllerEx griperRotate;
+ServoControllerEx gripServo;
+ServoControllerEx linerRailServo;
 
 double milimetersPerTick =2.42;
 
@@ -26,7 +28,7 @@ double milimetersPerTick =2.42;
     @Override
     public void init() {
         horizontalMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "horizontalMotor");
-        horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public horizontalSlides(OpModeEX opModeEX) {
