@@ -13,12 +13,15 @@ import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Hardware.MotorEx;
 
 public class DriveBase extends SubSystem {
-    DcMotorEx leftFD;
-    DcMotorEx rightFD;
-    DcMotorEx backRD;
-    DcMotorEx backLD;
+
+    MotorEx leftFD;
+    MotorEx rightFD;
+    MotorEx backRD;
+    MotorEx backLD;
+
     public IMU imu;
 
     double vertikal ;
@@ -31,10 +34,10 @@ public class DriveBase extends SubSystem {
 
     @Override
     public void init() {
-        leftFD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "leftFD");
-        rightFD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "rightFD");
-        backLD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "backLD");
-        backRD = getOpModeEX().hardwareMap.get(DcMotorEx.class, "backRD");
+        leftFD.initMotor("leftFD", getOpModeEX().hardwareMap);
+        rightFD.initMotor("rightFD", getOpModeEX().hardwareMap);
+        backLD.initMotor("backLD", getOpModeEX().hardwareMap);
+        backRD.initMotor("backRD", getOpModeEX().hardwareMap);
 
         imu = getOpModeEX().hardwareMap.get(IMU.class, "imu");
 
@@ -68,14 +71,12 @@ public class DriveBase extends SubSystem {
             () -> {
                 double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
 
-                leftFD.setPower((vertikal-strafe-turn)/denominator);
-                rightFD.setPower((vertikal+strafe+turn)/denominator);
-                backLD.setPower((vertikal+strafe-turn)/denominator);
-                backRD.setPower((vertikal-strafe+turn)/denominator);
+                leftFD.update((vertikal-strafe-turn)/denominator);
+                rightFD.update((vertikal+strafe+turn)/denominator);
+                backLD.update((vertikal+strafe-turn)/denominator);
+                backRD.update((vertikal-strafe+turn)/denominator);
             },
             () -> true
-
-
     );
 
     public Command driveFieldCentric(double vertikal, double turn, double strafe){
@@ -85,6 +86,7 @@ public class DriveBase extends SubSystem {
 
         return driveField;
     }
+
     LambdaCommand driveField = new LambdaCommand(
             () -> {
                 System.out.println("init");
