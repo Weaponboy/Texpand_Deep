@@ -8,7 +8,7 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 public class Subsystem extends SubSystem {
 
-    int targetPosition = 50;
+    int targetPosition = 0;
     int currentPosition = 0;
     double maxAccel = 380;
     double maxVelocity = 450;
