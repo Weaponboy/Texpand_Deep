@@ -100,10 +100,10 @@ public class DriveBase extends SubSystem {
                  double rotY = vertikal * Math.sin(-heading) + strafe * Math.cos(-heading);
 
 
-                 leftFD.setPower((rotX-rotY-turn)/denominator);
-                rightFD.setPower((rotX+rotY+turn)/denominator);
-                backLD.setPower((rotX+rotY-turn)/denominator);
-                backRD.setPower((rotX-rotY+turn)/denominator);
+                 leftFD.update((rotX-rotY-turn)/denominator);
+                rightFD.update((rotX+rotY+turn)/denominator);
+                backLD.update((rotX+rotY-turn)/denominator);
+                backRD.update((rotX-rotY+turn)/denominator);
 
 
             },
