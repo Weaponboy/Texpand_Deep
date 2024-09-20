@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
-public class horizontalSlides extends Subsystem {
+public class horizontalSlides extends SubSystem{
 
     double cmPerTick =0.242;
     double targetPosition = 0*cmPerTick;
@@ -28,17 +29,20 @@ public class horizontalSlides extends Subsystem {
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
 DcMotorEx horizontalMotor;
-ServoControllerEx forebarMainPivot;
-ServoControllerEx forebarSecondPivot;
-ServoControllerEx griperRotate;
-ServoControllerEx gripServo;
-ServoControllerEx linerRailServo;
+Servo forebarMainPivot;
+Servo forebarSecondPivot;
+Servo griperRotate;
+Servo gripServo;
+Servo linerRailServo;
 
+public horizontalSlides (){
 
+}
 
     @Override
     public void execute() {
         executeEX();
+
     }
 
     @Override
@@ -48,8 +52,52 @@ ServoControllerEx linerRailServo;
     }
 
     public horizontalSlides(OpModeEX opModeEX) {
-        super(opModeEX);
+        registerSubsystem(opModeEX,stow);
     }
+    LambdaCommand grip = new LambdaCommand(
+            () -> {
+            },
+            () -> {
+gripServo.setPosition(1);
+            },
+            () -> true
+    );
+    LambdaCommand drop = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+                gripServo.setPosition(0.6);
+            },
+            () -> true
+    );
+    LambdaCommand colect = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
+    LambdaCommand stow = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
+    LambdaCommand transfer = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
 
     LambdaCommand followMotionProfile = new LambdaCommand(
             () -> {curentTime.reset();
