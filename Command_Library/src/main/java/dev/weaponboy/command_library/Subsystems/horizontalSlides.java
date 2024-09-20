@@ -28,17 +28,18 @@ public class horizontalSlides extends Subsystem {
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
 DcMotorEx horizontalMotor;
-ServoControllerEx forebarMainPivot;
-ServoControllerEx forebarSecondPivot;
-ServoControllerEx griperRotate;
-ServoControllerEx gripServo;
-ServoControllerEx linerRailServo;
+Servo forebarMainPivot;
+Servo forebarSecondPivot;
+Servo griperRotate;
+Servo gripServo;
+Servo linerRailServo;
 
 
 
     @Override
     public void execute() {
         executeEX();
+
     }
 
     @Override
@@ -50,6 +51,50 @@ ServoControllerEx linerRailServo;
     public horizontalSlides(OpModeEX opModeEX) {
         super(opModeEX);
     }
+    LambdaCommand grip = new LambdaCommand(
+            () -> {
+            },
+            () -> {
+gripServo.setPosition(1);
+            },
+            () -> true
+    );
+    LambdaCommand drop = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+                gripServo.setPosition(0.6);
+            },
+            () -> true
+    );
+    LambdaCommand colect = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
+    LambdaCommand stow = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
+    LambdaCommand transfer = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+
+            },
+            () -> true
+    );
 
     LambdaCommand followMotionProfile = new LambdaCommand(
             () -> {curentTime.reset();
