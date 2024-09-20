@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
-public class horizontalSlides extends Subsystem {
+public class horizontalSlides extends SubSystem{
 
     double cmPerTick =0.242;
     double targetPosition = 0*cmPerTick;
@@ -34,7 +35,9 @@ Servo griperRotate;
 Servo gripServo;
 Servo linerRailServo;
 
+public horizontalSlides (){
 
+}
 
     @Override
     public void execute() {
@@ -49,7 +52,7 @@ Servo linerRailServo;
     }
 
     public horizontalSlides(OpModeEX opModeEX) {
-        super(opModeEX);
+        registerSubsystem(opModeEX,stow);
     }
     LambdaCommand grip = new LambdaCommand(
             () -> {

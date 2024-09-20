@@ -9,7 +9,7 @@ import dev.weaponboy.command_library.Subsystems.Odometry;
 public abstract class OpModeEX extends OpMode {
 
     public DriveBase driveBase = new DriveBase(this);
-    public DriveBase horizontalSlides = new HorizontalSlides(this);
+    public horizontalSlides horizontalSlides = new horizontalSlides(this);
 
     public Odometry odometry = new Odometry(this);
 
