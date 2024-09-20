@@ -1,3 +1,5 @@
+package dev.weaponboy.command_library.Subsystems;
+
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,17 +10,21 @@ import java.util.ArrayList;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 
 public class Delivery extends SubSystem {
+
     DcMotor slidemMotor;
     DcMotor slideMotor;
+
     double test = 0;
     double targetPosition = 50;
     int currentPosition = 0;
     double maxAccel = 380;
     double maxVelocity = 450;
     double acceldistance = maxAccel/maxVelocity;
+
     ArrayList<Double> motionprofile = new ArrayList<>();
     ArrayList<Double> time = new ArrayList<>();
     ElapsedTime currentTime = new ElapsedTime();
+
     int lastIndex = 0;
     double slidetime;
     double veloToMotorPower = 1/maxVelocity;
@@ -37,6 +43,7 @@ public class Delivery extends SubSystem {
             () -> slidemMotor.getCurrentPosition() > 2000
 
     );
+
     public LambdaCommand followMotionPro = new LambdaCommand(
             () -> {
                 currentTime.reset();
@@ -73,8 +80,9 @@ public class Delivery extends SubSystem {
 
     @Override
     public void execute() {
-
+        executeEX();
     }
+
     public void genProfile (double slideTarget){
 
                     System.out.println("init Second");
