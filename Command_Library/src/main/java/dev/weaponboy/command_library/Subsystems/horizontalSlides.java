@@ -3,8 +3,6 @@ package dev.weaponboy.command_library.Subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
@@ -16,7 +14,7 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 public class horizontalSlides extends SubSystem{
 
-    double cmPerTick =0.242;
+    double cmPerTick = 0.242;
     double targetPosition = 0*cmPerTick;
     double currentPosition = 0;
     double maxAccel = 380;
@@ -24,25 +22,26 @@ public class horizontalSlides extends SubSystem{
     double accelDistance = maxVelocity/maxAccel;
     double powerFeedForwardConstant =(1/maxVelocity);
     int lastIndex=0;
+
     ElapsedTime curentTime= new ElapsedTime();
     ArrayList<Double> motionProfile = new ArrayList<>();
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
-DcMotorEx horizontalMotor;
-Servo forebarMainPivot;
-Servo forebarSecondPivot;
-Servo griperRotate;
-Servo gripServo;
-Servo linerRailServo;
 
-public horizontalSlides (){
+    DcMotorEx horizontalMotor;
+    Servo fourBarMainPivot;
+    Servo fourBarSecondPivot;
+    Servo griperRotate;
+    Servo gripServo;
+    Servo linerRailServo;
 
-}
+    public horizontalSlides (){
+
+    }
 
     @Override
     public void execute() {
         executeEX();
-
     }
 
     @Override
@@ -54,15 +53,17 @@ public horizontalSlides (){
     public horizontalSlides(OpModeEX opModeEX) {
         registerSubsystem(opModeEX,stow);
     }
-    LambdaCommand grip = new LambdaCommand(
+
+    Command grip = new LambdaCommand(
             () -> {
             },
             () -> {
-gripServo.setPosition(1);
+                gripServo.setPosition(1);
             },
             () -> true
     );
-    LambdaCommand drop = new LambdaCommand(
+
+    Command drop = new LambdaCommand(
             () -> {
 
             },
@@ -71,7 +72,9 @@ gripServo.setPosition(1);
             },
             () -> true
     );
-    LambdaCommand colect = new LambdaCommand(
+
+
+    Command collect = new LambdaCommand(
             () -> {
 
             },
@@ -80,7 +83,8 @@ gripServo.setPosition(1);
             },
             () -> true
     );
-    LambdaCommand stow = new LambdaCommand(
+
+    Command stow = new LambdaCommand(
             () -> {
 
             },
@@ -89,7 +93,8 @@ gripServo.setPosition(1);
             },
             () -> true
     );
-    LambdaCommand transfer = new LambdaCommand(
+
+    Command transfer = new LambdaCommand(
             () -> {
 
             },
@@ -100,21 +105,22 @@ gripServo.setPosition(1);
     );
 
     LambdaCommand followMotionProfile = new LambdaCommand(
-            () -> {curentTime.reset();
+            () -> {
+                curentTime.reset();
+                lastIndex = 0;
             },
-
             () -> {
                 while (Time.get(lastIndex) < curentTime.milliseconds()) {
                     lastIndex++;
                 }
 
-                double targetVelocoty=motionProfile.get(lastIndex);
-                double targertMototorPower=targetVelocoty/powerFeedForwardConstant;
-                motionProfile.get(lastIndex);
-                horizontalMotor.setPower(targertMototorPower);
+                double targetVelocity=motionProfile.get(lastIndex);
+                double targetMotorPower=targetVelocity/powerFeedForwardConstant;
+                horizontalMotor.setPower(targetMotorPower);
             },
             () ->slideTime>curentTime.milliseconds()
     );
+
     public void generateMotionProfile(double slideTarget) {
         this.targetPosition=slideTarget;
         slideTime = 0;
@@ -168,7 +174,6 @@ gripServo.setPosition(1);
             Time.add(slideTime);
 
         }
-
 
     }
 }
