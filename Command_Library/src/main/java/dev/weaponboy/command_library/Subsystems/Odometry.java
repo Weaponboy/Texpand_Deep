@@ -20,6 +20,14 @@ public class Odometry extends SubSystem {
     double lastRightPod, lastLeftPod, lastBackPod;
     double currentRightPod, currentLeftPod, currentBackPod;
 
+    double podTicks = 2000;
+    double wheelRadius = 2.4;
+    double trackWidth = 16;
+    double backPodOffset = 8;
+
+    double ticksPerCM = podTicks / ((2.0 * Math.PI) * wheelRadius);
+    double cmPerDegree = ((2.0 * Math.PI) * backPodOffset) / 360;
+
     public Odometry(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, update);
     }
@@ -42,11 +50,53 @@ public class Odometry extends SubSystem {
 
     }
 
+    public double X (){
+        return X;
+    }
+
+    public double Y (){
+        return Y;
+    }
+
+    public double Heading (){
+        return Heading;
+    }
+
     public LambdaCommand update = new LambdaCommand(
             () -> System.out.println("init odometry update"),
             () -> {
                 //need to code this
                 //prob some constant accel loc code
+            },
+            () -> false
+    );
+
+    public LambdaCommand updateLineBased = new LambdaCommand(
+            () -> System.out.println("init odometry update line based"),
+            () -> {
+                lastBackPod = currentBackPod;
+                lastLeftPod = currentLeftPod;
+                lastRightPod = currentRightPod;
+
+                currentBackPod = backPod.getCurrentPosition();
+                currentLeftPod = leftPod.getCurrentPosition();
+                currentRightPod = rightPod.getCurrentPosition();
+
+                double deltaRight = currentRightPod - lastRightPod;
+                double deltaLeft = currentLeftPod - lastLeftPod;
+                double deltaBack = currentBackPod - lastBackPod;
+
+                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / trackWidth;
+                Heading += deltaHeading;
+
+                double deltaX = ticksPerCM * ((deltaLeft + deltaRight)/2);
+                double deltaY = (ticksPerCM * deltaBack) - deltaHeading * cmPerDegree;
+
+                X += deltaX * Math.cos(Math.toRadians(Heading)) - deltaY * Math.sin(Math.toRadians(Heading));
+                Y += deltaX * Math.sin(Math.toRadians(Heading)) + deltaY * Math.cos(Math.toRadians(Heading));
+
+                updatePodReadings();
+
             },
             () -> false
     );
@@ -58,13 +108,19 @@ public class Odometry extends SubSystem {
         return resetPosition;
     }
 
-    private LambdaCommand resetPosition = new LambdaCommand(
+    private final LambdaCommand resetPosition = new LambdaCommand(
             () -> System.out.println("init odometry update"),
             () -> {
 
             },
             () -> false
     );
+
+    private void updatePodReadings(){
+        leftPod.updatePosition();
+        rightPod.updatePosition();
+        backPod.updatePosition();
+    }
 
 
 }
