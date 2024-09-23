@@ -1,6 +1,8 @@
 package dev.weaponboy.command_library.Hardware;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.concurrent.CompletableFuture;
@@ -11,44 +13,22 @@ public class MotorEx {
 
     DcMotorEx motor;
     private ExecutorService executor;
+    double tolerance = 0.005;
 
     double currentPower;
     int currentPosition;
-    double current;
 
-    public CompletableFuture<Boolean> getSetPowerFuture() {
-        return setPowerFuture;
-    }
+    boolean updatePosition;
 
     CompletableFuture<Boolean> setPowerFuture;
     CompletableFuture<Boolean> getPowerFuture;
+    CompletableFuture<Boolean> getPositionFuture;
 
     public void initMotor(String motorName, HardwareMap hardwareMap){
         motor = hardwareMap.get(DcMotorEx.class, motorName);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.executor = Executors.newFixedThreadPool(2);
-    }
-
-    public void update(Double power){
-//        if (positionFuture == null){
-//            positionFuture = getPositionAsync();
-//        }else if (!positionFuture.isDone()){
-//            positionFuture = getPositionAsync();
-//        }
-
-        setPowerFuture = setPowerAsync(power);
-
-//        if (setPowerFuture == null){
-//
-//        }else if (setPowerFuture.isDone()){
-//            setPowerFuture = setPowerAsync(power);
-//        }
-
-//        if (getPowerFuture == null){
-//            getPowerFuture = getPowerAsync();
-//        }else if (getPowerFuture.isDone()){
-//            getPowerFuture = getPowerAsync();
-//        }
-
     }
 
     public Double getPower() {
@@ -57,6 +37,34 @@ public class MotorEx {
 
     public Integer getCurrentPosition() {
         return currentPosition;
+    }
+
+    public void setDirection(DcMotorSimple.Direction direction){
+        motor.setDirection(direction);
+    }
+
+    public void setMode(DcMotor.RunMode runMode){
+        motor.setMode(runMode);
+    }
+
+    public void update(Double power){
+
+        double powerDelta = Math.abs(power - currentPower);
+
+        if (setPowerFuture == null && powerDelta > tolerance){
+            setPowerFuture = setPowerAsync(power);
+        }else if (setPowerFuture.isDone() && powerDelta > tolerance){
+            setPowerFuture = setPowerAsync(power);
+        }
+
+        if (getPositionFuture == null && updatePosition){
+            getPositionFuture = getPositionAsync();
+            updatePosition = false;
+        }else if (getPositionFuture.isDone()  && updatePosition){
+            getPositionFuture = getPositionAsync();
+            updatePosition = false;
+        }
+
     }
 
     private CompletableFuture<Boolean> getPositionAsync() {
@@ -73,23 +81,16 @@ public class MotorEx {
         }, executor);
     }
 
-    private CompletableFuture<Boolean> getPowerAsync() {
-        return CompletableFuture.supplyAsync(() -> {
-            currentPower = motor.getPower();
-            return true;
-        }, executor);
-    }
-
-    public void setPower(Double power){
-        motor.setPower(power);
-    }
-
-    public double getNormalPower(){
-        return motor.getPower();
+    public CompletableFuture<Boolean> getSetPowerFuture() {
+        return setPowerFuture;
     }
 
     private void shutdown() {
         executor.shutdown();
+    }
+
+    public void updatePosition() {
+        this.updatePosition = true;
     }
 
 }
