@@ -14,6 +14,7 @@ import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.MotorEx;
+import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 
 public class DriveBase extends SubSystem {
 
@@ -21,7 +22,7 @@ public class DriveBase extends SubSystem {
     MotorEx rightFD;
     MotorEx backRD;
     MotorEx backLD;
-
+    PIDController headingPID =new PIDController(0.02,0,0.0005);
     public IMU imu;
 
     double vertikal ;
@@ -51,7 +52,9 @@ public class DriveBase extends SubSystem {
         leftFD.setDirection(DcMotorSimple.Direction.REVERSE);
         backLD.setDirection(DcMotorSimple.Direction.REVERSE);
     }
-
+    public double headindinglockMotorPower (double headingError){
+        return headingPID.calculate(headingError);
+    }
     @Override
     public void execute() {
         executeEX();
@@ -94,13 +97,13 @@ public class DriveBase extends SubSystem {
             () -> {
                 double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
                 imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                 double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+                double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
-                 double rotX = vertikal * Math.cos(-heading) - strafe * Math.sin(-heading);
-                 double rotY = vertikal * Math.sin(-heading) + strafe * Math.cos(-heading);
+                double rotX = vertikal * Math.cos(-heading) - strafe * Math.sin(-heading);
+                double rotY = vertikal * Math.sin(-heading) + strafe * Math.cos(-heading);
 
 
-                 leftFD.update((rotX-rotY-turn)/denominator);
+                leftFD.update((rotX-rotY-turn)/denominator);
                 rightFD.update((rotX+rotY+turn)/denominator);
                 backLD.update((rotX+rotY-turn)/denominator);
                 backRD.update((rotX-rotY+turn)/denominator);
