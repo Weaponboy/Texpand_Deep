@@ -44,7 +44,10 @@ public class Odometry extends SubSystem {
         rightPod.initMotor("RF", getOpModeEX().hardwareMap);
         backPod.initMotor("LB", getOpModeEX().hardwareMap);
     }
+public double headingError(double targetHeading){
+        return Heading-targetHeading;
 
+}
     @Override
     public void execute() {
 

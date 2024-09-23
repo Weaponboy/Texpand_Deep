@@ -14,6 +14,7 @@ import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.MotorEx;
+import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 
 public class DriveBase extends SubSystem {
 
@@ -21,7 +22,7 @@ public class DriveBase extends SubSystem {
     MotorEx rightFD;
     MotorEx backRD;
     MotorEx backLD;
-
+PIDController headingPID =new PIDController(0.02,0,0.0005);
     public IMU imu;
 
     double vertikal ;
@@ -51,7 +52,9 @@ public class DriveBase extends SubSystem {
         leftFD.setDirection(DcMotorSimple.Direction.REVERSE);
         backLD.setDirection(DcMotorSimple.Direction.REVERSE);
     }
-
+    public double headindinglockMotorPower (double headingError){
+return headingPID.calculate(headingError);
+    }
     @Override
     public void execute() {
         executeEX();
