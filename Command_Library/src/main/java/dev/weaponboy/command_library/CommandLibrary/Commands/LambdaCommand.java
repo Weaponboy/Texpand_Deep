@@ -14,7 +14,6 @@ public class  LambdaCommand implements Command{
         this.isFinished = finished;
     }
 
-
     @Override
     public void execute() {
         execute.run();
