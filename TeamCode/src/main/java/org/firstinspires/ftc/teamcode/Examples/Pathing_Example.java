@@ -8,7 +8,7 @@ import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@Autonomous(name = "testing_pathing", group = "Test Autos")
+@Autonomous(name = "pathing example", group = "Test Autos")
 public class Pathing_Example extends LinearOpMode {
 
     pathsManager paths = new pathsManager();
