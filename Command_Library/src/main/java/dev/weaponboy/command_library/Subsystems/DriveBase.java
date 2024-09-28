@@ -58,10 +58,10 @@ public class DriveBase extends SubSystem {
         executeEX();
     }
 
-    public Command drivePowers (double vertikal, double turn, double strafe){
-        this.vertikal =vertikal;
+    public Command drivePowers (double vertical, double turn, double strafe){
+        this.vertikal =vertical;
         this.strafe =strafe;
-        this.turn =turn*0.5;
+        this.turn =-turn*0.8;
 
         return driveCommand;
     }
@@ -69,7 +69,7 @@ public class DriveBase extends SubSystem {
             () -> {
             },
             () -> {
-                double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
+                double denominator = Math.max(2, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
 
                 LF.update((vertikal-strafe-turn)/denominator);
                 RF.update((vertikal+strafe+turn)/denominator);
