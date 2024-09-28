@@ -56,7 +56,7 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 
         colection.preCollect.execute();
         delivery.mainPivot.setPosition(65);
-delivery.secondPivot.setPosition(260);
+        delivery.secondPivot.setPosition(260);
     }
 
     @Override
@@ -82,8 +82,7 @@ delivery.secondPivot.setPosition(260);
             delivery.queueCommand(delivery.transfer);
         }
         if (currentGamepad1.x && !lastGamepad1.x) {
-            delivery.queueCommand(delivery.postTransfer
-            );
+            delivery.queueCommand(delivery.postTransfer);
         }
 
        if (currentGamepad1.a && !lastGamepad1.a) {
@@ -102,8 +101,6 @@ delivery.secondPivot.setPosition(260);
             delivery.queueCommand(delivery.drop);
         }
 
-
-//
 ////        try {
 ////            Thread.sleep(50);
 ////        } catch (InterruptedException e) {

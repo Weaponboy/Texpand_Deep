@@ -31,6 +31,7 @@ public class TestingSlides extends OpModeEX {
         if (currentGamepad1.y && !lastGamepad1.y){
             try {
                 delivery.genProfile(delivery.lowBasket, fWriter);
+                fWriter.flush();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

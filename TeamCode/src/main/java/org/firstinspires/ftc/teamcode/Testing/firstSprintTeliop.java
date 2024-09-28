@@ -147,7 +147,9 @@ public class firstSprintTeliop extends OpModeEX {
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
+
             delivery.genProfile(delivery.lowBasket);
+
 //            delivery.queueCommand(delivery.followMotionPro);
 //            double motorPower = 0;
 //            while (delivery.slideMotor.getCurrentPosition() < 400){
