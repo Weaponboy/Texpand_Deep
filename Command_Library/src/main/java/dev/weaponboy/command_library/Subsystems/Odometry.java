@@ -2,34 +2,48 @@ package dev.weaponboy.command_library.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
-import dev.weaponboy.command_library.Hardware.MotorEx;
 
 public class Odometry extends SubSystem {
 
-    MotorEx leftPod;
-    MotorEx rightPod;
-    MotorEx backPod;
+//    MotorEx leftPod = new MotorEx();
+//    MotorEx rightPod = new MotorEx();
+//    MotorEx backPod = new MotorEx();
+
+    DcMotorEx leftPod;
+    DcMotorEx rightPod;
+    DcMotorEx backPod;
 
     double X, Y, Heading;
     int startHeading;
+    public double otherHeading;
 
     double lastRightPod, lastLeftPod, lastBackPod;
-    double currentRightPod, currentLeftPod, currentBackPod;
+    public double currentRightPod, currentLeftPod, currentBackPod;
+    public double rightPodPos, leftPodPos, backPodPos;
+
 
     double podTicks = 2000;
     double wheelRadius = 2.4;
-    double trackWidth = 16;
-    double backPodOffset = 8;
+    double trackWidth = 22.7;
+    double backPodOffset = 10.5;
 
-    double ticksPerCM = podTicks / ((2.0 * Math.PI) * wheelRadius);
+    double ticksPerCM = ((2.0 * Math.PI) * wheelRadius)/podTicks;
+    double cmPerDegreeV = ((2.0 * Math.PI) * (trackWidth/2)) / 360;
     double cmPerDegree = ((2.0 * Math.PI) * backPodOffset) / 360;
 
+    private ExecutorService executor;
+
     public Odometry(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX, update);
+        registerSubsystem(opModeEX, updateLineBased);
+        this.executor = Executors.newFixedThreadPool(2);
     }
 
     public void startPosition(double X, double Y, int Heading){
@@ -40,9 +54,10 @@ public class Odometry extends SubSystem {
 
     @Override
     public void init() {
-        leftPod.initMotor("LF", getOpModeEX().hardwareMap);
-        rightPod.initMotor("RF", getOpModeEX().hardwareMap);
-        backPod.initMotor("LB", getOpModeEX().hardwareMap);
+        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
+        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
+        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
+
     }
     public double headingError(double targetHeading){
         return Heading-targetHeading;
@@ -50,7 +65,7 @@ public class Odometry extends SubSystem {
     }
     @Override
     public void execute() {
-
+        executeEX();
     }
 
     public double X (){
@@ -75,33 +90,47 @@ public class Odometry extends SubSystem {
     );
 
     public LambdaCommand updateLineBased = new LambdaCommand(
-            () -> System.out.println("init odometry update line based"),
+            () -> {},
             () -> {
+
+//                System.out.println("execute odometry update line based");
+
                 lastBackPod = currentBackPod;
                 lastLeftPod = currentLeftPod;
                 lastRightPod = currentRightPod;
 
-                currentBackPod = backPod.getCurrentPosition();
-                currentLeftPod = leftPod.getCurrentPosition();
-                currentRightPod = rightPod.getCurrentPosition();
+                currentBackPod = -backPod.getCurrentPosition();
+                currentLeftPod = -leftPod.getCurrentPosition();
+                currentRightPod = -rightPod.getCurrentPosition();
 
                 double deltaRight = currentRightPod - lastRightPod;
                 double deltaLeft = currentLeftPod - lastLeftPod;
                 double deltaBack = currentBackPod - lastBackPod;
 
-                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / trackWidth;
+                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / (trackWidth+0.1);
                 Heading += deltaHeading;
 
-                double deltaX = ticksPerCM * ((deltaLeft + deltaRight)/2);
-                double deltaY = (ticksPerCM * deltaBack) - deltaHeading * cmPerDegree;
+                if (Math.toDegrees(Heading) < 0){
+                    Heading = Math.toRadians(360 - Math.toDegrees(Heading));
+                } else if (Math.toDegrees(Heading) > 360) {
+                    Heading = Math.toRadians(Math.toDegrees(Heading) - 360);
+                }
 
-                X += deltaX * Math.cos(Math.toRadians(Heading)) - deltaY * Math.sin(Math.toRadians(Heading));
-                Y += deltaX * Math.sin(Math.toRadians(Heading)) + deltaY * Math.cos(Math.toRadians(Heading));
+                double deltaX = (((deltaRight*ticksPerCM) - Math.toDegrees(deltaHeading) * cmPerDegreeV) + (((deltaLeft*ticksPerCM)- Math.toDegrees(deltaHeading) * cmPerDegreeV)))/2;
+                double deltaY = (ticksPerCM * deltaBack) - (Math.toDegrees(deltaHeading) * cmPerDegree);
 
-                updatePodReadings();
+                X += deltaX * Math.cos(Heading) - deltaY * Math.sin(Heading);
+                Y += deltaX * Math.sin(Heading) + deltaY * Math.cos(Heading);
+
+//                updatePodReadings();
+//                leftPod.update(0);
+//                rightPod.update(0);
+//                backPod.update(0);
+
+//                System.out.println(Math.abs(rightPod.getTimeCompleted() - leftPod.getTimeCompleted())/1000000);
 
             },
-            () -> false
+            () -> true
     );
 
     public Command resetPosition(double X, double Y, int Heading){
@@ -120,9 +149,9 @@ public class Odometry extends SubSystem {
     );
 
     private void updatePodReadings(){
-        leftPod.updatePosition();
-        rightPod.updatePosition();
-        backPod.updatePosition();
+//        leftPod.updatePosition();
+//        rightPod.updatePosition();
+//        backPod.updatePosition();
     }
 
 

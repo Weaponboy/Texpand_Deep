@@ -18,6 +18,12 @@ public class MotorEx {
     double currentPower;
     int currentPosition;
 
+    public double getTimeCompleted() {
+        return timeCompleted;
+    }
+
+    double timeCompleted;
+
     boolean updatePosition;
 
     CompletableFuture<Boolean> setPowerFuture;
@@ -47,20 +53,21 @@ public class MotorEx {
         motor.setMode(runMode);
     }
 
-    public void update(Double power){
+    public void update(double power){
 
         double powerDelta = Math.abs(power - currentPower);
 
-        if (setPowerFuture == null && powerDelta > tolerance){
+        if (setPowerFuture == null){
             setPowerFuture = setPowerAsync(power);
-        }else if (setPowerFuture.isDone() && powerDelta > tolerance){
+        }else if (setPowerFuture.isDone() &&( powerDelta > tolerance || power == 0)){
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getPositionFuture == null && updatePosition){
+        if (getPositionFuture == null){
             getPositionFuture = getPositionAsync();
             updatePosition = false;
         }else if (getPositionFuture.isDone()  && updatePosition){
+            timeCompleted = System.nanoTime();
             getPositionFuture = getPositionAsync();
             updatePosition = false;
         }
@@ -72,6 +79,10 @@ public class MotorEx {
             currentPosition = motor.getCurrentPosition();
             return true;
         }, executor);
+    }
+
+    public int getDouble (){
+        return motor.getCurrentPosition();
     }
 
     private CompletableFuture<Boolean> setPowerAsync(double power) {
