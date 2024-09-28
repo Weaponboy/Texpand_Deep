@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Subsystems.Colection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
@@ -166,6 +167,8 @@ public class firstSprintTeliop extends OpModeEX {
         telemetry.addData("horPos", colection.horizontalMotor.getCurrentPosition());
         telemetry.addData("vertPos power",delivery.slideMotor.getPower());
         telemetry.addData("looptime ", loopTime);
+        telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition());
+        telemetry.addData("axon_pos",colection.linearPosition.getPosition());
         telemetry.update();
         }
 }
