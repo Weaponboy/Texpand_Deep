@@ -148,6 +148,16 @@ public class Colection extends SubSystem{
             },
             () -> true
     );
+    public  Command init = new LambdaCommand(
+            () -> {
+            },
+            () -> {
+                fourBarMainPivot.setPosition(175);
+                fourBarSecondPivot.setPosition(135);
+                griperRotate.setPosition(130);
+            },
+            () -> true
+    );
 
     public  Command grip = new LambdaCommand(
             () -> {

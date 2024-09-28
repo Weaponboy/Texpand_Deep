@@ -3,24 +3,29 @@ package org.firstinspires.ftc.teamcode.Testing;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Colection;
+import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
 public class firstSprintTeliop extends OpModeEX {
-    boolean waitForStow = false;
-    boolean busyCollecting = false;
-    boolean waitForTransfer = false;
-    boolean waitForDrop = false;
+    boolean colWaitForStow = false;
+    boolean colBusyCollecting = false;
+    boolean colWaitForTransfer = false;
+    boolean colWaitForDrop = false;
+    boolean depWaitforGrip = false;
+    boolean depWaitforTakeOutOfTansfer = false;
+    boolean depWaitForDrop;
+    boolean waitForColection =false;
 
     ElapsedTime collectionTimer = new ElapsedTime();
     ElapsedTime stowTimer = new ElapsedTime();
     ElapsedTime transferTime = new ElapsedTime();
     ElapsedTime gripTime = new ElapsedTime();
-
+    ElapsedTime depGripTime = new ElapsedTime();
+    ElapsedTime depTakeFromTransferTime = new ElapsedTime();
+    ElapsedTime depDropTime = new ElapsedTime();
+    ElapsedTime colectionMoveTimer = new ElapsedTime();
     double motor = 0;
 
     @Override
@@ -30,6 +35,7 @@ public class firstSprintTeliop extends OpModeEX {
 
     @Override
     public void loopEX() {
+
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && colection.collectionState== Colection.fourBar.stowed) {
             colection.queueCommand(colection.preCollect);
@@ -42,45 +48,78 @@ public class firstSprintTeliop extends OpModeEX {
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && colection.collectionState== Colection.fourBar.collect) {
             colection.queueCommand(colection.grip);
 
-            busyCollecting = true;
+            colBusyCollecting = true;
             collectionTimer.reset();
         }
 
-        if (busyCollecting && collectionTimer.milliseconds() > 400){
+        if (colBusyCollecting && collectionTimer.milliseconds() > 400){
             colection.queueCommand(colection.stow);
-            busyCollecting =false;
-            waitForStow =true;
+            colBusyCollecting =false;
+            colWaitForStow =true;
             stowTimer.reset();
         }
-        if (waitForStow && stowTimer.milliseconds() > 600){
+        if (colWaitForStow && stowTimer.milliseconds() > 600){
             colection.queueCommand(colection.transfer);
-            waitForStow=false;
-            waitForTransfer=true;
+            colWaitForStow =false;
+            colWaitForTransfer =true;
 
             transferTime.reset();
         }
 
-        if (waitForTransfer && transferTime.milliseconds() > 300){
+        if (colWaitForTransfer && transferTime.milliseconds() > 300){
             colection.queueCommand(colection.drop);
-            waitForTransfer=false;
-            waitForDrop=true;
+            colWaitForTransfer =false;
+            colWaitForDrop =true;
             gripTime.reset();
         }
 
-        if (waitForDrop && gripTime.milliseconds() > 500){
+        if (colWaitForDrop && gripTime.milliseconds() > 500){
             colection.queueCommand(colection.stow);
-            waitForDrop=false;
+            colWaitForDrop =false;
             gripTime.reset();
+        }
+        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.preTransFer){
+            colection.queueCommand(colection.init);
+            waitForColection =true;
+            collectionTimer.reset();
+        }
+        if (waitForColection && collectionTimer.milliseconds()>150) {
+            delivery.queueCommand(delivery.transfer);
+            waitForColection =false;
+            depWaitforGrip =true;
+            depGripTime.reset();
+        }
+
+        if (depWaitforGrip && depGripTime.milliseconds()>300){
+            delivery.queueCommand(delivery.postTransfer);
+            depWaitforGrip =false;
+            depWaitforTakeOutOfTansfer = true;
+            depTakeFromTransferTime.reset();
+        }
+        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.postTransfer){
+            delivery.queueCommand(delivery.dropOff);
+            depWaitforTakeOutOfTansfer =false;
+        }
+        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.basket){
+            delivery.queueCommand(delivery.drop);
+            depWaitForDrop =true;
+            depDropTime.reset();
+
+        }
+        if (depWaitForDrop&&depDropTime.milliseconds()>200){
+            depWaitForDrop =false;
+            delivery.queueCommand(delivery.behindTransfer);
         }
 
         if (gamepad1.dpad_left){
             colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)+15);
         }
-
         if (gamepad1.dpad_right){
             colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)-15);
         }
-
+        if (gamepad1.dpad_up&&colection.collectionState ==Colection.fourBar.collect ){
+            colection.queueCommand(colection.preCollect);
+        }
         if (gamepad1.start){
             colection.queueCommand(colection.grip);
         }
@@ -89,15 +128,22 @@ public class firstSprintTeliop extends OpModeEX {
             colection.queueCommand(colection.drop);
         }
 
-        driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x,gamepad1.right_stick_x);
-        if (colection.horizontalMotor.getCurrentPosition()< colection.maxSlideExtension) {
-            colection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+        if (gamepad1.back){
+            delivery.queueCommand(delivery.drop);
         }
 
-        if (delivery.slideMotor.getCurrentPosition() < delivery.maxSlideHeight) {
-            double motorPower = (gamepad1.right_trigger-gamepad1.left_trigger/4);
-            delivery.slideMotor.setPower(motorPower);
-//            System.out.println("(gamepad1.right_trigger-gamepad1.left_trigger/4)" + motorPower);
+        driveBase.drivePowers(-gamepad2.right_stick_y, gamepad2.left_stick_x,gamepad2.right_stick_x);
+
+        if (colection.horizontalMotor.getCurrentPosition()< colection.maxSlideExtension) {
+            colection.horizontalMotor.setPower(-gamepad1.right_stick_y/2);
+        }
+
+        if (gamepad1.left_stick_y > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight){
+            delivery.slideMotor.setPower(0.63+(gamepad1.left_stick_y));
+        }else if(gamepad1.left_stick_y < 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) > 10){
+            delivery.slideMotor.setPower(0.63+(gamepad1.left_stick_y)/1.2);
+        }else{
+            delivery.slideHold();
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
@@ -116,7 +162,7 @@ public class firstSprintTeliop extends OpModeEX {
         System.out.println("Testing");
 
         telemetry.addData("horPos", colection.horizontalMotor.getCurrentPosition());
-        telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition());
+        telemetry.addData("vertPos power",delivery.slideMotor.getPower());
         telemetry.addData("looptime ", loopTime);
         telemetry.update();
         }

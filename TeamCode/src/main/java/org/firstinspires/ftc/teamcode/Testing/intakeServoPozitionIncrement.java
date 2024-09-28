@@ -22,13 +22,13 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 //        griperRotate=hardwareMap.get(Servo.class,"griperRotate");
 //        linerRailServo=hardwareMap.get(Servo.class,"linerRailServo");
 
-          delivery.mainPivot.setPosition(60);
+//          delivery.mainPivot.setPosition(60);
 
-        delivery.secondPivot.setPosition(210);
+//        delivery.secondPivot.setPosition(210);
 
 //        delivery.linierRail.setPosition(270);
 
-        delivery.griperSev.setPosition(110);
+//        delivery.griperSev.setPosition(110);
 
  //       colection.gripServo.setPosition(0.1);
 
@@ -55,7 +55,8 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 //        colection.fourBarSecondPivot.setPosition(55);
 
         colection.preCollect.execute();
-
+        delivery.mainPivot.setPosition(65);
+delivery.secondPivot.setPosition(260);
     }
 
     @Override
@@ -77,47 +78,31 @@ public class intakeServoPozitionIncrement extends OpModeEX {
      //       griperRotatePower=griperRotate.getPosition()+ 1;
      //       griperRotate.setPosition(griperRotatePower);
      //   }
-
-        if (currentGamepad1.a && !lastGamepad1.a) {
-            delivery.queueCommand(delivery.behindTransfer);
-        }
-
-        if (currentGamepad1.b && !lastGamepad1.b) {
+        if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.queueCommand(delivery.transfer);
         }
-
-//        if (gamepad1.start) {
-//            delivery.linierRail.setPosition(335);
-//        }
-//
-//        if (gamepad1.back) {
-//            delivery.linierRail.setPosition(0);
-//        }
-//
-        if (gamepad1.right_bumper) {
-            colection.queueCommand(colection.preCollect);
+        if (currentGamepad1.x && !lastGamepad1.x) {
+            delivery.queueCommand(delivery.postTransfer
+            );
         }
 
-//        if (gamepad1.dpad_down) {
-//            colection.queueCommand(colection.Collect);
-//        }
-
-        if (gamepad1.dpad_up) {
-            colection.queueCommand(colection.stow);
+       if (currentGamepad1.a && !lastGamepad1.a) {
+           delivery.queueCommand(delivery.behindTransfer);
         }
 
-//        if (gamepad1.left_bumper) {
-//            colection.queueCommand(colection.transfer);
-//        }
-//
-        if (gamepad1.start){
-            colection.linerRailServo.setPosition(1);
-        } else if (gamepad1.back) {
-            colection.linerRailServo.setPosition(0);
-        }else {
-            colection.linerRailServo.setPosition(0.5);
+  //      if (currentGamepad1.b && !lastGamepad1.b) {
+    //        delivery.queueCommand(delivery.deposit);
+     //   }
+
+       if (gamepad1.start) {
+           delivery.queueCommand(delivery.grip);
         }
-//
+
+        if (gamepad1.back) {
+            delivery.queueCommand(delivery.drop);
+        }
+
+
 //
 ////        try {
 ////            Thread.sleep(50);
