@@ -17,7 +17,7 @@ import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.collectionTarget;
 
-public class Colection extends SubSystem{
+public class Collection extends SubSystem{
 
     double cmPerTick = 0.242;
     double targetPosition = 0*cmPerTick;
@@ -25,10 +25,14 @@ public class Colection extends SubSystem{
     double maxAccel = 380;
     double maxVelocity = 430;
     double accelDistance = maxVelocity/maxAccel;
-    double powerFeedForwardConstant =(1/maxVelocity);
-    int lastIndex=0;
+    double powerFeedForwardConstant = (1/maxVelocity);
+    int lastIndex = 0;
 
-    ElapsedTime curentTime= new ElapsedTime();
+    double currentRailPosition;
+    double currentAxonWirePos;
+    double lastAxonWirePos;
+
+    ElapsedTime currentTime = new ElapsedTime();
     ArrayList<Double> motionProfile = new ArrayList<>();
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
@@ -43,7 +47,7 @@ public class Colection extends SubSystem{
 
     public AxonEncoder linearPosition = new AxonEncoder();
 
-   public enum fourBar{
+    public enum fourBar{
         preCollect,
         collect,
         transfer,
@@ -61,7 +65,7 @@ public class Colection extends SubSystem{
 
     public final int maxSlideExtension = 640;
 
-    public Colection(OpModeEX opModeEX) {
+    public Collection(OpModeEX opModeEX) {
         registerSubsystem(opModeEX,nothing);
     }
 
@@ -108,7 +112,6 @@ public class Colection extends SubSystem{
         return kinModel;
     }
 
-
     public Command kinModel = new LambdaCommand(
             () -> {},
             () -> {
@@ -148,6 +151,7 @@ public class Colection extends SubSystem{
             },
             () -> true
     );
+
     public  Command init = new LambdaCommand(
             () -> {
             },
@@ -244,11 +248,11 @@ public class Colection extends SubSystem{
 
     LambdaCommand followMotionProfile = new LambdaCommand(
             () -> {
-                curentTime.reset();
+                currentTime.reset();
                 lastIndex = 0;
             },
             () -> {
-                while (Time.get(lastIndex) < curentTime.milliseconds()) {
+                while (Time.get(lastIndex) < currentTime.milliseconds()) {
                     lastIndex++;
                 }
 
@@ -256,17 +260,9 @@ public class Colection extends SubSystem{
                 double targetMotorPower=targetVelocity/powerFeedForwardConstant;
                 horizontalMotor.setPower(targetMotorPower);
             },
-            () ->slideTime>curentTime.milliseconds()
+            () ->slideTime> currentTime.milliseconds()
     );
-//    public void setLinearRailPos(double targetPos){
-//        if (linearPosition.getPosition() > targetPos-80){
-//            linerRailServo.setPosition(0.4);
-//        }else if (linearPosition.getPosition() < targetPos+80){
-//            linerRailServo.setPosition(0.6);
-//        }else{
-//            linerRailServo.setPosition(0.5);
-//        }
-//    }
+
     public void generateMotionProfile(double slideTarget) {
         this.targetPosition=slideTarget;
         slideTime = 0;
@@ -321,5 +317,62 @@ public class Colection extends SubSystem{
 
         }
 
+    }
+
+    public double getRailPosition() {
+        return currentRailPosition;
+    }
+
+    public void setRailTargetPosition(double targetPosition) {
+        this.currentRailPosition = targetPosition;
+        updateRailPosition();
+    }
+
+    private void updateRailPosition(){
+
+        double lastPosition = currentRailPosition;
+        lastAxonWirePos = currentAxonWirePos;
+
+        currentAxonWirePos = linerRailServo.getPosition();
+
+        double deltaPosition = lastAxonWirePos - currentAxonWirePos;
+        double realDelta;
+        double deltaCM;
+
+        double spoolSize = 10.676;
+        double cmPerDegree = spoolSize / 360;
+
+        if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
+
+            if (deltaPosition > 0){
+
+                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
+                deltaCM = realDelta * cmPerDegree;
+                currentRailPosition += deltaCM;
+
+            } else if (deltaPosition < 0) {
+
+                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
+                deltaCM = realDelta * cmPerDegree;
+                currentRailPosition -= deltaCM;
+
+            }
+
+        } else {
+            currentRailPosition -= deltaPosition*cmPerDegree;
+        }
+
+    }
+
+    private static double findRealDelta(double last, double current){
+        double realDelta;
+
+        if (last > current){
+            realDelta = current + (360 - last);
+        }else {
+            realDelta = last + (360 - current);
+        }
+
+        return realDelta;
     }
 }
