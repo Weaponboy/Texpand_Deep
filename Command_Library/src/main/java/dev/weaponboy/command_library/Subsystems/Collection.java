@@ -324,7 +324,7 @@ public class Collection extends SubSystem{
     }
 
     public void setRailTargetPosition(double targetPosition) {
-        this.currentRailPosition = targetPosition;
+//        this.currentRailPosition = targetPosition;
         updateRailPosition();
     }
 

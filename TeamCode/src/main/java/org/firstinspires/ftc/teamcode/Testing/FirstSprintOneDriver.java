@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
-import dev.weaponboy.command_library.Subsystems.Colection;
+import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
 public class FirstSprintOneDriver extends OpModeEX {
+
     boolean colWaitForStow = false;
     boolean colBusyCollecting = false;
     boolean colWaitForTransfer = false;
@@ -38,30 +39,30 @@ public class FirstSprintOneDriver extends OpModeEX {
     public void loopEX() {
 
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && colection.collectionState== Colection.fourBar.stowed) {
-            colection.queueCommand(colection.preCollect);
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.stowed) {
+            collection.queueCommand(collection.preCollect);
         }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && colection.collectionState== Colection.fourBar.preCollect) {
-            colection.queueCommand(colection.Collect);
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.preCollect) {
+            collection.queueCommand(collection.Collect);
         }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && colection.collectionState== Colection.fourBar.collect) {
-            colection.queueCommand(colection.grip);
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.collect) {
+            collection.queueCommand(collection.grip);
 
             colBusyCollecting = true;
             collectionTimer.reset();
         }
 
         if (colBusyCollecting && collectionTimer.milliseconds() > 400){
-            colection.queueCommand(colection.stow);
+            collection.queueCommand(collection.stow);
             colBusyCollecting =false;
             colWaitForStow =true;
             stowTimer.reset();
         }
         if (colWaitForStow && stowTimer.milliseconds() > 600){
             targetPos = 128;
-            colection.queueCommand(colection.transfer);
+            collection.queueCommand(collection.transfer);
             colWaitForStow =false;
             colWaitForTransfer =true;
 
@@ -69,19 +70,19 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (colWaitForTransfer && transferTime.milliseconds() > 300){
-            colection.queueCommand(colection.drop);
+            collection.queueCommand(collection.drop);
             colWaitForTransfer =false;
             colWaitForDrop =true;
             gripTime.reset();
         }
 
         if (colWaitForDrop && gripTime.milliseconds() > 500){
-            colection.queueCommand(colection.stow);
+            collection.queueCommand(collection.stow);
             colWaitForDrop =false;
             gripTime.reset();
         }
         if (currentGamepad1.left_bumper && lastGamepad1.left_bumper && delivery.depositstate == Delivery.deposit.preTransFer){
-            colection.queueCommand(colection.init);
+            collection.queueCommand(collection.init);
             waitForColection =true;
             collectionTimer.reset();
         }
@@ -116,21 +117,21 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (gamepad1.dpad_up){
-            colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)+15);
+            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
         }
 
         if (gamepad1.dpad_down){
-            colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)-15);
+            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
         }
 
-        if (gamepad1.back && colection.collectionState ==Colection.fourBar.collect ){
-            colection.queueCommand(colection.preCollect);
+        if (gamepad1.back && collection.collectionState == Collection.fourBar.collect ){
+            collection.queueCommand(collection.preCollect);
         }else if(gamepad1.back && delivery.depositstate ==Delivery.deposit.postTransfer){
            delivery.queueCommand(delivery.behindTransfer);
         }
 
         if (gamepad1.start){
-            colection.queueCommand(colection.grip);
+            collection.queueCommand(collection.grip);
         }
 
 //        if (gamepad1.back){
@@ -143,8 +144,8 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
-        if (colection.horizontalMotor.getCurrentPosition()< colection.maxSlideExtension) {
-            colection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+        if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
+            collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
         }
 
         if (gamepad1.right_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight){
@@ -168,21 +169,22 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         }
         if(gamepad1.dpad_left){
-            colection.linerRailServo.setPosition(0);
+            collection.linerRailServo.setPosition(0);
         }else if(gamepad1.dpad_right){
-            colection.linerRailServo.setPosition(1);
+            collection.linerRailServo.setPosition(1);
         }else{
-            colection.linerRailServo.setPosition(0.5);
+            collection.linerRailServo.setPosition(0.5);
         }
 
 //        colection.setLinearRailPos(targetPos);
         System.out.println("Testing");
 
-        telemetry.addData("horPos", colection.horizontalMotor.getCurrentPosition());
+        telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
 //        telemetry.addData("vertPos power",delivery.slideMotor.getPower());
         telemetry.addData("looptime ", loopTime);
         telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition());
-        telemetry.addData("axon_pos",colection.linearPosition.getPosition());
+        telemetry.addData("axon_pos",collection.linearPosition.getPosition());
+        telemetry.addData("linear Rail Position",collection.getRailPosition());
         telemetry.update();
     }
 }
