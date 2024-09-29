@@ -9,7 +9,7 @@ import dev.weaponboy.command_library.Subsystems.Colection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
-public class firstSprintTeliop extends OpModeEX {
+public class FirstSprintOneDriver extends OpModeEX {
     boolean colWaitForStow = false;
     boolean colBusyCollecting = false;
     boolean colWaitForTransfer = false;
@@ -80,7 +80,7 @@ public class firstSprintTeliop extends OpModeEX {
             colWaitForDrop =false;
             gripTime.reset();
         }
-        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.preTransFer){
+        if (currentGamepad1.left_bumper && lastGamepad1.left_bumper && delivery.depositstate == Delivery.deposit.preTransFer){
             colection.queueCommand(colection.init);
             waitForColection =true;
             collectionTimer.reset();
@@ -98,16 +98,18 @@ public class firstSprintTeliop extends OpModeEX {
             depWaitforTakeOutOfTansfer = true;
             depTakeFromTransferTime.reset();
         }
-        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.postTransfer){
+
+        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer){
             delivery.queueCommand(delivery.dropOff);
             depWaitforTakeOutOfTansfer =false;
         }
-        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.basket){
+
+        if (currentGamepad1.a&&lastGamepad1.a&&delivery.depositstate == Delivery.deposit.basket){
             delivery.queueCommand(delivery.drop);
             depWaitForDrop =true;
             depDropTime.reset();
-
         }
+
         if (depWaitForDrop&&depDropTime.milliseconds()>200){
             depWaitForDrop =false;
             delivery.queueCommand(delivery.behindTransfer);
@@ -116,12 +118,17 @@ public class firstSprintTeliop extends OpModeEX {
         if (gamepad1.dpad_up){
             colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)+15);
         }
+
         if (gamepad1.dpad_down){
             colection.griperRotate.setPosition((colection.griperRotate.getPosition()*270)-15);
         }
-        if (gamepad1.back&&colection.collectionState ==Colection.fourBar.collect ){
+
+        if (gamepad1.back && colection.collectionState ==Colection.fourBar.collect ){
             colection.queueCommand(colection.preCollect);
+        }else if(gamepad1.back && delivery.depositstate ==Delivery.deposit.postTransfer){
+           delivery.queueCommand(delivery.behindTransfer);
         }
+
         if (gamepad1.start){
             colection.queueCommand(colection.grip);
         }
@@ -134,16 +141,16 @@ public class firstSprintTeliop extends OpModeEX {
 //            delivery.queueCommand(delivery.drop);
 //        }
 
-        driveBase.drivePowers(-gamepad2.right_stick_y, gamepad2.left_stick_x,gamepad2.right_stick_x);
+        driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         if (colection.horizontalMotor.getCurrentPosition()< colection.maxSlideExtension) {
-            colection.horizontalMotor.setPower(-gamepad1.right_stick_y/2);
+            colection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
         }
 
-        if (gamepad1.left_stick_y > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight){
-            delivery.slideMotor.setPower(0.05+gamepad1.left_stick_y);
-        }else if(gamepad1.left_stick_y < 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) > 10){
-            delivery.slideMotor.setPower(0.05+gamepad1.left_stick_y);
+        if (gamepad1.right_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight){
+            delivery.slideMotor.setPower(0.05+gamepad1.right_trigger);
+        }else if(gamepad1.left_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) > 10){
+            delivery.slideMotor.setPower(0.05-gamepad1.left_trigger);
         }else{
             delivery.slideHold();
         }
@@ -177,5 +184,5 @@ public class firstSprintTeliop extends OpModeEX {
         telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition());
         telemetry.addData("axon_pos",colection.linearPosition.getPosition());
         telemetry.update();
-        }
+    }
 }

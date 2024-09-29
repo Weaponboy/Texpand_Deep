@@ -152,8 +152,8 @@ public class Colection extends SubSystem{
             () -> {
             },
             () -> {
-                fourBarMainPivot.setPosition(175);
-                fourBarSecondPivot.setPosition(135);
+                fourBarMainPivot.setPosition(160);
+                fourBarSecondPivot.setPosition(128);
                 griperRotate.setPosition(130);
             },
             () -> true
@@ -184,8 +184,8 @@ public class Colection extends SubSystem{
 
             },
         () -> {
-            fourBarMainPivot.setPosition(98);
-            fourBarSecondPivot.setPosition(10);
+            fourBarMainPivot.setPosition(99);
+            fourBarSecondPivot.setPosition(7);
             collectionState =fourBar.collect;
         },
         () -> true
@@ -209,7 +209,8 @@ public class Colection extends SubSystem{
 
             },
             () -> {
-                fourBarMainPivot.setPosition(195);
+
+                fourBarMainPivot.setPosition(198);
                 fourBarSecondPivot.setPosition(190);
                 griperRotate.setPosition(45);
                 collectionState =fourBar.transfer;
@@ -217,13 +218,24 @@ public class Colection extends SubSystem{
             () -> true
     );
 
-   public Command preCollect = new LambdaCommand(
+   public Command camera = new LambdaCommand(
             () -> {
 
             },
             () -> {
                 fourBarMainPivot.setPosition(120);
                 fourBarSecondPivot.setPosition(40);
+                griperRotate.setPosition(135);
+            },
+            () -> true
+    );
+    public Command preCollect = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+                fourBarMainPivot.setPosition(109);
+                fourBarSecondPivot.setPosition(20);
                 griperRotate.setPosition(135);
                 collectionState =fourBar.preCollect;
             },
@@ -246,7 +258,15 @@ public class Colection extends SubSystem{
             },
             () ->slideTime>curentTime.milliseconds()
     );
-
+//    public void setLinearRailPos(double targetPos){
+//        if (linearPosition.getPosition() > targetPos-80){
+//            linerRailServo.setPosition(0.4);
+//        }else if (linearPosition.getPosition() < targetPos+80){
+//            linerRailServo.setPosition(0.6);
+//        }else{
+//            linerRailServo.setPosition(0.5);
+//        }
+//    }
     public void generateMotionProfile(double slideTarget) {
         this.targetPosition=slideTarget;
         slideTime = 0;
