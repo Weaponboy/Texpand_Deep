@@ -56,6 +56,8 @@ public class ServoDegrees {
 //        } else if (setPositionAsync.isDone()) {
 //            setPositionAsync = setPositionAsync(position+offset);
 //        }
+
+
     }
 
     public double getPosition() {
@@ -67,6 +69,10 @@ public class ServoDegrees {
             servo.setPosition(position * positionConstantConverter);
             return true;
         }, executor);
+    }
+
+    public void disableServo(){
+        servo.getController().pwmDisable();
     }
 
 }

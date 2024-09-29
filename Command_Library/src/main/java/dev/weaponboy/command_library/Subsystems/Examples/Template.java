@@ -1,4 +1,4 @@
-package dev.weaponboy.command_library.Subsystems;
+package dev.weaponboy.command_library.Subsystems.Examples;
 
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;

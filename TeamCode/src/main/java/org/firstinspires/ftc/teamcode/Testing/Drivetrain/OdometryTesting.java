@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 
 @TeleOp
-public class AudometryTesting extends OpModeEX {
+public class OdometryTesting extends OpModeEX {
 
     @Override
     public void initEX() {
