@@ -38,7 +38,7 @@ public class Delivery extends SubSystem {
     double slidetime;
     double veloToMotorPower = 1/maxVelocity;
 
-    public final int maxSlideHeight = 640;
+    public final int maxSlideHeight = 1720;
     public final int maxSlideHeightCM = 53;
     private final int ticksPerCm = maxSlideHeight / maxSlideHeightCM;
     private final double CMPerTick = (double) maxSlideHeightCM / maxSlideHeight;
@@ -68,19 +68,28 @@ public class Delivery extends SubSystem {
         registerSubsystem(opModeEX,holdPosition);
     }
     public void slideHold (){
-        if(Math.abs(slideMotor.getCurrentPosition())>250){
-            slideMotor.setPower(0.55);
-        }else if (Math.abs(slideMotor.getCurrentPosition())>150){
-            slideMotor.setPower(0.45);
-        }
-        else if (Math.abs(slideMotor.getCurrentPosition())>80){
-            slideMotor.setPower(0.4);
-        }
-        else if (Math.abs(slideMotor.getCurrentPosition())>20){
-            slideMotor.setPower(0.35);
+        if (Math.abs(slideMotor.getCurrentPosition())>40){
+            slideMotor.setPower(0.1);
+        }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
+            slideMotor.setPower(0.15);
+        }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
+            slideMotor.setPower(0.18);
         }else{
             slideMotor.setPower(0);
         }
+//        if(Math.abs(slideMotor.getCurrentPosition())>250){
+//            slideMotor.setPower(0.55);
+//        }else if (Math.abs(slideMotor.getCurrentPosition())>150){
+//            slideMotor.setPower(0.45);
+//        }
+//        else if (Math.abs(slideMotor.getCurrentPosition())>80){
+//            slideMotor.setPower(0.4);
+//        }
+//        else if (Math.abs(slideMotor.getCurrentPosition())>20){
+//            slideMotor.setPower(0.35);
+//        }else{
+//            slideMotor.setPower(0);
+//        }
     }
 
     public LambdaCommand holdPosition = new LambdaCommand(

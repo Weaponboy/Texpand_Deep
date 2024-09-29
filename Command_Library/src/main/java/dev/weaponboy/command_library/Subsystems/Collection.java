@@ -138,6 +138,7 @@ public class Collection extends SubSystem{
                 fourBarMainPivot.setPosition(mainAngle);
                 fourBarSecondPivot.setPosition(secondAngle);
 
+
             },
             () -> true
     );
@@ -155,8 +156,8 @@ public class Collection extends SubSystem{
             () -> {
             },
             () -> {
-                fourBarMainPivot.setPosition(175);
-                fourBarSecondPivot.setPosition(135);
+                fourBarMainPivot.setPosition(160);
+                fourBarSecondPivot.setPosition(128);
                 griperRotate.setPosition(130);
             },
             () -> true
@@ -165,28 +166,36 @@ public class Collection extends SubSystem{
     public  Command grip = new LambdaCommand(
             () -> {
             },
-            () -> gripServo.setPosition(0.5),
+            () -> {
+                gripServo.setPosition(0.5);
+            },
             () -> true
     );
 
-    public Command drop = new LambdaCommand(
-            () -> {},
-            () -> gripServo.setPosition(0),
+  public Command drop = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+                gripServo.setPosition(0);
+            },
             () -> true
     );
 
 
-    public Command Collect = new LambdaCommand(
-        () -> {},
+   public Command Collect = new LambdaCommand(
+       () -> {
+
+            },
         () -> {
-            fourBarMainPivot.setPosition(98);
-            fourBarSecondPivot.setPosition(10);
+            fourBarMainPivot.setPosition(99);
+            fourBarSecondPivot.setPosition(7);
             collectionState =fourBar.collect;
         },
         () -> true
     );
 
-    public Command stow = new LambdaCommand(
+  public   Command stow = new LambdaCommand(
             () -> {
 
             },
@@ -199,26 +208,38 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public Command transfer = new LambdaCommand(
+  public   Command transfer = new LambdaCommand(
             () -> {
 
             },
             () -> {
-                fourBarMainPivot.setPosition(195);
+
+                fourBarMainPivot.setPosition(198);
                 fourBarSecondPivot.setPosition(190);
                 griperRotate.setPosition(45);
-                collectionState = fourBar.transfer;
+                collectionState =fourBar.transfer;
             },
             () -> true
     );
 
-    public Command preCollect = new LambdaCommand(
+   public Command camera = new LambdaCommand(
             () -> {
 
             },
             () -> {
                 fourBarMainPivot.setPosition(120);
                 fourBarSecondPivot.setPosition(40);
+                griperRotate.setPosition(135);
+            },
+            () -> true
+    );
+    public Command preCollect = new LambdaCommand(
+            () -> {
+
+            },
+            () -> {
+                fourBarMainPivot.setPosition(109);
+                fourBarSecondPivot.setPosition(20);
                 griperRotate.setPosition(135);
                 collectionState =fourBar.preCollect;
             },
@@ -303,7 +324,7 @@ public class Collection extends SubSystem{
     }
 
     public void setRailTargetPosition(double targetPosition) {
-        this.currentRailPosition = targetPosition;
+//        this.currentRailPosition = targetPosition;
         updateRailPosition();
     }
 
