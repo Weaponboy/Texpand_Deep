@@ -30,6 +30,15 @@ public class Collection extends SubSystem{
 
     double currentRailPosition;
     double currentAxonWirePos;
+
+    public double getLastAxonWirePos() {
+        return lastAxonWirePos;
+    }
+
+    public double getCurrentAxonWirePos() {
+        return currentAxonWirePos;
+    }
+
     double lastAxonWirePos;
 
     ElapsedTime currentTime = new ElapsedTime();

@@ -61,7 +61,6 @@ public abstract class OpModeEX extends OpMode {
             hub.clearBulkCache();
         }
 
-        collection.setRailTargetPosition(0);
         lastTime = timer.milliseconds();
         scheduler.execute();
         loopEX();
