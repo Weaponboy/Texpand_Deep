@@ -67,6 +67,7 @@ public class Delivery extends SubSystem {
     public Delivery(OpModeEX opModeEX) {
         registerSubsystem(opModeEX,holdPosition);
     }
+
     public void slideHold (){
         if (Math.abs(slideMotor.getCurrentPosition())>40){
             slideMotor.setPower(0.1);
@@ -126,7 +127,7 @@ public class Delivery extends SubSystem {
                 secondPivot.setPosition(258);
                 gripTimer = 200;
                 transferWaitTime = 150;
-                depositstate =deposit.transfer;
+                depositstate = deposit.transfer;
             },
             () -> {
                 if (transferTimer.milliseconds() > transferWaitTime){
@@ -416,6 +417,13 @@ public class Delivery extends SubSystem {
         fWriter.write(System.lineSeparator());
 
         fWriter.flush();
+    }
+
+    public void disableServos(){
+        mainPivot.disableServo();
+        secondPivot.disableServo();
+        griperSev.disableServo();
+        linierRail.disableServo();
     }
 
 }
