@@ -88,8 +88,15 @@ public class Delivery extends SubSystem {
     public LambdaCommand nothing = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
+//                if (slideMotor.getCurrentPosition() < 130){
+//                    slideMotor.setPower(0);
+//                }else {
+//                    slideMotor.setPower(0.36);
+//                }
             },
+
             () -> true
+
     );
    public LambdaCommand drop = new LambdaCommand(
             () -> System.out.println("init"),
@@ -402,6 +409,13 @@ public class Delivery extends SubSystem {
         fWriter.write(System.lineSeparator());
 
         fWriter.flush();
+    }
+
+    public void disableServos(){
+        mainPivot.disableServo();
+        secondPivot.disableServo();
+        griperSev.disableServo();
+        linierRail.disableServo();
     }
 
 }
