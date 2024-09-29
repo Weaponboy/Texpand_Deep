@@ -72,6 +72,8 @@ public abstract class OpModeEX extends OpMode {
      * */
     @Override
     public void stop() {
+        collection.disableServos();
+        delivery.disableServos();
 //        super.stop();
     }
 }

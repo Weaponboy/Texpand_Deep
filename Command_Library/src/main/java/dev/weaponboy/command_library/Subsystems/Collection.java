@@ -204,7 +204,7 @@ public class Collection extends SubSystem{
         () -> true
     );
 
-  public   Command stow = new LambdaCommand(
+    public   Command stow = new LambdaCommand(
             () -> {
 
             },
@@ -217,7 +217,7 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-  public   Command transfer = new LambdaCommand(
+    public   Command transfer = new LambdaCommand(
             () -> {
 
             },
@@ -242,6 +242,7 @@ public class Collection extends SubSystem{
             },
             () -> true
     );
+
     public Command preCollect = new LambdaCommand(
             () -> {
 
@@ -342,7 +343,7 @@ public class Collection extends SubSystem{
         double lastPosition = currentRailPosition;
         lastAxonWirePos = currentAxonWirePos;
 
-        currentAxonWirePos = linerRailServo.getPosition();
+        currentAxonWirePos = linearPosition.getPosition();
 
         double deltaPosition = lastAxonWirePos - currentAxonWirePos;
         double realDelta;
@@ -383,5 +384,14 @@ public class Collection extends SubSystem{
         }
 
         return realDelta;
+    }
+
+    public void disableServos(){
+        fourBarMainPivot.disableServo();
+        fourBarSecondPivot.disableServo();
+        griperRotate.disableServo();
+        gripServo.getController().pwmDisable();
+        linerRailServo.getController().pwmDisable();
+        nest.disableServo();
     }
 }
