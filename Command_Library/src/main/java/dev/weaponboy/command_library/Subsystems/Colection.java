@@ -184,7 +184,7 @@ public class Colection extends SubSystem{
 
             },
         () -> {
-            fourBarMainPivot.setPosition(99);
+            fourBarMainPivot.setPosition(95);
             fourBarSecondPivot.setPosition(7);
             collectionState =fourBar.collect;
         },
@@ -234,8 +234,8 @@ public class Colection extends SubSystem{
 
             },
             () -> {
-                fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(20);
+                fourBarMainPivot.setPosition(103);
+                fourBarSecondPivot.setPosition(17);
                 griperRotate.setPosition(135);
                 collectionState =fourBar.preCollect;
             },

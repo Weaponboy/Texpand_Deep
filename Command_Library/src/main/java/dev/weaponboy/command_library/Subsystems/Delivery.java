@@ -67,39 +67,19 @@ public class Delivery extends SubSystem {
     public Delivery(OpModeEX opModeEX) {
         registerSubsystem(opModeEX,holdPosition);
     }
-    public void slideHold (){
-        if (Math.abs(slideMotor.getCurrentPosition())>40){
-            slideMotor.setPower(0.1);
-        }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
-            slideMotor.setPower(0.15);
-        }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
-            slideMotor.setPower(0.18);
-        }else{
-            slideMotor.setPower(0);
-        }
-//        if(Math.abs(slideMotor.getCurrentPosition())>250){
-//            slideMotor.setPower(0.55);
-//        }else if (Math.abs(slideMotor.getCurrentPosition())>150){
-//            slideMotor.setPower(0.45);
-//        }
-//        else if (Math.abs(slideMotor.getCurrentPosition())>80){
-//            slideMotor.setPower(0.4);
-//        }
-//        else if (Math.abs(slideMotor.getCurrentPosition())>20){
-//            slideMotor.setPower(0.35);
-//        }else{
-//            slideMotor.setPower(0);
-//        }
-    }
 
     public LambdaCommand holdPosition = new LambdaCommand(
             () -> {},
             () -> {
-//                if (slideMotor.getCurrentPosition() < 130){
-//                    slideMotor.setPower(0);
-//                }else {
-//                    slideMotor.setPower(0.36);
-//                }
+                if (Math.abs(slideMotor.getCurrentPosition())>40){
+                    slideMotor.setPower(0.1);
+                }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
+                    slideMotor.setPower(0.15);
+                }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
+                    slideMotor.setPower(0.18);
+                }else{
+                    slideMotor.setPower(0);
+                }
             },
 
             () -> true

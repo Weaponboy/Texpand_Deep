@@ -152,7 +152,7 @@ public class FirstSprintOneDriver extends OpModeEX {
         }else if(gamepad1.left_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) > 10){
             delivery.slideMotor.setPower(0.05-gamepad1.left_trigger);
         }else{
-            delivery.slideHold();
+            delivery.queueCommand(delivery.holdPosition);
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
