@@ -54,7 +54,7 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 //
 //        colection.fourBarSecondPivot.setPosition(55);
 
-        colection.preCollect.execute();
+        collection.preCollect.execute();
         delivery.mainPivot.setPosition(65);
         delivery.secondPivot.setPosition(260);
     }
@@ -107,7 +107,7 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 ////            throw new RuntimeException(e);
 //        }
 
-        telemetry.addData("linear servo position", colection.linearPosition.getPosition());
+        telemetry.addData("linear servo position", collection.linearPosition.getPosition());
         telemetry.addData("secondPivotPozition",seconPivotPower);
         telemetry.addData("griperRotatePozition",loopTime);
         telemetry.update();
