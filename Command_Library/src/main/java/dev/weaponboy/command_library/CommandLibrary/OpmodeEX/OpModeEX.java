@@ -60,6 +60,8 @@ public abstract class OpModeEX extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
+
+        collection.setRailTargetPosition(0);
         lastTime = timer.milliseconds();
         scheduler.execute();
         loopEX();
