@@ -100,18 +100,18 @@ public class FirstSprintOneDriver extends OpModeEX {
             depTakeFromTransferTime.reset();
         }
 
-        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer){
+        if (currentGamepad1.left_bumper && lastGamepad1.left_bumper && delivery.depositstate == Delivery.deposit.postTransfer){
             delivery.queueCommand(delivery.dropOff);
             depWaitforTakeOutOfTansfer =false;
         }
 
-        if (currentGamepad1.a&&lastGamepad1.a&&delivery.depositstate == Delivery.deposit.basket){
+        if (currentGamepad1.a && lastGamepad1.a && delivery.depositstate == Delivery.deposit.basket){
             delivery.queueCommand(delivery.drop);
             depWaitForDrop =true;
             depDropTime.reset();
         }
 
-        if (depWaitForDrop&&depDropTime.milliseconds()>150){
+        if (depWaitForDrop && depDropTime.milliseconds() > 150){
             depWaitForDrop =false;
             delivery.queueCommand(delivery.behindTransfer);
         }
@@ -147,7 +147,7 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            delivery.queueCommand(delivery.drop);
 //        }
 
-        driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x));
 
         if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
             collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
@@ -162,8 +162,8 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
-            delivery.genProfile(delivery.lowBasket);
-//            delivery.queueCommand(delivery.followMotionPro);
+            delivery.genProfile(delivery.highBasket);
+            delivery.queueCommand(delivery.followMotionPro);
 //            double motorPower = 0;
 //            while (delivery.slideMotor.getCurrentPosition() < 400){
 //                motorPower += 0.05;
