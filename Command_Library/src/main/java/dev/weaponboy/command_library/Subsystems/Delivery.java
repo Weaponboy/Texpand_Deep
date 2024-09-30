@@ -21,17 +21,20 @@ public class Delivery extends SubSystem {
 
     double test = 0;
     double targetPosition = 50;
-    int currentPosition = 0;
-    double maxAccel = 3000;
-    double maxVelocity = 293;
+    double currentPosition = 0;
+
+    double maxAccel = 1400;
+    double maxVelocity = 140;
     double acceldistance = (maxVelocity * maxVelocity) / maxAccel*2;
     public ServoDegrees griperSev =new ServoDegrees();
     public ServoDegrees mainPivot=new ServoDegrees();
     public ServoDegrees secondPivot = new ServoDegrees();
     public ServoDegrees linierRail= new ServoDegrees();
 
-    ArrayList<Double> motionprofile = new ArrayList<>();
+    ArrayList<Double> motionProfile = new ArrayList<>();
+    ArrayList<Double> positions = new ArrayList<>();
     ArrayList<Double> time = new ArrayList<>();
+    ElapsedTime currentTime = new ElapsedTime();
     ElapsedTime flipBackTimer = new ElapsedTime();
 
     int lastIndex = 0;
@@ -85,6 +88,7 @@ public class Delivery extends SubSystem {
             () -> true
 
     );
+
     public LambdaCommand nothing = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
@@ -98,13 +102,15 @@ public class Delivery extends SubSystem {
             () -> true
 
     );
+
    public LambdaCommand drop = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
-                griperSev.setPosition(90);
+                griperSev.setPosition(110);
             },
             () -> true
     );
+
    public LambdaCommand grip = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
@@ -182,36 +188,39 @@ public class Delivery extends SubSystem {
     );
 
 
-//    public LambdaCommand followMotionPro = new LambdaCommand(
-//            () -> {
-//                lastIndex = 0;
-//                System.out.println("currentTime" + slidetime);
-//            },
-//            ()-> {
-//
-//                while (time.get(lastIndex) < currentTime.milliseconds()){
-//                    System.out.println("lastIndex" + time.get(lastIndex));
-//                    System.out.println("currentTime" + currentTime.milliseconds());
-//                    if (!(lastIndex == time.size()-1)){
-//                        lastIndex++;
-//                    }
-//                }
-//
-//                double targetVelocity = motionprofile.get(lastIndex);
-//                double targetMotorPower = targetVelocity*veloToMotorPower;
-//                slideMotor.setPower(targetMotorPower);
-////                System.out.println("currentTime" + currentTime.milliseconds());
-//                System.out.println("slideMotor" + targetMotorPower);
-//
-//            },
-//            ()-> currentTime.milliseconds() > slidetime || (slideMotor.getCurrentPosition() * CMPerTick) > targetPosition
-//    );
+    public LambdaCommand followMotionPro = new LambdaCommand(
+            () -> {
+                currentTime.reset();
+                lastIndex = 0;
+            },
+            ()-> {
+
+                if (lastIndex-1 > time.size()){
+                    while (positions.get(lastIndex) < slideMotor.getCurrentPosition()*CMPerTick){
+                        lastIndex++;
+                    }
+                }else {
+                    while (time.get(lastIndex) < currentTime.milliseconds()){
+                        lastIndex++;
+                    }
+                }
+
+                double targetVelocity = motionProfile.get(lastIndex);
+                double targetMotorPower = targetVelocity*veloToMotorPower;
+
+                slideMotor.setPower(targetMotorPower);
+                System.out.println("slideMotor" + targetMotorPower);
+
+            },
+            ()-> lastIndex >= motionProfile.size()-1
+    );
 
     @Override
     public void init() {
         slideMotor = getOpModeEX().hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         mainPivot.initServo("mainPivot",getOpModeEX().hardwareMap);
         secondPivot.initServo("secondPivot",getOpModeEX().hardwareMap);
         linierRail.initServo("linearRail",getOpModeEX().hardwareMap);
@@ -238,103 +247,97 @@ public class Delivery extends SubSystem {
 
     public void genProfile (double slideTarget){
 
-            System.out.println("init Second");
-            double test = 0;
-            time.clear();
-            motionprofile.clear();
-            slidetime = 0;
-            targetPosition = slideTarget;
-            double halfwayDistance = targetPosition / 2;
-            double newAccelDistance = acceldistance;
-            int decelCounter = 0;
+        time.clear();
+        motionProfile.clear();
+        slidetime = 0;
+        targetPosition = slideTarget;
+        currentPosition = slideMotor.getCurrentPosition()*CMPerTick;
 
-            double baseMotorVelocity = 105;
+        double distanceToTarget = targetPosition - currentPosition;
 
-//            if (slideTarget > slideMotor.getCurrentPosition()*CMPerTick){
-//                newAccelDistance = targetPosition;
-//            }else {
-//            }
+        double halfwayDistance = targetPosition / 2;
+        double newAccelDistance = acceldistance;
 
-            if (newAccelDistance > halfwayDistance){
-                newAccelDistance = halfwayDistance;
-            }
+        int decelCounter = 0;
 
-            double newMaxVelocity = Math.sqrt((2 * maxAccel)*newAccelDistance);
+        double baseMotorVelocity = (maxVelocity) * 0.15;
 
-            System.out.println("acceldistance" + halfwayDistance);
-            System.out.println("newMaxVelocity" + newMaxVelocity);
-            System.out.println("newAccelDistance accel" + newAccelDistance);
+        if (acceldistance > halfwayDistance){
+            newAccelDistance = halfwayDistance;
+        }
 
-            for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
-                double targetVelocity;
+        double newMaxVelocity = Math.sqrt(2 * maxAccel * newAccelDistance);
 
-                if (newAccelDistance > i && targetPosition > slideMotor.getCurrentPosition()*CMPerTick) {
+        System.out.println("acceleration_distance: " + acceldistance);
+        System.out.println("newMaxVelocity: " + newMaxVelocity);
+        System.out.println("newAccelDistance accel: " + newAccelDistance);
 
-                    int range = (int) Math.abs(newAccelDistance - i);
+        for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
+            double targetVelocity;
 
-                    double AccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
+            if (newAccelDistance > i && targetPosition > currentPosition) {
 
-                    AccelSlope = ((100 - AccelSlope) * 0.01);
+                int range = (int) Math.abs(newAccelDistance - i);
 
-                    targetVelocity = (newMaxVelocity * AccelSlope);
+                double AccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
 
-                    if(targetVelocity != 0){
-                        slidetime += (1 / targetVelocity) * 1000;
-                    }
+                AccelSlope = ((100 - AccelSlope) * 0.01);
 
-                    targetVelocity += baseMotorVelocity;
+                targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
 
-                    System.out.println("slidetime accel " + slidetime);
-
-                    System.out.println("targetVelocity accel " + targetVelocity);
-
-                }else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition) && targetPosition < slideMotor.getCurrentPosition()*CMPerTick) {
-
-                    decelCounter++;
-
-                    int range = (int) Math.abs(newAccelDistance - decelCounter);
-
-                    double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
-
-                    DeccelSlope = DeccelSlope * 0.01;
-
-                    targetVelocity = newMaxVelocity * DeccelSlope;
-
-                    if(targetVelocity != 0){
-                        slidetime += (1 / targetVelocity) * 1000;
-                    }
-
-                    System.out.println("slidetime dccel " + slidetime);
-
-                    System.out.println("targetVelocity dccel " + targetVelocity);
-
-                } else {
-                    targetVelocity = newMaxVelocity;
-
-                    if(targetVelocity != 0){
-                        slidetime += (1 / targetVelocity) * 1000;
-                    }
-
-                    System.out.println("slidetime " + slidetime);
-
-                    System.out.println("targetVelocity" + targetVelocity);
-
+                if(targetVelocity != 0){
+                    slidetime += (1 / targetVelocity) * 1000;
                 }
 
-                motionprofile.add(targetVelocity);
                 time.add(slidetime);
+
+                System.out.println("targetVelocity accel: " + targetVelocity);
+
+            }else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition) && targetPosition < currentPosition) {
+
+                decelCounter++;
+
+                int range = (int) Math.abs(newAccelDistance - decelCounter);
+
+                double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
+
+                DeccelSlope = DeccelSlope * 0.01;
+
+                targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
+
+                positions.add((double) i+1);
+
+                System.out.println("targetVelocity dccel: " + targetVelocity);
+
+            } else {
+
+                targetVelocity = newMaxVelocity;
+
+                positions.add((double) i+1);
+
+                System.out.println("targetVelocity: " + targetVelocity);
+
             }
 
-            System.out.println("slide time" + slidetime);
-            System.out.println("slide time" + motionprofile.size());
+            motionProfile.add(targetVelocity);
+
         }
+
+        System.out.println("slide time: " + time.size());
+        System.out.println("motion profile: " + motionProfile.size());
+        System.out.println("positions size: " + positions.size());
+        for (int i = 0; i < positions.size(); i++){
+            System.out.println("positions profile: " + positions.get(i));
+        }
+
+    }
 
     public void genProfile (double slideTarget, FileWriter fWriter) throws IOException {
 
         System.out.println("init Second");
         double test = 0;
         time.clear();
-        motionprofile.clear();
+        motionProfile.clear();
         slidetime = 0;
         targetPosition = slideTarget;
         double halfwayDistance = targetPosition / 2;
@@ -414,12 +417,12 @@ public class Delivery extends SubSystem {
 
             }
 
-            motionprofile.add(targetVelocity);
+            motionProfile.add(targetVelocity);
             time.add(slidetime);
         }
 
         fWriter.write( "slide time:" + slidetime);
-        fWriter.write( "motionprofile.size()" + motionprofile.size());
+        fWriter.write( "motionprofile.size()" + motionProfile.size());
         fWriter.write(System.lineSeparator());
 
         fWriter.flush();
