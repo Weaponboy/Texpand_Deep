@@ -16,14 +16,15 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.collectionTarget;
+import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 
 public class Collection extends SubSystem{
 
     double cmPerTick = 0.242;
-    double targetPosition = 0*cmPerTick;
+    double targetPosition = 30*cmPerTick;
     double currentPosition = 0;
-    double maxAccel = 380;
-    double maxVelocity = 430;
+    double maxAccel = 120;
+    double maxVelocity = 300;
     double accelDistance = maxVelocity/maxAccel;
     double powerFeedForwardConstant = (1/maxVelocity);
     int lastIndex = 0;
@@ -41,10 +42,14 @@ public class Collection extends SubSystem{
 
     double lastAxonWirePos;
 
+
+
     ElapsedTime currentTime = new ElapsedTime();
     ArrayList<Double> motionProfile = new ArrayList<>();
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
+    double timeError =currentTime.milliseconds()-lastIndex;
+
 
     public DcMotorEx horizontalMotor;
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -55,6 +60,8 @@ public class Collection extends SubSystem{
     public ServoDegrees nest = new ServoDegrees();
 
     public AxonEncoder linearPosition = new AxonEncoder();
+
+    PIDController slidePID =new PIDController(0.015,0,0.0005);
 
     public enum fourBar{
         preCollect,
@@ -114,6 +121,16 @@ public class Collection extends SubSystem{
         stow.execute();
 
     }
+//     void getMotorPozition(){
+//        double PIDTargetPosition =160;
+//        double slideError=PIDTargetPosition-horizontalMotor.getCurrentPosition();
+//        double P=slideError*0.015;
+//        double D=slideError*0.0005;
+//        double slidePIDPower=P+D;
+
+    //    horazontolPozition=horizontalMotor.getCurrentPosition();
+  //  }
+
 
 
     public Command kinModel(collectionTarget target){
@@ -197,8 +214,8 @@ public class Collection extends SubSystem{
 
             },
         () -> {
-            fourBarMainPivot.setPosition(99);
-            fourBarSecondPivot.setPosition(7);
+            fourBarMainPivot.setPosition(96);
+            fourBarSecondPivot.setPosition(6);
             collectionState =fourBar.collect;
         },
         () -> true
@@ -223,10 +240,12 @@ public class Collection extends SubSystem{
             },
             () -> {
 
-                fourBarMainPivot.setPosition(198);
-                fourBarSecondPivot.setPosition(190);
+                fourBarMainPivot.setPosition(191);
+                fourBarSecondPivot.setPosition(191);
                 griperRotate.setPosition(45);
                 collectionState =fourBar.transfer;
+                nest.setOffset(5);
+                nest.setPosition(135);
             },
             () -> true
     );
@@ -249,21 +268,30 @@ public class Collection extends SubSystem{
             },
             () -> {
                 fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(20);
+                fourBarSecondPivot.setPosition(14);
                 griperRotate.setPosition(135);
                 collectionState =fourBar.preCollect;
             },
             () -> true
     );
+//    public Command PID = new LambdaCommand(
+//            () -> {
+//
+//            },
+//            () -> {
+//                horizontalMotor.setPower(slidePIDPower/2);            },
+//            () -> true
+//    );
 
-    LambdaCommand followMotionProfile = new LambdaCommand(
+   public LambdaCommand followMotionProfile = new LambdaCommand(
             () -> {
                 currentTime.reset();
                 lastIndex = 0;
             },
             () -> {
                 while (Time.get(lastIndex) < currentTime.milliseconds()) {
-                    lastIndex++;
+                    lastIndex+=timeError;
+
                 }
 
                 double targetVelocity=motionProfile.get(lastIndex);

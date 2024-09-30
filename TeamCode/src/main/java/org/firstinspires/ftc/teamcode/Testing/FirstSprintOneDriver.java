@@ -54,13 +54,13 @@ public class FirstSprintOneDriver extends OpModeEX {
             collectionTimer.reset();
         }
 
-        if (colBusyCollecting && collectionTimer.milliseconds() > 400){
+        if (colBusyCollecting && collectionTimer.milliseconds() > 300){
             collection.queueCommand(collection.stow);
             colBusyCollecting =false;
             colWaitForStow =true;
             stowTimer.reset();
         }
-        if (colWaitForStow && stowTimer.milliseconds() > 600){
+        if (colWaitForStow && stowTimer.milliseconds() > 450){
             targetPos = 128;
             collection.queueCommand(collection.transfer);
             colWaitForStow =false;
@@ -69,14 +69,14 @@ public class FirstSprintOneDriver extends OpModeEX {
             transferTime.reset();
         }
 
-        if (colWaitForTransfer && transferTime.milliseconds() > 300){
+        if (colWaitForTransfer && transferTime.milliseconds() > 250){
             collection.queueCommand(collection.drop);
             colWaitForTransfer =false;
             colWaitForDrop =true;
             gripTime.reset();
         }
 
-        if (colWaitForDrop && gripTime.milliseconds() > 500){
+        if (colWaitForDrop && gripTime.milliseconds() > 300){
             collection.queueCommand(collection.stow);
             colWaitForDrop =false;
             gripTime.reset();
@@ -86,7 +86,7 @@ public class FirstSprintOneDriver extends OpModeEX {
             waitForColection =true;
             collectionTimer.reset();
         }
-        if (waitForColection && collectionTimer.milliseconds()>150) {
+        if (waitForColection && collectionTimer.milliseconds()>200) {
             delivery.queueCommand(delivery.transfer);
             waitForColection =false;
             depWaitforGrip =true;
@@ -111,7 +111,7 @@ public class FirstSprintOneDriver extends OpModeEX {
             depDropTime.reset();
         }
 
-        if (depWaitForDrop&&depDropTime.milliseconds()>200){
+        if (depWaitForDrop&&depDropTime.milliseconds()>150){
             depWaitForDrop =false;
             delivery.queueCommand(delivery.behindTransfer);
         }
@@ -123,6 +123,11 @@ public class FirstSprintOneDriver extends OpModeEX {
         if (gamepad1.dpad_down){
             collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
         }
+
+//        if (currentGamepad1.x&&lastGamepad1.x){
+//            collection.queueCommand(collection.PID);
+//        }
+
 
         if (gamepad1.back && collection.collectionState == Collection.fourBar.collect ){
             collection.queueCommand(collection.preCollect);
@@ -150,10 +155,10 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         if (gamepad1.right_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight){
             delivery.slideMotor.setPower(0.05+gamepad1.right_trigger);
-        }else if(gamepad1.left_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) > 10){
+        }else if(gamepad1.left_trigger > 0 && delivery.slideMotor.getCurrentPosition() > 90){
             delivery.slideMotor.setPower(0.05-gamepad1.left_trigger);
         }else{
-            delivery.slideHold();
+            delivery.queueCommand(delivery.holdPosition);
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
@@ -189,6 +194,8 @@ public class FirstSprintOneDriver extends OpModeEX {
         telemetry.addData("Last Rail Position",collection.getLastAxonWirePos());
         telemetry.addData("Current Rail Position",collection.getCurrentAxonWirePos());
         telemetry.addData("Linear Rail Position",collection.getRailPosition());
+        telemetry.addData("vertPow",delivery.slideMotor.getPower());
+
         telemetry.update();
     }
 }
