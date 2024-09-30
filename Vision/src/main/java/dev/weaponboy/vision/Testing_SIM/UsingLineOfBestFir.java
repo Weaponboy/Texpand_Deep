@@ -114,9 +114,9 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         Point intersection = findIntersection(slope1, intercept1, slope2, intercept2);
 
-//        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
-//        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
-//        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
+        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
+        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
+        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
 
         Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
         Point furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
@@ -133,10 +133,14 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         double deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
         double deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
         double firstLength = Math.hypot(deltaXFirst, deltaYFirst);
+        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
 
         double deltaXSecond = Math.abs(furthestPoint2.x - intersection.x);
         double deltaYSecond = Math.abs(furthestPoint2.y - intersection.y);
         double secondLength = Math.hypot(deltaYSecond, deltaXSecond);
+        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
 
         if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
             CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));

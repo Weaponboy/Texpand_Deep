@@ -53,6 +53,7 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.collect) {
             collection.queueCommand(collection.grip);
+
             colBusyCollecting = true;
             collectionTimer.reset();
         }
@@ -171,7 +172,7 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            delivery.queueCommand(delivery.drop);
 //        }
 
-        driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x));
 
         if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
             collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
@@ -185,9 +186,9 @@ public class FirstSprintOneDriver extends OpModeEX {
             delivery.queueCommand(delivery.holdPosition);
         }
 
-//        if (currentGamepad1.y && !lastGamepad1.y){
-//            delivery.genProfile(delivery.lowBasket);
-//            delivery.queueCommand(delivery.followMotionPro);
+        if (currentGamepad1.y && !lastGamepad1.y){
+            delivery.genProfile(delivery.highBasket);
+            delivery.queueCommand(delivery.followMotionPro);
 //            double motorPower = 0;
 //            while (delivery.slideMotor.getCurrentPosition() < 400){
 //                motorPower += 0.05;
@@ -196,7 +197,7 @@ public class FirstSprintOneDriver extends OpModeEX {
 //
 //            delivery.slideMotor.setPower(0.36);A
 
-        //}
+        }
         if(gamepad1.dpad_left){
             collection.linerRailServo.setPosition(0);
         }else if(gamepad1.dpad_right){
