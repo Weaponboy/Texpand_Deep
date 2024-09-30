@@ -67,10 +67,15 @@ public class Collection extends SubSystem{
         preCollect,
         collect,
         transfer,
-        stowed
+        stowed,
+    }
+    public enum Nest{
+        sample,
+        specimine,
     }
 
     public fourBar collectionState = fourBar.stowed;
+    public Nest nestState = Nest.sample;
 
     double armLength = 9.6;
     double mainPivotHeight = 12.4;
@@ -207,7 +212,23 @@ public class Collection extends SubSystem{
             },
             () -> true
     );
+    public LambdaCommand nestSample = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                nest.setPosition(135);
+                nestState =Nest.sample;
+            },
+            () -> true
+    );
+    public LambdaCommand nestSpecimine = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                nest.setPosition(45);
+                nestState =Nest.specimine;
 
+            },
+            () -> true
+    );
 
    public Command Collect = new LambdaCommand(
        () -> {
@@ -241,7 +262,7 @@ public class Collection extends SubSystem{
             () -> {
 
                 fourBarMainPivot.setPosition(191);
-                fourBarSecondPivot.setPosition(191);
+                fourBarSecondPivot.setPosition(189);
                 griperRotate.setPosition(45);
                 collectionState =fourBar.transfer;
                 nest.setOffset(5);
