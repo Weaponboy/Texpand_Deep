@@ -160,6 +160,16 @@ public class Delivery extends SubSystem {
             },
             () -> true
     );
+    public LambdaCommand fronCliping = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(189);
+                secondPivot.setPosition(200);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
     public LambdaCommand postTransfer = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
