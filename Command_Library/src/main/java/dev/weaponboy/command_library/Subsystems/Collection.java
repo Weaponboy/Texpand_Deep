@@ -51,6 +51,10 @@ public class Collection extends SubSystem{
     ElapsedTime railTime = new ElapsedTime();
     boolean runningToPosition = false;
 
+    double waitForTransfer;
+    double timePerDegree = (double) 720 /360;
+    ElapsedTime initialTransfer = new ElapsedTime();
+
     /**
      * Motor and servos
      * */
@@ -67,7 +71,8 @@ public class Collection extends SubSystem{
     public enum fourBar{
         preCollect,
         collect,
-        transfer,
+        dropNest,
+        transferring,
         stowed,
     }
     public enum Nest{
@@ -211,6 +216,8 @@ public class Collection extends SubSystem{
             },
             () -> true
     );
+
+
     public LambdaCommand nestSample = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
@@ -219,6 +226,9 @@ public class Collection extends SubSystem{
             },
             () -> true
     );
+
+
+
     public LambdaCommand nestSpecimine = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
@@ -236,25 +246,48 @@ public class Collection extends SubSystem{
         () -> {
             fourBarMainPivot.setPosition(96);
             fourBarSecondPivot.setPosition(6);
-            collectionState =fourBar.collect;
+            collectionState = fourBar.collect;
         },
         () -> true
     );
 
-    public   Command stow = new LambdaCommand(
+    public Command stow = new LambdaCommand(
             () -> {
-
+                initialTransfer.reset();
+                waitForTransfer = Math.abs(fourBarMainPivot.getPositionDegrees() - 175)*timePerDegree;
             },
             () -> {
                 fourBarMainPivot.setPosition(175);
                 fourBarSecondPivot.setPosition(180);
-                griperRotate.setPosition(45);
-                collectionState = fourBar.stowed;
+
+                if (initialTransfer.milliseconds() > waitForTransfer){
+                    griperRotate.setPosition(45);
+                    collectionState = fourBar.stowed;
+                }
             },
-            () -> true
+            () -> initialTransfer.milliseconds() > waitForTransfer
     );
 
-    public   Command transfer = new LambdaCommand(
+    public Command transfer = new LambdaCommand(
+            () -> {
+                initialTransfer.reset();
+                waitForTransfer = Math.abs(fourBarSecondPivot.getPositionDegrees() - 190)*timePerDegree;
+            },
+            () -> {
+                fourBarMainPivot.setPosition(90);
+                fourBarSecondPivot.setPosition(190);
+                griperRotate.setPosition(135);
+
+                collectionState = fourBar.transferring;
+
+                if (initialTransfer.milliseconds() > waitForTransfer){
+                    queueCommand(stow);
+                }
+            },
+            () -> initialTransfer.milliseconds() > waitForTransfer
+    );
+
+    public   Command dropNest = new LambdaCommand(
             () -> {
 
             },
@@ -263,9 +296,11 @@ public class Collection extends SubSystem{
                 fourBarMainPivot.setPosition(191);
                 fourBarSecondPivot.setPosition(189);
                 griperRotate.setPosition(45);
-                collectionState =fourBar.transfer;
+                collectionState =fourBar.dropNest;
                 nest.setOffset(5);
                 nest.setPosition(135);
+
+
             },
             () -> true
     );

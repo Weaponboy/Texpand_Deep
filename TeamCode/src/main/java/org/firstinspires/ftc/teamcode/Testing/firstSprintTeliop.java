@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
@@ -61,7 +60,7 @@ public class firstSprintTeliop extends OpModeEX {
         }
         if (colWaitForStow && stowTimer.milliseconds() > 600){
             targetPos = 128;
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.dropNest);
             colWaitForStow =false;
             colWaitForTransfer =true;
 
