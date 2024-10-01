@@ -139,7 +139,7 @@ public class FirstSprintOneDriver extends OpModeEX {
             collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
         }
 
-        if (gamepad1.b){
+        if (gamepad1.y){
             collection.queueCommand(collection.nestSpecimine);
             collection.queueCommand(collection.init);
         }
@@ -185,32 +185,32 @@ public class FirstSprintOneDriver extends OpModeEX {
 //                delivery.queueCommand(delivery.holdPosition);
 //            }
 //        }
-        if (currentGamepad1.y && !lastGamepad1.y){
-            delivery.genProfile(delivery.highBasket);
-            delivery.queueCommand(delivery.followMotionPro);
-            delivery.slidesState= Delivery.slideState.moving;
-//            double motorPower = 0;
-//            while (delivery.slideMotor.getCurrentPosition() < 400){
-//                motorPower += 0.05;
-//                delivery.slideMotor.setPower(motorPower);
-//            }
+//        if (currentGamepad1.y && !lastGamepad1.y){
+//            delivery.genProfile(delivery.highBasket);
+//            delivery.queueCommand(delivery.followMotionPro);
+//            delivery.slidesState= Delivery.slideState.moving;
+////            double motorPower = 0;
+////            while (delivery.slideMotor.getCurrentPosition() < 400){
+////                motorPower += 0.05;
+////                delivery.slideMotor.setPower(motorPower);
+////            }
+////
+////            delivery.slideMotor.setPower(0.36);A
 //
-//            delivery.slideMotor.setPower(0.36);A
-
-        }
-        if (currentGamepad1.left_stick_button && !lastGamepad1.left_stick_button){
-            delivery.genProfile(0);
-            delivery.queueCommand(delivery.followMotionPro);
-            delivery.slidesState= Delivery.slideState.moving;
-//            double motorPower = 0;
-//            while (delivery.slideMotor.getCurrentPosition() < 400){
-//                motorPower += 0.05;
-//                delivery.slideMotor.setPower(motorPower);
-//            }
+//        }
+//        if (currentGamepad1.left_stick_button && !lastGamepad1.left_stick_button){
+//            delivery.genProfile(0);
+//            delivery.queueCommand(delivery.followMotionPro);
+//            delivery.slidesState= Delivery.slideState.moving;
+////            double motorPower = 0;
+////            while (delivery.slideMotor.getCurrentPosition() < 400){
+////                motorPower += 0.05;
+////                delivery.slideMotor.setPower(motorPower);
+////            }
+////
+////            delivery.slideMotor.setPower(0.36);A
 //
-//            delivery.slideMotor.setPower(0.36);A
-
-        }
+//        }
         if(gamepad1.dpad_left){
             collection.linerRailServo.setPosition(0);
         }else if(gamepad1.dpad_right){
