@@ -94,7 +94,7 @@ public class Collection extends SubSystem{
     @Override
     public void execute() {
         executeEX();
-        updateRailPosition();
+   //     updateRailPosition();
     }
 
     @Override
