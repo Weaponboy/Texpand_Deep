@@ -28,7 +28,7 @@ public class AutoBlueRight extends OpModeEX {
     private final sectionBuilder[ ] rightBlueFull = {
             () -> paths.addPoints(new Vector2D(147,360 ),new Vector2D(59,331) ,new Vector2D(151, 245), new Vector2D(330.5,333.6 ))
     };
-    private Object odometry;
+
 
     @Override
     public void initEX() {
