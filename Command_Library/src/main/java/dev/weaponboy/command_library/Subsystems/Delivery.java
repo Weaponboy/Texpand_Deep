@@ -25,7 +25,7 @@ public class Delivery extends SubSystem {
 
     double maxAccel = 1400;
     double maxVelocity = 140;
-    double acceldistance = (maxVelocity * maxVelocity) / maxAccel*2;
+    double acceldistance = (maxVelocity * maxVelocity) / (maxAccel*2);
     public ServoDegrees griperSev =new ServoDegrees();
     public ServoDegrees mainPivot=new ServoDegrees();
     public ServoDegrees secondPivot = new ServoDegrees();
@@ -44,7 +44,7 @@ public class Delivery extends SubSystem {
     public final int maxSlideHeight = 1720;
     public final int maxSlideHeightCM = 53;
     private final int ticksPerCm = maxSlideHeight / maxSlideHeightCM;
-    private final double CMPerTick = (double) maxSlideHeightCM / maxSlideHeight;
+    public final double CMPerTick = (double) maxSlideHeightCM / maxSlideHeight;
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
@@ -65,6 +65,13 @@ public class Delivery extends SubSystem {
     }
 
     public Delivery.deposit depositstate = deposit.preTransFer;
+
+    public enum slideState {
+        holdPosition,
+        moving,
+    }
+
+    public Delivery.slideState slidesState = slideState.holdPosition;
 
 
     public Delivery(OpModeEX opModeEX) {
@@ -195,13 +202,15 @@ public class Delivery extends SubSystem {
             },
             ()-> {
 
-                if (lastIndex-1 > time.size()){
-                    while (positions.get(lastIndex) < slideMotor.getCurrentPosition()*CMPerTick){
+                if (lastIndex >= time.size()){
+                    while (positions.get(lastIndex-time.size()) < slideMotor.getCurrentPosition()*CMPerTick){
                         lastIndex++;
                     }
                 }else {
-                    while (time.get(lastIndex) < currentTime.milliseconds()){
-                        lastIndex++;
+                    if (lastIndex < time.size()){
+                        if (time.get(lastIndex) < currentTime.milliseconds()) {
+                            lastIndex++;
+                        }
                     }
                 }
 
@@ -210,6 +219,12 @@ public class Delivery extends SubSystem {
 
                 slideMotor.setPower(targetMotorPower);
                 System.out.println("slideMotor" + targetMotorPower);
+                System.out.println("slideMotor" + lastIndex );
+                System.out.println("slideMotor" + motionProfile.size());
+                if (lastIndex >= motionProfile.size()-1){
+                    slidesState =slideState.holdPosition;
+
+                }
 
             },
             ()-> lastIndex >= motionProfile.size()-1
@@ -243,6 +258,9 @@ public class Delivery extends SubSystem {
     @Override
     public void execute() {
         executeEX();
+        if(slidesState==slideState.holdPosition){
+            queueCommand(holdPosition);
+        }
     }
 
     public void genProfile (double slideTarget){
