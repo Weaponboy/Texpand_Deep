@@ -99,7 +99,10 @@ public class Collection extends SubSystem{
     @Override
     public void execute() {
         executeEX();
-   //     updateRailPosition();
+        if(railTargetPosition != 0){
+            updateRailPosition();
+        }
+   //
     }
 
     @Override

@@ -65,6 +65,10 @@ public class FirstSprintOneDriver extends OpModeEX {
             collection.queueCommand(collection.transfer);
         }
 
+        if (gamepad1.dpad_left){
+            collection.queueCommand(collection.transfer);
+        }
+
 //        if (colBusyCollecting && collection.collectionState == ){
 //            collection.queueCommand(collection.stow);
 //            colBusyCollecting =false;
@@ -145,7 +149,7 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (gamepad1.dpad_up){
-            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
+            collection.setRailTargetPosition(10);
         }
 
 //        if (gamepad1.b){
@@ -221,13 +225,14 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            delivery.slideMotor.setPower(0.36);A
 
         }
-        if(gamepad1.dpad_left){
-            collection.linerRailServo.setPosition(0);
-        }else if(gamepad1.dpad_right){
-            collection.linerRailServo.setPosition(1);
-        }else{
-            collection.linerRailServo.setPosition(0.5);
-        }
+
+//        if(gamepad1.dpad_left){
+//            collection.linerRailServo.setPosition(0);
+//        }else if(gamepad1.dpad_right){
+//            collection.linerRailServo.setPosition(1);
+//        }else{
+//            collection.linerRailServo.setPosition(0.5);
+//        }
 
 //        colection.setLinearRailPos(targetPos);
         System.out.println("Testing");
