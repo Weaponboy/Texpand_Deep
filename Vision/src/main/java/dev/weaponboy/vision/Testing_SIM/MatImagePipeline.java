@@ -28,7 +28,7 @@ public class MatImagePipeline extends OpenCvPipeline {
 
     Mat redMat = new Mat();
 
-    public Scalar redLower = new Scalar(0,131,34);
+    public Scalar redLower = new Scalar(0,60,60);
     public Scalar redHigher = new Scalar(15,255,255);
 
     @Override

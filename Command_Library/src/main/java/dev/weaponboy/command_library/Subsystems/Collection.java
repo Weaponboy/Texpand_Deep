@@ -80,6 +80,12 @@ public class Collection extends SubSystem{
         specimen,
     }
 
+    public enum gripper{
+        drop,
+        grab
+    }
+
+    public gripper gripperState = gripper.drop;
     public fourBar collectionState = fourBar.stowed;
     public Nest nestState = Nest.sample;
 
@@ -93,7 +99,7 @@ public class Collection extends SubSystem{
     public final int maxSlideExtension = 640;
 
     public Collection(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX, update);
+        registerSubsystem(opModeEX, nothing);
     }
 
     @Override
@@ -102,11 +108,11 @@ public class Collection extends SubSystem{
         if(railTargetPosition != 0){
             updateRailPosition();
         }
-   //
     }
 
     @Override
     public void init() {
+
         horizontalMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "horizontalMotor");
         horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -136,16 +142,42 @@ public class Collection extends SubSystem{
         stow.execute();
 
     }
-//     void getMotorPozition(){
-//        double PIDTargetPosition =160;
-//        double slideError=PIDTargetPosition-horizontalMotor.getCurrentPosition();
-//        double P=slideError*0.015;
-//        double D=slideError*0.0005;
-//        double slidePIDPower=P+D;
 
-    //    horazontolPozition=horizontalMotor.getCurrentPosition();
-  //  }
+    public  Command grab = new LambdaCommand(
+            () -> {},
+            () -> {
+                gripServo.setPosition(0.5);
+                gripperState = gripper.grab;
+            },
+            () -> true
+    );
 
+    public Command drop = new LambdaCommand(
+            () -> {},
+            () -> {
+                gripServo.setPosition(0);
+                gripperState = gripper.grab;
+            },
+            () -> true
+    );
+
+    public LambdaCommand nestSample = new LambdaCommand(
+            () -> {},
+            () -> {
+                nest.setPosition(135);
+                nestState = Nest.sample;
+            },
+            () -> true
+    );
+
+    public LambdaCommand nestSpecimen = new LambdaCommand(
+            () -> {},
+            () -> {
+                nest.setPosition(45);
+                nestState = Nest.specimen;
+            },
+            () -> true
+    );
 
     public Command kinModel(collectionTarget target){
         this.target = target;
@@ -183,9 +215,10 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command update = new LambdaCommand(
+    public  Command nothing = new LambdaCommand(
             () -> {},
             () -> {
+
             },
             () -> true
     );
@@ -201,51 +234,8 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command grip = new LambdaCommand(
-            () -> {
-            },
-            () -> {
-                gripServo.setPosition(0.5);
-            },
-            () -> true
-    );
-
-  public Command drop = new LambdaCommand(
-            () -> {
-
-            },
-            () -> {
-                gripServo.setPosition(0);
-            },
-            () -> true
-    );
-
-
-    public LambdaCommand nestSample = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                nest.setPosition(135);
-                nestState =Nest.sample;
-            },
-            () -> true
-    );
-
-
-
-    public LambdaCommand nestSpecimine = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                nest.setPosition(45);
-                nestState =Nest.specimen;
-
-            },
-            () -> true
-    );
-
-   public Command Collect = new LambdaCommand(
-       () -> {
-
-            },
+   public Command collect = new LambdaCommand(
+        () -> {},
         () -> {
             fourBarMainPivot.setPosition(96);
             fourBarSecondPivot.setPosition(6);
@@ -290,7 +280,7 @@ public class Collection extends SubSystem{
             () -> initialTransfer.milliseconds() > waitForTransfer
     );
 
-    public   Command dropNest = new LambdaCommand(
+    public Command dropNest = new LambdaCommand(
             () -> {
 
             },
@@ -302,7 +292,6 @@ public class Collection extends SubSystem{
                 collectionState =fourBar.dropNest;
                 nest.setOffset(5);
                 nest.setPosition(135);
-
 
             },
             () -> true

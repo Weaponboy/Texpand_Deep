@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Testing;
+package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -42,11 +42,11 @@ public class firstSprintTeliop extends OpModeEX {
         }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.preCollect) {
-            collection.queueCommand(collection.Collect);
+            collection.queueCommand(collection.collect);
         }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.collect) {
-            collection.queueCommand(collection.grip);
+            collection.queueCommand(collection.grab);
 
             colBusyCollecting = true;
             collectionTimer.reset();
@@ -122,7 +122,7 @@ public class firstSprintTeliop extends OpModeEX {
             collection.queueCommand(collection.preCollect);
         }
         if (gamepad1.start){
-            collection.queueCommand(collection.grip);
+            collection.queueCommand(collection.grab);
         }
 
 //        if (gamepad1.back){
