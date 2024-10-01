@@ -16,10 +16,12 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.collectionTarget;
-import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 
 public class Collection extends SubSystem{
 
+    /**
+     * slides constants
+     * */
     double cmPerTick = 0.242;
     double targetPosition = 30*cmPerTick;
     double currentPosition = 0;
@@ -28,29 +30,30 @@ public class Collection extends SubSystem{
     double accelDistance = maxVelocity/maxAccel;
     double powerFeedForwardConstant = (1/maxVelocity);
     int lastIndex = 0;
-
-    double currentRailPosition;
-    double currentAxonWirePos;
-
-    public double getLastAxonWirePos() {
-        return lastAxonWirePos;
-    }
-
-    public double getCurrentAxonWirePos() {
-        return currentAxonWirePos;
-    }
-
-    double lastAxonWirePos;
-
-
-
     ElapsedTime currentTime = new ElapsedTime();
     ArrayList<Double> motionProfile = new ArrayList<>();
     ArrayList<Double> Time = new ArrayList<>();
     double slideTime;
     double timeError =currentTime.milliseconds()-lastIndex;
 
+    /**
+     * linear rail constants
+     * */
+    double currentRailPosition;
+    double railTargetPosition;
+    double currentAxonWirePos;
+    double lastAxonWirePos;
+    final double spoolSize = 3.6; //in cm
+    double railTimeToPosition;
+    double rotationsForFullTravel = 20/(spoolSize*Math.PI);
+    double timeForFullRotation = 540; // in ms
+    double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
+    ElapsedTime railTime = new ElapsedTime();
+    boolean runningToPosition = false;
 
+    /**
+     * Motor and servos
+     * */
     public DcMotorEx horizontalMotor;
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
@@ -61,8 +64,6 @@ public class Collection extends SubSystem{
 
     public AxonEncoder linearPosition = new AxonEncoder();
 
-    PIDController slidePID =new PIDController(0.015,0,0.0005);
-
     public enum fourBar{
         preCollect,
         collect,
@@ -71,7 +72,7 @@ public class Collection extends SubSystem{
     }
     public enum Nest{
         sample,
-        specimine,
+        specimen,
     }
 
     public fourBar collectionState = fourBar.stowed;
@@ -87,12 +88,13 @@ public class Collection extends SubSystem{
     public final int maxSlideExtension = 640;
 
     public Collection(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX,nothing);
+        registerSubsystem(opModeEX, update);
     }
 
     @Override
     public void execute() {
         executeEX();
+        updateRailPosition();
     }
 
     @Override
@@ -137,7 +139,6 @@ public class Collection extends SubSystem{
   //  }
 
 
-
     public Command kinModel(collectionTarget target){
         this.target = target;
         return kinModel;
@@ -174,11 +175,9 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command nothing = new LambdaCommand(
+    public  Command update = new LambdaCommand(
+            () -> {},
             () -> {
-            },
-            () -> {
-
             },
             () -> true
     );
@@ -224,7 +223,7 @@ public class Collection extends SubSystem{
             () -> System.out.println("init"),
             () -> {
                 nest.setPosition(45);
-                nestState =Nest.specimine;
+                nestState =Nest.specimen;
 
             },
             () -> true
@@ -295,6 +294,7 @@ public class Collection extends SubSystem{
             },
             () -> true
     );
+
 //    public Command PID = new LambdaCommand(
 //            () -> {
 //
@@ -383,7 +383,7 @@ public class Collection extends SubSystem{
     }
 
     public void setRailTargetPosition(double targetPosition) {
-//        this.currentRailPosition = targetPosition;
+        this.railTargetPosition = targetPosition;
         updateRailPosition();
     }
 
@@ -421,6 +421,28 @@ public class Collection extends SubSystem{
             currentRailPosition -= deltaPosition*cmPerDegree;
         }
 
+        runToPosition();
+
+    }
+
+    private void runToPosition(){
+
+        double delta = railTargetPosition - currentRailPosition;
+
+        if (Math.abs(delta) < 0.2){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }else if(Math.abs(delta) > 1 && !runningToPosition){
+            railTimeToPosition = Math.abs(delta)*timePerCM;
+            railTime.reset();
+            if (delta > 0){ linerRailServo.setPosition(1);}else {linerRailServo.setPosition(0);}
+            runningToPosition = true;
+        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }
+
+        updateRailPosition();
     }
 
     private static double findRealDelta(double last, double current){

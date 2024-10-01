@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
@@ -108,7 +107,7 @@ public class FirstSprintOneDriver extends OpModeEX {
             delivery.queueCommand(delivery.dropOff);
             depWaitforTakeOutOfTansfer =false;
         }
-        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer&&collection.nestState== Collection.Nest.specimine){
+        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer&&collection.nestState== Collection.Nest.specimen){
             delivery.queueCommand(delivery.cliping);
             depWaitforTakeOutOfTansfer =false;
         }
@@ -209,15 +208,12 @@ public class FirstSprintOneDriver extends OpModeEX {
 //        colection.setLinearRailPos(targetPos);
         System.out.println("Testing");
 
-        collection.setRailTargetPosition(0);
+        collection.setRailTargetPosition(10);
 
         telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
-//        telemetry.addData("vertPos power",delivery.slideMotor.getPower());
         telemetry.addData("looptime ", loopTime);
         telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition());
         telemetry.addData("axon_pos",collection.linearPosition.getPosition());
-        telemetry.addData("Last Rail Position",collection.getLastAxonWirePos());
-        telemetry.addData("Current Rail Position",collection.getCurrentAxonWirePos());
         telemetry.addData("Linear Rail Position",collection.getRailPosition());
         telemetry.addData("vertPow",delivery.slideMotor.getPower());
 
