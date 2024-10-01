@@ -85,23 +85,23 @@ public class firstSprintTeliop extends OpModeEX {
             waitForCollection =true;
             collectionTimer.reset();
         }
-        if (waitForCollection && collectionTimer.milliseconds()>150) {
+        if (waitForCollection && collectionTimer.milliseconds()>250) {
             delivery.queueCommand(delivery.transfer);
             waitForCollection =false;
             depWaitforGrip =true;
             depGripTime.reset();
         }
 
-        if (depWaitforGrip && depGripTime.milliseconds()>300){
+        if (depWaitforGrip && depGripTime.milliseconds()>1000){
             delivery.queueCommand(delivery.postTransfer);
             depWaitforGrip =false;
             depWaitforTakeOutOfTansfer = true;
             depTakeFromTransferTime.reset();
         }
-        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.postTransfer){
-            delivery.queueCommand(delivery.dropOff);
-            depWaitforTakeOutOfTansfer =false;
-        }
+//        if (currentGamepad1.y&&lastGamepad1.y&&delivery.depositstate == Delivery.deposit.postTransfer){
+//            delivery.queueCommand(delivery.dropOff);
+//            depWaitforTakeOutOfTansfer =false;
+//        }
         if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.basket){
             delivery.queueCommand(delivery.drop);
             depWaitForDrop =true;

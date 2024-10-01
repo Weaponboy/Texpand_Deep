@@ -5,6 +5,7 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.io.FileWriter;
@@ -34,6 +35,7 @@ public class Delivery extends SubSystem {
     ArrayList<Double> positions = new ArrayList<>();
     ArrayList<Double> time = new ArrayList<>();
     ElapsedTime currentTime = new ElapsedTime();
+    ElapsedTime flipBackTimer = new ElapsedTime();
 
     int lastIndex = 0;
     double slidetime;
@@ -51,8 +53,8 @@ public class Delivery extends SubSystem {
     public final double lowBasket = 200 * CMPerTick;
 
     ElapsedTime transferTimer = new ElapsedTime();
-    double transferWaitTime;
-    double gripTimer;
+    boolean flipBackTime;
+    boolean gripTimer;
 
 
     public enum deposit {
@@ -82,6 +84,7 @@ public class Delivery extends SubSystem {
                     slideMotor.setPower(0);
                 }
             },
+
             () -> true
 
     );
@@ -111,45 +114,36 @@ public class Delivery extends SubSystem {
    public LambdaCommand grip = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
-                griperSev.setPosition(170);
+                griperSev.setPosition(180);
             },
             () -> true
     );
 
    public LambdaCommand transfer = new LambdaCommand(
             () -> {
-                transferTimer.reset();
-                mainPivot.setPosition(81);
-                secondPivot.setPosition(258);
-                gripTimer = 200;
-                transferWaitTime = 170;
-                depositstate = deposit.transfer;
+
             },
             () -> {
-                if (transferTimer.milliseconds() > transferWaitTime){
-                    griperSev.setPosition(170);
-                    gripTimer = 0;
-                }
+                secondPivot.setPosition(261);
+                mainPivot.setPosition(99);
+                griperSev.setPosition(180);
+                depositstate =deposit.transfer;
             },
-            () -> gripTimer == 0
+            () -> true
     );
 
     public LambdaCommand behindTransfer = new LambdaCommand(
             () -> {
-                griperSev.setPosition(110);
-                transferTimer.reset();
-                gripTimer = 100;
-                transferWaitTime = 60;
-                depositstate = deposit.preTransFer;
+
             },
             () -> {
-                if (transferTimer.milliseconds() > transferWaitTime){
-                    mainPivot.setPosition(74);
-                    secondPivot.setPosition(258);
-                    gripTimer = 0;
-                }
+                secondPivot.setPosition(258);
+                griperSev.setPosition(90);
+                mainPivot.setPosition(80);
+                depositstate =deposit.preTransFer;
+
             },
-            () -> gripTimer == 0
+            () -> true
     );
 
    public LambdaCommand dropOff = new LambdaCommand(
@@ -157,7 +151,27 @@ public class Delivery extends SubSystem {
             () -> {
                 mainPivot.setPosition(300);
                 secondPivot.setPosition(38);
-                griperSev.setPosition(170);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
+    public LambdaCommand cliping = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(300);
+                secondPivot.setPosition(60);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
+    public LambdaCommand fronCliping = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(189);
+                secondPivot.setPosition(200);
+                griperSev.setPosition(180);
                 depositstate =deposit.basket;
             },
             () -> true
@@ -165,9 +179,9 @@ public class Delivery extends SubSystem {
     public LambdaCommand postTransfer = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
-                mainPivot.setPosition(82);
+                mainPivot.setPosition(90);
                 secondPivot.setPosition(226);
-                griperSev.setPosition(170);
+                griperSev.setPosition(180);
                 depositstate =deposit.postTransfer;
             },
             () -> true
@@ -218,6 +232,9 @@ public class Delivery extends SubSystem {
         mainPivot.setRange(335);
         linierRail.setRange(335);
         behindTransfer.execute();
+        secondPivot.setPosition(258);
+        mainPivot.setPosition(80);
+        griperSev.setPosition(90);
         setDefaultCommand(nothing);
 //        drop.execute();
 
