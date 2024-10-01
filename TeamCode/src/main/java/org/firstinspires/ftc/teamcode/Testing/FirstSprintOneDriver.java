@@ -41,9 +41,9 @@ public class FirstSprintOneDriver extends OpModeEX {
     public void loopEX() {
 
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper) {
-            collection.queueCommand(collection.preCollect);
-        }
+//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper) {
+//            collection.queueCommand(collection.preCollect);
+//        }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.preCollect) {
             collection.queueCommand(collection.Collect);
