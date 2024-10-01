@@ -45,17 +45,17 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            collection.queueCommand(collection.preCollect);
 //        }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.preCollect) {
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper) {
             collection.queueCommand(collection.Collect);
 //            collection.queueCommand(collection.nestSample);
         }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.collect) {
-            collection.queueCommand(collection.grip);
-
-//            colBusyCollecting = true;
-//            collectionTimer.reset();
-        }
+//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper) {
+//            collection.queueCommand(collection.grip);
+//
+////            colBusyCollecting = true;
+////            collectionTimer.reset();
+//        }
 
         if (gamepad1.b){
             collection.queueCommand(collection.transfer);
