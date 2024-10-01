@@ -156,7 +156,7 @@ public class Collection extends SubSystem{
             () -> {},
             () -> {
                 gripServo.setPosition(0);
-                gripperState = gripper.grab;
+                gripperState = gripper.drop;
             },
             () -> true
     );

@@ -26,5 +26,7 @@ public class sprint1Teleop extends OpModeEX {
             collection.queueCommand(collection.drop);
         }
 
+//        if (currentGamepad1.)
+
     }
 }
