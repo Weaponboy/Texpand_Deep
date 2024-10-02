@@ -16,37 +16,14 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.collectionTarget;
+import dev.weaponboy.command_library.Hardware.motionProfile;
 
 public class Collection extends SubSystem{
 
     /**
      * slides constants
      * */
-    double targetPosition = 50;
-    double currentPosition = 0;
-
-    double maxAccel = 1400;
-    double maxVelocity = 140;
-    double acceldistance = (maxVelocity * maxVelocity) / (maxAccel*2);
-    public ServoDegrees griperSev =new ServoDegrees();
-    public ServoDegrees mainPivot=new ServoDegrees();
-    public ServoDegrees secondPivot = new ServoDegrees();
-    public ServoDegrees linierRail= new ServoDegrees();
-
-    ArrayList<Double> motionProfile = new ArrayList<>();
-    ArrayList<Double> positions = new ArrayList<>();
-    ArrayList<Double> time = new ArrayList<>();
-    ElapsedTime currentTime = new ElapsedTime();
-    ElapsedTime flipBackTimer = new ElapsedTime();
-
-    int lastIndex = 0;
-    double slidetime;
-    double veloToMotorPower = 1/maxVelocity;
-
-    public final int maxSlideHeight = 1720;
-    public final int maxSlideHeightCM = 53;
-    private final int ticksPerCm = maxSlideHeight / maxSlideHeightCM;
-    public final double CMPerTick = (double) maxSlideHeightCM / maxSlideHeight;
+    motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
 
     /**
      * linear rail constants
@@ -86,6 +63,7 @@ public class Collection extends SubSystem{
     public ServoDegrees nest = new ServoDegrees();
 
     public AxonEncoder linearPosition = new AxonEncoder();
+
 
     public enum fourBar{
         preCollect,
@@ -178,6 +156,8 @@ public class Collection extends SubSystem{
         gripServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
         nest.setRange(new PwmControl.PwmRange(500, 2500), 270);
 
+        profile.isVertical(false);
+
         fourBarMainPivot.setDirection(Servo.Direction.REVERSE);
         fourBarMainPivot.setOffset(36);
 
@@ -215,7 +195,7 @@ public class Collection extends SubSystem{
                 currentClawY = armLength * Math.sin(mainAngle);
                 secondAngle = 180 - Math.toDegrees(mainAngle);
 
-                targetPosition += currentClawY - lastClawY;
+                double targetPosition = currentClawY - lastClawY;
                 //spool ==40mm
                 // cir 12.56cm
 
@@ -329,133 +309,15 @@ public class Collection extends SubSystem{
     );
 
     public LambdaCommand followMotionPro = new LambdaCommand(
-            () -> {
-                currentTime.reset();
-                lastIndex = 0;
-                slidesState = slideState.moving;
-            },
+            () -> {},
             ()-> {
-
-                if (lastIndex >= time.size()){
-                    if (targetPosition > horizontalMotor.getCurrentPosition()*CMPerTick){
-                        while (positions.get(lastIndex-time.size()) < horizontalMotor.getCurrentPosition()*CMPerTick){
-                            lastIndex++;
-                        }
-                    } else if (targetPosition < horizontalMotor.getCurrentPosition()*CMPerTick) {
-                        while (positions.get(lastIndex-time.size()) > horizontalMotor.getCurrentPosition()*CMPerTick){
-                            lastIndex++;
-                        }
-                    }
-                }else {
-
-                    if (time.get(lastIndex) < currentTime.milliseconds()) {
-                        lastIndex++;
-                    }
-
-                }
-
-                double targetVelocity = motionProfile.get(lastIndex);
-                double targetMotorPower = targetVelocity*veloToMotorPower;
-
-                horizontalMotor.setPower(targetMotorPower);
-
-                System.out.println("slideMotor" + targetMotorPower);
-                System.out.println("slideMotor" + lastIndex );
-                System.out.println("slideMotor" + motionProfile.size());
-
-                if (lastIndex >= motionProfile.size()-1){
-                    slidesState = slideState.manuel;
-                }
-
+                horizontalMotor.setPower(profile.followProfile(horizontalMotor.getCurrentPosition()));
             },
-            ()-> lastIndex >= motionProfile.size()-1
+            ()-> profile.isSlideRunning()
     );
 
-    public void genMotionProfile (double slideTarget){
-
-        time.clear();
-        motionProfile.clear();
-        slidetime = 0;
-        targetPosition = slideTarget;
-        currentPosition = horizontalMotor.getCurrentPosition()*CMPerTick;
-
-        double distanceToTarget = targetPosition - currentPosition;
-
-        double halfwayDistance = targetPosition / 2;
-        double newAccelDistance = acceldistance;
-
-        int decelCounter = 0;
-
-        double baseMotorVelocity = (maxVelocity) * 0.15;
-
-        if (acceldistance > halfwayDistance){
-            newAccelDistance = halfwayDistance;
-        }
-
-        double newMaxVelocity = Math.sqrt(2 * maxAccel * newAccelDistance);
-
-        System.out.println("acceleration_distance: " + acceldistance);
-        System.out.println("newMaxVelocity: " + newMaxVelocity);
-        System.out.println("newAccelDistance accel: " + newAccelDistance);
-
-        for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
-            double targetVelocity;
-
-            if (newAccelDistance > i) {
-
-                int range = (int) Math.abs(newAccelDistance - i);
-
-                double AccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
-
-                AccelSlope = ((100 - AccelSlope) * 0.01);
-
-                targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
-
-                if(targetVelocity != 0){
-                    slidetime += Math.abs((1 / targetVelocity) * 1000);
-                }
-
-                time.add(slidetime);
-
-                System.out.println("targetVelocity accel: " + targetVelocity);
-
-            }else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
-
-                decelCounter++;
-
-                int range = (int) Math.abs(newAccelDistance - decelCounter);
-
-                double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
-
-                DeccelSlope = DeccelSlope * 0.01;
-
-                targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
-
-                positions.add((double) i+1);
-
-                System.out.println("targetVelocity dccel: " + targetVelocity);
-
-            } else {
-
-                targetVelocity = newMaxVelocity;
-
-                positions.add((double) i+1);
-
-                System.out.println("targetVelocity: " + targetVelocity);
-
-            }
-
-            motionProfile.add(targetVelocity);
-
-        }
-
-        System.out.println("slide time: " + time.size());
-        System.out.println("motion profile: " + motionProfile.size());
-        System.out.println("positions size: " + positions.size());
-        for (int i = 0; i < positions.size(); i++){
-            System.out.println("positions profile: " + positions.get(i));
-        }
-
+    public void generateMotionProfile(double targetPosition){
+        profile.generateMotionProfile(targetPosition, horizontalMotor.getCurrentPosition());
     }
 
     public double getRailPosition() {

@@ -225,7 +225,7 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
         telemetry.addData("looptime ", loopTime);
-        telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition()*delivery.CMPerTick);
+//        telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition()*delivery.p);
         telemetry.addData("axon_pos",collection.linearPosition.getPosition());
         telemetry.addData("linear Rail Position",collection.getRailPosition());
         telemetry.addData("vertPow",delivery.slideMotor.getPower());
