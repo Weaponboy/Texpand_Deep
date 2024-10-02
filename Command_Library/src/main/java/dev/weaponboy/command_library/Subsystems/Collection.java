@@ -22,19 +22,31 @@ public class Collection extends SubSystem{
     /**
      * slides constants
      * */
-    double cmPerTick = 0.242;
-    double targetPosition = 30*cmPerTick;
+    double targetPosition = 50;
     double currentPosition = 0;
-    double maxAccel = 120;
-    double maxVelocity = 300;
-    double accelDistance = maxVelocity/maxAccel;
-    double powerFeedForwardConstant = (1/maxVelocity);
-    int lastIndex = 0;
-    ElapsedTime currentTime = new ElapsedTime();
+
+    double maxAccel = 1400;
+    double maxVelocity = 140;
+    double acceldistance = (maxVelocity * maxVelocity) / (maxAccel*2);
+    public ServoDegrees griperSev =new ServoDegrees();
+    public ServoDegrees mainPivot=new ServoDegrees();
+    public ServoDegrees secondPivot = new ServoDegrees();
+    public ServoDegrees linierRail= new ServoDegrees();
+
     ArrayList<Double> motionProfile = new ArrayList<>();
-    ArrayList<Double> Time = new ArrayList<>();
-    double slideTime;
-    double timeError =currentTime.milliseconds()-lastIndex;
+    ArrayList<Double> positions = new ArrayList<>();
+    ArrayList<Double> time = new ArrayList<>();
+    ElapsedTime currentTime = new ElapsedTime();
+    ElapsedTime flipBackTimer = new ElapsedTime();
+
+    int lastIndex = 0;
+    double slidetime;
+    double veloToMotorPower = 1/maxVelocity;
+
+    public final int maxSlideHeight = 1720;
+    public final int maxSlideHeightCM = 53;
+    private final int ticksPerCm = maxSlideHeight / maxSlideHeightCM;
+    public final double CMPerTick = (double) maxSlideHeightCM / maxSlideHeight;
 
     /**
      * linear rail constants
@@ -73,11 +85,12 @@ public class Collection extends SubSystem{
         collect,
         dropNest,
         transferring,
-        stowed,
+        stowed
     }
+
     public enum Nest{
         sample,
-        specimen,
+        specimen
     }
 
     public enum gripper{
@@ -85,9 +98,9 @@ public class Collection extends SubSystem{
         grab
     }
 
-    public gripper gripperState = gripper.drop;
-    public fourBar collectionState = fourBar.stowed;
-    public Nest nestState = Nest.sample;
+    private gripper gripperState = gripper.drop;
+    private fourBar collectionState = fourBar.stowed;
+    private Nest nestState = Nest.sample;
 
     double armLength = 9.6;
     double mainPivotHeight = 12.4;
@@ -107,6 +120,12 @@ public class Collection extends SubSystem{
         executeEX();
         if(railTargetPosition != 0){
             updateRailPosition();
+        }
+
+        if (nestState == Nest.sample){
+            nest.setPosition(135);
+        } else if (nestState == Nest.specimen) {
+            nest.setPosition(45);
         }
     }
 
@@ -157,24 +176,6 @@ public class Collection extends SubSystem{
             () -> {
                 gripServo.setPosition(0);
                 gripperState = gripper.drop;
-            },
-            () -> true
-    );
-
-    public LambdaCommand nestSample = new LambdaCommand(
-            () -> {},
-            () -> {
-                nest.setPosition(135);
-                nestState = Nest.sample;
-            },
-            () -> true
-    );
-
-    public LambdaCommand nestSpecimen = new LambdaCommand(
-            () -> {},
-            () -> {
-                nest.setPosition(45);
-                nestState = Nest.specimen;
             },
             () -> true
     );
@@ -281,9 +282,7 @@ public class Collection extends SubSystem{
     );
 
     public Command dropNest = new LambdaCommand(
-            () -> {
-
-            },
+            () -> {},
             () -> {
 
                 fourBarMainPivot.setPosition(191);
@@ -322,45 +321,70 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-//    public Command PID = new LambdaCommand(
-//            () -> {
-//
-//            },
-//            () -> {
-//                horizontalMotor.setPower(slidePIDPower/2);            },
-//            () -> true
-//    );
-
-   public LambdaCommand followMotionProfile = new LambdaCommand(
+    public LambdaCommand followMotionPro = new LambdaCommand(
             () -> {
                 currentTime.reset();
                 lastIndex = 0;
             },
-            () -> {
-                while (Time.get(lastIndex) < currentTime.milliseconds()) {
-                    lastIndex+=timeError;
+            ()-> {
+
+                if (lastIndex >= time.size()){
+                    if (targetPosition > horizontalMotor.getCurrentPosition()*CMPerTick){
+                        while (positions.get(lastIndex-time.size()) < horizontalMotor.getCurrentPosition()*CMPerTick){
+                            lastIndex++;
+                        }
+                    } else if (targetPosition < horizontalMotor.getCurrentPosition()*CMPerTick) {
+                        while (positions.get(lastIndex-time.size()) > horizontalMotor.getCurrentPosition()*CMPerTick){
+                            lastIndex++;
+                        }
+                    }
+                }else {
+
+                    if (time.get(lastIndex) < currentTime.milliseconds()) {
+                        lastIndex++;
+                    }
 
                 }
 
-                double targetVelocity=motionProfile.get(lastIndex);
-                double targetMotorPower=targetVelocity/powerFeedForwardConstant;
+                double targetVelocity = motionProfile.get(lastIndex);
+                double targetMotorPower = targetVelocity*veloToMotorPower;
+
                 horizontalMotor.setPower(targetMotorPower);
+
+                System.out.println("slideMotor" + targetMotorPower);
+                System.out.println("slideMotor" + lastIndex );
+                System.out.println("slideMotor" + motionProfile.size());
+
             },
-            () ->slideTime> currentTime.milliseconds()
+            ()-> lastIndex >= motionProfile.size()-1
     );
 
-    public void generateMotionProfile(double slideTarget) {
-        this.targetPosition=slideTarget;
-        slideTime = 0;
+    public void genMotionProfile (double slideTarget){
+
+        time.clear();
+        motionProfile.clear();
+        slidetime = 0;
+        targetPosition = slideTarget;
+        currentPosition = horizontalMotor.getCurrentPosition()*CMPerTick;
+
+        double distanceToTarget = targetPosition - currentPosition;
+
         double halfwayDistance = targetPosition / 2;
-        double newAccelDistance = accelDistance;
+        double newAccelDistance = acceldistance;
+
         int decelCounter = 0;
 
-        if (accelDistance > halfwayDistance) {
+        double baseMotorVelocity = (maxVelocity) * 0.15;
+
+        if (acceldistance > halfwayDistance){
             newAccelDistance = halfwayDistance;
         }
 
-        double newMaxVelocity = accelDistance * maxAccel;
+        double newMaxVelocity = Math.sqrt(2 * maxAccel * newAccelDistance);
+
+        System.out.println("acceleration_distance: " + acceldistance);
+        System.out.println("newMaxVelocity: " + newMaxVelocity);
+        System.out.println("newAccelDistance accel: " + newAccelDistance);
 
         for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
             double targetVelocity;
@@ -369,16 +393,21 @@ public class Collection extends SubSystem{
 
                 int range = (int) Math.abs(newAccelDistance - i);
 
-                double AccelSlope = (double) range / (double) Math.abs(newAccelDistance) * 100;
+                double AccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
 
-                AccelSlope = 100 - (AccelSlope * 0.01);
+                AccelSlope = ((100 - AccelSlope) * 0.01);
 
-                targetVelocity = newMaxVelocity * AccelSlope;
+                targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
 
-                slideTime += (1 / targetVelocity) * 1000;
+                if(targetVelocity != 0){
+                    slidetime += Math.abs((1 / targetVelocity) * 1000);
+                }
 
-            }
-            if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
+                time.add(slidetime);
+
+                System.out.println("targetVelocity accel: " + targetVelocity);
+
+            }else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
 
                 decelCounter++;
 
@@ -388,19 +417,31 @@ public class Collection extends SubSystem{
 
                 DeccelSlope = DeccelSlope * 0.01;
 
-                targetVelocity = newMaxVelocity * DeccelSlope;
+                targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
 
-                slideTime += (1 / targetVelocity) * 1000;
+                positions.add((double) i+1);
+
+                System.out.println("targetVelocity dccel: " + targetVelocity);
 
             } else {
+
                 targetVelocity = newMaxVelocity;
 
-                slideTime += (1 / targetVelocity) * 1000;
+                positions.add((double) i+1);
+
+                System.out.println("targetVelocity: " + targetVelocity);
+
             }
 
             motionProfile.add(targetVelocity);
-            Time.add(slideTime);
 
+        }
+
+        System.out.println("slide time: " + time.size());
+        System.out.println("motion profile: " + motionProfile.size());
+        System.out.println("positions size: " + positions.size());
+        for (int i = 0; i < positions.size(); i++){
+            System.out.println("positions profile: " + positions.get(i));
         }
 
     }
@@ -414,7 +455,7 @@ public class Collection extends SubSystem{
         updateRailPosition();
     }
 
-    private void updateRailPosition(){
+    public void updateRailPosition(){
 
         double lastPosition = currentRailPosition;
         lastAxonWirePos = currentAxonWirePos;
@@ -448,7 +489,7 @@ public class Collection extends SubSystem{
             currentRailPosition -= deltaPosition*cmPerDegree;
         }
 
-        runToPosition();
+//        runToPosition();
 
     }
 
@@ -491,5 +532,29 @@ public class Collection extends SubSystem{
         gripServo.getController().pwmDisable();
         linerRailServo.getController().pwmDisable();
         nest.disableServo();
+    }
+
+    public gripper getGripperState() {
+        return gripperState;
+    }
+
+    public void setGripperState(gripper gripperState) {
+        this.gripperState = gripperState;
+    }
+
+    public Nest getNestState() {
+        return nestState;
+    }
+
+    public void setNestState(Nest nestState) {
+        this.nestState = nestState;
+    }
+
+    public fourBar getCollectionState() {
+        return collectionState;
+    }
+
+    public void setCollectionState(fourBar collectionState) {
+        this.collectionState = collectionState;
     }
 }

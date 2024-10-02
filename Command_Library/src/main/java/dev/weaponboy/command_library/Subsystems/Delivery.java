@@ -19,7 +19,6 @@ public class Delivery extends SubSystem {
 
    public DcMotor slideMotor;
 
-    double test = 0;
     double targetPosition = 50;
     double currentPosition = 0;
 
@@ -203,15 +202,21 @@ public class Delivery extends SubSystem {
             ()-> {
 
                 if (lastIndex >= time.size()){
-                    while (positions.get(lastIndex-time.size()) < slideMotor.getCurrentPosition()*CMPerTick){
-                        lastIndex++;
-                    }
-                }else {
-                    if (lastIndex < time.size()){
-                        if (time.get(lastIndex) < currentTime.milliseconds()) {
+                    if (targetPosition > slideMotor.getCurrentPosition()*CMPerTick){
+                        while (positions.get(lastIndex-time.size()) < slideMotor.getCurrentPosition()*CMPerTick){
+                            lastIndex++;
+                        }
+                    } else if (targetPosition < slideMotor.getCurrentPosition()*CMPerTick) {
+                        while (positions.get(lastIndex-time.size()) > slideMotor.getCurrentPosition()*CMPerTick){
                             lastIndex++;
                         }
                     }
+                }else {
+
+                    if (time.get(lastIndex) < currentTime.milliseconds()) {
+                        lastIndex++;
+                    }
+
                 }
 
                 double targetVelocity = motionProfile.get(lastIndex);
@@ -223,7 +228,6 @@ public class Delivery extends SubSystem {
                 System.out.println("slideMotor" + motionProfile.size());
                 if (lastIndex >= motionProfile.size()-1){
                     slidesState =slideState.holdPosition;
-
                 }
 
             },
@@ -304,7 +308,7 @@ public class Delivery extends SubSystem {
                 targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
 
                 if(targetVelocity != 0){
-                    slidetime += (1 / targetVelocity) * 1000;
+                    slidetime += Math.abs((1 / targetVelocity) * 1000);
                 }
 
                 time.add(slidetime);
