@@ -303,9 +303,7 @@ public class Collection extends SubSystem{
     );
 
    public Command camera = new LambdaCommand(
-            () -> {
-
-            },
+            () -> {},
             () -> {
                 fourBarMainPivot.setPosition(120);
                 fourBarSecondPivot.setPosition(40);
@@ -320,7 +318,7 @@ public class Collection extends SubSystem{
             },
             () -> {
                 fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(14);
+                fourBarSecondPivot.setPosition(25);
                 griperRotate.setPosition(135);
                 collectionState =fourBar.preCollect;
             },
@@ -331,6 +329,7 @@ public class Collection extends SubSystem{
             () -> {
                 currentTime.reset();
                 lastIndex = 0;
+                slidesState = slideState.moving;
             },
             ()-> {
 
@@ -360,6 +359,10 @@ public class Collection extends SubSystem{
                 System.out.println("slideMotor" + targetMotorPower);
                 System.out.println("slideMotor" + lastIndex );
                 System.out.println("slideMotor" + motionProfile.size());
+
+                if (lastIndex >= motionProfile.size()-1){
+                    slidesState = slideState.manuel;
+                }
 
             },
             ()-> lastIndex >= motionProfile.size()-1
@@ -563,4 +566,13 @@ public class Collection extends SubSystem{
     public void setCollectionState(fourBar collectionState) {
         this.collectionState = collectionState;
     }
+
+    public slideState getSlidesState() {
+        return slidesState;
+    }
+
+    public void setSlidesState(slideState slidesState) {
+        this.slidesState = slidesState;
+    }
+
 }
