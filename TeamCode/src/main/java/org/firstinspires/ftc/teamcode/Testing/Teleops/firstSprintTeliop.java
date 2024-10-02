@@ -37,15 +37,15 @@ public class firstSprintTeliop extends OpModeEX {
     public void loopEX() {
 
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.stowed) {
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.stowed) {
             collection.queueCommand(collection.preCollect);
         }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.preCollect) {
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.preCollect) {
             collection.queueCommand(collection.collect);
         }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.collectionState== Collection.fourBar.collect) {
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.collect) {
             collection.queueCommand(collection.grab);
 
             colBusyCollecting = true;
@@ -118,7 +118,7 @@ public class firstSprintTeliop extends OpModeEX {
         if (gamepad1.dpad_down){
             collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
         }
-        if (gamepad1.back&&collection.collectionState == Collection.fourBar.collect ){
+        if (gamepad1.back&&collection.getCollectionState() == Collection.fourBar.collect ){
             collection.queueCommand(collection.preCollect);
         }
         if (gamepad1.start){
