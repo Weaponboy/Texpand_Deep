@@ -93,11 +93,17 @@ public class Collection extends SubSystem{
         specimen
     }
 
+    public enum slideState{
+        moving,
+        manuel
+    }
+
     public enum gripper{
         drop,
         grab
     }
 
+    private slideState slidesState = slideState.manuel;
     private gripper gripperState = gripper.drop;
     private fourBar collectionState = fourBar.stowed;
     private Nest nestState = Nest.sample;
@@ -486,7 +492,7 @@ public class Collection extends SubSystem{
             }
 
         } else {
-            currentRailPosition -= deltaPosition*cmPerDegree;
+            currentRailPosition += deltaPosition*cmPerDegree;
         }
 
 //        runToPosition();
