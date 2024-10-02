@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
@@ -8,6 +9,10 @@ import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
 public class sprint1Teleop extends OpModeEX {
+
+    boolean transferring = false;
+    ElapsedTime transferringWait = new ElapsedTime();
+    double waitTime = 0;
 
     @Override
     public void initEX() {
@@ -22,9 +27,9 @@ public class sprint1Teleop extends OpModeEX {
 
         //collection code
         if (currentGamepad1.start && !lastGamepad1.start && collection.getGripperState() == Collection.gripper.drop){
-            collection.queueCommand(collection.grab);
+            collection.setGripperState(Collection.gripper.grab);
         }else if (currentGamepad1.start && !lastGamepad1.start && collection.getGripperState() == Collection.gripper.grab){
-            collection.queueCommand(collection.drop);
+            collection.setGripperState(Collection.gripper.drop);
         }
 
         if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.stowed){
@@ -32,8 +37,24 @@ public class sprint1Teleop extends OpModeEX {
         }else if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.preCollect){
             collection.queueCommand(collection.collect);
         }else if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.grab);
+            collection.setGripperState(Collection.gripper.grab);
             collection.setNestState(Collection.Nest.sample);
+            transferring = true;
+            waitTime = 400;
+            transferringWait.reset();
+        }
+
+        if (collection.getCollectionState() == Collection.fourBar.stowed && transferring && transferringWait.milliseconds() > waitTime){
+            collection.queueCommand(collection.dropNest);
+            waitTime = 400;
+            transferringWait.reset();
+        }else if (collection.getCollectionState() == Collection.fourBar.dropNest && transferring && transferringWait.milliseconds() > waitTime){
+            collection.setGripperState(Collection.gripper.grab);
+            waitTime = 400;
+            transferringWait.reset();
+        }else if (collection.getCollectionState() == Collection.fourBar.stowed && transferring && transferringWait.milliseconds() > waitTime && collection.getGripperState() == Collection.gripper.drop){
+            collection.queueCommand(collection.stow);
+            transferring = false;
         }
 
         if (gamepad1.dpad_up){
@@ -42,7 +63,9 @@ public class sprint1Teleop extends OpModeEX {
             collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
         }
 
-        if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
+        if (collection.horizontalMotor.getCurrentPosition() < collection.maxSlideExtension && collection.getSlidesState() == Collection.slideState.manuel) {
+            collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+        } else if (collection.getSlidesState() == Collection.slideState.manuel) {
             collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
         }
 

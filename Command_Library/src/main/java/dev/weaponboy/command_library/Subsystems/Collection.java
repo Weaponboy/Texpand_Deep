@@ -68,6 +68,13 @@ public class Collection extends SubSystem{
     ElapsedTime initialTransfer = new ElapsedTime();
 
     /**
+     * transfer constants
+     * */
+    ElapsedTime transferTime = new ElapsedTime();
+    boolean transferHappening = false;
+    double gripperWaitTime = 500;
+
+    /**
      * Motor and servos
      * */
     public DcMotorEx horizontalMotor;
@@ -118,7 +125,7 @@ public class Collection extends SubSystem{
     public final int maxSlideExtension = 640;
 
     public Collection(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX, nothing);
+        registerSubsystem(opModeEX, holdPosition);
     }
 
     @Override
@@ -133,6 +140,22 @@ public class Collection extends SubSystem{
         } else if (nestState == Nest.specimen) {
             nest.setPosition(45);
         }
+
+        if (gripperState == gripper.grab){
+            gripServo.setPosition(0.5);
+            if (collectionState == fourBar.collect){
+                transferTime.reset();
+                transferHappening = true;
+            }
+        } else if (gripperState == gripper.drop) {
+            gripServo.setPosition(0);
+        }
+
+        if (transferTime.milliseconds() > gripperWaitTime && transferHappening){
+            queueCommand(transfer);
+            transferHappening = false;
+        }
+
     }
 
     @Override
@@ -167,24 +190,6 @@ public class Collection extends SubSystem{
         stow.execute();
 
     }
-
-    public  Command grab = new LambdaCommand(
-            () -> {},
-            () -> {
-                gripServo.setPosition(0.5);
-                gripperState = gripper.grab;
-            },
-            () -> true
-    );
-
-    public Command drop = new LambdaCommand(
-            () -> {},
-            () -> {
-                gripServo.setPosition(0);
-                gripperState = gripper.drop;
-            },
-            () -> true
-    );
 
     public Command kinModel(collectionTarget target){
         this.target = target;
@@ -222,10 +227,10 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command nothing = new LambdaCommand(
+    public  Command holdPosition = new LambdaCommand(
             () -> {},
             () -> {
-
+                horizontalMotor.setPower(0.01);
             },
             () -> true
     );
@@ -249,6 +254,21 @@ public class Collection extends SubSystem{
             collectionState = fourBar.collect;
         },
         () -> true
+    );
+
+    public Command dropNest = new LambdaCommand(
+            () -> {},
+            () -> {
+
+                fourBarMainPivot.setPosition(191);
+                fourBarSecondPivot.setPosition(189);
+                griperRotate.setPosition(45);
+
+                collectionState = fourBar.dropNest;
+                setNestState(Nest.sample);
+
+            },
+            () -> true
     );
 
     public Command stow = new LambdaCommand(
@@ -287,21 +307,6 @@ public class Collection extends SubSystem{
             () -> initialTransfer.milliseconds() > waitForTransfer
     );
 
-    public Command dropNest = new LambdaCommand(
-            () -> {},
-            () -> {
-
-                fourBarMainPivot.setPosition(191);
-                fourBarSecondPivot.setPosition(189);
-                griperRotate.setPosition(45);
-                collectionState =fourBar.dropNest;
-                nest.setOffset(5);
-                nest.setPosition(135);
-
-            },
-            () -> true
-    );
-
    public Command camera = new LambdaCommand(
             () -> {},
             () -> {
@@ -313,9 +318,7 @@ public class Collection extends SubSystem{
     );
 
     public Command preCollect = new LambdaCommand(
-            () -> {
-
-            },
+            () -> {},
             () -> {
                 fourBarMainPivot.setPosition(109);
                 fourBarSecondPivot.setPosition(25);
