@@ -65,20 +65,8 @@ public abstract class OpModeEX extends OpMode {
 
         lastTime = timer.milliseconds();
 
-        try {
-            scheduler.execute();
-            loopEX();
-        } catch (Exception e) {
-
-            collection.safePositions();
-            delivery.safePositions();
-
-            collection.disableServos();
-            delivery.disableServos();
-        } finally {
-            collection.disableServos();
-            delivery.disableServos();
-        }
+        scheduler.execute();
+        loopEX();
 
         loopTime = timer.milliseconds() - lastTime;
     }
