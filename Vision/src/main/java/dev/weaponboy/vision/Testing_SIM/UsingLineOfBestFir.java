@@ -78,7 +78,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         for (int i = 0; i < contours.size(); i++){
             Rect rect = boundingRect(contours.get(i));
-            if (rect.area() > 20000 && rect.area() < 1000000){
+            if (rect.area() > 25000 && rect.area() < 1000000){
                 redContours.add(contours.get(i));
             }
         }
@@ -96,8 +96,11 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
             }
         }
 
+        contours.clear();
         redContours.clear();
         topY.clear();
+
+        redMat.release();
 
         return input;
     }
@@ -113,8 +116,16 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         int centerIndex = contourPoints.indexOf(topPoint);
 
-        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size()-61, contourPoints.size()-1));
+        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size() - 61, contourPoints.size()-1));
         List<Point> sublistAfter = new ArrayList<>(contourPoints.subList(centerIndex, 60));
+
+        for (Point contour : sublistAfter) {
+            Imgproc.circle(input, contour, 4, new Scalar(0, 255, 255), -1);
+        }
+
+        for (Point contour : sublistBefore) {
+            Imgproc.circle(input, contour, 4, new Scalar(0, 255, 255), -1);
+        }
 
         double[] line1 = calculateLineOfBestFit(sublistBefore);
         double slope1 = line1[0];
@@ -126,8 +137,8 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         Point intersection = findIntersection(slope1, intercept1, slope2, intercept2);
 
-        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
-        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
+//        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
+//        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
         Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
 
         Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
