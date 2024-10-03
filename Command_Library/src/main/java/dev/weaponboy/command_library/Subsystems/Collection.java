@@ -20,9 +20,7 @@ import dev.weaponboy.command_library.Hardware.motionProfile;
 
 public class Collection extends SubSystem{
 
-    /**
-     * slides constants
-     * */
+    //motion profile
     motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
 
     /**
@@ -109,6 +107,7 @@ public class Collection extends SubSystem{
     @Override
     public void execute() {
         executeEX();
+
         if(railTargetPosition != 0){
             updateRailPosition();
         }
@@ -363,7 +362,7 @@ public class Collection extends SubSystem{
             currentRailPosition += deltaPosition*cmPerDegree;
         }
 
-//        runToPosition();
+        runToPosition();
 
     }
 
