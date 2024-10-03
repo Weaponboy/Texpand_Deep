@@ -1,25 +1,21 @@
 package org.firstinspires.ftc.teamcode.Testing.Vision;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.vision.Testing_SIM.MatImagePipeline;
 import dev.weaponboy.vision.Testing_SIM.UsingLineOfBestFir;
 
 @TeleOp
-public class NormalOpenCVTest extends OpModeEX {
+public class MatImageTesting extends OpModeEX {
 
     private OpenCvCamera webcam;
-    private UsingLineOfBestFir pipeline;
+    private MatImagePipeline pipeline;
     @Override
     public void initEX() {
 
@@ -28,7 +24,7 @@ public class NormalOpenCVTest extends OpModeEX {
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
         // Initialize your pipeline
-        pipeline = new UsingLineOfBestFir();
+        pipeline = new MatImagePipeline();
         webcam.setPipeline(pipeline);
 
         // Open the camera

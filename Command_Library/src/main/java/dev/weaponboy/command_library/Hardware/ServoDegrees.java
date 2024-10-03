@@ -64,6 +64,10 @@ public class ServoDegrees {
         return servo.getPosition();
     }
 
+    public double getPositionDegrees() {
+        return (servo.getPosition()/positionConstantConverter);
+    }
+
     private CompletableFuture<Boolean> setPositionAsync(double position) {
         return CompletableFuture.supplyAsync(() -> {
             servo.setPosition(position * positionConstantConverter);
