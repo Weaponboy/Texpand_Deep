@@ -1,4 +1,4 @@
-package dev.weaponboy.vision.Testing_SIM;
+package dev.weaponboy.vision.SamplePipelines;
 
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
@@ -9,23 +9,26 @@ import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
+import android.graphics.Canvas;
+
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class UsingLineOfBestFir extends OpenCvPipeline {
+public class SampleTargeting  implements VisionProcessor {
+
 
     Mat redMat = new Mat();
 
@@ -61,10 +64,17 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     double minLong = 180;
     double maxLong = 400;
 
-    @Override
-    public Mat processFrame(Mat input) {
+    Point centerDet = new Point();
 
-        Imgproc.cvtColor(input, redMat, COLOR_RGB2HSV);
+    @Override
+    public void init(int width, int height, CameraCalibration calibration) {
+
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long captureTimeNanos) {
+
+        Imgproc.cvtColor(frame, redMat, COLOR_RGB2HSV);
 
         inRange(redMat, redLower, redHigher, redMat);
 
@@ -85,13 +95,13 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         if (!redContours.isEmpty()){
             for (MatOfPoint contour : redContours) {
-                Imgproc.drawContours(input, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
+                Imgproc.drawContours(frame, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
             }
 
             for (MatOfPoint contour : redContours) {
-                Point center =  findTopPosition(input, contour);
+                centerDet =  findTopPosition(frame, contour);
                 if (!(center == null)){
-                    Imgproc.circle(input, center, 4, new Scalar(0, 0, 255), -1);
+                    Imgproc.circle(frame, center, 4, new Scalar(0, 0, 255), -1);
                 }
             }
         }
@@ -99,7 +109,12 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         redContours.clear();
         topY.clear();
 
-        return input;
+        return null;
+    }
+
+    @Override
+    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
+//        canvas.drawCircle(centerDet.x, center.y, );
     }
 
     public Point findTopPosition(Mat input, MatOfPoint Contour){
@@ -248,5 +263,6 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     private static double distance(Point p1, Point p2) {
         return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
     }
+
 
 }
