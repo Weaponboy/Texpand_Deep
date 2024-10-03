@@ -12,6 +12,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 public class DriveBase extends SubSystem {
 
@@ -65,6 +66,15 @@ public class DriveBase extends SubSystem {
 
         return driveCommand;
     }
+
+    public Command drivePowers (RobotPower power){
+        this.vertikal =power.getVertical();
+        this.strafe =power.getHorizontal();
+        this.turn =-power.getPivot();
+
+        return driveCommand;
+    }
+
     LambdaCommand driveCommand = new LambdaCommand(
             () -> {
             },
