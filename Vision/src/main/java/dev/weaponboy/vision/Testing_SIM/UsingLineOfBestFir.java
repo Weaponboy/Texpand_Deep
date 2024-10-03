@@ -65,6 +65,16 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     Gamepad gamepad;
 
+    public boolean isDisplayInput() {
+        return displayInput;
+    }
+
+    public void setDisplayInput(boolean displayInput) {
+        this.displayInput = displayInput;
+    }
+
+    boolean displayInput = true;
+
     public void getGamepad(Gamepad gamepad){
         this.gamepad = gamepad;
     }
@@ -110,7 +120,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         redMat.release();
 
-        if (gamepad.x){
+        if (!displayInput){
             return redMat;
         }else {
             return input;

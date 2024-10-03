@@ -51,7 +51,11 @@ public class NormalOpenCVTest extends OpModeEX {
 
     @Override
     public void init_loop() {
-        pipeline.getGamepad(gamepad1);
+        if (currentGamepad1.x && !lastGamepad1.x && pipeline.isDisplayInput()){
+            pipeline.setDisplayInput(false);
+        }else if (currentGamepad1.x && !lastGamepad1.x && !pipeline.isDisplayInput()){
+            pipeline.setDisplayInput(true);
+        }
         super.init_loop();
     }
 
