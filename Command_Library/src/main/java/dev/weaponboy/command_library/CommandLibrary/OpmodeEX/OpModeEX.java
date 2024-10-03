@@ -47,11 +47,9 @@ public abstract class OpModeEX extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-
         timer.reset();
-        initEX();
         scheduler.init();
-
+        initEX();
     }
 
     @Override
