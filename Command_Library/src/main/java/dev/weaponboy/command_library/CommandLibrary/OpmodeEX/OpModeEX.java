@@ -49,20 +49,8 @@ public abstract class OpModeEX extends OpMode {
         }
 
         timer.reset();
-        try {
-            initEX();
-            scheduler.init();
-        } catch (Exception e) {
-
-            collection.safePositions();
-            delivery.safePositions();
-
-            collection.disableServos();
-            delivery.disableServos();
-        } finally {
-            collection.disableServos();
-            delivery.disableServos();
-        }
+        initEX();
+        scheduler.init();
 
     }
 
