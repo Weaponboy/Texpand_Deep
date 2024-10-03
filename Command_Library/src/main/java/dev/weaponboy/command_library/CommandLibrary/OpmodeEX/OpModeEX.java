@@ -47,13 +47,15 @@ public abstract class OpModeEX extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-        scheduler.init();
+
         timer.reset();
         try {
             initEX();
+            scheduler.init();
         } catch (Exception e) {
 
             collection.safePositions();
+            delivery.safePositions();
 
             collection.disableServos();
             delivery.disableServos();
@@ -74,8 +76,22 @@ public abstract class OpModeEX extends OpMode {
         }
 
         lastTime = timer.milliseconds();
-        scheduler.execute();
-        loopEX();
+
+        try {
+            scheduler.execute();
+            loopEX();
+        } catch (Exception e) {
+
+            collection.safePositions();
+            delivery.safePositions();
+
+            collection.disableServos();
+            delivery.disableServos();
+        } finally {
+            collection.disableServos();
+            delivery.disableServos();
+        }
+
         loopTime = timer.milliseconds() - lastTime;
     }
 

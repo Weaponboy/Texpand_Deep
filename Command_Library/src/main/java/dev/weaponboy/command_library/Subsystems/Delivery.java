@@ -225,6 +225,12 @@ public class Delivery extends SubSystem {
         linierRail.disableServo();
     }
 
+    public void safePositions(){
+        mainPivot.setPosition(85);
+        secondPivot.setPosition(258);
+        griperSev.setPosition(90);
+    }
+
 }
 
 
