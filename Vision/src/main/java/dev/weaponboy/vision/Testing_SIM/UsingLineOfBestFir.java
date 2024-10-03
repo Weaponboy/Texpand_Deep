@@ -29,8 +29,14 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     Mat redMat = new Mat();
 
-    public Scalar redLower = new Scalar(0,131,34);
-    public Scalar redHigher = new Scalar(15,255,255);
+    public Scalar blueLower = new Scalar(103.4, 114, 52);
+    public Scalar blueHigher = new Scalar(119, 255, 255);
+
+    public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
+    public Scalar yellowHigher = new Scalar(26, 255, 255);
+
+    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
+    public Scalar redHigher = new Scalar(201,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
     Mat redHierarchy = new Mat();
