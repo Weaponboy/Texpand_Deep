@@ -368,7 +368,7 @@ public class Collection extends SubSystem{
             currentRailPosition += deltaPosition*cmPerDegree;
         }
 
-//        runToPosition();
+        runToPosition();
 
     }
 

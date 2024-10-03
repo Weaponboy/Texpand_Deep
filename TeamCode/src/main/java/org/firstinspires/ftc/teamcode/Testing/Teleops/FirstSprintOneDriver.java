@@ -212,17 +212,17 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            delivery.slideMotor.setPower(0.36);A
 
         }
-        if(gamepad1.dpad_left){
-            collection.linerRailServo.setPosition(0);
-        }else if(gamepad1.dpad_right){
-            collection.linerRailServo.setPosition(1);
-        }else{
-            collection.linerRailServo.setPosition(0.5);
-        }
-
 //        if(gamepad1.dpad_left){
-//            collection.setRailTargetPosition(10);
+//            collection.linerRailServo.setPosition(0);
+//        }else if(gamepad1.dpad_right){
+//            collection.linerRailServo.setPosition(1);
+//        }else{
+//            collection.linerRailServo.setPosition(0.5);
 //        }
+
+        if(gamepad1.dpad_left){
+            collection.setRailTargetPosition(10);
+        }
         collection.updateRailPosition();
 
         telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
