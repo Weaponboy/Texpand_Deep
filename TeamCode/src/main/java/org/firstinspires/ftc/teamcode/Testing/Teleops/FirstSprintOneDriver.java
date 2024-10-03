@@ -175,7 +175,7 @@ public class FirstSprintOneDriver extends OpModeEX {
         driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x));
 
         if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
-            collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+            collection.setExtendoPower(-gamepad1.left_stick_y/2);
         }
 //        if (delivery.slidesState== Delivery.slideState.holdPosition) {
 //            if (gamepad1.right_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight) {
@@ -212,18 +212,18 @@ public class FirstSprintOneDriver extends OpModeEX {
 //            delivery.slideMotor.setPower(0.36);A
 
         }
-//        if(gamepad1.dpad_left){
-//            collection.linerRailServo.setPosition(0);
-//        }else if(gamepad1.dpad_right){
-//            collection.linerRailServo.setPosition(1);
-//        }else{
-//            collection.linerRailServo.setPosition(0.5);
-//        }
-
         if(gamepad1.dpad_left){
-            collection.setRailTargetPosition(10);
+            collection.linerRailServo.setPosition(0);
+        }else if(gamepad1.dpad_right){
+            collection.linerRailServo.setPosition(1);
+        }else{
+            collection.linerRailServo.setPosition(0.5);
         }
-//        collection.updateRailPosition();
+
+//        if(gamepad1.dpad_left){
+//            collection.setRailTargetPosition(10);
+//        }
+        collection.updateRailPosition();
 
         telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
         telemetry.addData("looptime ", loopTime);

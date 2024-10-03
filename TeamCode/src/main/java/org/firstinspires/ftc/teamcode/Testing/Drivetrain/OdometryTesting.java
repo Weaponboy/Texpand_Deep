@@ -21,8 +21,8 @@ public class OdometryTesting extends OpModeEX {
         telemetry.addData("heading", Math.toDegrees(odometry.Heading()));
 
         telemetry.addData("BackPod", odometry.currentBackPod);
-        telemetry.addData("LeftPod",odometry.currentLeftPod);
-        telemetry.addData("RightPod",odometry.currentRightPod);
+        telemetry.addData("LeftPod", odometry.currentLeftPod);
+        telemetry.addData("RightPod", odometry.currentRightPod);
 
         telemetry.addData("loopTime", loopTime);
 
