@@ -20,6 +20,7 @@ public class NormalOpenCVTest extends OpModeEX {
 
     private OpenCvCamera webcam;
     private UsingLineOfBestFir pipeline;
+
     @Override
     public void initEX() {
 
