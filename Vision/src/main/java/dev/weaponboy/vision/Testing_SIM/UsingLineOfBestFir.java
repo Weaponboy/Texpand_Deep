@@ -9,8 +9,6 @@ import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -24,6 +22,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -37,7 +36,10 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
+//    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
+//    public Scalar redHigher = new Scalar(201,255,255);
+
+    public Scalar redLower = new Scalar(0, 103.4, 38);
     public Scalar redHigher = new Scalar(201,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
@@ -63,8 +65,6 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     double minLong = 180;
     double maxLong = 400;
 
-    Gamepad gamepad;
-
     public boolean isDisplayInput() {
         return displayInput;
     }
@@ -75,20 +75,16 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     boolean displayInput = true;
 
-    public void getGamepad(Gamepad gamepad){
-        this.gamepad = gamepad;
-    }
-
     @Override
     public Mat processFrame(Mat input) {
 
         Imgproc.cvtColor(input, redMat, COLOR_RGB2HSV);
 
         inRange(redMat, redLower, redHigher, redMat);
-
-        erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+//
+//        erode(redMat, redMat, new Mat(5, 5, CV_8U));
+//
+//        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
 
         ArrayList<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -120,11 +116,13 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         redMat.release();
 
-        if (!displayInput){
-            return redMat;
-        }else {
-            return input;
-        }
+//        if (!displayInput){
+//            return redMat;
+//        }else {
+//            return input;
+//        }
+
+        return input;
 
     }
 
@@ -132,15 +130,29 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         Point CenterPoint = null;
 
         List<Point> contourPointsSorted = Arrays.asList(Contour.toArray());
+        List<Point> contourPointsSorted2 = Arrays.asList(Contour.toArray());
+        ArrayList<Point> farXPoints = new ArrayList<>();
         List<Point> contourPoints = Arrays.asList(Contour.toArray());
 
         contourPointsSorted.sort(Comparator.comparingDouble(p -> p.y));
-        Point topPoint = contourPointsSorted.get(0);
+        Point topPointFirst = contourPointsSorted.get(0);
+
+        for (int i = 0; i < contourPointsSorted2.size(); i++){
+            if (Math.abs(topPointFirst.y - contourPointsSorted2.get(i).y) < 2){
+                farXPoints.add(contourPointsSorted2.get(i));
+            }
+        }
+
+        Point topPoint = Collections.max(farXPoints, Comparator.comparingDouble(p -> p.x));
+//        farXPoints.sort(Comparator.comparingDouble(p -> p.x));
+//        Point topPoint = farXPoints.subList(0, 1).get(0);
+
+        Imgproc.circle(input, topPoint, 4, new Scalar(0, 0, 255), -1);
 
         int centerIndex = contourPoints.indexOf(topPoint);
 
-        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size() - 26, contourPoints.size()-1));
-        List<Point> sublistAfter = new ArrayList<>(contourPoints.subList(centerIndex, 25));
+        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size() - 36, contourPoints.size()-1));
+        List<Point> sublistAfter = new ArrayList<>(contourPoints.subList(centerIndex, 35));
 
         for (Point contour : sublistAfter) {
             Imgproc.circle(input, contour, 4, new Scalar(0, 255, 255), -1);
@@ -149,50 +161,50 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         for (Point contour : sublistBefore) {
             Imgproc.circle(input, contour, 4, new Scalar(0, 255, 255), -1);
         }
-
-        double[] line1 = calculateLineOfBestFit(sublistBefore);
-        double slope1 = line1[0];
-        double intercept1 = line1[1];
-
-        double[] line2 = calculateLineOfBestFit(sublistAfter);
-        double slope2 = line2[0];
-        double intercept2 = line2[1];
-
-        Point intersection = findIntersection(slope1, intercept1, slope2, intercept2);
-
-//        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
-//        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
-        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
-
-        Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
-        Point furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
-
-//        if (!(furthestPoint == null)){
-//            Imgproc.circle(input, furthestPoint, 4, new Scalar(0, 0, 255), -1);
-//        }
 //
-//        if (!(furthestPoint == null)){
-//            Imgproc.circle(input, furthestPoint2, 4, new Scalar(0, 0, 255), -1);
+//        double[] line1 = calculateLineOfBestFit(sublistBefore);
+//        double slope1 = line1[0];
+//        double intercept1 = line1[1];
+//
+//        double[] line2 = calculateLineOfBestFit(sublistAfter);
+//        double slope2 = line2[0];
+//        double intercept2 = line2[1];
+//
+//        Point intersection = findIntersection(slope1, intercept1, slope2, intercept2);
+//
+////        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
+////        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
+//        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
+//
+//        Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
+//        Point furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
+//
+////        if (!(furthestPoint == null)){
+////            Imgproc.circle(input, furthestPoint, 4, new Scalar(0, 0, 255), -1);
+////        }
+////
+////        if (!(furthestPoint == null)){
+////            Imgproc.circle(input, furthestPoint2, 4, new Scalar(0, 0, 255), -1);
+////        }
+//
+//        assert furthestPoint != null;
+//        double deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
+//        double deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
+//        double firstLength = Math.hypot(deltaXFirst, deltaYFirst);
+//        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//        assert furthestPoint2 != null;
+//        double deltaXSecond = Math.abs(furthestPoint2.x - intersection.x);
+//        double deltaYSecond = Math.abs(furthestPoint2.y - intersection.y);
+//        double secondLength = Math.hypot(deltaYSecond, deltaXSecond);
+//        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//
+//        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
+//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+//        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
+//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
 //        }
-
-        assert furthestPoint != null;
-        double deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
-        double deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
-        double firstLength = Math.hypot(deltaXFirst, deltaYFirst);
-        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-        assert furthestPoint2 != null;
-        double deltaXSecond = Math.abs(furthestPoint2.x - intersection.x);
-        double deltaYSecond = Math.abs(furthestPoint2.y - intersection.y);
-        double secondLength = Math.hypot(deltaYSecond, deltaXSecond);
-        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-
-        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
-        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
-        }
 
         return CenterPoint;
     }
