@@ -10,6 +10,8 @@ import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -49,6 +51,8 @@ public class SampleTargeting  implements VisionProcessor {
     Point center = new Point(200, 200);
 
     double angle = 30.0;
+
+    Paint red = new Paint();
 
     ArrayList<Point> topY = new ArrayList<>();
     Point rightX = new Point();
@@ -114,7 +118,11 @@ public class SampleTargeting  implements VisionProcessor {
 
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-//        canvas.drawCircle(centerDet.x, center.y, );
+        red.setColor(Color.RED);
+        red.setStyle(Paint.Style.STROKE);
+        red.setStrokeWidth(scaleCanvasDensity * 4);
+
+        canvas.drawCircle((float) centerDet.x, (float) center.y, 4, red);
     }
 
     public Point findTopPosition(Mat input, MatOfPoint Contour){

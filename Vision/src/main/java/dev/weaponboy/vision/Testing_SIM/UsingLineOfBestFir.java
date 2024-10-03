@@ -78,7 +78,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         for (int i = 0; i < contours.size(); i++){
             Rect rect = boundingRect(contours.get(i));
-            if (rect.area() > 7000 && rect.area() < 1000000){
+            if (rect.area() > 20000 && rect.area() < 1000000){
                 redContours.add(contours.get(i));
             }
         }
