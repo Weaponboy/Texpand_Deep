@@ -116,8 +116,8 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         int centerIndex = contourPoints.indexOf(topPoint);
 
-        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size() - 61, contourPoints.size()-1));
-        List<Point> sublistAfter = new ArrayList<>(contourPoints.subList(centerIndex, 60));
+        List<Point> sublistBefore = new ArrayList<>(contourPoints.subList(contourPoints.size() - 26, contourPoints.size()-1));
+        List<Point> sublistAfter = new ArrayList<>(contourPoints.subList(centerIndex, 25));
 
         for (Point contour : sublistAfter) {
             Imgproc.circle(input, contour, 4, new Scalar(0, 255, 255), -1);
