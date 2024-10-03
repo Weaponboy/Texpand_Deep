@@ -22,14 +22,22 @@ public class AutoBlueRight extends OpModeEX {
             () -> paths.addPoints(new Vector2D(147,360 ), new Vector2D(151, 245), new Vector2D(50.4,329 ))
 
     };
-    private final sectionBuilder[ ] rightBlueBasket = {
-            () -> paths.addPoints(new Vector2D(147,360 ),new Vector2D(150.5,296.3) ,new Vector2D(151, 245), new Vector2D(330.5,333.6 ))
-    };
+
     private final sectionBuilder[ ] rightBlueFull = {
-            () -> paths.addPoints(new Vector2D(147,360 ),new Vector2D(59,331) ,new Vector2D(151, 245), new Vector2D(330.5,333.6 ))
+            ()-> paths.addPoints(new Vector2D(151,340),new Vector2D(160,244),new Vector2D(323,325)),
+            ()-> paths.addPoints(new Vector2D(55,330),new Vector2D(160,240))
     };
-
-
+    private final sectionBuilder[ ] rightBlueBasket = {
+            () -> paths.addPoints(new Vector2D(147,360 ),new Vector2D(160,244))
+    };
+    public void runOpMode() throws InterruptedException {
+        enum autoState {
+            preload,
+            collectingSpike,
+            delivering,
+            collectingSub,
+        }
+        public autoState state = rightBlueBasket.autoState.preload;
     @Override
     public void initEX() {
         paths.addNewPath("rightBluePath");
@@ -46,6 +54,9 @@ public class AutoBlueRight extends OpModeEX {
         paths.buildPath(rightBlueFull);
         follow.setPath(paths.returnPath("rightBlueFull"));
     }
+
+
+
 
     @Override
     public void loopEX() {
