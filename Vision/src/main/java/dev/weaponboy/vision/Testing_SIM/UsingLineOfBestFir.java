@@ -9,6 +9,8 @@ import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -61,6 +63,12 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     double minLong = 180;
     double maxLong = 400;
 
+    Gamepad gamepad;
+
+    public void getGamepad(Gamepad gamepad){
+        this.gamepad = gamepad;
+    }
+
     @Override
     public Mat processFrame(Mat input) {
 
@@ -102,7 +110,12 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         redMat.release();
 
-        return input;
+        if (gamepad.x){
+            return redMat;
+        }else {
+            return input;
+        }
+
     }
 
     public Point findTopPosition(Mat input, MatOfPoint Contour){

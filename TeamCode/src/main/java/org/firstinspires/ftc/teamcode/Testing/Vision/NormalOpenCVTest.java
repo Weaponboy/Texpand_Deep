@@ -50,6 +50,12 @@ public class NormalOpenCVTest extends OpModeEX {
     }
 
     @Override
+    public void init_loop() {
+        pipeline.getGamepad(gamepad1);
+        super.init_loop();
+    }
+
+    @Override
     public void loopEX() {
         collection.queueCommand(collection.camera);
     }
