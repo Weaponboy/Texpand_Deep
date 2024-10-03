@@ -413,6 +413,15 @@ public class Collection extends SubSystem{
         nest.disableServo();
     }
 
+    public void safePositions(){
+        fourBarMainPivot.setPosition(180);
+        fourBarSecondPivot.setPosition(160);
+        griperRotate.setPosition(135);
+        gripServo.setPosition(0.3);
+        linerRailServo.setPosition(0.5);
+        nest.setPosition(135);
+    }
+
     public gripper getGripperState() {
         return gripperState;
     }

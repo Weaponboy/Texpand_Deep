@@ -84,6 +84,10 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         }
 
         for (MatOfPoint contour : redContours) {
+            Imgproc.drawContours(input, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
+        }
+
+        for (MatOfPoint contour : redContours) {
             Point center =  findTopPosition(input, contour);
             if (!(center == null)){
                 Imgproc.circle(input, center, 4, new Scalar(0, 0, 255), -1);
