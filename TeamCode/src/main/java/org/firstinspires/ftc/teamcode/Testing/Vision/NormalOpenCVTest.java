@@ -20,6 +20,7 @@ public class NormalOpenCVTest extends OpModeEX {
 
     private OpenCvCamera webcam;
     private UsingLineOfBestFir pipeline;
+
     @Override
     public void initEX() {
 
@@ -35,7 +36,7 @@ public class NormalOpenCVTest extends OpModeEX {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1280, 640, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -46,6 +47,16 @@ public class NormalOpenCVTest extends OpModeEX {
         });
 
         collection.camera.execute();
+    }
+
+    @Override
+    public void init_loop() {
+        if (currentGamepad1.x && !lastGamepad1.x && pipeline.isDisplayInput()){
+            pipeline.setDisplayInput(false);
+        }else if (currentGamepad1.x && !lastGamepad1.x && !pipeline.isDisplayInput()){
+            pipeline.setDisplayInput(true);
+        }
+        super.init_loop();
     }
 
     @Override
