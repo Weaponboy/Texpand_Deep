@@ -39,6 +39,9 @@ public class Odometry extends SubSystem {
     double cmPerDegreeV = ((2.0 * Math.PI) * (trackWidth/2)) / 360;
     double cmPerDegree = ((2.0 * Math.PI) * backPodOffset) / 360;
 
+    double currentXVelocity = 0;
+    double currentYVelocity = 0;
+
     private ExecutorService executor;
 
     public Odometry(OpModeEX opModeEX) {
@@ -66,6 +69,7 @@ public class Odometry extends SubSystem {
     @Override
     public void execute() {
         executeEX();
+        updateVelocity();
     }
 
     public double X (){
@@ -78,6 +82,23 @@ public class Odometry extends SubSystem {
 
     public double Heading (){
         return Heading;
+    }
+
+    public double getYVelocity(){
+        return currentYVelocity;
+    }
+
+    public double getXVelocity(){
+        return currentXVelocity;
+    }
+
+    public void updateVelocity(){
+        double RRXError = ticksPerCM * ((rightPod.getVelocity()+leftPod.getVelocity())/2);
+        double RRYError = ticksPerCM * backPod.getVelocity();
+
+        currentXVelocity = RRXError * Math.cos(Math.toDegrees(Heading)) - RRYError * Math.sin(Math.toDegrees(Heading));
+        currentYVelocity += RRXError * Math.sin(Math.toDegrees(Heading)) + RRYError * Math.cos(Math.toDegrees(Heading));
+
     }
 
     public LambdaCommand update = new LambdaCommand(
