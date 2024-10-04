@@ -60,7 +60,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     RotatedRect rotatedRect = new RotatedRect(center, rectSize, angle);
 
-    double maxShort = 140;
+    double maxShort = 150;
     double minShort = 60;
 
     double minLong = 180;
