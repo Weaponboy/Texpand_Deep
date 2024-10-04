@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
@@ -14,6 +15,20 @@ public class Blue_Left extends OpModeEX {
 
     pathsManager paths = new pathsManager();
     follower follow = new follower();
+    enum autoState{
+        preload,
+        spike1,
+        spike1Retern,
+        spike2,
+        spike2Retern,
+        spike3,
+        spike3Retern,
+    }
+    enum building{
+        notBuilt,
+        built,
+    }
+    //private Blue_Left.autoState autoState = Blue_Left.autoState.pre;
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(271, 335), new Vector2D(308.5, 332.3), new Vector2D(335.7, 335.3)),

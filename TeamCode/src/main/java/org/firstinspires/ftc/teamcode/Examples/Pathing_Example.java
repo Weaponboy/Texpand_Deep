@@ -18,9 +18,8 @@ public class Pathing_Example extends OpModeEX {
 
     double targetHeading;
 
-    private final sectionBuilder[] blueLeft = {
-            () -> paths.addPoints(new Vector2D(0,0), new Vector2D(45, 60)),
-            () -> paths.addPoints(new Vector2D(45, 60), new Vector2D(100, 60), new Vector2D(100, 100))
+    private final sectionBuilder[] line = {
+            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(50, 0), new Vector2D(100, 0))
     };
 
     public enum autoState{
@@ -40,8 +39,8 @@ public class Pathing_Example extends OpModeEX {
 
     @Override
     public void initEX() {
-        paths.addNewPath("blue_left");
-        paths.buildPath(blueLeft);
+        paths.addNewPath("line");
+        paths.buildPath(line);
 
     }
 
@@ -51,8 +50,8 @@ public class Pathing_Example extends OpModeEX {
         if (state == autoState.preload){
 
             if (built == building.notBuilt){
-                follower.setPath(paths.returnPath("blue_left"));
-                targetHeading = 180;
+                follower.setPath(paths.returnPath("line"));
+                targetHeading = 0;
                 built = building.built;
             }
 
@@ -64,8 +63,8 @@ public class Pathing_Example extends OpModeEX {
         } else if (state == autoState.collectingSpike) {
 
             if (built == building.notBuilt){
-                follower.setPath(paths.returnPath("blue_left"));
-                targetHeading = 180;
+                follower.setPath(paths.returnPath("line"));
+                targetHeading = 0;
                 built = building.built;
             }
 
@@ -73,7 +72,7 @@ public class Pathing_Example extends OpModeEX {
 
         //update methods
         odometry.queueCommand(odometry.update);
-        driveBase.queueCommand(driveBase.drivePowers(follower.followPathAuto(180, odometry.Heading(), odometry.X(), odometry.Y(), 180, 180)));
+        driveBase.queueCommand(driveBase.drivePowers(follower.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), 180, 180)));
 
     }
 
