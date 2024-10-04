@@ -1,8 +1,7 @@
-package dev.weaponboy.vision.SamplePipelines;
+package dev.weaponboy.vision.Testing_SIM;
 
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
-import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
@@ -40,7 +39,7 @@ public class SampleTargeting  implements VisionProcessor {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
+    public Scalar redLower = new Scalar(0, 103.4, 38);
     public Scalar redHigher = new Scalar(201,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
@@ -85,9 +84,9 @@ public class SampleTargeting  implements VisionProcessor {
 
         inRange(redMat, redLower, redHigher, redMat);
 
-        erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+//        erode(redMat, redMat, new Mat(5, 5, CV_8U));
+//
+//        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
 
         ArrayList<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -124,11 +123,11 @@ public class SampleTargeting  implements VisionProcessor {
 
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-        red.setColor(Color.RED);
+        red.setColor(Color.BLUE);
         red.setStyle(Paint.Style.STROKE);
         red.setStrokeWidth(scaleCanvasDensity * 4);
 
-        canvas.drawCircle((float) centerDet.x, (float) center.y, 4, red);
+//        canvas.drawCircle((float) centerDet.x, (float) center.y, 4, red);
 
         if (avCounter == 5){
             Point center = findAve(pointsAve, avCounter);

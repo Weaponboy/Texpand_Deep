@@ -10,9 +10,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-import dev.weaponboy.vision.SamplePipelines.SampleTargeting;
+import dev.weaponboy.vision.Testing_SIM.SampleTargeting;
 import dev.weaponboy.vision.SamplePipelines.singleSampleTargeting;
-import dev.weaponboy.vision.Testing_SIM.testingSortingSamples;
 
 @TeleOp
 public class CloseVisionAim extends OpMode {
@@ -31,7 +30,7 @@ public class CloseVisionAim extends OpMode {
         builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
         builder.addProcessor(sampleSorter);
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
-        builder.setCameraResolution(new Size(640, 480));
+        builder.setCameraResolution(new Size(1280, 720));
         portal = builder.build();
 
 //        FtcDashboard.getInstance().startCameraStream(sampleSorter, 30);
