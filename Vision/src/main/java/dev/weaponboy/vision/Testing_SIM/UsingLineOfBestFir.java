@@ -238,7 +238,6 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         double firstLength = 0;
 
         if (!(furthestPoint == null) && !(intersection == null)){
-//            Imgproc.circle(input, furthestPoint, 4, new Scalar(0, 0, 255), -1);
             deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
             deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
             firstLength = Math.hypot(deltaXFirst, deltaYFirst);
@@ -257,12 +256,66 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
             Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         }
 
+//        if (!(intersection == null)){
+//
+////            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
+////                firstLength = secondLength*2.5;
+////            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
+////                secondLength = firstLength*0.4;
+////            }
+//
+//            if ((firstLength < maxShort && firstLength > minShort) && !(secondLength < maxLong && secondLength > minLong)){
+//                double newSecondLength = firstLength*3;
+//                double ratio = newSecondLength/secondLength;
+//                deltaXSecond = deltaXSecond*ratio;
+//                deltaYSecond = deltaYSecond*ratio;
+//                secondLength = newSecondLength;
+//            }else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
+//                double newFirstLength = secondLength*0.3;
+//                double ratio = newFirstLength/firstLength;
+//                deltaXFirst = deltaXFirst*ratio;
+//                deltaYFirst = deltaYFirst*ratio;
+//                firstLength = newFirstLength;
+//            }else if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
+//                double newSecondLength = firstLength*0.4;
+//                double ratio = newSecondLength/firstLength;
+//                deltaXSecond = deltaXSecond*ratio;
+//                deltaYSecond = deltaYSecond*ratio;
+//                firstLength = newSecondLength;
+//            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
+//                double newFirstLength = secondLength*3;
+//                double ratio = newFirstLength/secondLength;
+//                deltaXFirst = deltaXFirst*ratio;
+//                deltaYFirst = deltaYFirst*ratio;
+//                secondLength = newFirstLength;
+//            }
+//
+//        }
+
+//        if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
+//            firstLength = secondLength*2.5;
+//        }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
+//            secondLength = firstLength*0.4;
+//        }
+//        
+//        else if ((firstLength < maxShort && firstLength > minShort) && !(secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
+//            secondLength = firstLength*2.5;
+//        }else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
+//            firstLength = secondLength*0.4;
+//        }
 
         if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
             CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
         }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
             CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
         }
+
+
+        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
+//        Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        Imgproc.putText(input, String.valueOf(deltaYSecond), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
         return CenterPoint;
     }
