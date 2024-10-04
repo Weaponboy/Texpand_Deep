@@ -102,6 +102,9 @@ public class testingSortingSamples implements VisionProcessor {
 //        telemetry.addData("rectangles", rectangles.size());
 //        telemetry.update();
 
+        System.out.println("width" + frame.width());
+        System.out.println("height" + frame.height());
+
         redContours.clear();
         singleSamplesRed.clear();
 
