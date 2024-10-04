@@ -30,7 +30,6 @@ import java.util.List;
 
 public class SampleTargeting  implements VisionProcessor {
 
-
     Mat redMat = new Mat();
 
     public Scalar blueLower = new Scalar(103.4, 114, 52);
@@ -94,7 +93,7 @@ public class SampleTargeting  implements VisionProcessor {
 
         for (int i = 0; i < contours.size(); i++){
             Rect rect = boundingRect(contours.get(i));
-            if (rect.area() > 25000 && rect.area() < 100000){
+            if (rect.area() > 25000 && rect.area() < 1000000){
                 redContours.add(contours.get(i));
             }
         }
@@ -131,7 +130,7 @@ public class SampleTargeting  implements VisionProcessor {
 
         if (avCounter == 5){
             Point center = findAve(pointsAve, avCounter);
-            canvas.drawCircle((float) center.x, (float) center.y, 4, red);
+            canvas.drawCircle((float) center.x*scaleBmpPxToCanvasPx, (float) center.y*scaleBmpPxToCanvasPx, 4, red);
             avCounter = 0;
             pointsAve.clear();
         }
@@ -230,8 +229,13 @@ public class SampleTargeting  implements VisionProcessor {
 //        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
 //        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
 
-        Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
-        Point furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
+        Point furthestPoint = null;
+        Point furthestPoint2 = null;
+
+        if (!(intersection == null)){
+            furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
+            furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
+        }
 
         double deltaXFirst = 0;
         double deltaYFirst = 0;
