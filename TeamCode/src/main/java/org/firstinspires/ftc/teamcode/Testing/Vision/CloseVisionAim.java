@@ -30,7 +30,7 @@ public class CloseVisionAim extends OpMode {
         builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
         builder.addProcessor(sampleSorter);
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
-        builder.setCameraResolution(new Size(1280, 720));
+        builder.setCameraResolution(new Size(1920, 1080));
         portal = builder.build();
 
 //        FtcDashboard.getInstance().startCameraStream(sampleSorter, 30);
