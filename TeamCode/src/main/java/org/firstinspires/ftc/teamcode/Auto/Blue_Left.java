@@ -17,15 +17,32 @@ public class Blue_Left extends OpModeEX {
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(271, 335), new Vector2D(308.5, 332.3), new Vector2D(335.7, 335.3)),
+
+    };
+    private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(315.4, 300), new Vector2D(303.6, 267)),
+
+    };
+    private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(303.6, 267), new Vector2D(315.4, 300), new Vector2D(335.7, 335.3)),
+
+    };
+    private final sectionBuilder[] spike2Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(333.7, 311.7), new Vector2D(330.2, 267)),
+
+    };
+    private final sectionBuilder[] spike2Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(330.2, 267), new Vector2D(333.7, 311.7), new Vector2D(335.7, 335.3)),
+
+    };
+    private final sectionBuilder[] spike3Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(303, 256.4), new Vector2D(331.2, 246.7)),
+
+    };
+    private final sectionBuilder[] spike3Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(331.2, 246.7), new Vector2D(303, 256.4), new Vector2D(335.7, 335.3)),
 
     };
-
     @Override
     public void initEX() {
         paths.addNewPath("preloadPath");
@@ -33,6 +50,57 @@ public class Blue_Left extends OpModeEX {
         paths.buildPath(preloadPath);
 
         follow.setPath(paths.returnPath("preloadPath"));
+
+
+
+
+        //spike1 paths
+        paths.addNewPath("spike1Pickup");
+
+        paths.buildPath(spike1Pickup);
+
+        follow.setPath(paths.returnPath("spike1Pickup"));
+
+
+
+        paths.addNewPath("spike1Drop");
+
+        paths.buildPath(spike1Drop);
+
+        follow.setPath(paths.returnPath("spike1Drop"));
+
+
+
+        //spike2 paths
+        paths.addNewPath("spike2Pickup");
+
+        paths.buildPath(spike2Pickup);
+
+        follow.setPath(paths.returnPath("spike2Pickup"));
+
+        paths.addNewPath("spike2Drop");
+
+        paths.buildPath(spike2Drop);
+
+        follow.setPath(paths.returnPath("spike2Drop"));
+
+
+
+
+
+        //spike3 paths
+        paths.addNewPath("spike3Pickup");
+
+        paths.buildPath(spike3Pickup);
+
+        follow.setPath(paths.returnPath("spike3Pickup"));
+
+        paths.addNewPath("spike3Drop");
+
+        paths.buildPath(spike3Drop);
+
+        follow.setPath(paths.returnPath("spike3Drop"));
+
     }
 
     @Override
