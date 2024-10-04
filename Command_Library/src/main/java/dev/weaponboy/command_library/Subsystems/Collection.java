@@ -14,6 +14,7 @@ import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
+import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.collectionTarget;
 import dev.weaponboy.command_library.Hardware.motionProfile;
@@ -52,7 +53,9 @@ public class Collection extends SubSystem{
     /**
      * Motor and servos
      * */
-    public DcMotorEx horizontalMotor;
+    public MotorEx horizontalMotor = new MotorEx();
+    double extendoPower = 0;
+
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
     public ServoDegrees griperRotate= new ServoDegrees();
@@ -61,7 +64,6 @@ public class Collection extends SubSystem{
     public ServoDegrees nest = new ServoDegrees();
 
     public AxonEncoder linearPosition = new AxonEncoder();
-
 
     public enum fourBar{
         preCollect,
@@ -107,6 +109,7 @@ public class Collection extends SubSystem{
     @Override
     public void execute() {
         executeEX();
+        horizontalMotor.update(extendoPower);
 
         if(railTargetPosition != 0){
             updateRailPosition();
@@ -138,8 +141,7 @@ public class Collection extends SubSystem{
     @Override
     public void init() {
 
-        horizontalMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "horizontalMotor");
-        horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
 
         fourBarMainPivot.initServo("fourBarMainPivot", getOpModeEX().hardwareMap);
         fourBarSecondPivot.initServo("fourBarSecondPivot", getOpModeEX().hardwareMap);
@@ -209,7 +211,11 @@ public class Collection extends SubSystem{
     public  Command holdPosition = new LambdaCommand(
             () -> {},
             () -> {
-                horizontalMotor.setPower(0.01);
+                if (horizontalMotor.getCurrentPosition() < 40){
+                    extendoPower = 0;
+                }else if (horizontalMotor.getCurrentPosition() > 40){
+                    extendoPower = 0.01;
+                }
             },
             () -> true
     );
@@ -289,8 +295,8 @@ public class Collection extends SubSystem{
    public Command camera = new LambdaCommand(
             () -> {},
             () -> {
-                fourBarMainPivot.setPosition(120);
-                fourBarSecondPivot.setPosition(40);
+                fourBarMainPivot.setPosition(140);
+                fourBarSecondPivot.setPosition(70);
                 griperRotate.setPosition(135);
             },
             () -> true
@@ -310,7 +316,7 @@ public class Collection extends SubSystem{
     public LambdaCommand followMotionPro = new LambdaCommand(
             () -> {},
             ()-> {
-                horizontalMotor.setPower(profile.followProfile(horizontalMotor.getCurrentPosition()));
+                extendoPower = profile.followProfile(horizontalMotor.getCurrentPosition());
             },
             ()-> profile.isSlideRunning()
     );
@@ -407,6 +413,15 @@ public class Collection extends SubSystem{
         nest.disableServo();
     }
 
+    public void safePositions(){
+        fourBarMainPivot.setPosition(180);
+        fourBarSecondPivot.setPosition(160);
+        griperRotate.setPosition(135);
+        gripServo.setPosition(0.3);
+        linerRailServo.setPosition(0.5);
+        nest.setPosition(135);
+    }
+
     public gripper getGripperState() {
         return gripperState;
     }
@@ -438,5 +453,10 @@ public class Collection extends SubSystem{
     public void setSlidesState(slideState slidesState) {
         this.slidesState = slidesState;
     }
+
+    public void setExtendoPower(double extendoPower) {
+        this.extendoPower = extendoPower;
+    }
+
 
 }

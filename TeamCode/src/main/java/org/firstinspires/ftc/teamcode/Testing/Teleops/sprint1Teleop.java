@@ -64,9 +64,9 @@ public class sprint1Teleop extends OpModeEX {
         }
 
         if (collection.horizontalMotor.getCurrentPosition() < collection.maxSlideExtension && collection.getSlidesState() == Collection.slideState.manuel) {
-            collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+            collection.setExtendoPower(-gamepad1.left_stick_y/2);
         } else if (collection.getSlidesState() == Collection.slideState.manuel) {
-            collection.horizontalMotor.setPower(-gamepad1.left_stick_y/2);
+            collection.setExtendoPower(-gamepad1.left_stick_y/2);
         }
 
         if(gamepad1.dpad_left){
