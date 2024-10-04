@@ -30,7 +30,7 @@ public class CloseVisionAim extends OpMode {
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
         builder.addProcessor(sampleSorter);
-        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
         builder.setCameraResolution(new Size(640, 480));
         portal = builder.build();
 
