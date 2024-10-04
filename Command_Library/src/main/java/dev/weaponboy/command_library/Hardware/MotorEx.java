@@ -42,7 +42,7 @@ public class MotorEx {
     }
 
     public Integer getCurrentPosition() {
-        return currentPosition;
+        return motor.getCurrentPosition();
     }
 
     public void setDirection(DcMotorSimple.Direction direction){

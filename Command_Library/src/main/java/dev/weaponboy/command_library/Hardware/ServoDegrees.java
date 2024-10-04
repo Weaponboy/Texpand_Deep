@@ -47,21 +47,21 @@ public class ServoDegrees {
     }
 
     public void setPosition(double position) {
-        servo.setPosition((position+offset) * positionConstantConverter);
 
-        System.out.println(position * positionConstantConverter);
-
-//        if (setPositionAsync == null){
-//            setPositionAsync = setPositionAsync(position+offset);
-//        } else if (setPositionAsync.isDone()) {
-//            setPositionAsync = setPositionAsync(position+offset);
-//        }
-
+        if (setPositionAsync == null){
+            setPositionAsync = setPositionAsync(position+offset);
+        } else if (setPositionAsync.isDone()) {
+            setPositionAsync = setPositionAsync(position+offset);
+        }
 
     }
 
     public double getPosition() {
         return servo.getPosition();
+    }
+
+    public double getPositionDegrees() {
+        return (servo.getPosition()/positionConstantConverter);
     }
 
     private CompletableFuture<Boolean> setPositionAsync(double position) {
