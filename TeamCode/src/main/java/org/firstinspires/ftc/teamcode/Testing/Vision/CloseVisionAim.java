@@ -29,6 +29,7 @@ public class CloseVisionAim extends OpMode {
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
         builder.addProcessor(sampleSorter);
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
         portal = builder.build();
 
 //        FtcDashboard.getInstance().startCameraStream(sampleSorter, 30);
