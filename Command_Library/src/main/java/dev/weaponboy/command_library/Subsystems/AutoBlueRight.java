@@ -19,25 +19,33 @@ public class AutoBlueRight extends OpModeEX {
 
 
     private final sectionBuilder[] rightBluePath = {
-            () -> paths.addPoints(new Vector2D(147,360 ), new Vector2D(151, 245), new Vector2D(50.4,329 ))
+            () -> paths.addPoints(new Vector2D(147, 360), new Vector2D(151, 245), new Vector2D(50.4, 329))
 
     };
 
-    private final sectionBuilder[ ] rightBlueFull = {
-            ()-> paths.addPoints(new Vector2D(151,340),new Vector2D(160,244),new Vector2D(323,325)),
-            ()-> paths.addPoints(new Vector2D(55,330),new Vector2D(160,240))
+    private final sectionBuilder[] rightBlueFull = {
+            () -> paths.addPoints(new Vector2D(151, 340), new Vector2D(160, 244), new Vector2D(323, 325)),
+            () -> paths.addPoints(new Vector2D(55, 330), new Vector2D(160, 240))
     };
-    private final sectionBuilder[ ] rightBlueBasket = {
-            () -> paths.addPoints(new Vector2D(147,360 ),new Vector2D(160,244))
+    private final sectionBuilder[] rightBlueBasket = {
+            () -> paths.addPoints(new Vector2D(147, 360), new Vector2D(160, 244))
     };
+
     public void runOpMode() throws InterruptedException {
-        enum autoState {
-            preload,
-            collectingSpike,
-            delivering,
-            collectingSub,
+        //public  enum autoState {
+          //  preload,
+//            collectingSpike,
+//            delivering,
+//            collectingSub,
+//        }
+//         autoState state = rightBlueBasket.autoState.preload;
+
         }
-        public autoState state = rightBlueBasket.autoState.preload;
+
+
+
+
+
     @Override
     public void initEX() {
         paths.addNewPath("rightBluePath");
@@ -55,13 +63,9 @@ public class AutoBlueRight extends OpModeEX {
         follow.setPath(paths.returnPath("rightBlueFull"));
     }
 
-
-
-
     @Override
     public void loopEX() {
         RobotPower currentPower = follow.followPathAuto(180, odometry.Heading(), odometry.X(), odometry.Y(), 180, 180);
         driveBase.queueCommand(driveBase.drivePowers(currentPower.getVertical(), currentPower.getHorizontal(), currentPower.getPivot()));
-
     }
 }
