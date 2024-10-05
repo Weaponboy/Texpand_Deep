@@ -41,7 +41,6 @@ public class Pathing_Example extends OpModeEX {
     public void initEX() {
         paths.addNewPath("line");
         paths.buildPath(line);
-
     }
 
     @Override
@@ -69,6 +68,8 @@ public class Pathing_Example extends OpModeEX {
             }
 
         }
+
+        telemetry.addData("Paths.size", paths.paths.size());
 
         //update methods
         odometry.queueCommand(odometry.update);

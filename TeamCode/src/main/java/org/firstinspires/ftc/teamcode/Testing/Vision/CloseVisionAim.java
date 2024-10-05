@@ -10,11 +10,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.vision.Testing_SIM.SampleTargeting;
 import dev.weaponboy.vision.SamplePipelines.singleSampleTargeting;
 
 @TeleOp
-public class CloseVisionAim extends OpMode {
+public class CloseVisionAim extends OpModeEX {
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -25,7 +26,7 @@ public class CloseVisionAim extends OpMode {
     VisionPortal portal;
 
     @Override
-    public void init() {
+    public void initEX() {
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
         builder.addProcessor(sampleSorter);
@@ -33,11 +34,13 @@ public class CloseVisionAim extends OpMode {
         builder.setCameraResolution(new Size(1920, 1080));
         portal = builder.build();
 
+        collection.camera.execute();
+
 //        FtcDashboard.getInstance().startCameraStream(sampleSorter, 30);
     }
 
     @Override
-    public void loop() {
+    public void loopEX() {
 
     }
 }
