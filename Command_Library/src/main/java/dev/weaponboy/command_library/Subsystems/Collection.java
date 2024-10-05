@@ -296,8 +296,8 @@ public class Collection extends SubSystem{
             () -> {},
             () -> {
                 fourBarMainPivot.setPosition(165);
-                fourBarSecondPivot.setPosition(50);
-                griperRotate.setPosition(135);
+                fourBarSecondPivot.setPosition(70);
+                griperRotate.setPosition(90);
             },
             () -> true
     );
