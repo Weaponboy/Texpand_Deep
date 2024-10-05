@@ -32,7 +32,7 @@ public class Odometry extends SubSystem {
 
     double podTicks = 2000;
     double wheelRadius = 2.4;
-    double trackWidth = 22.7;
+    double trackWidth = 25.1;
     double backPodOffset = 10.5;
 
     double ticksPerCM = ((2.0 * Math.PI) * wheelRadius)/podTicks;
