@@ -26,7 +26,6 @@ public class sprint1Teleop extends OpModeEX {
 
         //collection code
         if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.drop){
-//            collection.setGripperState(Collection.gripper.grab);
             delivery.setGripperState(Delivery.gripper.grab);
         }else if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.grab){
             delivery.setGripperState(Delivery.gripper.drop);
@@ -49,7 +48,7 @@ public class sprint1Teleop extends OpModeEX {
 //            waitTime = 400;
 //            transferringWait.reset();
 //        }
-//
+
 //        if (collection.getCollectionState() == Collection.fourBar.stowed && transferring && transferringWait.milliseconds() > waitTime){
 //            collection.queueCommand(collection.dropNest);
 //            waitTime = 400;
@@ -82,6 +81,10 @@ public class sprint1Teleop extends OpModeEX {
 //        }else{
 //            collection.linerRailServo.setPosition(0.5);
 //        }
+
+        if (gamepad1.dpad_left){
+            collection.setRailTargetPosition(10);
+        }
 
         if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.genProfile(delivery.highBasket);

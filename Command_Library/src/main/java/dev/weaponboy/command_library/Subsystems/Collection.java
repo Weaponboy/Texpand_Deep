@@ -108,7 +108,9 @@ public class Collection extends SubSystem{
 
     @Override
     public void execute() {
+
         executeEX();
+
         horizontalMotor.update(extendoPower);
 
         if(railTargetPosition != 0){
