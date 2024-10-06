@@ -295,8 +295,8 @@ public class Collection extends SubSystem{
    public Command camera = new LambdaCommand(
             () -> {},
             () -> {
-                fourBarMainPivot.setPosition(165);
-                fourBarSecondPivot.setPosition(70);
+                fourBarMainPivot.setPosition(180);
+                fourBarSecondPivot.setPosition(120);
                 griperRotate.setPosition(270);
             },
             () -> true
