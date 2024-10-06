@@ -299,7 +299,7 @@ public class Collection extends SubSystem{
             () -> {
                 fourBarMainPivot.setPosition(180);
                 fourBarSecondPivot.setPosition(120);
-                griperRotate.setPosition(270);
+                griperRotate.setPosition(90);
             },
             () -> true
     );
@@ -308,7 +308,7 @@ public class Collection extends SubSystem{
             () -> {},
             () -> {
                 fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(25);
+                fourBarSecondPivot.setPosition(30);
                 griperRotate.setPosition(90);
                 collectionState = fourBar.preCollect;
             },
@@ -333,6 +333,7 @@ public class Collection extends SubSystem{
 
     public void setRailTargetPosition(double targetPosition) {
         this.railTargetPosition = targetPosition;
+        runToPosition();
         updateRailPosition();
     }
 
@@ -370,7 +371,10 @@ public class Collection extends SubSystem{
             currentRailPosition += deltaPosition*cmPerDegree;
         }
 
-        runToPosition();
+        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }
 
     }
 
@@ -378,18 +382,27 @@ public class Collection extends SubSystem{
 
         double delta = railTargetPosition - currentRailPosition;
 
-        if (Math.abs(delta) < 0.2){
-            linerRailServo.setPosition(0.5);
-            runningToPosition = false;
-        }else if(Math.abs(delta) > 1 && !runningToPosition){
-            railTimeToPosition = Math.abs(delta)*timePerCM;
-            railTime.reset();
-            if (delta > 0){ linerRailServo.setPosition(1);}else {linerRailServo.setPosition(0);}
-            runningToPosition = true;
-        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
-            linerRailServo.setPosition(0.5);
-            runningToPosition = false;
+        railTimeToPosition = Math.abs(delta)*timePerCM;
+        railTime.reset();
+
+        if (delta > 0){
+            linerRailServo.setPosition(1);
+        }else {
+            linerRailServo.setPosition(0);
         }
+
+        runningToPosition = true;
+
+//        if (Math.abs(delta) < 0.2){
+//            linerRailServo.setPosition(0.5);
+//            runningToPosition = false;
+//        }else if(Math.abs(delta) > 1 && !runningToPosition){
+//
+//
+//        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+//            linerRailServo.setPosition(0.5);
+//            runningToPosition = false;
+//        }
 
         updateRailPosition();
     }
