@@ -349,7 +349,9 @@ public class Collection extends SubSystem{
         double spoolSize = 10.676;
         double cmPerDegree = spoolSize / 360;
 
+        System.out.println("Last rail: " + lastPosition);
         System.out.println("currentRailPosition: " + currentRailPosition);
+        System.out.println("currentAxonWirePos: " + currentAxonWirePos);
         System.out.println("lastAxonWirePos: " + lastAxonWirePos);
 
         if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
