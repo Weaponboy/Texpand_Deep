@@ -360,11 +360,9 @@ public class Collection extends SubSystem{
                 currentRailPosition += deltaCM;
 
             } else if (deltaPosition < 0) {
-
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition -= deltaCM;
-
             }
 
         } else {

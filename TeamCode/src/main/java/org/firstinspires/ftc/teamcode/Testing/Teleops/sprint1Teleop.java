@@ -105,6 +105,7 @@ public class sprint1Teleop extends OpModeEX {
 //        }
 
         telemetry.addData("loop time ", loopTime);
+        telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.update();
     }
 }
