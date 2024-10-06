@@ -86,6 +86,10 @@ public class sprint1Teleop extends OpModeEX {
             collection.setRailTargetPosition(10);
         }
 
+        if (gamepad1.right_bumper){
+            collection.queueCommand(collection.preCollect);
+        }
+
         if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.genProfile(delivery.highBasket);
             delivery.queueCommand(delivery.followMotionPro);

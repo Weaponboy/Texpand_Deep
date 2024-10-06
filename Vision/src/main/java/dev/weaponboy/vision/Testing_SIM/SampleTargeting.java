@@ -71,6 +71,12 @@ public class SampleTargeting  implements VisionProcessor {
     int avCounter = 0;
     ArrayList<Point> pointsAve = new ArrayList<>();
 
+    public double getAngleRotate() {
+        return angleRotate;
+    }
+
+    double angleRotate;
+
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
 
@@ -305,8 +311,6 @@ public class SampleTargeting  implements VisionProcessor {
 //                secondLength = newSecondLength;
 //            }
 
-
-
 ////
 //            else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
 //                double newFirstLength = secondLength*0.3;
@@ -342,21 +346,30 @@ public class SampleTargeting  implements VisionProcessor {
 //            firstLength = secondLength*0.4;
 //        }
 
-//        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
-//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+        if (secondLength > firstLength){
+            angleRotate = Math.toDegrees(Math.atan(slope2));
+        }else {
+            angleRotate = Math.toDegrees(Math.atan(slope1));
+        }
+
+        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
+            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
 //            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
-//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
+            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
 //            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//        }else {
+        }
+//
+//        else {
 //            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //
 //        }
 
         Imgproc.putText(input, String.valueOf(firstLength/secondLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(input, String.valueOf(angleRotate), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
 //
 //        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
