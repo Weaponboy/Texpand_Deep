@@ -355,12 +355,12 @@ public class Collection extends SubSystem{
 
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
-                currentRailPosition -= deltaCM;
+                currentRailPosition += deltaCM;
 
             } else if (deltaPosition < 0) {
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
-                currentRailPosition += deltaCM;
+                currentRailPosition -= deltaCM;
             }
 
         } else {
