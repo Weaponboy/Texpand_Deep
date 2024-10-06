@@ -236,7 +236,7 @@ public class Delivery extends SubSystem {
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         linierRail.setRange(335);
-        behindTransfer.execute();
+        clippingPosition.execute();
         secondPivot.setPosition(258);
         mainPivot.setPosition(80);
         griperSev.setPosition(90);
