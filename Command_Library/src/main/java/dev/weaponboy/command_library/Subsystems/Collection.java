@@ -349,6 +349,9 @@ public class Collection extends SubSystem{
         double spoolSize = 10.676;
         double cmPerDegree = spoolSize / 360;
 
+        System.out.println("currentRailPosition: " + currentRailPosition);
+        System.out.println("lastAxonWirePos: " + lastAxonWirePos);
+
         if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
 
             if (deltaPosition > 0){
@@ -356,15 +359,23 @@ public class Collection extends SubSystem{
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition += deltaCM;
+                System.out.println("realDelta > 0: " + realDelta);
+                System.out.println("deltaCM > 0: " + deltaCM);
 
             } else if (deltaPosition < 0) {
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition -= deltaCM;
+
+                System.out.println("realDelta < 0: " + realDelta);
+                System.out.println("deltaCM < 0: " + deltaCM);
             }
 
         } else {
             currentRailPosition += deltaPosition*cmPerDegree;
+
+            System.out.println("deltaPosition normal: " + deltaPosition);
+            System.out.println("deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
         }
 
         if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
