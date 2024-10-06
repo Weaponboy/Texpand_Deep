@@ -38,7 +38,7 @@ public class SampleTargeting  implements VisionProcessor {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(0, 103.4, 38);
+    public Scalar redLower = new Scalar(0, 144, 38);
     public Scalar redHigher = new Scalar(201,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
@@ -64,7 +64,7 @@ public class SampleTargeting  implements VisionProcessor {
     double minShort = 60;
 
     double minLong = 180;
-    double maxLong = 400;
+    double maxLong = 350;
 
     Point centerDet = new Point();
 
@@ -83,9 +83,9 @@ public class SampleTargeting  implements VisionProcessor {
 
         inRange(redMat, redLower, redHigher, redMat);
 
-//        erode(redMat, redMat, new Mat(5, 5, CV_8U));
-//
-//        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+        erode(redMat, redMat, new Mat(5, 5, CV_8U));
+
+        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
 
         ArrayList<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -245,36 +245,70 @@ public class SampleTargeting  implements VisionProcessor {
             deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
             deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
             firstLength = Math.hypot(deltaXFirst, deltaYFirst);
-            Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+            Imgproc.circle(input, furthestPoint, 6, new Scalar(0, 255, 255), -1);
+//            Imgproc.putText(input, String.valueOf(deltaXFirst), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         }
 
         double deltaXSecond = 0;
         double deltaYSecond = 0;
         double secondLength = 0;
 
-        if (!(furthestPoint == null) && !(intersection == null)){
+        if (!(furthestPoint2 == null) && !(intersection == null)){
 //            Imgproc.circle(input, furthestPoint2, 4, new Scalar(0, 0, 255), -1);
             deltaXSecond = Math.abs(furthestPoint2.x - intersection.x);
             deltaYSecond = Math.abs(furthestPoint2.y - intersection.y);
             secondLength = Math.hypot(deltaYSecond, deltaXSecond);
-            Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+            Imgproc.circle(input, furthestPoint2, 6, new Scalar(0, 255, 0), -1);
+//            Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         }
 
-//        if (!(intersection == null)){
+
+
+        if (!(intersection == null)){
+
+//            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
+//                firstLength = secondLength*2.5;
+//            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
+//                secondLength = firstLength*0.4;
+//            }
 //
-////            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
-////                firstLength = secondLength*2.5;
-////            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
-////                secondLength = firstLength*0.4;
-////            }
+//            if((secondLength < maxLong && secondLength > minLong) && (firstLength < maxLong && firstLength > minLong)){
 //
-//            if ((firstLength < maxShort && firstLength > minShort) && !(secondLength < maxLong && secondLength > minLong)){
-//                double newSecondLength = firstLength*3;
-//                double ratio = newSecondLength/secondLength;
-//                deltaXSecond = deltaXSecond*ratio;
-//                deltaYSecond = deltaYSecond*ratio;
+//                if (secondLength > firstLength){
+//                    double newFirstLength = firstLength*0.5;
+//                    double ratio = firstLength/newFirstLength;
+//                    deltaXFirst = deltaXFirst/ratio;
+//                    deltaYFirst = deltaYFirst/ratio;
+//                    firstLength = newFirstLength;
+//                }else{
+//                    double newFirstLength = secondLength*0.5;
+//                    double ratio = firstLength/newFirstLength;
+//                    deltaXSecond = deltaXSecond/ratio;
+//                    deltaYSecond = deltaYSecond/ratio;
+//                    secondLength = newFirstLength;
+//                }
+//
+//            }
+//
+//
+//            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < 260 && firstLength > minLong)){
+//                double newFirstLength = secondLength*3;
+//                double ratio = firstLength/newFirstLength;
+//                deltaXFirst = deltaXFirst/ratio;
+//                deltaYFirst = deltaYFirst/ratio;
+//                firstLength = newFirstLength;
+//            } else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < 260 && firstLength > minLong)){
+//                double newSecondLength = firstLength*0.33;
+//                double ratio = secondLength/newSecondLength;
+//                deltaXSecond = deltaXSecond/ratio;
+//                deltaYSecond = deltaYSecond/ratio;
 //                secondLength = newSecondLength;
-//            }else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
+//            }
+
+
+
+////
+//            else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
 //                double newFirstLength = secondLength*0.3;
 //                double ratio = newFirstLength/firstLength;
 //                deltaXFirst = deltaXFirst*ratio;
@@ -293,8 +327,8 @@ public class SampleTargeting  implements VisionProcessor {
 //                deltaYFirst = deltaYFirst*ratio;
 //                secondLength = newFirstLength;
 //            }
-//
-//        }
+
+        }
 
 //        if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
 //            firstLength = secondLength*2.5;
@@ -308,15 +342,25 @@ public class SampleTargeting  implements VisionProcessor {
 //            firstLength = secondLength*0.4;
 //        }
 
-        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
-        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
-        }
+//        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
+//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
+//            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        }else {
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//        }
 
+        Imgproc.putText(input, String.valueOf(firstLength/secondLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
-        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
 //        Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //        Imgproc.putText(input, String.valueOf(deltaYSecond), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);

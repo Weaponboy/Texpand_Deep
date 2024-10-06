@@ -5,12 +5,7 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
@@ -44,6 +39,36 @@ public class Delivery extends SubSystem {
         postTransfer,
         basket,
     }
+
+    public enum gripper{
+        drop,
+        grab
+    }
+
+    public gripper getGripperState() {
+        return gripperState;
+    }
+
+    public void setGripperState(gripper gripperState) {
+        this.gripperState = gripperState;
+    }
+
+    private gripper gripperState = gripper.drop;
+
+    public enum clipping{
+        drop,
+        in
+    }
+
+    public clipping getClippingState() {
+        return clippingState;
+    }
+
+    public void setClippingState(clipping clippingState) {
+        this.clippingState = clippingState;
+    }
+
+    private clipping clippingState = clipping.drop;
 
     public Delivery.deposit depositstate = deposit.preTransFer;
 
@@ -144,6 +169,19 @@ public class Delivery extends SubSystem {
             },
             () -> true
     );
+
+    public LambdaCommand clippingPosition = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(190);
+                secondPivot.setPosition(160);
+//                griperSev.setPosition(180);
+//                depositstate = deposit.basket;
+            },
+            () -> true
+    );
+
+
     public LambdaCommand cliping = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
@@ -212,6 +250,18 @@ public class Delivery extends SubSystem {
 //        if(slidesState==slideState.holdPosition){
 //            queueCommand(holdPosition);
 //        }
+
+        if (gripperState == Delivery.gripper.grab){
+            griperSev.setPosition(180);
+        } else if (gripperState == Delivery.gripper.drop) {
+            griperSev.setPosition(110);
+        }
+
+        if (clippingState == Delivery.clipping.in){
+            linierRail.setPosition(0);
+        } else if (clippingState == Delivery.clipping.drop) {
+            linierRail.setPosition(270);
+        }
     }
 
     public void genProfile (double slideTarget){
