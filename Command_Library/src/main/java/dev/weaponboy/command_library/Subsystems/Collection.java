@@ -34,7 +34,7 @@ public class Collection extends SubSystem{
     final double spoolSize = 3.6; //in cm
     double railTimeToPosition;
     double rotationsForFullTravel = 20/(spoolSize*Math.PI);
-    double timeForFullRotation = 540; // in ms
+    double timeForFullRotation = 200; // in ms
     double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
     ElapsedTime railTime = new ElapsedTime();
     boolean runningToPosition = false;
@@ -108,7 +108,9 @@ public class Collection extends SubSystem{
 
     @Override
     public void execute() {
+
         executeEX();
+
         horizontalMotor.update(extendoPower);
 
         if(railTargetPosition != 0){
@@ -307,8 +309,8 @@ public class Collection extends SubSystem{
             () -> {
                 fourBarMainPivot.setPosition(109);
                 fourBarSecondPivot.setPosition(25);
-                griperRotate.setPosition(135);
-                collectionState =fourBar.preCollect;
+                griperRotate.setPosition(90);
+                collectionState = fourBar.preCollect;
             },
             () -> true
     );

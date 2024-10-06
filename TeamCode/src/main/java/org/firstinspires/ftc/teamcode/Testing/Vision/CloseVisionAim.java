@@ -41,6 +41,6 @@ public class CloseVisionAim extends OpModeEX {
 
     @Override
     public void loopEX() {
-
+        collection.griperRotate.setPosition(90+sampleSorter.getAngleRotate());
     }
 }
