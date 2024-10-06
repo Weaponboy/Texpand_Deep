@@ -29,7 +29,7 @@ public class Collection extends SubSystem{
      * */
     double currentRailPosition;
     double railTargetPosition;
-    double currentAxonWirePos;
+    public double currentAxonWirePos;
     double lastAxonWirePos;
     final double spoolSize = 3.6; //in cm
     double railTimeToPosition;
