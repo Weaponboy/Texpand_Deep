@@ -156,7 +156,7 @@ public class Collection2 extends SubSystem {
         nest.setOffset(5);
 
         griperRotate.setOffset(-10);
-        griperRotate.setPosition(90);
+        griperRotate.setPosition(135);
 
         Stow.execute();
 
