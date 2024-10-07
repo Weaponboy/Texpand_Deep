@@ -186,7 +186,7 @@ public class Collection2 extends SubSystem {
         updateRailPosition();
 
         if (fourBarState == fourBar.stowed){
-            griperRotate.setPosition(rotatePlaceNest);
+            griperRotate.setPosition(135);
         }
 
     }
