@@ -15,7 +15,7 @@ public class sprint1Teleop extends OpModeEX {
 
     @Override
     public void initEX() {
-        delivery.clippingPosition.execute();
+
     }
 
     @Override

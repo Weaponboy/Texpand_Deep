@@ -90,7 +90,7 @@ public class Collection2 extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 109;
+        double mainPivotPreCollect = 116;
     double secondPivotPreCollect = 30;
     double rotatePreCollect = 90;
 
@@ -156,7 +156,7 @@ public class Collection2 extends SubSystem {
         nest.setOffset(5);
 
         griperRotate.setOffset(-10);
-        griperRotate.setPosition(135);
+        griperRotate.setPosition(90);
 
     }
 
@@ -284,7 +284,7 @@ public class Collection2 extends SubSystem {
                 }
 
             },
-            () -> true
+            () -> !(fourBarState == fourBar.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
     );
 
     public Command transfer = new LambdaCommand(
