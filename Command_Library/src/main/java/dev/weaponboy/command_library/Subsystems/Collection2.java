@@ -99,7 +99,7 @@ public class Collection2 extends SubSystem {
      * */
     double mainPivotStow = 175;
     double secondPivotStow = 180;
-    double rotateStow = 0;
+    double rotateStow = 180;
 
     /**
      * stow position values
@@ -113,7 +113,7 @@ public class Collection2 extends SubSystem {
      * */
     double mainPivotPlaceNest = 191;
     double secondPlaceNest = 189;
-    double rotatePlaceNest = 0;
+    double rotatePlaceNest = 180;
 
     ElapsedTime fourBarTimer = new ElapsedTime();
     double transferWaitTime;
@@ -184,6 +184,10 @@ public class Collection2 extends SubSystem {
 
         horizontalMotor.update(extendoPower);
         updateRailPosition();
+
+        if (fourBarState == fourBar.stowed){
+            griperRotate.setPosition(rotatePlaceNest);
+        }
 
     }
 
@@ -335,7 +339,7 @@ public class Collection2 extends SubSystem {
 
                     Stow.execute();
 
-                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() < 88 || griperRotate.getPositionDegrees() > 92)) {
+                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() < 178 || griperRotate.getPositionDegrees() > 182)) {
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.abs(griperRotate.getPositionDegrees() - rotatePlaceNest)*microRoboticTime;
@@ -344,7 +348,7 @@ public class Collection2 extends SubSystem {
 
                     griperRotate.setPosition(rotatePlaceNest);
 
-                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() > 88 && griperRotate.getPositionDegrees() < 92)) {
+                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() > 178 && griperRotate.getPositionDegrees() < 182)) {
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
@@ -371,7 +375,6 @@ public class Collection2 extends SubSystem {
                     }
 
                 }
-
 
             },
             () -> fourBarState == fourBar.dropNest && clawsState == clawState.drop
