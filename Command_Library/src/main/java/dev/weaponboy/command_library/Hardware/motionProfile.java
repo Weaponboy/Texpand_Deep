@@ -30,7 +30,7 @@ public class motionProfile {
     double holdingMotorPower;
 
     public boolean isSlideRunning() {
-        return !slideRunning;
+        return slideRunning;
     }
 
     boolean slideRunning = false;
@@ -56,7 +56,7 @@ public class motionProfile {
     public void generateMotionProfile (double slideTarget, double currentPosition){
 
         targetPosition = slideTarget;
-        this.currentPosition = currentPosition;
+        this.currentPosition = currentPosition*CMPerTick;
 
         if (vertical){
             vertical();

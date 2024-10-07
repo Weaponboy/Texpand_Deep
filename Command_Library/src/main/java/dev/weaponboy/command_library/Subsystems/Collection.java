@@ -208,7 +208,7 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command holdPosition = new LambdaCommand(
+    public Command holdPosition = new LambdaCommand(
             () -> {},
             () -> {
                 if (horizontalMotor.getCurrentPosition() < 40){
@@ -342,7 +342,7 @@ public class Collection extends SubSystem{
 
         currentAxonWirePos = linearPosition.getPosition();
 
-        double deltaPosition = lastAxonWirePos - currentAxonWirePos;
+        double deltaPosition = currentAxonWirePos - lastAxonWirePos;
         double realDelta;
         double deltaCM;
 

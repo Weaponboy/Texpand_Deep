@@ -16,8 +16,6 @@ public class sprint1Teleop extends OpModeEX {
     @Override
     public void initEX() {
         delivery.clippingPosition.execute();
-
-        collection.preCollect.execute();
     }
 
     @Override
@@ -26,17 +24,27 @@ public class sprint1Teleop extends OpModeEX {
         // drive base code
         driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x));
 
-        //collection code
-        if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.drop){
-            delivery.setGripperState(Delivery.gripper.grab);
-        }else if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.grab){
-            delivery.setGripperState(Delivery.gripper.drop);
+//        //collection code
+//        if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.drop){
+//            delivery.setGripperState(Delivery.gripper.grab);
+//        }else if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.grab){
+//            delivery.setGripperState(Delivery.gripper.drop);
+//        }
+
+        if (currentGamepad1.right_bumper && !lastGamepad1.left_bumper){
+            collection.queueCommand(collection.collect);
         }
 
-        if (currentGamepad1.back && !lastGamepad1.back && delivery.getClippingState() == Delivery.clipping.in){
-            delivery.setClippingState(Delivery.clipping.drop);
-        }else if (currentGamepad1.back && !lastGamepad1.back && delivery.getClippingState() == Delivery.clipping.drop){
-            delivery.setClippingState(Delivery.clipping.in);
+        if (currentGamepad1.back && !lastGamepad1.back){
+            collection.queueCommand(collection.stow);
+        }
+
+        if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
+            collection.queueCommand(collection.transfer);
+        }
+
+        if (gamepad1.start){
+            collection.disableServos();
         }
 
 //        if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.stowed){
@@ -88,21 +96,17 @@ public class sprint1Teleop extends OpModeEX {
             collection.setRailTargetPosition(10);
         }
 
-        if (gamepad1.right_bumper){
-            collection.queueCommand(collection.preCollect);
-        }
-
         if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.genProfile(delivery.highBasket);
             delivery.queueCommand(delivery.followMotionPro);
             delivery.slidesState = Delivery.slideState.moving;
         }
 
-//        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
-//            delivery.genProfile(0);
-//            delivery.queueCommand(delivery.followMotionPro);
-//            delivery.slidesState = Delivery.slideState.moving;
-//        }
+        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
+            delivery.genProfile(0);
+            delivery.queueCommand(delivery.followMotionPro);
+            delivery.slidesState = Delivery.slideState.moving;
+        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());

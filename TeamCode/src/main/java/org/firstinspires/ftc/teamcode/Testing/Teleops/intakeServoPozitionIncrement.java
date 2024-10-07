@@ -54,7 +54,7 @@ public class intakeServoPozitionIncrement extends OpModeEX {
 //
 //        colection.fourBarSecondPivot.setPosition(55);
 
-        collection.preCollect.execute();
+//        collection.preCollect.execute();
         delivery.mainPivot.setPosition(65);
         delivery.secondPivot.setPosition(260);
     }

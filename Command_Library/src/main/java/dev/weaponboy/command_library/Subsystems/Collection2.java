@@ -3,6 +3,7 @@ package dev.weaponboy.command_library.Subsystems;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.Execute;
@@ -21,12 +22,36 @@ public class Collection2 extends SubSystem {
     double extendoPower = 0;
     motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
 
+    //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
     public ServoDegrees griperRotate= new ServoDegrees();
     public ServoImplEx gripServo;
     public Servo linerRailServo;
     public ServoDegrees nest = new ServoDegrees();
+
+    /**
+     * linear rail constants
+     * */
+    double currentRailPosition;
+    double railTargetPosition;
+    public double currentAxonWirePos;
+    double lastAxonWirePos;
+    final double spoolSize = 3.6; //in cm
+    double railTimeToPosition;
+    double rotationsForFullTravel = 20/(spoolSize*Math.PI);
+    double timeForFullRotation = 400; // in ms
+    double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
+    ElapsedTime railTime = new ElapsedTime();
+    boolean runningToPosition = false;
+
+    /**
+     * servo time per degrees
+     * */
+    double axonMaxTime = (double) 690 / 360;
+    double microRoboticTime = (double) 840 / 360;
+    double gripperOpenTime = 400;
+
 
     public AxonEncoder linearPosition = new AxonEncoder();
 
@@ -35,11 +60,70 @@ public class Collection2 extends SubSystem {
         preCollect,
         collect,
         dropNest,
+        transferringStates,
+        stowed,
+        transferInt
+    }
+
+    public enum collection{
+        collecting,
         transferring,
         stowed
     }
 
+    public enum slideState{
+        manuel,
+        profile
+    }
+
+    public enum clawState{
+        drop,
+        grab
+    }
+
+    /**
+     * collect position values
+     * */
+    double mainPivotCollect = 96;
+    double secondPivotCollect = 6;
+
+    /**
+     * preCollect position values
+     * */
+    double mainPivotPreCollect = 109;
+    double secondPivotPreCollect = 30;
+    double rotatePreCollect = 90;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotStow = 175;
+    double secondPivotStow = 180;
+    double rotateStow = 0;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotTransInt = 90;
+    double secondPivotTransInt = 190;
+    double rotateTransInt = 90;
+
+    /**
+     * drop nest position values
+     * */
+    double mainPivotPlaceNest = 191;
+    double secondPlaceNest = 189;
+    double rotatePlaceNest = 0;
+
+    ElapsedTime fourBarTimer = new ElapsedTime();
+    double transferWaitTime;
+
+    /**enum states*/
     private fourBar fourBarState = fourBar.stowed;
+    private fourBar fourBarTargetState = fourBar.stowed;
+    private collection collectionState = collection.stowed;
+    private slideState slidesState = slideState.manuel;
+    private clawState clawsState = clawState.drop;
 
     public Collection2(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, defaultCommand);
@@ -79,7 +163,70 @@ public class Collection2 extends SubSystem {
     @Override
     public void execute() {
         executeEX();
+
+        if (slidesState == slideState.profile){
+            extendoPower = profile.followProfile(horizontalMotor.getCurrentPosition());
+            if (!profile.isSlideRunning()){
+                slidesState = slideState.manuel;
+            }
+        }
+
+        if (clawsState == clawState.grab){
+            gripServo.setPosition(0.5);
+        } else if (clawsState == clawState.drop) {
+            gripServo.setPosition(0);
+        }
+
+        horizontalMotor.update(extendoPower);
+        updateRailPosition();
+
     }
+
+    private final Command preCollect = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPreCollect);
+                fourBarSecondPivot.setPosition(secondPivotPreCollect);
+                griperRotate.setPosition(rotatePreCollect);
+            }
+    );
+
+    private final Command Collect = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotCollect);
+                fourBarSecondPivot.setPosition(secondPivotCollect);
+            }
+    );
+
+    private final Command Stow = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPreCollect);
+                fourBarSecondPivot.setPosition(secondPivotPreCollect);
+            }
+    );
+
+    private final Command dropNest = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPlaceNest);
+                fourBarSecondPivot.setPosition(secondPlaceNest);
+                griperRotate.setPosition(rotatePlaceNest);
+            }
+    );
+
+    private final Command transInt = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotTransInt);
+                fourBarSecondPivot.setPosition(secondPivotTransInt);
+                griperRotate.setPosition(rotateTransInt);
+            }
+    );
+
+    public final Command camera = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(180);
+                fourBarSecondPivot.setPosition(120);
+                griperRotate.setPosition(90);
+            }
+    );
 
     public Command defaultCommand = new LambdaCommand(
             () -> {},
@@ -93,14 +240,294 @@ public class Collection2 extends SubSystem {
             () -> true
     );
 
-    private final Command collect = new Execute(
+    public Command collect(double slideTarget){
+        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
+        slidesState = slideState.profile;
+        return collect;
+    }
+
+    public Command collect = new LambdaCommand(
+            () -> {},
             () -> {
-                fourBarMainPivot.setPosition(96);
-                fourBarSecondPivot.setPosition(6);
-                fourBarState = fourBar.collect;
-            }
+
+                if (fourBarState == fourBar.preCollect){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    Collect.execute();
+
+                } else if (fourBarState == fourBar.collect) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.preCollect;
+
+                    preCollect.execute();
+
+                }else {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.preCollect;
+
+                    preCollect.execute();
+
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+            },
+            () -> true
     );
 
+    public Command transfer = new LambdaCommand(
+            () -> {
+                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+                slidesState = slideState.profile;
+            },
+            () -> {
 
+                if (fourBarState == fourBar.collect && clawsState == clawState.drop){
+
+                    clawsState = clawState.grab;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                }else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransInt)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.transferInt) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                    Stow.execute();
+
+                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() < 88 || griperRotate.getPositionDegrees() > 92)) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.abs(griperRotate.getPositionDegrees() - rotatePlaceNest)*microRoboticTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                    griperRotate.setPosition(rotatePlaceNest);
+
+                } else if (fourBarState == fourBar.stowed && (griperRotate.getPositionDegrees() > 88 && griperRotate.getPositionDegrees() < 92)) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.dropNest;
+
+                    dropNest.execute();
+
+                }else if (fourBarState == fourBar.dropNest && clawsState == clawState.grab) {
+
+                    clawsState = clawState.drop;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.dropNest;
+
+                    dropNest.execute();
+
+                }else if (fourBarState == fourBar.transferringStates) {
+
+                    if (fourBarTimer.milliseconds() > transferWaitTime){
+                        fourBarState = fourBarTargetState;
+                    }
+
+                }
+
+
+            },
+            () -> fourBarState == fourBar.dropNest && clawsState == clawState.drop
+    );
+
+    public Command stow = new LambdaCommand(
+            () -> {},
+            () -> {
+
+                if (fourBarState == fourBar.collect){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.preCollect){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.dropNest) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                }else if (fourBarState == fourBar.transferInt) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                    Stow.execute();
+
+                } else if (fourBarState == fourBar.transferringStates) {
+
+                    if (fourBarTimer.milliseconds() > transferWaitTime){
+                        fourBarState = fourBarTargetState;
+                    }
+
+                    if (fourBarState == fourBar.stowed){
+                        griperRotate.setPosition(rotatePlaceNest);
+                    }
+
+                }
+
+            },
+            () -> fourBarState == fourBar.stowed
+    );
+
+    public double getRailPosition() {
+        return currentRailPosition;
+    }
+
+    public void setRailTargetPosition(double targetPosition) {
+        this.railTargetPosition = targetPosition;
+        runToPosition();
+        updateRailPosition();
+    }
+
+    public void updateRailPosition(){
+
+        double lastPosition = currentRailPosition;
+        lastAxonWirePos = currentAxonWirePos;
+
+        currentAxonWirePos = linearPosition.getPosition();
+
+        double deltaPosition = currentAxonWirePos - lastAxonWirePos;
+        double realDelta;
+        double deltaCM;
+
+        double spoolSize = 10.676;
+        double cmPerDegree = spoolSize / 360;
+
+        System.out.println("Last rail: " + lastPosition);
+        System.out.println("currentRailPosition: " + currentRailPosition);
+        System.out.println("currentAxonWirePos: " + currentAxonWirePos);
+        System.out.println("lastAxonWirePos: " + lastAxonWirePos);
+
+        if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
+
+            if (deltaPosition > 0){
+
+                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
+                deltaCM = realDelta * cmPerDegree;
+                currentRailPosition += deltaCM;
+                System.out.println("realDelta > 0: " + realDelta);
+                System.out.println("deltaCM > 0: " + deltaCM);
+
+            } else if (deltaPosition < 0) {
+                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
+                deltaCM = realDelta * cmPerDegree;
+                currentRailPosition -= deltaCM;
+
+                System.out.println("realDelta < 0: " + realDelta);
+                System.out.println("deltaCM < 0: " + deltaCM);
+            }
+
+        } else {
+            currentRailPosition += deltaPosition*cmPerDegree;
+
+            System.out.println("deltaPosition normal: " + deltaPosition);
+            System.out.println("deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
+        }
+
+        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }
+
+    }
+
+    private void runToPosition(){
+
+        double delta = railTargetPosition - currentRailPosition;
+
+        railTimeToPosition = Math.abs(delta)*timePerCM;
+        railTime.reset();
+
+        if (delta > 0){
+            linerRailServo.setPosition(1);
+        }else {
+            linerRailServo.setPosition(0);
+        }
+
+        runningToPosition = true;
+
+        updateRailPosition();
+    }
+
+    private static double findRealDelta(double last, double current){
+        double realDelta;
+
+        if (last > current){
+            realDelta = current + (360 - last);
+        }else {
+            realDelta = last + (360 - current);
+        }
+
+        return realDelta;
+    }
+
+    public fourBar getFourBarState() {
+        return fourBarState;
+    }
+
+    public collection getCollectionState() {
+        return collectionState;
+    }
+
+    public Collection2.slideState getSlideState() {
+        return slidesState;
+    }
+
+    public void disableServos(){
+        fourBarMainPivot.disableServo();
+        fourBarSecondPivot.disableServo();
+        griperRotate.disableServo();
+        gripServo.getController().pwmDisable();
+        linerRailServo.getController().pwmDisable();
+        nest.disableServo();
+    }
 
 }
