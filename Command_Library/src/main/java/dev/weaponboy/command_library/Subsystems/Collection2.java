@@ -98,7 +98,7 @@ public class Collection2 extends SubSystem {
      * stow position values
      * */
     double mainPivotStow = 175;
-    double secondPivotStow = 180;
+    double secondPivotStow = 188;
     double rotateStow = 45;
 
     /**
@@ -112,7 +112,7 @@ public class Collection2 extends SubSystem {
      * drop nest position values
      * */
     double mainPivotPlaceNest = 191;
-    double secondPlaceNest = 189;
+    double secondPlaceNest = 195;
     double rotatePlaceNest = 45;
 
     ElapsedTime fourBarTimer = new ElapsedTime();
