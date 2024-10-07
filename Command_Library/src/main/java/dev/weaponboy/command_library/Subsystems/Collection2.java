@@ -342,7 +342,7 @@ public class Collection2 extends SubSystem {
                 } else if (fourBarState == fourBar.stowed && griperRotate.getPositionDegrees() > 120) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.abs(griperRotate.getPositionDegrees() - rotatePlaceNest)*microRoboticTime;
+                    transferWaitTime = 1000;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.stowed;
 
@@ -351,7 +351,8 @@ public class Collection2 extends SubSystem {
                 } else if (fourBarState == fourBar.stowed && griperRotate.getPositionDegrees() < 55) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+//                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+                    transferWaitTime = 1000;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropNest;
 
@@ -362,11 +363,22 @@ public class Collection2 extends SubSystem {
                     clawsState = clawState.drop;
 
                     fourBarTimer.reset();
-                    transferWaitTime = gripperOpenTime;
+//                    transferWaitTime = gripperOpenTime;
+                    transferWaitTime = 1000;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropNest;
 
                     dropNest.execute();
+
+                }else if (fourBarState == fourBar.dropNest && clawsState == clawState.drop) {
+
+                    fourBarTimer.reset();
+//                    transferWaitTime = gripperOpenTime;
+                    transferWaitTime = 1000;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                    Stow.execute();
 
                 }else if (fourBarState == fourBar.transferringStates) {
 
@@ -377,7 +389,7 @@ public class Collection2 extends SubSystem {
                 }
 
             },
-            () -> fourBarState == fourBar.dropNest && clawsState == clawState.drop
+            () -> fourBarState == fourBar.stowed && clawsState == clawState.drop
     );
 
     public Command stow = new LambdaCommand(
