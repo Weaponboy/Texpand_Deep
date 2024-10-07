@@ -84,7 +84,7 @@ public class Collection2 extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 96;
+    double mainPivotCollect = 99;
     double secondPivotCollect = 15;
 
     /**
@@ -160,6 +160,9 @@ public class Collection2 extends SubSystem {
 
         Stow.execute();
 
+        currentAxonWirePos = linearPosition.getPosition();
+        lastAxonWirePos = currentAxonWirePos;
+
     }
 
     @Override
@@ -206,8 +209,8 @@ public class Collection2 extends SubSystem {
 
     private final Command Stow = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(mainPivotPreCollect);
-                fourBarSecondPivot.setPosition(secondPivotPreCollect);
+                fourBarMainPivot.setPosition(mainPivotStow);
+                fourBarSecondPivot.setPosition(secondPivotStow);
             }
     );
 
@@ -312,7 +315,8 @@ public class Collection2 extends SubSystem {
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
-                }else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
+                }
+                else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransInt)*microRoboticTime);
@@ -321,7 +325,8 @@ public class Collection2 extends SubSystem {
 
                     transInt.execute();
 
-                }else if (fourBarState == fourBar.transferInt) {
+                }
+                else if (fourBarState == fourBar.transferInt) {
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
@@ -443,7 +448,7 @@ public class Collection2 extends SubSystem {
 
         currentAxonWirePos = linearPosition.getPosition();
 
-        double deltaPosition = currentAxonWirePos - lastAxonWirePos;
+        double deltaPosition = lastAxonWirePos - currentAxonWirePos;
         double realDelta;
         double deltaCM;
 
