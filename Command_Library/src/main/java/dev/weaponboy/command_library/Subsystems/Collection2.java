@@ -85,7 +85,7 @@ public class Collection2 extends SubSystem {
      * collect position values
      * */
     double mainPivotCollect = 96;
-    double secondPivotCollect = 11;
+    double secondPivotCollect = 15;
 
     /**
      * preCollect position values
@@ -158,7 +158,7 @@ public class Collection2 extends SubSystem {
         griperRotate.setOffset(-10);
         griperRotate.setPosition(90);
 
-        stow.execute();
+        Stow.execute();
 
     }
 

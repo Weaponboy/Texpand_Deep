@@ -78,6 +78,7 @@ public class intakeServoPozitionIncrement extends OpModeEX {
      //       griperRotatePower=griperRotate.getPosition()+ 1;
      //       griperRotate.setPosition(griperRotatePower);
      //   }
+
         if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.queueCommand(delivery.transfer);
         }

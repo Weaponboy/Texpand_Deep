@@ -102,11 +102,11 @@ public class sprint1Teleop extends OpModeEX {
             delivery.slidesState = Delivery.slideState.moving;
         }
 
-        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
-            delivery.genProfile(0);
-            delivery.queueCommand(delivery.followMotionPro);
-            delivery.slidesState = Delivery.slideState.moving;
-        }
+//        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
+//            delivery.genProfile(0);
+//            delivery.queueCommand(delivery.followMotionPro);
+//            delivery.slidesState = Delivery.slideState.moving;
+//        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
