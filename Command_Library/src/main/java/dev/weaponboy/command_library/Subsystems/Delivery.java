@@ -152,7 +152,7 @@ public class Delivery extends SubSystem {
             () -> {
                 secondPivot.setPosition(258);
                 griperSev.setPosition(90);
-                mainPivot.setPosition(70);
+                mainPivot.setPosition(75);
                 depositstate =deposit.preTransFer;
 
             },
