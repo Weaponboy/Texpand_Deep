@@ -31,7 +31,7 @@ public class sprint1Teleop extends OpModeEX {
 //            delivery.setGripperState(Delivery.gripper.drop);
 //        }
 
-        if (currentGamepad1.right_bumper && !lastGamepad1.left_bumper){
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
             collection.queueCommand(collection.collect);
         }
 
