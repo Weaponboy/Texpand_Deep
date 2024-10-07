@@ -85,12 +85,12 @@ public class Collection2 extends SubSystem {
      * collect position values
      * */
     double mainPivotCollect = 96;
-    double secondPivotCollect = 6;
+    double secondPivotCollect = 11;
 
     /**
      * preCollect position values
      * */
-        double mainPivotPreCollect = 116;
+    double mainPivotPreCollect = 116;
     double secondPivotPreCollect = 30;
     double rotatePreCollect = 90;
 
@@ -186,6 +186,8 @@ public class Collection2 extends SubSystem {
 
     private final Command preCollect = new Execute(
             () -> {
+                System.out.println("Running preCollect command");
+
                 fourBarMainPivot.setPosition(mainPivotPreCollect);
                 fourBarSecondPivot.setPosition(secondPivotPreCollect);
                 griperRotate.setPosition(rotatePreCollect);
@@ -194,6 +196,9 @@ public class Collection2 extends SubSystem {
 
     private final Command Collect = new Execute(
             () -> {
+
+                System.out.println("Running collect command");
+
                 fourBarMainPivot.setPosition(mainPivotCollect);
                 fourBarSecondPivot.setPosition(secondPivotCollect);
             }
@@ -252,6 +257,8 @@ public class Collection2 extends SubSystem {
             () -> {},
             () -> {
 
+                System.out.println("Running collect command FULL");
+
                 if (fourBarState == fourBar.preCollect){
 
                     fourBarTimer.reset();
@@ -291,8 +298,8 @@ public class Collection2 extends SubSystem {
 
     public Command transfer = new LambdaCommand(
             () -> {
-                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-                slidesState = slideState.profile;
+//                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+//                slidesState = slideState.profile;
             },
             () -> {
 

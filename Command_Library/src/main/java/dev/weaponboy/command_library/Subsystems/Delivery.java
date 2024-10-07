@@ -250,9 +250,9 @@ public class Delivery extends SubSystem {
 //        }
 
         if (gripperState == Delivery.gripper.grab){
-            griperSev.setPosition(180);
-        } else if (gripperState == Delivery.gripper.drop) {
             griperSev.setPosition(110);
+        } else if (gripperState == Delivery.gripper.drop) {
+            griperSev.setPosition(180);
         }
 
         if (clippingState == Delivery.clipping.in){

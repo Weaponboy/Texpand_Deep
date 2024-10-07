@@ -39,7 +39,7 @@ public class sprint1Teleop extends OpModeEX {
             collection.queueCommand(collection.stow);
         }
 
-        if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
+        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)){
             collection.queueCommand(collection.transfer);
         }
 
