@@ -152,7 +152,7 @@ public class Delivery extends SubSystem {
             () -> {
                 secondPivot.setPosition(258);
                 griperSev.setPosition(90);
-                mainPivot.setPosition(80);
+                mainPivot.setPosition(70);
                 depositstate =deposit.preTransFer;
 
             },
@@ -236,9 +236,7 @@ public class Delivery extends SubSystem {
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         linierRail.setRange(335);
-        clippingPosition.execute();
-        secondPivot.setPosition(258);
-        mainPivot.setPosition(80);
+        behindTransfer.execute();
         griperSev.setPosition(90);
 //        drop.execute();
 

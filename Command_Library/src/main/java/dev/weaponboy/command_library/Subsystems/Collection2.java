@@ -158,6 +158,8 @@ public class Collection2 extends SubSystem {
         griperRotate.setOffset(-10);
         griperRotate.setPosition(90);
 
+        stow.execute();
+
     }
 
     @Override
@@ -268,7 +270,7 @@ public class Collection2 extends SubSystem {
 
                     preCollect.execute();
 
-                }else {
+                }else if (!(fourBarState == fourBar.transferringStates)){
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
