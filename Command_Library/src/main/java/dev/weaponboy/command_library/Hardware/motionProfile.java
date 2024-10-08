@@ -100,7 +100,7 @@ public class motionProfile {
 
 //        slideRunning = currentPosition > targetPosition;
 
-        if (lastIndex >= motionProfile.size()-1){
+        if (lastIndex >= motionProfile.size()-2){
             slideRunning = false;
         }
 
