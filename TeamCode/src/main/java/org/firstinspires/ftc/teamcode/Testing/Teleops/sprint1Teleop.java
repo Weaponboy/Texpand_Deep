@@ -48,6 +48,10 @@ public class sprint1Teleop extends OpModeEX {
             collection.disableServos();
         }
 
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+            delivery.queueCommand(delivery.transfer);
+        }
+
 //        if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.stowed){
 //            collection.queueCommand(collection.preCollect);
 //        }else if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.preCollect){

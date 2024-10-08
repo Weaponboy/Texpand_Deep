@@ -377,7 +377,6 @@ public class Collection2 extends SubSystem {
                     clawsState = clawState.drop;
 
                     fourBarTimer.reset();
-//                    transferWaitTime = gripperOpenTime;
                     transferWaitTime = 200;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropNest;
@@ -387,7 +386,6 @@ public class Collection2 extends SubSystem {
                 }else if (fourBarState == fourBar.dropNest && clawsState == clawState.drop) {
 
                     fourBarTimer.reset();
-//                    transferWaitTime = gripperOpenTime;
                     transferWaitTime = 350;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropPullOut;
@@ -397,7 +395,6 @@ public class Collection2 extends SubSystem {
                 }else if (fourBarState == fourBar.dropPullOut && clawsState == clawState.drop) {
 
                     fourBarTimer.reset();
-//                    transferWaitTime = gripperOpenTime;
                     transferWaitTime = 90;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.stowed;

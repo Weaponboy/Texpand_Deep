@@ -35,11 +35,32 @@ public class Delivery extends SubSystem {
     boolean gripTimer;
 
     /**
+     * servo time per degrees
+     * */
+    double axonMaxTime = (double) 690 / 360;
+    double microRoboticTime = (double) 840 / 360;
+    double gripperOpenTime = 400;
+
+    /**
      * behind transfer position values
      * */
-    double mainPivotBehindTransfer = 90;
-    double secondPivotTransInt = 190;
-    double rotateTransInt = 135;
+    double mainPivotBehindTransfer = 70;
+    double secondBehindTransfer = 226;
+    double gripperBehindTransfer = 180;
+
+    /**
+     * transfer position values
+     * */
+    double mainPivotTransfer = 80;
+    double secondTransfer = 230;
+    double gripperTransfer = 180;
+
+    /**
+     * transfer position values
+     * */
+    double mainPivotPostTransfer = 80;
+    double secondPostTransfer = 230;
+    double gripperPostTransfer = 110;
 
     public enum DeliveryState{
         transfer,
@@ -52,7 +73,8 @@ public class Delivery extends SubSystem {
         behindNest,
         grabNest,
         postTransfer,
-        basketDeposit
+        basketDeposit,
+        transferringStates
     }
 
     public enum gripper{
@@ -69,23 +91,13 @@ public class Delivery extends SubSystem {
     }
 
     private gripper gripperState = gripper.drop;
+    public Delivery.fourBarState fourbarState = fourBarState.behindNest;
+    public Delivery.fourBarState fourBarTargetState = fourBarState.behindNest;
+    public Delivery.DeliveryState depositState = DeliveryState.stowed;
 
-    public enum clipping{
-        drop,
-        in
-    }
 
-    public clipping getClippingState() {
-        return clippingState;
-    }
-
-    public void setClippingState(clipping clippingState) {
-        this.clippingState = clippingState;
-    }
-
-    private clipping clippingState = clipping.drop;
-
-    public Delivery.DeliveryState depositstate = DeliveryState.stowed;
+    ElapsedTime fourBarTimer = new ElapsedTime();
+    double transferWaitTime;
 
     public enum slideState {
         holdPosition,
@@ -114,93 +126,115 @@ public class Delivery extends SubSystem {
             () -> true
     );
 
-    public Command behindNest = new Execute(
+    private Command behindNest = new Execute(
             () -> {
-                mainPivot.setPosition(90);
-                secondPivot.setPosition(226);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
+                mainPivot.setPosition(mainPivotBehindTransfer);
+                secondPivot.setPosition(secondBehindTransfer);
+                griperSev.setPosition(gripperBehindTransfer);
             }
     );
 
-    public Command behindTransfer = new Execute(
+    private Command Transfer = new Execute(
             () -> {
-                mainPivot.setPosition(80);
-                secondPivot.setPosition(226);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
+                mainPivot.setPosition(mainPivotTransfer);
+                secondPivot.setPosition(secondTransfer);
+                griperSev.setPosition(gripperTransfer);
+            }
+    );
+
+    private Command postTransfer = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotPostTransfer);
+                secondPivot.setPosition(secondPostTransfer);
+                griperSev.setPosition(gripperPostTransfer);
             }
     );
 
    public LambdaCommand transfer = new LambdaCommand(
             () -> {},
             () -> {
-                secondPivot.setPosition(261);
-                mainPivot.setPosition(99);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
+
+                if (fourbarState == fourBarState.behindNest){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.grabNest;
+
+                    Transfer.execute();
+
+                }else if (fourbarState == fourBarState.grabNest && gripperState == gripper.drop){
+
+                    gripperState = gripper.grab;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.grabNest;
+
+                    Transfer.execute();
+
+                }else if (fourbarState == fourBarState.grabNest && gripperState == gripper.grab){
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotPostTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondPostTransfer)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.postTransfer;
+
+                    postTransfer.execute();
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+
             },
-            () -> true
+            () -> fourbarState == fourBarState.postTransfer
     );
 
-    public LambdaCommand BehindTransfer = new LambdaCommand(
-            () -> {
-
-            },
-            () -> {
-                secondPivot.setPosition(258);
-                griperSev.setPosition(90);
-                mainPivot.setPosition(80);
-                depositstate = DeliveryState.transfer;
-
-            },
-            () -> true
-    );
-
-   public LambdaCommand dropOff = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                mainPivot.setPosition(300);
-                secondPivot.setPosition(38);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
-            },
-            () -> true
-    );
-
-    public LambdaCommand clippingPosition = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                mainPivot.setPosition(190);
-                secondPivot.setPosition(170);
+//   public LambdaCommand dropOff = new LambdaCommand(
+//            () -> System.out.println("init"),
+//            () -> {
+//                mainPivot.setPosition(300);
+//                secondPivot.setPosition(38);
 //                griperSev.setPosition(180);
-//                depositstate = deposit.basket;
-            },
-            () -> true
-    );
+//                depositstate = DeliveryState.transfer;
+//            },
+//            () -> true
+//    );
+
+//    public LambdaCommand clippingPosition = new LambdaCommand(
+//            () -> System.out.println("init"),
+//            () -> {
+//                mainPivot.setPosition(190);
+//                secondPivot.setPosition(170);
+////                griperSev.setPosition(180);
+////                depositstate = deposit.basket;
+//            },
+//            () -> true
+//    );
 
 
-    public LambdaCommand cliping = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                mainPivot.setPosition(300);
-                secondPivot.setPosition(60);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
-            },
-            () -> true
-    );
+//    public LambdaCommand cliping = new LambdaCommand(
+//            () -> System.out.println("init"),
+//            () -> {
+//                mainPivot.setPosition(300);
+//                secondPivot.setPosition(60);
+//                griperSev.setPosition(180);
+//                depositstate = DeliveryState.transfer;
+//            },
+//            () -> true
+//    );
 
-    public LambdaCommand fronCliping = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                mainPivot.setPosition(189);
-                secondPivot.setPosition(200);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
-            },
-            () -> true
-    );
+//    public LambdaCommand fronCliping = new LambdaCommand(
+//            () -> System.out.println("init"),
+//            () -> {
+//                mainPivot.setPosition(189);
+//                secondPivot.setPosition(200);
+//                griperSev.setPosition(180);
+//                depositstate = DeliveryState.transfer;
+//            },
+//            () -> true
+//    );
 
 
     public LambdaCommand followMotionPro = new LambdaCommand(
@@ -225,9 +259,7 @@ public class Delivery extends SubSystem {
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         linierRail.setRange(335);
-        behindTransfer.execute();
-        griperSev.setPosition(90);
-//        drop.execute();
+        behindNest.execute();
 
     }
 
@@ -242,12 +274,6 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(110);
         } else if (gripperState == Delivery.gripper.drop) {
             griperSev.setPosition(180);
-        }
-
-        if (clippingState == Delivery.clipping.in){
-            linierRail.setPosition(0);
-        } else if (clippingState == Delivery.clipping.drop) {
-            linierRail.setPosition(270);
         }
     }
 
