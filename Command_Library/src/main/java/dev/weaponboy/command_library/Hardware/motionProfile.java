@@ -95,17 +95,27 @@ public class motionProfile {
 
         }
 
-        double targetVelocity = motionProfile.get(lastIndex);
-        double targetMotorPower = targetVelocity*velocityToMotorPower;
+        double targetVelocity;
+        double targetMotorPower;
 
-//        slideRunning = currentPosition > targetPosition;
-
-        if (lastIndex >= motionProfile.size()-2){
+        if (lastIndex < motionProfile.size()){
+            targetVelocity = motionProfile.get(lastIndex);
+            targetMotorPower = targetVelocity*velocityToMotorPower;
+        }else {
             if(targetPosition == 0){
                 targetMotorPower = -1;
+            }else {
+                targetMotorPower = 0;
             }
             slideRunning = false;
         }
+
+
+//        slideRunning = currentPosition > targetPosition;
+//
+//        if (lastIndex >= motionProfile.size()-2){
+//
+//        }
 
         return targetMotorPower;
 
