@@ -105,6 +105,8 @@ public class Delivery extends SubSystem {
         moving,
     }
 
+    boolean retracting = false;
+
     public Delivery.slideState slidesState = slideState.holdPosition;
 
     public Delivery(OpModeEX opModeEX) {
@@ -122,8 +124,9 @@ public class Delivery extends SubSystem {
                     slideMotor.setPower(0.2);
                 }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
                     slideMotor.setPower(0.26);
-                }else if(slideMotor.getCurrentPosition() > 5 && slideMotor.getCurrentPosition() < 90){
+                }else if(slideMotor.getCurrentPosition() > 5 && slideMotor.getCurrentPosition() < 90 && retracting){
                     slideMotor.setPower(-1);
+                    retracting = false;
                 }else {
                     slideMotor.setPower(0);
                 }
@@ -338,6 +341,9 @@ public class Delivery extends SubSystem {
     }
 
     public void genProfile (double slideTarget){
+        if (slideTarget == 0){
+            retracting = true;
+        }
         profile.generateMotionProfile(slideTarget, slideMotor.getCurrentPosition());
     }
 
