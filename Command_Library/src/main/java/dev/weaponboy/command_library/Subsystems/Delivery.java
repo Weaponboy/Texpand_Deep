@@ -55,13 +55,6 @@ public class Delivery extends SubSystem {
     double secondTransfer = 230;
     double gripperTransfer = 180;
 
-    /**
-     * transfer position values
-     * */
-    double mainPivotPostTransfer = 90;
-    double secondPostTransfer = 226;
-    double gripperPostTransfer = 110;
-
     public enum DeliveryState{
         transfer,
         depositBasket,
@@ -142,14 +135,6 @@ public class Delivery extends SubSystem {
             }
     );
 
-    private Command postTransfer = new Execute(
-            () -> {
-                mainPivot.setPosition(mainPivotPostTransfer);
-                secondPivot.setPosition(secondPostTransfer);
-                griperSev.setPosition(gripperPostTransfer);
-            }
-    );
-
    public LambdaCommand transfer = new LambdaCommand(
             () -> {},
             () -> {
@@ -175,13 +160,6 @@ public class Delivery extends SubSystem {
 
                     Transfer.execute();
 
-                }else if (fourbarState == fourBarState.grabNest && gripperState == gripper.grab){
-                    fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotPostTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondPostTransfer)*microRoboticTime);
-                    fourbarState = fourBarState.transferringStates;
-                    fourBarTargetState = fourBarState.postTransfer;
-
-                    postTransfer.execute();
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
@@ -189,7 +167,7 @@ public class Delivery extends SubSystem {
                 }
 
             },
-            () -> fourbarState == fourBarState.postTransfer
+            () -> fourbarState == fourBarState.grabNest && gripperState == gripper.grab
     );
 
 //   public LambdaCommand dropOff = new LambdaCommand(
