@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.Execute;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
@@ -137,6 +140,15 @@ public class Collection2 extends SubSystem {
         registerSubsystem(opModeEX, defaultCommand);
     }
 
+    static FileWriter fWriter;
+
+    static {
+        try {
+            fWriter = new FileWriter("/sdcard/railLogs.txt");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public void init() {
         horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
@@ -491,10 +503,15 @@ public class Collection2 extends SubSystem {
         double spoolSize = 10.676;
         double cmPerDegree = spoolSize / 360;
 
-        System.out.println("Last rail: " + lastPosition);
-        System.out.println("currentRailPosition: " + currentRailPosition);
-        System.out.println("currentAxonWirePos: " + currentAxonWirePos);
-        System.out.println("lastAxonWirePos: " + lastAxonWirePos);
+        try {
+            fWriter.write(System.lineSeparator());
+            fWriter.write( "Last rail: " + lastPosition);
+            fWriter.write( "currentRailPosition: " + currentRailPosition);
+            fWriter.write( "currentAxonWirePos: " + currentAxonWirePos);
+            fWriter.write( "lastAxonWirePos: " + lastAxonWirePos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
 
@@ -503,28 +520,47 @@ public class Collection2 extends SubSystem {
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition += deltaCM;
-                System.out.println("realDelta > 0: " + realDelta);
-                System.out.println("deltaCM > 0: " + deltaCM);
+
+                try {
+                    fWriter.write( "realDelta > 0: " + realDelta);
+                    fWriter.write( "deltaCM > 0: " + deltaCM);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
             } else if (deltaPosition < 0) {
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition -= deltaCM;
 
-                System.out.println("realDelta < 0: " + realDelta);
-                System.out.println("deltaCM < 0: " + deltaCM);
+                try {
+                    fWriter.write( "realDelta < 0: " + realDelta);
+                    fWriter.write( "deltaCM < 0: " + deltaCM);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
         } else {
             currentRailPosition += deltaPosition*cmPerDegree;
 
-            System.out.println("deltaPosition normal: " + deltaPosition);
-            System.out.println("deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
+            try {
+                fWriter.write( "deltaPosition normal: " + deltaPosition);
+                fWriter.write( "deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
             linerRailServo.setPosition(0.5);
             runningToPosition = false;
+        }
+
+        try {
+            fWriter.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }
