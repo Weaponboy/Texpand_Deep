@@ -186,6 +186,8 @@ public class Delivery extends SubSystem {
             () -> fourbarState == fourBarState.grabNest && gripperState == gripper.grab
     );
 
+//   public LambdaCommand
+
 //   public LambdaCommand dropOff = new LambdaCommand(
 //            () -> System.out.println("init"),
 //            () -> {
