@@ -46,7 +46,7 @@ public class Delivery extends SubSystem {
      * */
     double mainPivotBehindTransfer = 26.8;
     double secondBehindTransfer = 226;
-    double gripperBehindTransfer = 180;
+    double gripperBehindTransfer = 110;
 
     /**
      * transfer position values
@@ -190,7 +190,7 @@ public class Delivery extends SubSystem {
            () -> {},
            () -> {
 
-               if (fourbarState == fourBarState.basketDeposit){
+               if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.drop){
                    fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
 //                   transferWaitTime = 500;
@@ -202,6 +202,17 @@ public class Delivery extends SubSystem {
                    fourBarTimer.reset();
                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
 //                   transferWaitTime = 500;
+                   fourbarState = fourBarState.transferringStates;
+                   fourBarTargetState = fourBarState.basketDeposit;
+
+                   Deposit.execute();
+               }else if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.grab) {
+
+                   gripperState = gripper.drop;
+
+                   fourBarTimer.reset();
+//                   transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+                   transferWaitTime = 500;
                    fourbarState = fourBarState.transferringStates;
                    fourBarTargetState = fourBarState.basketDeposit;
 
