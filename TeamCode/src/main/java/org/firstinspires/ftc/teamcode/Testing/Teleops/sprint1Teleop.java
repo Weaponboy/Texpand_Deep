@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
@@ -39,7 +40,7 @@ public class sprint1Teleop extends OpModeEX {
             collection.queueCommand(collection.stow);
         }
 
-        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)){
+        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection2.fourBar.collect){
             collection.queueCommand(collection.transfer);
         }
 
