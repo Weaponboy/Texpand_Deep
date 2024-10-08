@@ -101,6 +101,9 @@ public class motionProfile {
 //        slideRunning = currentPosition > targetPosition;
 
         if (lastIndex >= motionProfile.size()-2){
+            if(targetPosition == 0){
+                targetMotorPower = -1;
+            }
             slideRunning = false;
         }
 
