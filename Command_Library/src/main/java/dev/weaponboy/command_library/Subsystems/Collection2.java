@@ -102,7 +102,7 @@ public class Collection2 extends SubSystem {
      * stow position values
      * */
     double mainPivotStow = 155;
-    double secondPivotStow = 175;
+    double secondPivotStow = 165;
     double rotateStow = 45;
 
     /**
@@ -506,9 +506,13 @@ public class Collection2 extends SubSystem {
         try {
             fWriter.write(System.lineSeparator());
             fWriter.write( "Last rail: " + lastPosition);
+            fWriter.write(System.lineSeparator());
             fWriter.write( "currentRailPosition: " + currentRailPosition);
+            fWriter.write(System.lineSeparator());
             fWriter.write( "currentAxonWirePos: " + currentAxonWirePos);
+            fWriter.write(System.lineSeparator());
             fWriter.write( "lastAxonWirePos: " + lastAxonWirePos);
+            fWriter.write(System.lineSeparator());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -523,7 +527,9 @@ public class Collection2 extends SubSystem {
 
                 try {
                     fWriter.write( "realDelta > 0: " + realDelta);
+                    fWriter.write(System.lineSeparator());
                     fWriter.write( "deltaCM > 0: " + deltaCM);
+                    fWriter.write(System.lineSeparator());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -535,7 +541,9 @@ public class Collection2 extends SubSystem {
 
                 try {
                     fWriter.write( "realDelta < 0: " + realDelta);
+                    fWriter.write(System.lineSeparator());
                     fWriter.write( "deltaCM < 0: " + deltaCM);
+                    fWriter.write(System.lineSeparator());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -546,7 +554,9 @@ public class Collection2 extends SubSystem {
 
             try {
                 fWriter.write( "deltaPosition normal: " + deltaPosition);
+                fWriter.write(System.lineSeparator());
                 fWriter.write( "deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
+                fWriter.write(System.lineSeparator());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

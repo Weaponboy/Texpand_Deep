@@ -27,7 +27,7 @@ public class Delivery extends SubSystem {
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
 
-    public final double highBasket = 600;
+    public final double highBasket = 30;
     public final double lowBasket = 200;
 
     ElapsedTime transferTimer = new ElapsedTime();
@@ -143,7 +143,7 @@ public class Delivery extends SubSystem {
             }
     );
 
-    public Command Deposit = new Execute(
+    private Command Deposit = new Execute(
             () -> {
                 mainPivot.setPosition(mainPivotDepo);
                 secondPivot.setPosition(secondDepo);
@@ -186,7 +186,34 @@ public class Delivery extends SubSystem {
             () -> fourbarState == fourBarState.grabNest && gripperState == gripper.grab
     );
 
-//   public LambdaCommand
+   public Command deposit = new LambdaCommand(
+           () -> {},
+           () -> {
+
+               if (fourbarState == fourBarState.basketDeposit){
+                   fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+//                   transferWaitTime = 500;
+                   fourbarState = fourBarState.transferringStates;
+                   fourBarTargetState = fourBarState.behindNest;
+
+                   behindNest.execute();
+               } else if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 400) {
+                   fourBarTimer.reset();
+                   transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+//                   transferWaitTime = 500;
+                   fourbarState = fourBarState.transferringStates;
+                   fourBarTargetState = fourBarState.basketDeposit;
+
+                   Deposit.execute();
+               }
+
+               if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                   fourbarState = fourBarTargetState;
+               }
+           },
+           () -> !(fourbarState == fourBarState.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
+   );
 
 //   public LambdaCommand dropOff = new LambdaCommand(
 //            () -> System.out.println("init"),
