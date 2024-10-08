@@ -27,7 +27,7 @@ public class Delivery extends SubSystem {
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
 
-    public final double highBasket = 95;
+    public final double highBasket = 90;
     public final double lowBasket = 200;
 
     ElapsedTime transferTimer = new ElapsedTime();
