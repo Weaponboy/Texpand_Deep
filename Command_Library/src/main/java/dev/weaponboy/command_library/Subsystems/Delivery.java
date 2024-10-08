@@ -95,7 +95,7 @@ public class Delivery extends SubSystem {
     public Delivery.slideState slidesState = slideState.holdPosition;
 
     public Delivery(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX,holdPosition);
+        registerSubsystem(opModeEX, holdPosition);
     }
 
     public LambdaCommand holdPosition = new LambdaCommand(
@@ -114,7 +114,7 @@ public class Delivery extends SubSystem {
             () -> true
     );
 
-    public Command postTransfer = new Execute(
+    public Command behindNest = new Execute(
             () -> {
                 mainPivot.setPosition(90);
                 secondPivot.setPosition(226);
@@ -130,35 +130,6 @@ public class Delivery extends SubSystem {
                 griperSev.setPosition(180);
                 depositstate = DeliveryState.transfer;
             }
-    );
-
-    public LambdaCommand nothing = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-//                if (slideMotor.getCurrentPosition() < 130){
-//                    slideMotor.setPower(0);
-//                }else {
-//                    slideMotor.setPower(0.36);
-//                }
-            },
-            () -> true
-
-    );
-
-   public LambdaCommand drop = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                griperSev.setPosition(110);
-            },
-            () -> true
-    );
-
-   public LambdaCommand grip = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                griperSev.setPosition(180);
-            },
-            () -> true
     );
 
    public LambdaCommand transfer = new LambdaCommand(
