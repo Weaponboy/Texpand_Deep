@@ -40,6 +40,13 @@ public class Delivery extends SubSystem {
         basket,
     }
 
+    public enum fourBarState {
+        behindNest,
+        grabNest,
+        postTransfer,
+        basket,
+    }
+
     public enum gripper{
         drop,
         grab
