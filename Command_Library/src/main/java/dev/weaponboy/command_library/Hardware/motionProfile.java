@@ -64,6 +64,8 @@ public class motionProfile {
             horizontal();
         }
 
+        System.out.println("motion profile size" + motionProfile.size());
+
     }
 
     public double followProfile(double currentPosition){
