@@ -98,7 +98,7 @@ public class motionProfile {
         double targetVelocity;
         double targetMotorPower;
 
-        if (lastIndex < motionProfile.size()){
+        if (lastIndex < motionProfile.size()-2){
             targetVelocity = motionProfile.get(lastIndex);
             targetMotorPower = targetVelocity*velocityToMotorPower;
         }else {
