@@ -37,7 +37,8 @@ public class sprint1Teleop extends OpModeEX {
         }
 
         if (currentGamepad1.back && !lastGamepad1.back){
-            collection.queueCommand(collection.stow);
+            collection.overrideCurrent(true, collection.stow);
+            delivery.overrideCurrent(true, delivery.stow);
         }
 
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection2.fourBar.collect){
@@ -52,8 +53,8 @@ public class sprint1Teleop extends OpModeEX {
             delivery.queueCommand(delivery.transfer);
         }
 
-        if ((currentGamepad1.left_trigger > 0) && !(lastGamepad1.left_trigger > 0)){
-            delivery.queueCommand(delivery.transfer);
+        if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
+            delivery.queueCommand(delivery.deposit);
         }
 
 //        if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.stowed){

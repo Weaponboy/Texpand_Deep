@@ -215,6 +215,27 @@ public class Delivery extends SubSystem {
            () -> !(fourbarState == fourBarState.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
    );
 
+    public Command stow = new LambdaCommand(
+            () -> {},
+            () -> {
+
+                if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 300) {
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+//                   transferWaitTime = 500;
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.behindNest;
+
+                    behindNest.execute();
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+            },
+            () -> fourbarState == fourBarState.behindNest
+    );
+
 //   public LambdaCommand dropOff = new LambdaCommand(
 //            () -> System.out.println("init"),
 //            () -> {

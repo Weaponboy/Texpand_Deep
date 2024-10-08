@@ -96,7 +96,7 @@ public class motionProfile {
         double targetVelocity = motionProfile.get(lastIndex);
         double targetMotorPower = targetVelocity*velocityToMotorPower;
 
-        if (lastIndex >= motionProfile.size()-2){
+        if (lastIndex >= motionProfile.size()-1){
             slideRunning = false;
         }
 
