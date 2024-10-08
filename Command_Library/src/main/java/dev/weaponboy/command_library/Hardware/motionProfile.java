@@ -67,7 +67,7 @@ public class motionProfile {
     }
 
     public double followProfile(double currentPosition){
-        this.currentPosition = currentPosition*CMPerTick;
+        this.currentPosition = (currentPosition*CMPerTick);
 
         if (!slideRunning){
             currentTime.reset();
@@ -96,9 +96,11 @@ public class motionProfile {
         double targetVelocity = motionProfile.get(lastIndex);
         double targetMotorPower = targetVelocity*velocityToMotorPower;
 
-        if (lastIndex >= motionProfile.size()-1){
-            slideRunning = false;
-        }
+        slideRunning = currentPosition > targetPosition;
+
+//        if (lastIndex >= motionProfile.size()-1){
+//            slideRunning = false;
+//        }
 
         return targetMotorPower;
 
