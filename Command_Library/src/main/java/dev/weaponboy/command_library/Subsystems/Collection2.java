@@ -59,6 +59,7 @@ public class Collection2 extends SubSystem {
     public enum fourBar{
         preCollect,
         collect,
+        dropNestAbove,
         dropNest,
         transferringStates,
         stowed,
@@ -111,9 +112,16 @@ public class Collection2 extends SubSystem {
     /**
      * drop nest position values
      * */
-    double mainPivotPlaceNest = 191;
-    double secondPlaceNest = 195;
+    double mainPivotPlaceNest = 192;
+    double secondPlaceNest = 192;
     double rotatePlaceNest = 45;
+
+    /**
+     * drop nest above position values
+     * */
+    double mainPivotPlaceNestAbove = 185;
+    double secondPlaceNestAbove = 180;
+    double rotatePlaceNestAbove = 45;
 
     ElapsedTime fourBarTimer = new ElapsedTime();
     double transferWaitTime;
@@ -223,6 +231,14 @@ public class Collection2 extends SubSystem {
                 fourBarMainPivot.setPosition(mainPivotPlaceNest);
                 fourBarSecondPivot.setPosition(secondPlaceNest);
                 griperRotate.setPosition(rotatePlaceNest);
+            }
+    );
+
+    private final Command dropNestAbove = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPlaceNestAbove);
+                fourBarSecondPivot.setPosition(secondPlaceNestAbove);
+                griperRotate.setPosition(rotatePlaceNestAbove);
             }
     );
 
@@ -352,6 +368,18 @@ public class Collection2 extends SubSystem {
 
                     fourBarTimer.reset();
 //                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+                    transferWaitTime = 1000;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.dropNestAbove;
+
+                    dropNestAbove.execute();
+
+                }else if (fourBarState == fourBar.dropNestAbove && clawsState == clawState.grab) {
+
+                    clawsState = clawState.drop;
+
+                    fourBarTimer.reset();
+//                    transferWaitTime = gripperOpenTime;
                     transferWaitTime = 1000;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropNest;

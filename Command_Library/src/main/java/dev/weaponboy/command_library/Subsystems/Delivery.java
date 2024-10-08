@@ -97,9 +97,7 @@ public class Delivery extends SubSystem {
                     slideMotor.setPower(0);
                 }
             },
-
             () -> true
-
     );
 
     public LambdaCommand nothing = new LambdaCommand(
@@ -111,7 +109,6 @@ public class Delivery extends SubSystem {
 //                    slideMotor.setPower(0.36);
 //                }
             },
-
             () -> true
 
     );
@@ -133,9 +130,7 @@ public class Delivery extends SubSystem {
     );
 
    public LambdaCommand transfer = new LambdaCommand(
-            () -> {
-
-            },
+            () -> {},
             () -> {
                 secondPivot.setPosition(261);
                 mainPivot.setPosition(99);
