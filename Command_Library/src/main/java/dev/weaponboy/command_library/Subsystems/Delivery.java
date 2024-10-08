@@ -51,15 +51,15 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 80;
+    double mainPivotTransfer = 90;
     double secondTransfer = 230;
     double gripperTransfer = 180;
 
     /**
      * transfer position values
      * */
-    double mainPivotPostTransfer = 80;
-    double secondPostTransfer = 230;
+    double mainPivotPostTransfer = 90;
+    double secondPostTransfer = 226;
     double gripperPostTransfer = 110;
 
     public enum DeliveryState{
@@ -157,7 +157,8 @@ public class Delivery extends SubSystem {
                 if (fourbarState == fourBarState.behindNest){
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+//                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+                    transferWaitTime = 500;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.grabNest;
 
