@@ -517,19 +517,27 @@ public class Collection2 extends SubSystem {
             throw new RuntimeException(e);
         }
 
-        if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
+        if ((lastAxonWirePos > 240 && currentAxonWirePos < 80) || (currentAxonWirePos > 240 && lastAxonWirePos < 80)){
 
             if (deltaPosition > 0){
 
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
-                currentRailPosition += deltaCM;
+                currentRailPosition -= deltaCM;
 
                 try {
                     fWriter.write( "realDelta > 0: " + realDelta);
                     fWriter.write(System.lineSeparator());
                     fWriter.write( "deltaCM > 0: " + deltaCM);
                     fWriter.write(System.lineSeparator());
+
+//                    Last rail: 12.338867878787884
+//                    currentRailPosition: 12.338867878787884
+//                    currentAxonWirePos: 2.8363636363636364
+//                    lastAxonWirePos: 354.1090909090909
+//                    realDelta > 0: 8.727272727272712
+//                    deltaCM > 0: 0.25881212121212077
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -537,7 +545,7 @@ public class Collection2 extends SubSystem {
             } else if (deltaPosition < 0) {
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
-                currentRailPosition -= deltaCM;
+                currentRailPosition += deltaCM;
 
                 try {
                     fWriter.write( "realDelta < 0: " + realDelta);
@@ -557,6 +565,15 @@ public class Collection2 extends SubSystem {
                 fWriter.write(System.lineSeparator());
                 fWriter.write( "deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
                 fWriter.write(System.lineSeparator());
+
+//                Last rail: 2.397247272727276
+//                currentRailPosition: 2.397247272727276
+//                currentAxonWirePos: 277.3090909090909
+//                lastAxonWirePos: 5.563636363636364
+//                deltaPosition normal: -271.74545454545455
+//                deltaPosition*cmPerDegree: -8.058762424242424
+
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
