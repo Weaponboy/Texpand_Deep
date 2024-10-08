@@ -1,5 +1,7 @@
 package dev.weaponboy.command_library.Subsystems;
 
+import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
+import dev.weaponboy.command_library.CommandLibrary.Commands.Execute;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
@@ -32,6 +34,12 @@ public class Delivery extends SubSystem {
     boolean flipBackTime;
     boolean gripTimer;
 
+    /**
+     * behind transfer position values
+     * */
+    double mainPivotBehindTransfer = 90;
+    double secondPivotTransInt = 190;
+    double rotateTransInt = 135;
 
     public enum DeliveryState{
         transfer,
@@ -86,7 +94,6 @@ public class Delivery extends SubSystem {
 
     public Delivery.slideState slidesState = slideState.holdPosition;
 
-
     public Delivery(OpModeEX opModeEX) {
         registerSubsystem(opModeEX,holdPosition);
     }
@@ -105,6 +112,24 @@ public class Delivery extends SubSystem {
                 }
             },
             () -> true
+    );
+
+    public Command postTransfer = new Execute(
+            () -> {
+                mainPivot.setPosition(90);
+                secondPivot.setPosition(226);
+                griperSev.setPosition(180);
+                depositstate = DeliveryState.transfer;
+            }
+    );
+
+    public Command behindTransfer = new Execute(
+            () -> {
+                mainPivot.setPosition(90);
+                secondPivot.setPosition(226);
+                griperSev.setPosition(180);
+                depositstate = DeliveryState.transfer;
+            }
     );
 
     public LambdaCommand nothing = new LambdaCommand(
@@ -147,7 +172,7 @@ public class Delivery extends SubSystem {
             () -> true
     );
 
-    public LambdaCommand behindTransfer = new LambdaCommand(
+    public LambdaCommand BehindTransfer = new LambdaCommand(
             () -> {
 
             },
@@ -194,21 +219,12 @@ public class Delivery extends SubSystem {
             },
             () -> true
     );
+
     public LambdaCommand fronCliping = new LambdaCommand(
             () -> System.out.println("init"),
             () -> {
                 mainPivot.setPosition(189);
                 secondPivot.setPosition(200);
-                griperSev.setPosition(180);
-                depositstate = DeliveryState.transfer;
-            },
-            () -> true
-    );
-    public LambdaCommand postTransfer = new LambdaCommand(
-            () -> System.out.println("init"),
-            () -> {
-                mainPivot.setPosition(90);
-                secondPivot.setPosition(226);
                 griperSev.setPosition(180);
                 depositstate = DeliveryState.transfer;
             },

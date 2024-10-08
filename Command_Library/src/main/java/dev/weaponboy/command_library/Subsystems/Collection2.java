@@ -120,7 +120,7 @@ public class Collection2 extends SubSystem {
      * drop nest above position values
      * */
     double mainPivotPlaceNestAbove = 190;
-    double secondPlaceNestAbove = 170;
+    double secondPlaceNestAbove = 165;
     double rotatePlaceNestAbove = 45;
 
     ElapsedTime fourBarTimer = new ElapsedTime();
