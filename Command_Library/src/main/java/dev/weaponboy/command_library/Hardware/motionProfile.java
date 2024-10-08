@@ -83,7 +83,7 @@ public class motionProfile {
                     lastIndex++;
                 }
             } else if (targetPosition < this.currentPosition) {
-                while (positions.get(lastIndex-time.size()) > this.currentPosition){
+                if (positions.get(lastIndex-time.size()) > this.currentPosition){
                     lastIndex++;
                 }
             }
