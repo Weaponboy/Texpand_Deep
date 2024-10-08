@@ -98,7 +98,7 @@ public class Collection2 extends SubSystem {
      * stow position values
      * */
     double mainPivotStow = 155;
-    double secondPivotStow = 165;
+    double secondPivotStow = 180;
     double rotateStow = 45;
 
     /**
