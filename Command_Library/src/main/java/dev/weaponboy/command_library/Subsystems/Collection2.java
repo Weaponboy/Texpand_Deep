@@ -92,7 +92,7 @@ public class Collection2 extends SubSystem {
      * preCollect position values
      * */
     double mainPivotPreCollect = 116;
-    double secondPivotPreCollect = 30;
+    double secondPivotPreCollect = 40;
     double rotatePreCollect = 135;
 
     /**
