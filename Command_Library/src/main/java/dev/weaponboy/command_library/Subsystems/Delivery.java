@@ -121,9 +121,9 @@ public class Delivery extends SubSystem {
                 }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
                     slideMotor.setPower(0.2);
                 }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
-                    slideMotor.setPower(0.22);
-                }else if(slideMotor.getCurrentPosition() > 5 && slideMotor.getCurrentPosition() < 40){
-                    slideMotor.setPower(-0.5);
+                    slideMotor.setPower(0.26);
+                }else if(slideMotor.getCurrentPosition() > 5 && slideMotor.getCurrentPosition() < 90){
+                    slideMotor.setPower(-1);
                 }else {
                     slideMotor.setPower(0);
                 }
