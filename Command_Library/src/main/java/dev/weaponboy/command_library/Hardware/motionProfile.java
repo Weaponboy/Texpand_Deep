@@ -96,11 +96,11 @@ public class motionProfile {
         double targetVelocity = motionProfile.get(lastIndex);
         double targetMotorPower = targetVelocity*velocityToMotorPower;
 
-        slideRunning = currentPosition > targetPosition;
+//        slideRunning = currentPosition > targetPosition;
 
-//        if (lastIndex >= motionProfile.size()-1){
-//            slideRunning = false;
-//        }
+        if (lastIndex >= motionProfile.size()-1){
+            slideRunning = false;
+        }
 
         return targetMotorPower;
 
