@@ -33,10 +33,10 @@ public class Delivery extends SubSystem {
     boolean gripTimer;
 
 
-    public enum deposit {
-        preTransFer,
+    public enum DeliveryState{
         transfer,
-        postTransfer,
+        depositBasket,
+        stowed,
         basket,
     }
 
@@ -44,7 +44,7 @@ public class Delivery extends SubSystem {
         behindNest,
         grabNest,
         postTransfer,
-        basket,
+        basketDeposit
     }
 
     public enum gripper{
@@ -77,7 +77,7 @@ public class Delivery extends SubSystem {
 
     private clipping clippingState = clipping.drop;
 
-    public Delivery.deposit depositstate = deposit.preTransFer;
+    public Delivery.DeliveryState depositstate = DeliveryState.stowed;
 
     public enum slideState {
         holdPosition,
@@ -142,7 +142,7 @@ public class Delivery extends SubSystem {
                 secondPivot.setPosition(261);
                 mainPivot.setPosition(99);
                 griperSev.setPosition(180);
-                depositstate =deposit.transfer;
+                depositstate = DeliveryState.transfer;
             },
             () -> true
     );
@@ -155,7 +155,7 @@ public class Delivery extends SubSystem {
                 secondPivot.setPosition(258);
                 griperSev.setPosition(90);
                 mainPivot.setPosition(80);
-                depositstate =deposit.preTransFer;
+                depositstate = DeliveryState.transfer;
 
             },
             () -> true
@@ -167,7 +167,7 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(300);
                 secondPivot.setPosition(38);
                 griperSev.setPosition(180);
-                depositstate =deposit.basket;
+                depositstate = DeliveryState.transfer;
             },
             () -> true
     );
@@ -190,7 +190,7 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(300);
                 secondPivot.setPosition(60);
                 griperSev.setPosition(180);
-                depositstate =deposit.basket;
+                depositstate = DeliveryState.transfer;
             },
             () -> true
     );
@@ -200,7 +200,7 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(189);
                 secondPivot.setPosition(200);
                 griperSev.setPosition(180);
-                depositstate =deposit.basket;
+                depositstate = DeliveryState.transfer;
             },
             () -> true
     );
@@ -210,7 +210,7 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(90);
                 secondPivot.setPosition(226);
                 griperSev.setPosition(180);
-                depositstate =deposit.postTransfer;
+                depositstate = DeliveryState.transfer;
             },
             () -> true
     );
