@@ -41,6 +41,12 @@ public class sprint1Teleop extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
         }
 
+        if (currentGamepad1.b && !lastGamepad1.b){
+            delivery.genProfile(0);
+            delivery.queueCommand(delivery.followMotionPro);
+            delivery.slidesState = Delivery.slideState.moving;
+        }
+
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection2.fourBar.collect){
             collection.queueCommand(collection.transfer);
         }
