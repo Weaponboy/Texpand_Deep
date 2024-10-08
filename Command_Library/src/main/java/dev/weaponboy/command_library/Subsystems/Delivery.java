@@ -44,16 +44,24 @@ public class Delivery extends SubSystem {
     /**
      * behind transfer position values
      * */
-    double mainPivotBehindTransfer = 70;
+    double mainPivotBehindTransfer = 26.8;
     double secondBehindTransfer = 226;
     double gripperBehindTransfer = 180;
 
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 93;
+    double mainPivotTransfer = 49.8;
     double secondTransfer = 244;
     double gripperTransfer = 180;
+
+    /**
+     * bucket deposit position values
+     * */
+
+    double mainPivotDepo = 270;
+    double secondDepo = 20;
+    double gripperDepo = 180;
 
     public enum DeliveryState{
         transfer,
@@ -132,6 +140,14 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(mainPivotTransfer);
                 secondPivot.setPosition(secondTransfer);
                 griperSev.setPosition(gripperTransfer);
+            }
+    );
+
+    public Command Deposit = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotDepo);
+                secondPivot.setPosition(secondDepo);
+                griperSev.setPosition(gripperDepo);
             }
     );
 
