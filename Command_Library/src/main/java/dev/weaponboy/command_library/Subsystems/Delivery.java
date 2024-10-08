@@ -125,7 +125,7 @@ public class Delivery extends SubSystem {
 
     public Command behindTransfer = new Execute(
             () -> {
-                mainPivot.setPosition(90);
+                mainPivot.setPosition(80);
                 secondPivot.setPosition(226);
                 griperSev.setPosition(180);
                 depositstate = DeliveryState.transfer;
