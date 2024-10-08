@@ -51,8 +51,8 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 90;
-    double secondTransfer = 230;
+    double mainPivotTransfer = 93;
+    double secondTransfer = 244;
     double gripperTransfer = 180;
 
     public enum DeliveryState{
