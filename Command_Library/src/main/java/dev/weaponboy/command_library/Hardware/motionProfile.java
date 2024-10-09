@@ -84,11 +84,19 @@ public class motionProfile {
         if (lastIndex >= time.size()){
             if (targetPosition > this.currentPosition){
                 while (positions.get(lastIndex-time.size()) < this.currentPosition){
-                    lastIndex++;
+                    if (lastIndex < motionProfile.size()-1){
+                        lastIndex++;
+                    }else {
+                        break;
+                    }
                 }
             } else if (targetPosition < this.currentPosition) {
-                if (positions.get(lastIndex-time.size()) > this.currentPosition){
-                    lastIndex++;
+                while (positions.get(lastIndex-time.size()) > this.currentPosition){
+                    if (lastIndex < motionProfile.size()-1){
+                        lastIndex++;
+                    }else {
+                        break;
+                    }
                 }
             }
         }else {
