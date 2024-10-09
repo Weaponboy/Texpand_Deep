@@ -63,6 +63,22 @@ public class Delivery extends SubSystem {
     double secondDepo = 20;
     double gripperDepo = 180;
 
+    /**
+     * clipping position values
+     * */
+
+    double mainPivotClip = 139.8;
+    double secondClip = 226;
+    double gripperClip = 180;
+
+    /**
+     * PRE clipping position values
+     * */
+
+    double mainPivotPreClip = 180;
+    double secondPreClip = 181;
+    double gripperPreClip = 180;
+
     public enum DeliveryState{
         transfer,
         depositBasket,
@@ -75,7 +91,9 @@ public class Delivery extends SubSystem {
         grabNest,
         postTransfer,
         basketDeposit,
-        transferringStates
+        transferringStates,
+        preClip,
+        clip
     }
 
     public enum gripper{
@@ -99,6 +117,7 @@ public class Delivery extends SubSystem {
 
     ElapsedTime fourBarTimer = new ElapsedTime();
     double transferWaitTime;
+    double ClippingWaitTime;
 
     public enum slideState {
         holdPosition,
@@ -298,6 +317,49 @@ public class Delivery extends SubSystem {
 //            },
 //            () -> true
 //    );
+
+    private Command PreClip = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotPreClip);
+                secondPivot.setPosition(secondPreClip);
+                griperSev.setPosition(gripperPreClip);
+            }
+    );
+
+    private Command Clipping = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotClip);
+                secondPivot.setPosition(secondClip);
+                griperSev.setPosition(gripperClip);
+            }
+    );
+
+    public Command Clip = new LambdaCommand(
+            () -> {},
+            () -> {
+
+                if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 300) {
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotPreClip)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondPreClip)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.preClip;
+
+                    PreClip.execute();
+                } else if (fourbarState == fourBarState.preClip && slideMotor.getCurrentPosition() > 300) {
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotClip)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondClip)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.clip;
+
+                    Clipping.execute();
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+            },
+            () -> fourbarState != fourBarState.transferringStates
+    );
 
 
     public LambdaCommand followMotionPro = new LambdaCommand(
