@@ -203,6 +203,7 @@ public class Collection2 extends SubSystem {
         }
 
         horizontalMotor.update(extendoPower);
+        System.out.println("extendoPower: " + extendoPower);
 
         updateRailPosition();
 
