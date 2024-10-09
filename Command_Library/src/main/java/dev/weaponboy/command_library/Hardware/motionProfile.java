@@ -229,6 +229,10 @@ public class motionProfile {
 
                 time.add(slideTime);
 
+                System.out.println("targetVelocity accel" + targetVelocity);
+                System.out.println("time accel" + slideTime);
+
+
             } else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
 
                 decelCounter++;
@@ -241,6 +245,9 @@ public class motionProfile {
 
                 targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
 
+                System.out.println("targetVelocity decel" + targetVelocity);
+                System.out.println("position decel" + (double) i + 1);
+
                 positions.add((double) i + 1);
 
             } else {
@@ -248,6 +255,9 @@ public class motionProfile {
                 targetVelocity = newMaxVelocity;
 
                 positions.add((double) i + 1);
+
+                System.out.println("targetVelocity normal" + targetVelocity);
+                System.out.println("position normal" + (double) i + 1);
 
             }
 
