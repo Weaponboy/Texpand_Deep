@@ -261,11 +261,19 @@ public class motionProfile {
 
         if (accelDistance > halfwayDistance){
             newAccelDistance = velocityHalf;
-        }else if (velocityHalf < 0){
-            newAccelDistance = -accelDistance;
         }
 
         double newMaxVelocity = Math.sqrt(2 * maxAcceleration * newAccelDistance);
+
+        if (velocityHalf < 0){
+            newMaxVelocity = -newMaxVelocity;
+            baseMotorVelocity = -baseMotorVelocity;
+        }
+
+        System.out.println("newMaxVelocity " + newMaxVelocity);
+        System.out.println("baseMotorVelocity " + baseMotorVelocity);
+        System.out.println("newAccelDistance " + newAccelDistance);
+        System.out.println("Math.abs(targetPosition - currentPosition) " + Math.abs(targetPosition - currentPosition));
 
         for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
             double targetVelocity;
@@ -281,7 +289,7 @@ public class motionProfile {
                 targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
 
                 if (targetVelocity != 0) {
-                    slideTime += Math.abs((1 / targetVelocity) * 1000);
+                    slideTime += (1 / Math.abs(targetVelocity)) * 1000;
                 }
 
                 time.add(slideTime);
