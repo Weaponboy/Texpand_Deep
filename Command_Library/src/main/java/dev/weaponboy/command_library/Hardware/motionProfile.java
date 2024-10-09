@@ -197,7 +197,8 @@ public class motionProfile {
         positions.clear();
         slideTime = 0;
 
-        double halfwayDistance = targetPosition / 2;
+        double halfwayDistance = Math.abs(targetPosition - currentPosition) / 2;
+        double velocityHalf = (targetPosition - currentPosition)/2;
         double newAccelDistance = accelDistance;
 
         int decelCounter = 0;
@@ -205,7 +206,9 @@ public class motionProfile {
         double baseMotorVelocity = (maxVelocity) * holdingMotorPower;
 
         if (accelDistance > halfwayDistance){
-            newAccelDistance = halfwayDistance;
+            newAccelDistance = velocityHalf;
+        }else if (velocityHalf < 0){
+            newAccelDistance = -accelDistance;
         }
 
         double newMaxVelocity = Math.sqrt(2 * maxAcceleration * newAccelDistance);

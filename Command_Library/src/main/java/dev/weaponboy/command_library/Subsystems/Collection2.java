@@ -23,7 +23,7 @@ public class Collection2 extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
-    motionProfile profile = new motionProfile(1400, 140, 35, 440, 0.15);
+    motionProfile profile = new motionProfile(600, 140, 35, 440, 0.15);
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
