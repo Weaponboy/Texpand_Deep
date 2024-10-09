@@ -22,36 +22,36 @@ public class Deposit extends SubSystem {
 
     }
 
-    public LambdaCommand deposithigh = new LambdaCommand(
-            () ->
 
-            () ->
+//public LambdaCommand deposithigh = new LambdaCommand(
+//            () ->
+//
+//            () ->
+//
+//            () ->
+//
+//    );
+//  //  public LambdaCommand depositeLow = new LambdaCommand(
+//
+//            () ->
+//
+//
+//            () ->
+//
+//            () ->
+//
+//    );
+//
+//
+//    public LambdaCommand stow = new LambdaCommand(    () ->
 
-            () ->
-
-    );
-    public LambdaCommand depositeLow = new LambdaCommand(
-
-            () ->
-
-
-            () ->
-
-            () ->
-
-    );
-
-
-    public LambdaCommand stow = new LambdaCommand(
-            () ->
-
-            () ->
-
-            () ->
-
-
-    );
-
+//            () ->
+//
+//            () ->
+//
+//
+//    );
+//
 }
 
 
