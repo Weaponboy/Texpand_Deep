@@ -43,8 +43,8 @@ public class Collection2 extends SubSystem {
     final double spoolSize = 3.6; //in cm
     double railTimeToPosition;
     double rotationsForFullTravel = 20/(spoolSize*Math.PI);
-    double timeForFullRotation = 400; // in ms
-    double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
+    double timeForFullRotation = 540; // in ms
+    double timePerCM = (double) 2000 / 20;
     ElapsedTime railTime = new ElapsedTime();
     boolean runningToPosition = false;
 
