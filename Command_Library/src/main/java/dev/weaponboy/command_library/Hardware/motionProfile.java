@@ -154,7 +154,7 @@ public class motionProfile {
 
         double targetVelocity;
         double targetMotorPower;
-        double veloDef = targetVelocity.getXVelocity() - XVelo;
+//        double veloDef = targetVelocity.getXVelocity() - XVelo;
 
         if (lastIndex < motionProfile.size()-2){
             targetVelocity = motionProfile.get(lastIndex);
