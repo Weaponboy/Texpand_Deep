@@ -100,13 +100,13 @@ public class sprint1Teleop extends OpModeEX {
 //            collection.setExtendoPower(-gamepad1.left_stick_y/2);
 //        }
 
-        if(gamepad1.dpad_left){
-            collection.linerRailServo.setPosition(0);
-        }else if(gamepad1.dpad_right){
-            collection.linerRailServo.setPosition(1);
-        }else{
-            collection.linerRailServo.setPosition(0.5);
-        }
+//        if(gamepad1.dpad_left){
+//            collection.linerRailServo.setPosition(0);
+//        }else if(gamepad1.dpad_right){
+//            collection.linerRailServo.setPosition(1);
+//        }else{
+//            collection.linerRailServo.setPosition(0.5);
+//        }
 
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
             collection.setRailTargetPosition(10);
