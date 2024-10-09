@@ -125,6 +125,60 @@ public class motionProfile {
 
     }
 
+    public double followProfile(double currentPosition, double currentVelo){
+        this.currentPosition = (currentPosition*CMPerTick);
+
+        if (!slideRunning){
+            currentTime.reset();
+            lastIndex = 0;
+            slideRunning = true;
+        }
+
+        if (lastIndex >= time.size()){
+            if (targetPosition > this.currentPosition){
+                while (positions.get(lastIndex-time.size()) < this.currentPosition){
+                    lastIndex++;
+                }
+            } else if (targetPosition < this.currentPosition) {
+                if (positions.get(lastIndex-time.size()) > this.currentPosition){
+                    lastIndex++;
+                }
+            }
+        }else {
+
+            if (time.get(lastIndex) < currentTime.milliseconds()) {
+                lastIndex++;
+            }
+
+        }
+
+        double targetVelocity;
+        double targetMotorPower;
+        double veloDef = targetVelocity.getXVelocity() - XVelo;
+
+        if (lastIndex < motionProfile.size()-2){
+            targetVelocity = motionProfile.get(lastIndex);
+            targetMotorPower = targetVelocity*velocityToMotorPower;
+        }else {
+            if(targetPosition == 0){
+                targetMotorPower = -1;
+            }else {
+                targetMotorPower = 0;
+            }
+            slideRunning = false;
+        }
+
+
+//        slideRunning = currentPosition > targetPosition;
+//
+//        if (lastIndex >= motionProfile.size()-2){
+//
+//        }
+
+        return targetMotorPower;
+
+    }
+
     public void vertical(){
 
         time.clear();
@@ -198,7 +252,7 @@ public class motionProfile {
         slideTime = 0;
 
         double halfwayDistance = Math.abs(targetPosition - currentPosition) / 2;
-        double velocityHalf = (targetPosition - currentPosition)/2;
+        double velocityHalf = (targetPosition - currentPosition) / 2;
         double newAccelDistance = accelDistance;
 
         int decelCounter = 0;
@@ -216,7 +270,7 @@ public class motionProfile {
         for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
             double targetVelocity;
 
-            if (newAccelDistance > i) {
+            if (Math.abs(newAccelDistance) > i) {
 
                 int range = (int) Math.abs(newAccelDistance - i);
 
@@ -236,7 +290,7 @@ public class motionProfile {
                 System.out.println("time accel" + slideTime);
 
 
-            } else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
+            } else if (i + Math.abs(newAccelDistance) > Math.abs(targetPosition - currentPosition)) {
 
                 decelCounter++;
 
