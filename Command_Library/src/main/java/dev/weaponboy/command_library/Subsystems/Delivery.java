@@ -22,7 +22,7 @@ public class Delivery extends SubSystem {
     public ServoDegrees secondPivot = new ServoDegrees();
     public ServoDegrees linierRail= new ServoDegrees();
 
-    motionProfile profile = new motionProfile(1400, 140, 95, 2250, 0.15);
+    motionProfile profile = new motionProfile(1400, 140, 65, 2250, 0.15);
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;

@@ -23,7 +23,7 @@ public class Collection2 extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
-    motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
+    motionProfile profile = new motionProfile(1400, 140, 35, 440, 0.15);
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -334,8 +334,8 @@ public class Collection2 extends SubSystem {
 
     public Command transfer = new LambdaCommand(
             () -> {
-//                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-//                slidesState = slideState.profile;
+                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+                slidesState = slideState.profile;
             },
             () -> {
 
@@ -583,6 +583,11 @@ public class Collection2 extends SubSystem {
         if (railTime.milliseconds() > railTimeToPosition && runningToPosition){
             linerRailServo.setPosition(0.5);
             runningToPosition = false;
+        }else if (railTime.milliseconds() > railTimeToPosition && !runningToPosition){
+            double delta = railTargetPosition - currentRailPosition;
+            if (Math.abs(delta) > 0.5){
+                runToPosition();
+            }
         }
 
         try {
