@@ -334,8 +334,10 @@ public class Collection2 extends SubSystem {
 
     public Command transfer = new LambdaCommand(
             () -> {
-                profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-                slidesState = slideState.profile;
+                if(horizontalMotor.getCurrentPosition() > 30){
+                    profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+                    slidesState = slideState.profile;
+                }
             },
             () -> {
 
