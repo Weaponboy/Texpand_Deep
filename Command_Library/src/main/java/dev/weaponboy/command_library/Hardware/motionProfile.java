@@ -324,13 +324,21 @@ public class motionProfile {
                 System.out.println("targetVelocity decel" + targetVelocity);
                 System.out.println("position decel" + (double) i + 1);
 
-                positions.add((double) i + 1);
+                if (velocityHalf < 0){
+                    positions.add(currentPosition - i+1);
+                }else {
+                    positions.add(currentPosition + i+1);
+                }
 
             } else {
 
                 targetVelocity = newMaxVelocity;
 
-                positions.add((double) i + 1);
+                if (velocityHalf < 0){
+                    positions.add(currentPosition - i+1);
+                }else {
+                    positions.add(currentPosition + i+1);
+                }
 
                 System.out.println("targetVelocity normal" + targetVelocity);
                 System.out.println("position normal" + (double) i + 1);

@@ -208,9 +208,10 @@ public class Collection2 extends SubSystem {
             gripServo.setPosition(0);
         }
 
+        horizontalMotor.updateVelocity();
         horizontalMotor.update(extendoPower);
         System.out.println("extendoPower: " + extendoPower);
-        System.out.println("hor velocity " + horizontalMotor.getVelocity());
+        System.out.println("hor velocity " + horizontalMotor.getCurrentVelocity());
         System.out.println("!profile.isSlideRunning() " + !profile.isSlideRunning());
 
         updateRailPosition();
