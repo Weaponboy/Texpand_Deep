@@ -108,6 +108,8 @@ public class sprint1Teleop extends OpModeEX {
 //            collection.linerRailServo.setPosition(0.5);
 //        }
 
+
+
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
             collection.setRailTargetPosition(10);
         }
