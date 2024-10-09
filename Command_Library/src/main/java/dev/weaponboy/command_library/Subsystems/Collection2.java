@@ -194,6 +194,12 @@ public class Collection2 extends SubSystem {
             if (!profile.isSlideRunning()){
                 slidesState = slideState.manuel;
             }
+        } else if (slidesState == slideState.manuel) {
+            if (horizontalMotor.getCurrentPosition() < 20){
+                extendoPower = 0;
+            }else {
+                extendoPower = 0.1;
+            }
         }
 
         if (clawsState == clawState.grab){
@@ -204,7 +210,8 @@ public class Collection2 extends SubSystem {
 
         horizontalMotor.update(extendoPower);
         System.out.println("extendoPower: " + extendoPower);
-        System.out.println("hor velocity " + horizontalMotor.getVelocity()*(35/440));
+        System.out.println("hor velocity " + horizontalMotor.getVelocity());
+        System.out.println("!profile.isSlideRunning() " + !profile.isSlideRunning());
 
         updateRailPosition();
 

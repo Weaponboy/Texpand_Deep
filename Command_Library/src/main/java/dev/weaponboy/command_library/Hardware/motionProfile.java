@@ -121,6 +121,9 @@ public class motionProfile {
 //
 //        }
 
+        System.out.println("lastIndex: " + lastIndex);
+        System.out.println("motionProfile.size()-2: " + (motionProfile.size()-2));
+
         return targetMotorPower;
 
     }
