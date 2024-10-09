@@ -260,7 +260,7 @@ public class motionProfile {
         double baseMotorVelocity = (maxVelocity) * holdingMotorPower;
 
         if (accelDistance > halfwayDistance){
-            newAccelDistance = velocityHalf;
+            newAccelDistance = halfwayDistance;
         }
 
         double newMaxVelocity = Math.sqrt(2 * maxAcceleration * newAccelDistance);

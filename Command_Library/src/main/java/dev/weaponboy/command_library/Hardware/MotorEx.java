@@ -92,6 +92,10 @@ public class MotorEx {
         }, executor);
     }
 
+    public double getVelocity(){
+        return motor.getVelocity();
+    }
+
     public CompletableFuture<Boolean> getSetPowerFuture() {
         return setPowerFuture;
     }
