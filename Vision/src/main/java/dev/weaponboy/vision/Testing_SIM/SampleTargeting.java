@@ -1,33 +1,34 @@
 package dev.weaponboy.vision.Testing_SIM;
 
-import static org.opencv.core.Core.countNonZero;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
-import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.findContours;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class UsingLineOfBestFir extends OpenCvPipeline {
+public class SampleTargeting  implements VisionProcessor {
 
     Mat redMat = new Mat();
 
@@ -37,10 +38,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-//    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
-//    public Scalar redHigher = new Scalar(201,255,255);
-
-    public Scalar redLower = new Scalar(0, 103.4, 38);
+    public Scalar redLower = new Scalar(0, 144, 38);
     public Scalar redHigher = new Scalar(201,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
@@ -52,6 +50,8 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     double angle = 30.0;
 
+    Paint red = new Paint();
+
     ArrayList<Point> topY = new ArrayList<>();
     Point rightX = new Point();
 
@@ -60,35 +60,38 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
     RotatedRect rotatedRect = new RotatedRect(center, rectSize, angle);
 
-    double maxShort = 150;
+    double maxShort = 140;
     double minShort = 60;
 
     double minLong = 180;
-    double maxLong = 400;
+    double maxLong = 350;
 
-    public boolean isDisplayInput() {
-        return displayInput;
-    }
-
-    public void setDisplayInput(boolean displayInput) {
-        this.displayInput = displayInput;
-    }
-
-    boolean displayInput = true;
+    Point centerDet = new Point();
 
     int avCounter = 0;
     ArrayList<Point> pointsAve = new ArrayList<>();
 
-    @Override
-    public Mat processFrame(Mat input) {
+    public double getAngleRotate() {
+        return angleRotate;
+    }
 
-        Imgproc.cvtColor(input, redMat, COLOR_RGB2HSV);
+    double angleRotate;
+
+    @Override
+    public void init(int width, int height, CameraCalibration calibration) {
+
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long captureTimeNanos) {
+
+        Imgproc.cvtColor(frame, redMat, COLOR_RGB2HSV);
 
         inRange(redMat, redLower, redHigher, redMat);
-//
-//        erode(redMat, redMat, new Mat(5, 5, CV_8U));
-//
-//        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+
+        erode(redMat, redMat, new Mat(5, 5, CV_8U));
+
+        dilate(redMat, redMat, new Mat(5, 5, CV_8U));
 
         ArrayList<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -103,19 +106,14 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 
         if (!redContours.isEmpty()){
             for (MatOfPoint contour : redContours) {
-                Imgproc.drawContours(input, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
+                Imgproc.drawContours(frame, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
             }
 
             for (MatOfPoint contour : redContours) {
-                Point center =  findTopPosition(input, contour);
+                Point center =  findTopPosition(frame, contour);
                 if (!(center == null)){
                     avCounter++;
                     pointsAve.add(center);
-                    if (avCounter == 5){
-                        Imgproc.circle(input, findAve(pointsAve, avCounter), 6, new Scalar(0, 255, 255), -1);
-                        avCounter = 0;
-                        pointsAve.clear();
-                    }
                 }
             }
         }
@@ -123,19 +121,26 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
         contours.clear();
         redContours.clear();
         topY.clear();
-
         redMat.release();
 
-//        if (!displayInput){
-//            return redMat;
-//        }else {
-//            return input;
-//        }
-
-        return input;
-
+        return null;
     }
 
+    @Override
+    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
+        red.setColor(Color.BLUE);
+        red.setStyle(Paint.Style.STROKE);
+        red.setStrokeWidth(scaleCanvasDensity * 4);
+
+//        canvas.drawCircle((float) centerDet.x, (float) center.y, 4, red);
+
+        if (avCounter == 5){
+            Point center = findAve(pointsAve, avCounter);
+            canvas.drawCircle((float) center.x*scaleBmpPxToCanvasPx, (float) center.y*scaleBmpPxToCanvasPx, 4, red);
+            avCounter = 0;
+            pointsAve.clear();
+        }
+    }
     public Point findAve(ArrayList<Point> points, int number){
 
         double x = 0;
@@ -230,8 +235,13 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 //        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
 //        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
 
-        Point furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
-        Point furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
+        Point furthestPoint = null;
+        Point furthestPoint2 = null;
+
+        if (!(intersection == null)){
+            furthestPoint = findFurthestPointAlongSlope(contourPoints, intersection, slope1, calculateDistanceTolerance(15));
+            furthestPoint2 = findFurthestPointAlongSlope(contourPoints, intersection, slope2, calculateDistanceTolerance(15));
+        }
 
         double deltaXFirst = 0;
         double deltaYFirst = 0;
@@ -241,36 +251,68 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
             deltaXFirst = Math.abs(furthestPoint.x - intersection.x);
             deltaYFirst = Math.abs(furthestPoint.y - intersection.y);
             firstLength = Math.hypot(deltaXFirst, deltaYFirst);
-            Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+            Imgproc.circle(input, furthestPoint, 6, new Scalar(0, 255, 255), -1);
+//            Imgproc.putText(input, String.valueOf(deltaXFirst), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         }
 
         double deltaXSecond = 0;
         double deltaYSecond = 0;
         double secondLength = 0;
 
-        if (!(furthestPoint == null) && !(intersection == null)){
+        if (!(furthestPoint2 == null) && !(intersection == null)){
 //            Imgproc.circle(input, furthestPoint2, 4, new Scalar(0, 0, 255), -1);
             deltaXSecond = Math.abs(furthestPoint2.x - intersection.x);
             deltaYSecond = Math.abs(furthestPoint2.y - intersection.y);
             secondLength = Math.hypot(deltaYSecond, deltaXSecond);
-            Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+            Imgproc.circle(input, furthestPoint2, 6, new Scalar(0, 255, 0), -1);
+//            Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 240), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         }
 
-//        if (!(intersection == null)){
+
+
+        if (!(intersection == null)){
+
+//            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
+//                firstLength = secondLength*2.5;
+//            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
+//                secondLength = firstLength*0.4;
+//            }
 //
-////            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong)){
-////                firstLength = secondLength*2.5;
-////            }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong)){
-////                secondLength = firstLength*0.4;
-////            }
+//            if((secondLength < maxLong && secondLength > minLong) && (firstLength < maxLong && firstLength > minLong)){
 //
-//            if ((firstLength < maxShort && firstLength > minShort) && !(secondLength < maxLong && secondLength > minLong)){
-//                double newSecondLength = firstLength*3;
-//                double ratio = newSecondLength/secondLength;
-//                deltaXSecond = deltaXSecond*ratio;
-//                deltaYSecond = deltaYSecond*ratio;
+//                if (secondLength > firstLength){
+//                    double newFirstLength = firstLength*0.5;
+//                    double ratio = firstLength/newFirstLength;
+//                    deltaXFirst = deltaXFirst/ratio;
+//                    deltaYFirst = deltaYFirst/ratio;
+//                    firstLength = newFirstLength;
+//                }else{
+//                    double newFirstLength = secondLength*0.5;
+//                    double ratio = firstLength/newFirstLength;
+//                    deltaXSecond = deltaXSecond/ratio;
+//                    deltaYSecond = deltaYSecond/ratio;
+//                    secondLength = newFirstLength;
+//                }
+//
+//            }
+//
+//
+//            if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < 260 && firstLength > minLong)){
+//                double newFirstLength = secondLength*3;
+//                double ratio = firstLength/newFirstLength;
+//                deltaXFirst = deltaXFirst/ratio;
+//                deltaYFirst = deltaYFirst/ratio;
+//                firstLength = newFirstLength;
+//            } else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < 260 && firstLength > minLong)){
+//                double newSecondLength = firstLength*0.33;
+//                double ratio = secondLength/newSecondLength;
+//                deltaXSecond = deltaXSecond/ratio;
+//                deltaYSecond = deltaYSecond/ratio;
 //                secondLength = newSecondLength;
-//            }else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
+//            }
+
+////
+//            else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong)){
 //                double newFirstLength = secondLength*0.3;
 //                double ratio = newFirstLength/firstLength;
 //                deltaXFirst = deltaXFirst*ratio;
@@ -289,30 +331,49 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
 //                deltaYFirst = deltaYFirst*ratio;
 //                secondLength = newFirstLength;
 //            }
-//
-//        }
+
+        }
 
 //        if ((secondLength < maxShort && secondLength > minShort) && !(firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
 //            firstLength = secondLength*2.5;
 //        }else if (!(secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
 //            secondLength = firstLength*0.4;
 //        }
-//        
+//
 //        else if ((firstLength < maxShort && firstLength > minShort) && !(secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
 //            secondLength = firstLength*2.5;
 //        }else if (!(firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
 //            firstLength = secondLength*0.4;
 //        }
 
-        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
-        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
-            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+        if (secondLength > firstLength){
+            angleRotate = Math.toDegrees(Math.atan(slope2));
+        }else {
+            angleRotate = Math.toDegrees(Math.atan(slope1));
         }
 
+        if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
+            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        }else if ((firstLength < maxShort && firstLength > minShort) && (secondLength < maxLong && secondLength > minLong) && !(intersection == null)){
+            CenterPoint = new Point(intersection.x - (deltaXSecond/2) + (deltaXFirst/2), intersection.y +  (deltaYFirst/2) + (deltaYSecond/2));
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        }
+//
+//        else {
+//            Imgproc.putText(input, String.valueOf(firstLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.putText(input, String.valueOf(secondLength), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//        }
 
-        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(input, String.valueOf(firstLength/secondLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(input, String.valueOf(angleRotate), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
+//
+//        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        Imgproc.putText(input, String.valueOf(secondLength), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
 //        Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //        Imgproc.putText(input, String.valueOf(deltaYSecond), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
@@ -423,5 +484,7 @@ public class UsingLineOfBestFir extends OpenCvPipeline {
     private static double distance(Point p1, Point p2) {
         return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
     }
+
+
 
 }

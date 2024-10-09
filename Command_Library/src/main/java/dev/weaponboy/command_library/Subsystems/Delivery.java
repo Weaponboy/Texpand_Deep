@@ -1,144 +1,287 @@
 package dev.weaponboy.command_library.Subsystems;
 
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.ArrayList;
-
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
+import dev.weaponboy.command_library.Hardware.ServoDegrees;
+import dev.weaponboy.command_library.Hardware.motionProfile;
 
 public class Delivery extends SubSystem {
 
-    DcMotor slidemMotor;
-    DcMotor slideMotor;
+   public DcMotor slideMotor;
 
-    double test = 0;
-    double targetPosition = 50;
-    int currentPosition = 0;
-    double maxAccel = 380;
-    double maxVelocity = 450;
-    double acceldistance = maxAccel/maxVelocity;
+    public ServoDegrees griperSev =new ServoDegrees();
+    public ServoDegrees mainPivot=new ServoDegrees();
+    public ServoDegrees secondPivot = new ServoDegrees();
+    public ServoDegrees linierRail= new ServoDegrees();
 
-    ArrayList<Double> motionprofile = new ArrayList<>();
-    ArrayList<Double> time = new ArrayList<>();
-    ElapsedTime currentTime = new ElapsedTime();
+    motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
 
-    int lastIndex = 0;
-    double slidetime;
-    double veloToMotorPower = 1/maxVelocity;
+    double topRailFullExtension = 0;
+    double topRailAllTheWayIn = 335;
 
-    public LambdaCommand deliveryeup = new LambdaCommand(
+    public final double highBasket = 600;
+    public final double lowBasket = 200;
+
+    ElapsedTime transferTimer = new ElapsedTime();
+    boolean flipBackTime;
+    boolean gripTimer;
+
+
+    public enum deposit {
+        preTransFer,
+        transfer,
+        postTransfer,
+        basket,
+    }
+
+    public enum gripper{
+        drop,
+        grab
+    }
+
+    public gripper getGripperState() {
+        return gripperState;
+    }
+
+    public void setGripperState(gripper gripperState) {
+        this.gripperState = gripperState;
+    }
+
+    private gripper gripperState = gripper.drop;
+
+    public enum clipping{
+        drop,
+        in
+    }
+
+    public clipping getClippingState() {
+        return clippingState;
+    }
+
+    public void setClippingState(clipping clippingState) {
+        this.clippingState = clippingState;
+    }
+
+    private clipping clippingState = clipping.drop;
+
+    public Delivery.deposit depositstate = deposit.preTransFer;
+
+    public enum slideState {
+        holdPosition,
+        moving,
+    }
+
+    public Delivery.slideState slidesState = slideState.holdPosition;
+
+
+    public Delivery(OpModeEX opModeEX) {
+        registerSubsystem(opModeEX,holdPosition);
+    }
+
+    public LambdaCommand holdPosition = new LambdaCommand(
+            () -> {},
             () -> {
-                slidemMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                slidemMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+                if (Math.abs(slideMotor.getCurrentPosition())>90){
+                    slideMotor.setPower(0.1);
+                }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
+                    slideMotor.setPower(0.15);
+                }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
+                    slideMotor.setPower(0.18);
+                }else{
+                    slideMotor.setPower(0);
+                }
             },
-            () -> {
-                slidemMotor.setPower(0.5);
 
-            },
-
-            () -> slidemMotor.getCurrentPosition() > 2000
+            () -> true
 
     );
 
-    public LambdaCommand followMotionPro = new LambdaCommand(
+    public LambdaCommand nothing = new LambdaCommand(
+            () -> System.out.println("init"),
             () -> {
-                currentTime.reset();
+//                if (slideMotor.getCurrentPosition() < 130){
+//                    slideMotor.setPower(0);
+//                }else {
+//                    slideMotor.setPower(0.36);
+//                }
+            },
 
+            () -> true
 
+    );
+
+   public LambdaCommand drop = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                griperSev.setPosition(110);
+            },
+            () -> true
+    );
+
+   public LambdaCommand grip = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                griperSev.setPosition(180);
+            },
+            () -> true
+    );
+
+   public LambdaCommand transfer = new LambdaCommand(
+            () -> {
 
             },
-            ()-> {
-                while (time.get(lastIndex) < currentTime.milliseconds()){
-                    lastIndex++;
+            () -> {
+                secondPivot.setPosition(261);
+                mainPivot.setPosition(99);
+                griperSev.setPosition(180);
+                depositstate =deposit.transfer;
+            },
+            () -> true
+    );
 
-                }
-                double targetVelocity = motionprofile.get(lastIndex);
-                double targetMotorPower = targetVelocity*veloToMotorPower;
-                slidemMotor.setPower(targetMotorPower);
-
-
-
+    public LambdaCommand behindTransfer = new LambdaCommand(
+            () -> {
 
             },
-            ()->
+            () -> {
+                secondPivot.setPosition(258);
+                griperSev.setPosition(90);
+                mainPivot.setPosition(80);
+                depositstate =deposit.preTransFer;
 
-            slidetime > currentTime.milliseconds()
+            },
+            () -> true
+    );
+
+   public LambdaCommand dropOff = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(300);
+                secondPivot.setPosition(38);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
+
+    public LambdaCommand clippingPosition = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(190);
+                secondPivot.setPosition(170);
+//                griperSev.setPosition(180);
+//                depositstate = deposit.basket;
+            },
+            () -> true
+    );
 
 
+    public LambdaCommand cliping = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(300);
+                secondPivot.setPosition(60);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
+    public LambdaCommand fronCliping = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(189);
+                secondPivot.setPosition(200);
+                griperSev.setPosition(180);
+                depositstate =deposit.basket;
+            },
+            () -> true
+    );
+    public LambdaCommand postTransfer = new LambdaCommand(
+            () -> System.out.println("init"),
+            () -> {
+                mainPivot.setPosition(90);
+                secondPivot.setPosition(226);
+                griperSev.setPosition(180);
+                depositstate =deposit.postTransfer;
+            },
+            () -> true
+    );
 
+
+    public LambdaCommand followMotionPro = new LambdaCommand(
+            () ->{},
+            ()-> slideMotor.setPower(profile.followProfile(slideMotor.getCurrentPosition())),
+            ()-> profile.isSlideRunning()
     );
 
     @Override
     public void init() {
+        slideMotor = getOpModeEX().hardwareMap.get(DcMotor.class, "slideMotor");
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        mainPivot.initServo("mainPivot",getOpModeEX().hardwareMap);
+        secondPivot.initServo("secondPivot",getOpModeEX().hardwareMap);
+        linierRail.initServo("linearRail",getOpModeEX().hardwareMap);
+        griperSev.initServo("devClaw",getOpModeEX().hardwareMap);
+
+
+        secondPivot.setRange(new PwmControl.PwmRange(500, 2500), 270);
+        griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
+        mainPivot.setRange(335);
+        linierRail.setRange(335);
+        clippingPosition.execute();
+        secondPivot.setPosition(258);
+        mainPivot.setPosition(80);
+        griperSev.setPosition(90);
+//        drop.execute();
 
     }
 
     @Override
     public void execute() {
         executeEX();
+//        if(slidesState==slideState.holdPosition){
+//            queueCommand(holdPosition);
+//        }
+
+        if (gripperState == Delivery.gripper.grab){
+            griperSev.setPosition(180);
+        } else if (gripperState == Delivery.gripper.drop) {
+            griperSev.setPosition(110);
+        }
+
+        if (clippingState == Delivery.clipping.in){
+            linierRail.setPosition(0);
+        } else if (clippingState == Delivery.clipping.drop) {
+            linierRail.setPosition(270);
+        }
     }
 
     public void genProfile (double slideTarget){
+        profile.generateMotionProfile(slideTarget, slideMotor.getCurrentPosition());
+    }
 
-                    System.out.println("init Second");
-                    double test = 0;
-                    slidetime = 0;
-                    targetPosition = slideTarget;
-                    double halfwayDistance = targetPosition / 2;
-                    double newAccelDistance = acceldistance;
-                    int decelCounter = 0;
+    public void disableServos(){
+        mainPivot.disableServo();
+        secondPivot.disableServo();
+        griperSev.disableServo();
+        linierRail.disableServo();
+    }
 
-                    if (acceldistance > halfwayDistance) {
-                        newAccelDistance = halfwayDistance;
-                    }
-                    double newMaxVelocity = acceldistance * maxAccel;
+    public void safePositions(){
+        mainPivot.setPosition(85);
+        secondPivot.setPosition(258);
+        griperSev.setPosition(90);
+    }
 
-                    for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
-                        double targetVelocity;
-
-                        if (newAccelDistance > i) {
-
-                            int range = (int) Math.abs(newAccelDistance - i);
-
-                            double AccelSlope = (double) range / (double) Math.abs(newAccelDistance) * 100;
-
-                            AccelSlope = 100 - (AccelSlope * 0.01);
-
-                            targetVelocity = newMaxVelocity * AccelSlope;
-
-                            slidetime += (1 / targetVelocity) * 1000;
-
-                        }
-                        if (i + newAccelDistance > Math.abs(targetPosition - currentPosition)) {
-
-                            decelCounter++;
-
-                            int range = (int) Math.abs(newAccelDistance - decelCounter);
-
-                            double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
-
-                            DeccelSlope = DeccelSlope * 0.01;
-
-                            targetVelocity = newMaxVelocity * DeccelSlope;
-
-                            slidetime += (1 / targetVelocity) * 1000;
-
-                        } else {
-                            targetVelocity = newMaxVelocity;
-
-                            slidetime += (1 / targetVelocity) * 1000;
-
-                        }
-                        motionprofile.add(targetVelocity);
-                        time.add(slidetime);
-                    }
-                }
-            }
+}
 
 
 

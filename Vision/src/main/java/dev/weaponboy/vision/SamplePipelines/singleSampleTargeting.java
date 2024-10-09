@@ -188,7 +188,10 @@ public class singleSampleTargeting implements VisionProcessor, CameraStreamSourc
 
         }
 
-        redMat.copyTo(frame);
+//        redMat.copyTo(frame);
+
+        System.out.println("width" + frame.width());
+        System.out.println("height" + frame.height());
 
         blueContours.clear();
         yellowContours.clear();
