@@ -33,6 +33,8 @@ public class Delivery extends SubSystem {
     ElapsedTime transferTimer = new ElapsedTime();
     boolean flipBackTime;
     boolean gripTimer;
+    double griperDrop = 110;
+    double gripergrab = 180;
 
     /**
      * servo time per degrees
@@ -46,14 +48,14 @@ public class Delivery extends SubSystem {
      * */
     double mainPivotBehindTransfer = 26.8;
     double secondBehindTransfer = 226;
-    double gripperBehindTransfer = 110;
+    double gripperBehindTransfer = griperDrop;
 
     /**
      * transfer position values
      * */
     double mainPivotTransfer = 49.8;
     double secondTransfer = 244;
-    double gripperTransfer = 180;
+    double gripperTransfer = gripergrab;
 
     /**
      * bucket deposit position values
@@ -61,7 +63,7 @@ public class Delivery extends SubSystem {
 
     double mainPivotDepo = 270;
     double secondDepo = 20;
-    double gripperDepo = 180;
+    double gripperDepo = gripergrab;
 
     /**
      * clipping position values
@@ -69,7 +71,7 @@ public class Delivery extends SubSystem {
 
     double mainPivotClip = 139.8;
     double secondClip = 226;
-    double gripperClip = 180;
+    double gripperClip = gripergrab;
 
     /**
      * PRE clipping position values
@@ -77,7 +79,7 @@ public class Delivery extends SubSystem {
 
     double mainPivotPreClip = 180;
     double secondPreClip = 181;
-    double gripperPreClip = 180;
+    double gripperPreClip = gripergrab;
 
     public enum DeliveryState{
         transfer,
@@ -343,6 +345,7 @@ public class Delivery extends SubSystem {
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotPreClip)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondPreClip)*microRoboticTime);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClip;
+                    gripperState = gripper.grab;
 
                     PreClip.execute();
                 } else if (fourbarState == fourBarState.preClip && slideMotor.getCurrentPosition() > 300) {
@@ -351,7 +354,23 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.clip;
 
+
                     Clipping.execute();
+                }else if(fourbarState == fourBarState.clip && slideMotor.getCurrentPosition() > 300 && gripperState == gripper.grab){
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotBehindTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondBehindTransfer)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.behindNest;
+                    gripperState = gripper.drop;
+
+                    behindNest.execute();
+                }else if(fourbarState == fourBarState.clip && slideMotor.getCurrentPosition() > 300){
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotBehindTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondBehindTransfer)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.behindNest;
+
+                    behindNest.execute();
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
