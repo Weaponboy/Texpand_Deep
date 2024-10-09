@@ -580,7 +580,7 @@ public class Collection2 extends SubSystem {
             }
         }
 
-        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+        if (railTime.milliseconds() > railTimeToPosition && runningToPosition){
             linerRailServo.setPosition(0.5);
             runningToPosition = false;
         }
