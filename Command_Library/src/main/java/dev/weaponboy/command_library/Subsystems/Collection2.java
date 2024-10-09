@@ -204,7 +204,7 @@ public class Collection2 extends SubSystem {
 
         horizontalMotor.update(extendoPower);
 
-//        updateRailPosition();
+        updateRailPosition();
 
 //        if (fourBarState == fourBar.stowed){
 //            griperRotate.setPosition(rotateStow);
@@ -580,10 +580,10 @@ public class Collection2 extends SubSystem {
             }
         }
 
-//        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
-//            linerRailServo.setPosition(0.5);
-//            runningToPosition = false;
-//        }
+        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }
 
         try {
             fWriter.flush();
