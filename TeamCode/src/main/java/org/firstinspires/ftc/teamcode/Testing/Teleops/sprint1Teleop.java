@@ -108,9 +108,9 @@ public class sprint1Teleop extends OpModeEX {
             collection.linerRailServo.setPosition(0.5);
         }
 
-        if (gamepad1.dpad_up){
-            collection.setRailTargetPosition(10);
-        }
+//        if (gamepad1.dpad_up){
+//            collection.setRailTargetPosition(10);
+//        }
 
         if (currentGamepad1.y && !lastGamepad1.y) {
             delivery.genProfile(delivery.highBasket);

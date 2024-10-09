@@ -204,7 +204,7 @@ public class Collection2 extends SubSystem {
 
         horizontalMotor.update(extendoPower);
 
-        updateRailPosition();
+//        updateRailPosition();
 
 //        if (fourBarState == fourBar.stowed){
 //            griperRotate.setPosition(rotateStow);
