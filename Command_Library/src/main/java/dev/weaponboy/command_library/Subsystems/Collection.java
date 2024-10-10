@@ -29,12 +29,12 @@ public class Collection extends SubSystem{
      * */
     double currentRailPosition;
     double railTargetPosition;
-    double currentAxonWirePos;
+    public double currentAxonWirePos;
     double lastAxonWirePos;
     final double spoolSize = 3.6; //in cm
     double railTimeToPosition;
     double rotationsForFullTravel = 20/(spoolSize*Math.PI);
-    double timeForFullRotation = 200; // in ms
+    double timeForFullRotation = 400; // in ms
     double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
     ElapsedTime railTime = new ElapsedTime();
     boolean runningToPosition = false;
@@ -113,9 +113,7 @@ public class Collection extends SubSystem{
 
         horizontalMotor.update(extendoPower);
 
-        if(railTargetPosition != 0){
-            updateRailPosition();
-        }
+        updateRailPosition();
 
         if (nestState == Nest.sample){
             nest.setPosition(135);
@@ -210,7 +208,7 @@ public class Collection extends SubSystem{
             () -> true
     );
 
-    public  Command holdPosition = new LambdaCommand(
+    public Command holdPosition = new LambdaCommand(
             () -> {},
             () -> {
                 if (horizontalMotor.getCurrentPosition() < 40){
@@ -299,7 +297,7 @@ public class Collection extends SubSystem{
             () -> {
                 fourBarMainPivot.setPosition(180);
                 fourBarSecondPivot.setPosition(120);
-                griperRotate.setPosition(270);
+                griperRotate.setPosition(90);
             },
             () -> true
     );
@@ -308,7 +306,7 @@ public class Collection extends SubSystem{
             () -> {},
             () -> {
                 fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(25);
+                fourBarSecondPivot.setPosition(30);
                 griperRotate.setPosition(90);
                 collectionState = fourBar.preCollect;
             },
@@ -333,6 +331,7 @@ public class Collection extends SubSystem{
 
     public void setRailTargetPosition(double targetPosition) {
         this.railTargetPosition = targetPosition;
+        runToPosition();
         updateRailPosition();
     }
 
@@ -343,12 +342,17 @@ public class Collection extends SubSystem{
 
         currentAxonWirePos = linearPosition.getPosition();
 
-        double deltaPosition = lastAxonWirePos - currentAxonWirePos;
+        double deltaPosition = currentAxonWirePos - lastAxonWirePos;
         double realDelta;
         double deltaCM;
 
         double spoolSize = 10.676;
         double cmPerDegree = spoolSize / 360;
+
+        System.out.println("Last rail: " + lastPosition);
+        System.out.println("currentRailPosition: " + currentRailPosition);
+        System.out.println("currentAxonWirePos: " + currentAxonWirePos);
+        System.out.println("lastAxonWirePos: " + lastAxonWirePos);
 
         if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
 
@@ -357,20 +361,29 @@ public class Collection extends SubSystem{
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition += deltaCM;
+                System.out.println("realDelta > 0: " + realDelta);
+                System.out.println("deltaCM > 0: " + deltaCM);
 
             } else if (deltaPosition < 0) {
-
                 realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
                 deltaCM = realDelta * cmPerDegree;
                 currentRailPosition -= deltaCM;
 
+                System.out.println("realDelta < 0: " + realDelta);
+                System.out.println("deltaCM < 0: " + deltaCM);
             }
 
         } else {
             currentRailPosition += deltaPosition*cmPerDegree;
+
+            System.out.println("deltaPosition normal: " + deltaPosition);
+            System.out.println("deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
         }
 
-        runToPosition();
+        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+            linerRailServo.setPosition(0.5);
+            runningToPosition = false;
+        }
 
     }
 
@@ -378,18 +391,27 @@ public class Collection extends SubSystem{
 
         double delta = railTargetPosition - currentRailPosition;
 
-        if (Math.abs(delta) < 0.2){
-            linerRailServo.setPosition(0.5);
-            runningToPosition = false;
-        }else if(Math.abs(delta) > 1 && !runningToPosition){
-            railTimeToPosition = Math.abs(delta)*timePerCM;
-            railTime.reset();
-            if (delta > 0){ linerRailServo.setPosition(1);}else {linerRailServo.setPosition(0);}
-            runningToPosition = true;
-        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
-            linerRailServo.setPosition(0.5);
-            runningToPosition = false;
+        railTimeToPosition = Math.abs(delta)*timePerCM;
+        railTime.reset();
+
+        if (delta > 0){
+            linerRailServo.setPosition(1);
+        }else {
+            linerRailServo.setPosition(0);
         }
+
+        runningToPosition = true;
+
+//        if (Math.abs(delta) < 0.2){
+//            linerRailServo.setPosition(0.5);
+//            runningToPosition = false;
+//        }else if(Math.abs(delta) > 1 && !runningToPosition){
+//
+//
+//        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
+//            linerRailServo.setPosition(0.5);
+//            runningToPosition = false;
+//        }
 
         updateRailPosition();
     }
@@ -452,7 +474,7 @@ public class Collection extends SubSystem{
         return slidesState;
     }
 
-    public void setSlidesState(slideState slidesState) {
+    public void xsetSlidesState(slideState slidesState) {
         this.slidesState = slidesState;
     }
 

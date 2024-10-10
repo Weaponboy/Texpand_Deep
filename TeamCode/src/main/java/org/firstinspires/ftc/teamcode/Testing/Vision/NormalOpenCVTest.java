@@ -49,24 +49,24 @@ public class NormalOpenCVTest extends OpModeEX {
         collection.camera.execute();
     }
 
-    @Override
-    public void init_loop() {
-        if (currentGamepad1.x && !lastGamepad1.x && pipeline.isDisplayInput()){
-            pipeline.setDisplayInput(false);
-        }else if (currentGamepad1.x && !lastGamepad1.x && !pipeline.isDisplayInput()){
-            pipeline.setDisplayInput(true);
-        }
-        super.init_loop();
-    }
+//    @Override
+//    public void init_loop() {
+//        if (currentGamepad1.x && !lastGamepad1.x && pipeline.isDisplayInput()){
+//            pipeline.setDisplayInput(false);
+//        }else if (currentGamepad1.x && !lastGamepad1.x && !pipeline.isDisplayInput()){
+//            pipeline.setDisplayInput(true);
+//        }
+//        super.init_loop();
+//    }
 
     @Override
     public void loopEX() {
         collection.queueCommand(collection.camera);
     }
 
-    @Override
-    public void stop() {
-        // Stop the webcam when the opmode is stopped
-        webcam.stopStreaming();
-    }
+//    @Override
+//    public void stop() {
+//        // Stop the webcam when the opmode is stopped
+//        webcam.stopStreaming();
+//    }
 }
