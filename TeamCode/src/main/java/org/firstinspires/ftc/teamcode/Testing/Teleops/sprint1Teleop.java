@@ -55,9 +55,9 @@ public class sprint1Teleop extends OpModeEX {
             collection.queueCommand(collection.transfer);
         }
 
-        if (gamepad1.start){
-            collection.disableServos();
-        }
+//        if (gamepad1.start){
+//            collection.disableServos();
+//        }
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
             delivery.queueCommand(delivery.transfer);
@@ -67,41 +67,10 @@ public class sprint1Teleop extends OpModeEX {
             delivery.queueCommand(delivery.deposit);
         }
 
-//        if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.stowed){
-//            collection.queueCommand(collection.preCollect);
-//        }else if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.preCollect){
-//            collection.queueCommand(collection.collect);
-//        }else if (currentGamepad1.right_bumper && !currentGamepad1.left_bumper && collection.getCollectionState() == Collection.fourBar.collect){
-//            collection.setGripperState(Collection.gripper.grab);
-//            collection.setNestState(Collection.Nest.sample);
-//            transferring = true;
-//            waitTime = 400;
-//            transferringWait.reset();
-//        }
-
-//        if (collection.getCollectionState() == Collection.fourBar.stowed && transferring && transferringWait.milliseconds() > waitTime){
-//            collection.queueCommand(collection.dropNest);
-//            waitTime = 400;
-//            transferringWait.reset();
-//        }else if (collection.getCollectionState() == Collection.fourBar.dropNest && transferring && transferringWait.milliseconds() > waitTime){
-//            collection.setGripperState(Collection.gripper.grab);
-//            waitTime = 400;
-//            transferringWait.reset();
-//        }else if (collection.getCollectionState() == Collection.fourBar.stowed && transferring && transferringWait.milliseconds() > waitTime && collection.getGripperState() == Collection.gripper.drop){
-//            collection.queueCommand(collection.stow);
-//            transferring = false;
-//        }
-
 //        if (gamepad1.dpad_up){
 //            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
 //        }else if (gamepad1.dpad_down){
 //            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
-//        }
-
-//        if (collection.horizontalMotor.getCurrentPosition() < collection.maxSlideExtension && collection.getSlidesState() == Collection.slideState.manuel) {
-//            collection.setExtendoPower(-gamepad1.left_stick_y/2);
-//        } else if (collection.getSlidesState() == Collection.slideState.manuel) {
-//            collection.setExtendoPower(-gamepad1.left_stick_y/2);
 //        }
 
 //        if(gamepad1.dpad_left){
@@ -115,12 +84,12 @@ public class sprint1Teleop extends OpModeEX {
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
             collection.setRailTargetPosition(10);
         }
-
-        if (currentGamepad1.y && !lastGamepad1.y) {
-            delivery.genProfile(delivery.highBasket);
-            delivery.queueCommand(delivery.followMotionPro);
-            delivery.slidesState = Delivery.slideState.moving;
-        }
+//
+//        if (currentGamepad1.y && !lastGamepad1.y) {
+//            delivery.genProfile(delivery.highBasket);
+//            delivery.queueCommand(delivery.followMotionPro);
+//            delivery.slidesState = Delivery.slideState.moving;
+//        }
 
 //        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
 //            delivery.genProfile(0);
@@ -129,10 +98,14 @@ public class sprint1Teleop extends OpModeEX {
 //        }
 
         telemetry.addData("loop time ", loopTime);
-        telemetry.addData("rail position ", collection.getRailPosition());
+//        telemetry.addData("rail position ", collection.getRailPosition());
+        telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
+        telemetry.addData("horizontal slides ", collection.fourBarMainPivot.getPosition());
+        telemetry.addData("horizontal slides ", collection.fourBarSecondPivot.getPosition());
+        telemetry.addData("horizontal slides ", collection.griperRotate.getPosition());
         telemetry.addData("rail position ", collection.linearPosition.getPosition());
-        telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition());
-        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition());
+
+//        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition());
         telemetry.update();
     }
 }

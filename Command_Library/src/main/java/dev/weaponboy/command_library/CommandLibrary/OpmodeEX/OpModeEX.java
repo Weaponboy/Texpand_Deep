@@ -24,7 +24,7 @@ public abstract class OpModeEX extends OpMode {
 
     public Odometry odometry = new Odometry(this);
 
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {driveBase, odometry, collection, delivery});
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase});
 
     List<LynxModule> allHubs;
 
@@ -46,7 +46,7 @@ public abstract class OpModeEX extends OpMode {
     public void init() {
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         timer.reset();
         scheduler.init();
@@ -55,12 +55,12 @@ public abstract class OpModeEX extends OpMode {
 
     @Override
     public void loop() {
-        lastGamepad1.copy(currentGamepad1);
-        currentGamepad1.copy(gamepad1);
-
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
+
+        lastGamepad1.copy(currentGamepad1);
+        currentGamepad1.copy(gamepad1);
 
         lastTime = timer.milliseconds();
 
@@ -90,7 +90,7 @@ public abstract class OpModeEX extends OpMode {
     @Override
     public void stop() {
         collection.disableServos();
-        delivery.disableServos();
+//        delivery.disableServos();
 //        super.stop();
     }
 }

@@ -23,7 +23,7 @@ public class Collection2 extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
-    motionProfile profile = new motionProfile(1400, 140, 35, 440, 0.15);
+    motionProfile profile = new motionProfile(508, 100, 35, 440, 0.15);
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -88,7 +88,7 @@ public class Collection2 extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 96;
+    double mainPivotCollect = 97;
     double secondPivotCollect = 15;
 
     /**
@@ -190,7 +190,7 @@ public class Collection2 extends SubSystem {
         executeEX();
 
         if (slidesState == slideState.profile){
-            extendoPower = profile.followProfile(horizontalMotor.getCurrentPosition());
+            extendoPower = profile.followProfile(horizontalMotor.getCurrentPosition(), horizontalMotor.getCurrentVelocity());
             if (!profile.isSlideRunning()){
                 slidesState = slideState.manuel;
             }
@@ -198,9 +198,11 @@ public class Collection2 extends SubSystem {
             if (horizontalMotor.getCurrentPosition() < 20){
                 extendoPower = 0;
             }else {
-                extendoPower = 0.1;
+                extendoPower = -0.1;
             }
         }
+
+
 
         if (clawsState == clawState.grab){
             gripServo.setPosition(0.57);
@@ -208,10 +210,11 @@ public class Collection2 extends SubSystem {
             gripServo.setPosition(0);
         }
 
-        horizontalMotor.updateVelocity();
+        double slidesthing = ((double) 35 /440);
         horizontalMotor.update(extendoPower);
         System.out.println("extendoPower: " + extendoPower);
-        System.out.println("hor velocity " + horizontalMotor.getCurrentVelocity());
+        System.out.println("hor velocity " + horizontalMotor.getCurrentVelocity()*slidesthing);
+        horizontalMotor.updateVelocity();
         System.out.println("!profile.isSlideRunning() " + !profile.isSlideRunning());
 
         updateRailPosition();
@@ -346,7 +349,6 @@ public class Collection2 extends SubSystem {
             () -> {
                 if(horizontalMotor.getCurrentPosition() > 30){
                     profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-                    slidesState = slideState.profile;
                 }
             },
             () -> {
@@ -376,6 +378,7 @@ public class Collection2 extends SubSystem {
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.stowed;
 
+                    slidesState = slideState.profile;
                     Stow.execute();
 
                 } else if (fourBarState == fourBar.stowed && griperRotate.getPositionDegrees() > 120) {

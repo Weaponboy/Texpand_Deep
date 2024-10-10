@@ -9,6 +9,8 @@ public class motionProfile {
     double targetPosition = 0;
     double currentPosition = 0;
 
+    double startPosition = 0;
+
     double maxAcceleration;
     double maxVelocity;
     double accelDistance;
@@ -57,6 +59,7 @@ public class motionProfile {
 
         targetPosition = slideTarget;
         this.currentPosition = currentPosition*CMPerTick;
+        startPosition = this.currentPosition;
 
         if (vertical){
             vertical();
@@ -81,16 +84,22 @@ public class motionProfile {
             slideRunning = true;
         }
 
-        if (lastIndex >= time.size()){
-            if (targetPosition > this.currentPosition){
+        if (lastIndex >= time.size()-1){
+            if (lastIndex - time.size() < 0){
+                lastIndex++;
+            }
+            if (targetPosition > this.startPosition){
+                System.out.println("in first if: " + lastIndex);
                 while (positions.get(lastIndex-time.size()) < this.currentPosition){
+                    System.out.println("in while: " + lastIndex);
                     if (lastIndex < motionProfile.size()-1){
                         lastIndex++;
+                        System.out.println("increment: " + lastIndex);
                     }else {
                         break;
                     }
                 }
-            } else if (targetPosition < this.currentPosition) {
+            } else if (targetPosition < this.startPosition) {
                 while (positions.get(lastIndex-time.size()) > this.currentPosition){
                     if (lastIndex < motionProfile.size()-1){
                         lastIndex++;
@@ -101,8 +110,12 @@ public class motionProfile {
             }
         }else {
 
-            if (time.get(lastIndex) < currentTime.milliseconds()) {
-                lastIndex++;
+            while (time.get(lastIndex) < currentTime.milliseconds()) {
+                if (lastIndex < time.size()-1){
+                    lastIndex++;
+                }else {
+                    break;
+                }
             }
 
         }
@@ -138,6 +151,7 @@ public class motionProfile {
 
     public double followProfile(double currentPosition, double currentVelo){
         this.currentPosition = (currentPosition*CMPerTick);
+        currentVelo = currentVelo*CMPerTick;
 
         if (!slideRunning){
             currentTime.reset();
@@ -146,13 +160,24 @@ public class motionProfile {
         }
 
         if (lastIndex >= time.size()){
-            if (targetPosition > this.currentPosition){
+            if (targetPosition > this.startPosition){
+                System.out.println("in first if: " + lastIndex);
                 while (positions.get(lastIndex-time.size()) < this.currentPosition){
-                    lastIndex++;
+                    System.out.println("in while: " + lastIndex);
+                    if (lastIndex < motionProfile.size()-1){
+                        lastIndex++;
+                        System.out.println("increment: " + lastIndex);
+                    }else {
+                        break;
+                    }
                 }
-            } else if (targetPosition < this.currentPosition) {
-                if (positions.get(lastIndex-time.size()) > this.currentPosition){
-                    lastIndex++;
+            } else if (targetPosition < this.startPosition) {
+                while (positions.get(lastIndex-time.size()) > this.currentPosition){
+                    if (lastIndex < motionProfile.size()-1){
+                        lastIndex++;
+                    }else {
+                        break;
+                    }
                 }
             }
         }else {
@@ -165,10 +190,14 @@ public class motionProfile {
 
         double targetVelocity;
         double targetMotorPower;
-//        double veloDef = targetVelocity.getXVelocity() - XVelo;
+
 
         if (lastIndex < motionProfile.size()-2){
             targetVelocity = motionProfile.get(lastIndex);
+            double veloDef = targetVelocity - currentVelo;
+            if (!(targetPosition == 0)){
+                targetVelocity += veloDef;
+            }
             targetMotorPower = targetVelocity*velocityToMotorPower;
         }else {
             if(targetPosition == 0){
@@ -179,15 +208,10 @@ public class motionProfile {
             slideRunning = false;
         }
 
-
-//        slideRunning = currentPosition > targetPosition;
-//
-//        if (lastIndex >= motionProfile.size()-2){
-//
-//        }
+        System.out.println("lastIndex: " + lastIndex);
+        System.out.println("motionProfile.size()-2: " + (motionProfile.size()-2));
 
         return targetMotorPower;
-
     }
 
     public void vertical(){
@@ -319,15 +343,20 @@ public class motionProfile {
 
                 DeccelSlope = DeccelSlope * 0.01;
 
-                targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
+                if (targetPosition == 0){
+                    targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
+                }else {
+                    targetVelocity = (newMaxVelocity * DeccelSlope);
+                }
 
                 System.out.println("targetVelocity decel" + targetVelocity);
-                System.out.println("position decel" + (double) i + 1);
 
                 if (velocityHalf < 0){
                     positions.add(currentPosition - i+1);
+                    System.out.println("position decel" + (currentPosition - i+1));
                 }else {
                     positions.add(currentPosition + i+1);
+                    System.out.println("position decel" + (currentPosition + i+1));
                 }
 
             } else {
@@ -336,12 +365,14 @@ public class motionProfile {
 
                 if (velocityHalf < 0){
                     positions.add(currentPosition - i+1);
+                    System.out.println("position normal" + (currentPosition - i+1));
                 }else {
                     positions.add(currentPosition + i+1);
+                    System.out.println("position normal" + (currentPosition + i+1));
                 }
 
                 System.out.println("targetVelocity normal" + targetVelocity);
-                System.out.println("position normal" + (double) i + 1);
+//                System.out.println("position normal" + (double) i + 1);
 
             }
 
