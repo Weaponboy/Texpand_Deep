@@ -15,7 +15,7 @@ public class hangTest extends OpMode {
     public void init() {
         hang1=hardwareMap.get(Servo.class,"hang1");
         hang2=hardwareMap.get(Servo.class,"hang2");
-//        hang1.setDirection(Servo.Direction.REVERSE);
+        hang1.setDirection(Servo.Direction.REVERSE);
 
     }
 

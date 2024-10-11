@@ -38,8 +38,8 @@ public class SampleTargeting  implements VisionProcessor {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(0, 144, 38);
-    public Scalar redHigher = new Scalar(201,255,255);
+    public Scalar redLower = new Scalar(9, 31, 160);
+    public Scalar redHigher = new Scalar(38,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
     Mat redHierarchy = new Mat();
@@ -60,11 +60,37 @@ public class SampleTargeting  implements VisionProcessor {
 
     RotatedRect rotatedRect = new RotatedRect(center, rectSize, angle);
 
-    double maxShort = 140;
-    double minShort = 60;
+    double maxShort = 150;
+    double minShort = 40;
 
-    double minLong = 180;
-    double maxLong = 350;
+    double minLong = 160;
+    double maxLong = 400;
+
+    double railTarget;
+
+    public double getSlidesDelta() {
+        return slidesDelta;
+    }
+
+    public double getRailTarget() {
+        return railTarget;
+    }
+
+    double slidesDelta;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    int width = 1280;
+    int height = 960;
+
+    double pixelsToCmWidth = (double) getWidth() / 43;
+    double pixelsToCmHeight = (double) getHeight() / 30;
 
     Point centerDet = new Point();
 
@@ -121,6 +147,8 @@ public class SampleTargeting  implements VisionProcessor {
         contours.clear();
         redContours.clear();
         topY.clear();
+//        redMat.copyTo(frame);
+
         redMat.release();
 
         return null;
@@ -368,8 +396,8 @@ public class SampleTargeting  implements VisionProcessor {
 //
 //        }
 
-        Imgproc.putText(input, String.valueOf(firstLength/secondLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(input, String.valueOf(angleRotate), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        Imgproc.putText(input, String.valueOf(firstLength/secondLength), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//        Imgproc.putText(input, String.valueOf(angleRotate), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
 //
 //        Imgproc.putText(input, String.valueOf(firstLength), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
@@ -377,6 +405,17 @@ public class SampleTargeting  implements VisionProcessor {
 
 //        Imgproc.putText(input, String.valueOf(deltaXSecond), new Point(200, 280), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 //        Imgproc.putText(input, String.valueOf(deltaYSecond), new Point(200, 340), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
+        if(!(CenterPoint == null)){
+            double stuff = (CenterPoint.x / pixelsToCmWidth)-11.5;
+            double stuff2 = (((getHeight() -  CenterPoint.y) / pixelsToCmHeight) - 9)-12;
+
+            railTarget = stuff;
+            slidesDelta = stuff2;
+
+            Imgproc.putText(input, String.valueOf(stuff), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+            Imgproc.putText(input, String.valueOf(stuff2), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        }
 
         return CenterPoint;
     }

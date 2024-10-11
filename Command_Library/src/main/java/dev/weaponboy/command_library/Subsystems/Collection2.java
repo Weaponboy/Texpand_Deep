@@ -85,6 +85,11 @@ public class Collection2 extends SubSystem {
         grab
     }
 
+    public enum Nest{
+        sample,
+        specimen
+    }
+
     /**
      * collect position values
      * */
@@ -130,6 +135,7 @@ public class Collection2 extends SubSystem {
     double transferWaitTime;
 
     /**enum states*/
+    private Nest nestState = Nest.sample;
     private fourBar fourBarState = fourBar.stowed;
     private fourBar fourBarTargetState = fourBar.stowed;
     private collection collectionState = collection.stowed;
@@ -202,7 +208,11 @@ public class Collection2 extends SubSystem {
             }
         }
 
-
+        if (nestState == Nest.sample){
+            nest.setPosition(135);
+        } else if (nestState == Nest.specimen) {
+            nest.setPosition(45);
+        }
 
         if (clawsState == clawState.grab){
             gripServo.setPosition(0.57);
@@ -231,7 +241,7 @@ public class Collection2 extends SubSystem {
 
                 fourBarMainPivot.setPosition(mainPivotPreCollect);
                 fourBarSecondPivot.setPosition(secondPivotPreCollect);
-                griperRotate.setPosition(rotatePreCollect);
+//                griperRotate.setPosition(rotatePreCollect);
             }
     );
 
@@ -278,9 +288,9 @@ public class Collection2 extends SubSystem {
 
     public final Command camera = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(180);
-                fourBarSecondPivot.setPosition(120);
-                griperRotate.setPosition(90);
+                fourBarMainPivot.setPosition(130);
+                fourBarSecondPivot.setPosition(107);
+                griperRotate.setPosition(rotateTransInt);
             }
     );
 
@@ -307,6 +317,8 @@ public class Collection2 extends SubSystem {
             () -> {
 
                 System.out.println("Running collect command FULL");
+
+                setNestState(Nest.sample);
 
                 if (fourBarState == fourBar.preCollect){
 
@@ -653,6 +665,15 @@ public class Collection2 extends SubSystem {
 
     public Collection2.slideState getSlideState() {
         return slidesState;
+    }
+
+
+    public Nest getNestState() {
+        return nestState;
+    }
+
+    public void setNestState(Nest nestState) {
+        this.nestState = nestState;
     }
 
     public void disableServos(){

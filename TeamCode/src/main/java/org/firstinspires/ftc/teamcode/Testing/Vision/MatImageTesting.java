@@ -31,7 +31,7 @@ public class MatImageTesting extends OpModeEX {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1280, 960, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override

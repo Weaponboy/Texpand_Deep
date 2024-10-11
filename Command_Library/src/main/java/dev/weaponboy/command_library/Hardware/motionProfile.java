@@ -221,7 +221,8 @@ public class motionProfile {
         positions.clear();
         slideTime = 0;
 
-        double halfwayDistance = targetPosition / 2;
+        double halfwayDistance = Math.abs(targetPosition - currentPosition) / 2;
+        double velocityHalf = (targetPosition - currentPosition) / 2;
         double newAccelDistance = accelDistance;
 
         int decelCounter = 0;
@@ -234,10 +235,20 @@ public class motionProfile {
 
         double newMaxVelocity = Math.sqrt(2 * maxAcceleration * newAccelDistance);
 
+        if (velocityHalf < 0){
+            newMaxVelocity = -newMaxVelocity;
+            baseMotorVelocity = -baseMotorVelocity;
+        }
+
+        System.out.println("newMaxVelocity " + newMaxVelocity);
+        System.out.println("baseMotorVelocity " + baseMotorVelocity);
+        System.out.println("newAccelDistance " + newAccelDistance);
+        System.out.println("Math.abs(targetPosition - currentPosition) " + Math.abs(targetPosition - currentPosition));
+
         for (int i = 0; i < Math.abs(targetPosition - currentPosition); i++) {
             double targetVelocity;
 
-            if (newAccelDistance > i && currentPosition < targetPosition) {
+            if (Math.abs(newAccelDistance) > i && targetPosition > startPosition) {
 
                 int range = (int) Math.abs(newAccelDistance - i);
 
@@ -248,32 +259,60 @@ public class motionProfile {
                 targetVelocity = (newMaxVelocity * AccelSlope) + baseMotorVelocity;
 
                 if (targetVelocity != 0) {
-                    slideTime += Math.abs((1 / targetVelocity) * 1000);
+                    slideTime += (1 / Math.abs(targetVelocity)) * 1000;
                 }
 
                 time.add(slideTime);
 
-            } else if (i + newAccelDistance > Math.abs(targetPosition - currentPosition) && currentPosition > targetPosition) {
+                System.out.println("targetVelocity accel" + targetVelocity);
+                System.out.println("time accel" + slideTime);
 
-                decelCounter++;
 
-                int range = (int) Math.abs(newAccelDistance - decelCounter);
-
-                double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
-
-                DeccelSlope = DeccelSlope * 0.01;
-
-                targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
-
-                positions.add((double) i + 1);
-
-            } else {
+            }else {
 
                 targetVelocity = newMaxVelocity;
 
-                positions.add((double) i + 1);
+                if (velocityHalf < 0){
+                    positions.add(currentPosition - i+1);
+                    System.out.println("position normal" + (currentPosition - i+1));
+                }else {
+                    positions.add(currentPosition + i+1);
+                    System.out.println("position normal" + (currentPosition + i+1));
+                }
+
+                System.out.println("targetVelocity normal" + targetVelocity);
+//                System.out.println("position normal" + (double) i + 1);
 
             }
+
+//            else if (i + Math.abs(newAccelDistance) > Math.abs(targetPosition - currentPosition) && false) {
+//
+//                decelCounter++;
+//
+//                int range = (int) Math.abs(newAccelDistance - decelCounter);
+//
+//                double DeccelSlope = (double) range / Math.abs(newAccelDistance) * 100;
+//
+//                DeccelSlope = DeccelSlope * 0.01;
+//
+//                if (targetPosition == 0){
+//                    targetVelocity = (newMaxVelocity * DeccelSlope) + baseMotorVelocity;
+//                }else {
+//                    targetVelocity = (newMaxVelocity * DeccelSlope);
+//                }
+//
+//                System.out.println("targetVelocity decel" + targetVelocity);
+//
+//                if (velocityHalf < 0){
+//                    positions.add(currentPosition - i+1);
+//                    System.out.println("position decel" + (currentPosition - i+1));
+//                }else {
+//                    positions.add(currentPosition + i+1);
+//                    System.out.println("position decel" + (currentPosition + i+1));
+//                }
+//
+//            }
+
 
             motionProfile.add(targetVelocity);
         }

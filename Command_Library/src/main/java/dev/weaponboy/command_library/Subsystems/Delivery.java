@@ -27,8 +27,11 @@ public class Delivery extends SubSystem {
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
 
-    public final double highBasket = 90;
+    public final double highBasket = 65;
     public final double lowBasket = 200;
+
+    public final double highChamber = 22;
+    public final double lowChamber = 0;
 
     ElapsedTime transferTimer = new ElapsedTime();
     boolean flipBackTime;
@@ -127,6 +130,7 @@ public class Delivery extends SubSystem {
     }
 
     boolean retracting = false;
+    int counter = 0;
 
     public Delivery.slideState slidesState = slideState.holdPosition;
 
@@ -137,17 +141,20 @@ public class Delivery extends SubSystem {
     public LambdaCommand holdPosition = new LambdaCommand(
             () -> {},
             () -> {
-                if (Math.abs(slideMotor.getCurrentPosition())>90){
-                    slideMotor.setPower(0.1);
+                if (Math.abs(slideMotor.getCurrentPosition())>200){
+                    slideMotor.setPower(0.05);
                 }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
-                    slideMotor.setPower(0.15);
+                    slideMotor.setPower(0.055);
                 }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
-                    slideMotor.setPower(0.2);
+                    slideMotor.setPower(0.075);
                 }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
-                    slideMotor.setPower(0.26);
-                }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 90 && retracting){
+                    slideMotor.setPower(0.08);
+                }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 120 && retracting){
                     slideMotor.setPower(-1);
-                    retracting = false;
+                    counter++;
+                    if(counter == 5){
+                        retracting = false;
+                    }
                 }else {
                     slideMotor.setPower(0);
                 }
@@ -383,6 +390,14 @@ public class Delivery extends SubSystem {
             ()-> slideMotor.setPower(profile.followProfile(slideMotor.getCurrentPosition())),
             ()-> !profile.isSlideRunning()
     );
+    public Command slideSetPonts(double targetPozition){
+        profile.generateMotionProfile(targetPozition, slideMotor.getCurrentPosition());
+        if (targetPozition == 0){
+            retracting = true;
+            counter = 0;
+        }
+        return followMotionPro;
+    }
 
     @Override
     public void init() {
@@ -421,6 +436,7 @@ public class Delivery extends SubSystem {
     public void genProfile (double slideTarget){
         if (slideTarget == 0){
             retracting = true;
+            counter = 0;
         }
         profile.generateMotionProfile(slideTarget, slideMotor.getCurrentPosition());
     }
