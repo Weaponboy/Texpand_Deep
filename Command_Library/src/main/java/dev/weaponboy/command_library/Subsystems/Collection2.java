@@ -288,7 +288,7 @@ public class Collection2 extends SubSystem {
 
     public final Command camera = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(130);
+                fourBarMainPivot.setPosition(170);
                 fourBarSecondPivot.setPosition(107);
                 griperRotate.setPosition(rotateTransInt);
             }

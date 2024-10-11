@@ -71,12 +71,13 @@ public class CloseVisionAim extends OpModeEX {
 ////            collection.setRailTargetPosition(10);
 //        }
 //
-//        if (currentGamepad1.b && !lastGamepad1.b){
-//            collection.queueCommand(collection.collect);
-//        }
+        if (currentGamepad1.b && !lastGamepad1.b){
+            collection.queueCommand(collection.collect);
+        }
 //
 
 
+        telemetry.addData("horizontal", collection.horizontalMotor.getCurrentPosition()/(440/35));
         telemetry.addData("sampleSorter.getAngleRotate()", sampleSorter.getAngleRotate());
         telemetry.addData("getRailTarget", sampleSorter.getRailTarget());
         telemetry.addData("collection.horizontalMotor.getCurrentPosition()", sampleSorter.getSlidesDelta());
