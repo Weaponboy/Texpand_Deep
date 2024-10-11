@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.List;
 
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 import dev.weaponboy.command_library.Subsystems.Odometry;
@@ -17,13 +18,13 @@ public abstract class OpModeEX extends OpMode {
 
     public DriveBase driveBase = new DriveBase(this);
 
-    public Collection collection = new Collection(this);
+    public Collection2 collection = new Collection2(this);
 
     public Delivery delivery = new Delivery(this);
 
     public Odometry odometry = new Odometry(this);
 
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {driveBase, odometry, collection, delivery});
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
 
     List<LynxModule> allHubs;
 
@@ -45,7 +46,7 @@ public abstract class OpModeEX extends OpMode {
     public void init() {
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         timer.reset();
         scheduler.init();
@@ -54,12 +55,12 @@ public abstract class OpModeEX extends OpMode {
 
     @Override
     public void loop() {
-        lastGamepad1.copy(currentGamepad1);
-        currentGamepad1.copy(gamepad1);
-
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
+
+        lastGamepad1.copy(currentGamepad1);
+        currentGamepad1.copy(gamepad1);
 
         lastTime = timer.milliseconds();
 
@@ -89,7 +90,7 @@ public abstract class OpModeEX extends OpMode {
     @Override
     public void stop() {
         collection.disableServos();
-        delivery.disableServos();
+//        delivery.disableServos();
 //        super.stop();
     }
 }

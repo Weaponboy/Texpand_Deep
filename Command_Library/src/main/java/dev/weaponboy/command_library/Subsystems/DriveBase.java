@@ -69,8 +69,8 @@ public class DriveBase extends SubSystem {
 
     public Command drivePowers (RobotPower power){
         this.vertikal =power.getVertical();
-        this.strafe =power.getHorizontal();
-        this.turn =-power.getPivot();
+        this.strafe = -power.getHorizontal();
+        this.turn = power.getPivot();
 
         return driveCommand;
     }
@@ -79,7 +79,7 @@ public class DriveBase extends SubSystem {
             () -> {
             },
             () -> {
-                double denominator = Math.max(2, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
+                double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
 
                 LF.update((vertikal-strafe-turn)/denominator);
                 RF.update((vertikal+strafe+turn)/denominator);

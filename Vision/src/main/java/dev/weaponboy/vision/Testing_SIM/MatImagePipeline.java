@@ -28,8 +28,8 @@ public class MatImagePipeline extends OpenCvPipeline {
 
     Mat redMat = new Mat();
 
-    public Scalar redLower = new Scalar(120.4, 103.4, 53.8);
-    public Scalar redHigher = new Scalar(201,255,255);
+    public Scalar redLower = new Scalar(9, 31, 160);
+    public Scalar redHigher = new Scalar(38,255,255);
 
     @Override
     public Mat processFrame(Mat input) {

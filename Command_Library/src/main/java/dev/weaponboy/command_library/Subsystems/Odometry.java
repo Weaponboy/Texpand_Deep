@@ -81,7 +81,7 @@ public class Odometry extends SubSystem {
     }
 
     public double Heading (){
-        return Heading;
+        return Math.toDegrees(Heading);
     }
 
     public double getYVelocity(){
@@ -93,11 +93,14 @@ public class Odometry extends SubSystem {
     }
 
     public void updateVelocity(){
-        double RRXError = ticksPerCM * ((rightPod.getVelocity()+leftPod.getVelocity())/2);
-        double RRYError = ticksPerCM * backPod.getVelocity();
+        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
+        double RRYError = ticksPerCM * -backPod.getVelocity();
+
+//        currentXVelocity = RRXError;
+//        currentYVelocity = RRYError;
 
         currentXVelocity = RRXError * Math.cos(Math.toDegrees(Heading)) - RRYError * Math.sin(Math.toDegrees(Heading));
-        currentYVelocity += RRXError * Math.sin(Math.toDegrees(Heading)) + RRYError * Math.cos(Math.toDegrees(Heading));
+        currentYVelocity = RRXError * Math.sin(Math.toDegrees(Heading)) + RRYError * Math.cos(Math.toDegrees(Heading));
 
     }
 
