@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Examples.Pathing_Example;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
+import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
@@ -19,6 +21,8 @@ public class Blue_Left extends OpModeEX {
     follower follow = new follower();
     double targetHeading;
     double cycles=0;
+    boolean drop;
+    ElapsedTime dropTimer=new ElapsedTime();
 
 
     public enum autoState{
@@ -43,9 +47,10 @@ public class Blue_Left extends OpModeEX {
     public targetAuto size = targetAuto.preload;
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(271, 335), new Vector2D(308.5, 332.3), new Vector2D(335.7, 335.3)),
+            () -> paths.addPoints(new Vector2D(339, 202), new Vector2D(290.3, 240.5), new Vector2D(325.3, 324)),
 
     };
+
     private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(315.4, 300), new Vector2D(303.6, 267)),
 
@@ -72,6 +77,9 @@ public class Blue_Left extends OpModeEX {
     };
     @Override
     public void initEX() {
+
+        odometry.startPosition(339, 202, 270);
+
         paths.addNewPath("preloadPath");
 
         paths.buildPath(preloadPath);
@@ -136,19 +144,36 @@ public class Blue_Left extends OpModeEX {
         if (state == autoState.preload){
 
             if (built == building.notBuilt){
+                delivery.queueCommand(delivery.transfer);
+                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+                delivery.queueCommand(delivery.deposit);
                 follow.setPath(paths.returnPath("preloadPath"));
-                targetHeading = 270;
+                targetHeading = 225;
                 built = building.built;
+                drop=true;
+                dropTimer.reset();
             }
             //spike1
 
-            if (follow.isFinished()){
-                 if (size==targetAuto.preload){
+            if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>5000){
+                delivery.queueCommand(delivery.deposit);
+                delivery.queueCommand(delivery.deposit);
+                delivery.queueCommand(delivery.slideSetPonts(0));
+                drop=false;
+
+            }
+
+            if (follow.isFinished()&&delivery.fourbarState== Delivery.fourBarState.behindNest){
+
+
+                if (size==targetAuto.preload){
+
                      state=autoState.finished;
 
-                 }else {
+                 }else if (size!=targetAuto.preload){
                      state = autoState.collectingSpike;
-                     built = building.notBuilt;}
+                     built = building.notBuilt;
+                 }
 
            }
 
@@ -177,53 +202,66 @@ public class Blue_Left extends OpModeEX {
             }
             //spike 2
 
-        }  {
-
-            if (built == building.notBuilt){
-                follow.setPath(paths.returnPath("spike2Pickup"));
-                targetHeading = 0;
-                built = building.built;
-            }
-            if (follow.isFinished()){
-                state = autoState.delivering;
-                built = building.notBuilt;
-            }
-        }  {
-
-            if (built == building.notBuilt){
-                follow.setPath(paths.returnPath("spike2Drop"));
-                targetHeading = 0;
-                built = building.built;
-            }
-
-            //spike 3
-
-        }  {
-
-            if (built == building.notBuilt){
-                follow.setPath(paths.returnPath("spike3Pickup"));
-                targetHeading = 0;
-                built = building.built;
-            }
-            if (follow.isFinished()){
-                state = autoState.delivering;
-                built = building.notBuilt;
-            }
-        }  {
-
-            if (built == building.notBuilt){
-                follow.setPath(paths.returnPath("spike3Drop"));
-                targetHeading = 0;
-                built = building.built;
-            }
-
         }
+//
+//        {
+//
+//            if (built == building.notBuilt){
+//                follow.setPath(paths.returnPath("spike2Pickup"));
+//                targetHeading = 0;
+//                built = building.built;
+//            }
+//            if (follow.isFinished()){
+//                state = autoState.delivering;
+//                built = building.notBuilt;
+//            }
+//        }  {
+//
+//            if (built == building.notBuilt){
+//                follow.setPath(paths.returnPath("spike2Drop"));
+//                targetHeading = 0;
+//                built = building.built;
+//            }
+//
+//            //spike 3
+//
+//        }  {
+//
+//            if (built == building.notBuilt){
+//                follow.setPath(paths.returnPath("spike3Pickup"));
+//                targetHeading = 0;
+//                built = building.built;
+//            }
+//            if (follow.isFinished()){
+//                state = autoState.delivering;
+//                built = building.notBuilt;
+//            }
+//        }  {
+//
+//            if (built == building.notBuilt){
+//                follow.setPath(paths.returnPath("spike3Drop"));
+//                targetHeading = 0;
+//                built = building.built;
+//            }
+//
+//        }
+
         if (state==autoState.finished){
             requestOpModeStop();
         }
 
-        RobotPower currentPower = follow.followPathAuto(180, odometry.Heading(), odometry.X(), odometry.Y(), 180, 180);
-        driveBase.queueCommand(driveBase.drivePowers(currentPower.getVertical(), currentPower.getHorizontal(), currentPower.getPivot()));
+        odometry.queueCommand(odometry.updateLineBased);
+        RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
+        telemetry.addData("Loop time", loopTime);
+        telemetry.addData("Y", odometry.Y());
+        telemetry.addData("Heading", odometry.Heading());
+        telemetry.addData("X", odometry.X());
+        telemetry.addData("getVertical", currentPower.getVertical());
+        telemetry.addData("getHorizontal", currentPower.getHorizontal());
+        telemetry.addData("getPivot", currentPower.getPivot());
+        telemetry.update();
+
+            driveBase.queueCommand(driveBase.drivePowers(currentPower));
 
     }
 

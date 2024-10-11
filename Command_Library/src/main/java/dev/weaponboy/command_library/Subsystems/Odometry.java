@@ -53,6 +53,7 @@ public class Odometry extends SubSystem {
         this.X = X;
         this.Y = Y;
         this.startHeading = Heading;
+        this.Heading = Math.toRadians(Heading);
     }
 
     @Override

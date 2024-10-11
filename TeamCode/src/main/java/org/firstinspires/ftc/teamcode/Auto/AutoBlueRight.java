@@ -1,4 +1,4 @@
-package dev.weaponboy.command_library.Subsystems;
+package org.firstinspires.ftc.teamcode.Auto;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -19,7 +19,7 @@ public class AutoBlueRight extends OpModeEX {
 
 
     private final sectionBuilder[] rightBluePath = {
-            () -> paths.addPoints(new Vector2D(147,360 ), new Vector2D(151, 245), new Vector2D(50.4,329 ))
+            () -> paths.addPoints(new Vector2D(339,160), new Vector2D(260, 147))
 
     };
 
@@ -40,6 +40,7 @@ public class AutoBlueRight extends OpModeEX {
 
     @Override
     public void initEX() {
+        odometry.startPosition(339, 260, 180);
 
         paths.addNewPath("rightBluePath");
         paths.buildPath(rightBluePath);

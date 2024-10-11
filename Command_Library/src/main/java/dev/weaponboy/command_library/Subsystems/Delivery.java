@@ -141,23 +141,7 @@ public class Delivery extends SubSystem {
     public LambdaCommand holdPosition = new LambdaCommand(
             () -> {},
             () -> {
-                if (Math.abs(slideMotor.getCurrentPosition())>200){
-                    slideMotor.setPower(0.05);
-                }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
-                    slideMotor.setPower(0.055);
-                }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
-                    slideMotor.setPower(0.075);
-                }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
-                    slideMotor.setPower(0.08);
-                }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 120 && retracting){
-                    slideMotor.setPower(-1);
-                    counter++;
-                    if(counter == 5){
-                        retracting = false;
-                    }
-                }else {
-                    slideMotor.setPower(0);
-                }
+
             },
             () -> true
     );
@@ -430,6 +414,26 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(110);
         } else if (gripperState == Delivery.gripper.drop) {
             griperSev.setPosition(180);
+        }
+
+        if (getCurrentCommand() != followMotionPro){
+            if (Math.abs(slideMotor.getCurrentPosition())>200){
+                slideMotor.setPower(0.05);
+            }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
+                slideMotor.setPower(0.055);
+            }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
+                slideMotor.setPower(0.075);
+            }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
+                slideMotor.setPower(0.08);
+            }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 120 && retracting){
+                slideMotor.setPower(-1);
+                counter++;
+                if(counter == 5){
+                    retracting = false;
+                }
+            }else {
+                slideMotor.setPower(0);
+            }
         }
     }
 
