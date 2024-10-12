@@ -23,7 +23,7 @@ public class sprint1Teleop extends OpModeEX {
     public void loopEX() {
 
         // drive base code
-        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y*0.5, -gamepad1.left_stick_x*0.5, gamepad1.right_stick_x*0.5));
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad2.right_stick_y*0.5, -gamepad2.left_stick_x*0.5, gamepad2.right_stick_x*0.5));
 
 //        //collection code
 //        if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.drop){
@@ -42,10 +42,8 @@ public class sprint1Teleop extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
         }
 
-        if (currentGamepad1.b && !lastGamepad1.b){
-            delivery.genProfile(0);
-            delivery.queueCommand(delivery.followMotionPro);
-            delivery.slidesState = Delivery.slideState.moving;
+        if (currentGamepad1.left_stick_button && !lastGamepad1.left_stick_button){
+            collection.setSlideTarget(collection.getSlideTarget()+2);
         }
 
         if (currentGamepad1.x && !lastGamepad1.x && delivery.slideMotor.getCurrentPosition() < 200){
@@ -57,10 +55,6 @@ public class sprint1Teleop extends OpModeEX {
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection2.fourBar.collect){
             collection.queueCommand(collection.transfer);
         }
-
-//        if (gamepad1.start){
-//            collection.disableServos();
-//        }
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper &&delivery.fourbarState == Delivery.fourBarState.behindNest){
             delivery.queueCommand(delivery.transfer);
@@ -83,17 +77,17 @@ public class sprint1Teleop extends OpModeEX {
 //        }else if(gamepad1.dpad_right){
 //            collection.setNestState(Collection2.Nest.specimen);
 //        }
-
-        if(gamepad1.dpad_left){
-            collection.linerRailServo.setPosition(1);
-        }else if(gamepad1.dpad_right){
-            collection.linerRailServo.setPosition(0);
-        }else{
-            collection.linerRailServo.setPosition(0.5);
-        }
+//
+//        if(gamepad1.dpad_left){
+//            collection.linerRailServo.setPosition(1);
+//        }else if(gamepad1.dpad_right){
+//            collection.linerRailServo.setPosition(0);
+//        }else{
+//            collection.linerRailServo.setPosition(0.5);
+//        }
 
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
-            collection.setRailTargetPosition(10);
+            collection.setRailTargetPosition(8);
         }
 //
         if (currentGamepad1.y && !lastGamepad1.y) {
