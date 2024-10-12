@@ -33,7 +33,8 @@ public class sprint1Teleop extends OpModeEX {
 //        }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
-            collection.queueCommand(collection.collect(20));
+//            collection.queueCommand(collection.collect(20));
+            collection.queueCommand(collection.collect);
         }
 
         if (currentGamepad1.back && !lastGamepad1.back){
@@ -77,10 +78,18 @@ public class sprint1Teleop extends OpModeEX {
 //            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
 //        }
 
+//        if(gamepad1.dpad_left){
+//            collection.setNestState(Collection2.Nest.specimen);
+//        }else if(gamepad1.dpad_right){
+//            collection.setNestState(Collection2.Nest.specimen);
+//        }
+
         if(gamepad1.dpad_left){
-            collection.setNestState(Collection2.Nest.specimen);
+            collection.linerRailServo.setPosition(1);
         }else if(gamepad1.dpad_right){
-            collection.setNestState(Collection2.Nest.specimen);
+            collection.linerRailServo.setPosition(0);
+        }else{
+            collection.linerRailServo.setPosition(0.5);
         }
 
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
@@ -100,11 +109,10 @@ public class sprint1Teleop extends OpModeEX {
 //        }
 
         telemetry.addData("loop time ", loopTime);
-//        telemetry.addData("rail position ", collection.getRailPosition());
+        telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
         telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition()/(2250/65));
-
-        telemetry.addData("rail position ", collection.linearPosition.getPosition());
+        telemetry.addData("rail position ", collection.railEncoder.getCurrentPosition());
 
 //        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition());
         telemetry.update();

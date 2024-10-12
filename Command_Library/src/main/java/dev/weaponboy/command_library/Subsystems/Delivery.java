@@ -30,7 +30,7 @@ public class Delivery extends SubSystem {
     public final double highBasket = 65;
     public final double lowBasket = 200;
 
-    public final double highChamber = 22;
+    public final double highChamber = 24;
     public final double lowChamber = 0;
 
     ElapsedTime transferTimer = new ElapsedTime();

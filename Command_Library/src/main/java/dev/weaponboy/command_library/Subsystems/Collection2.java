@@ -1,5 +1,6 @@
 package dev.weaponboy.command_library.Subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -17,6 +18,7 @@ import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.motionProfile;
+import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 
 public class Collection2 extends SubSystem {
 
@@ -32,27 +34,28 @@ public class Collection2 extends SubSystem {
     public ServoImplEx gripServo;
     public Servo linerRailServo;
     public ServoDegrees nest = new ServoDegrees();
+    public DcMotor railEncoder;
 
     /**
      * linear rail constants
      * */
     double currentRailPosition;
     double railTargetPosition;
-    public double currentAxonWirePos;
+    public double currentEncoderPosition;
     double lastAxonWirePos;
-    final double spoolSize = 3.6; //in cm
+    final double spoolSize = 3.6;
     double railTimeToPosition;
     double rotationsForFullTravel = 20/(spoolSize*Math.PI);
-    double timeForFullRotation = 540; // in ms
-    double timePerCM = (double) 1400 / 20;
+    double ticksToCM =(Math.PI * spoolSize)/8192;
+    double timePerCM = (double) 1100 / 20;
     ElapsedTime railTime = new ElapsedTime();
     boolean runningToPosition = false;
 
     /**
      * servo time per degrees
      * */
-    double axonMaxTime = (double) 690 / 360;
-    double microRoboticTime = (double) 840 / 360;
+    double axonMaxTime = (double) 750 / 360;
+    double microRoboticTime = (double) 900 / 360;
     double gripperOpenTime = 400;
 
 
@@ -142,6 +145,12 @@ public class Collection2 extends SubSystem {
     private slideState slidesState = slideState.manuel;
     private clawState clawsState = clawState.drop;
 
+
+
+    PIDController adjustment = new PIDController(0.25, 0, 0.0005);
+
+    double slideTarget;
+
     public Collection2(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, defaultCommand);
     }
@@ -167,6 +176,8 @@ public class Collection2 extends SubSystem {
         nest.initServo("nest", getOpModeEX().hardwareMap);
         linearPosition.init(getOpModeEX().hardwareMap, "axon2");
 
+        railEncoder = getOpModeEX().hardwareMap.get(DcMotor.class, "LB");
+
         fourBarMainPivot.setRange(335);
         fourBarSecondPivot.setRange(new PwmControl.PwmRange(500, 2500), 270);
         griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 270);
@@ -186,8 +197,8 @@ public class Collection2 extends SubSystem {
 
         Stow.execute();
 
-        currentAxonWirePos = linearPosition.getPosition();
-        lastAxonWirePos = currentAxonWirePos;
+        currentEncoderPosition = linearPosition.getPosition();
+        lastAxonWirePos = currentEncoderPosition;
 
     }
 
@@ -201,10 +212,14 @@ public class Collection2 extends SubSystem {
                 slidesState = slideState.manuel;
             }
         } else if (slidesState == slideState.manuel) {
-            if (horizontalMotor.getCurrentPosition() < 20){
+
+            if (Math.abs(slideTarget - horizontalMotor.getCurrentPosition()/(440/35)) > 0.5){
+                extendoPower = adjustment.calculate(slideTarget, horizontalMotor.getCurrentPosition()/(440/35));
+                System.out.println("extendoPower PID" + extendoPower);
+            }else if (horizontalMotor.getCurrentPosition() < 20){
                 extendoPower = 0;
-            }else {
-                extendoPower = -0.1;
+            } else {
+//                extendoPower = -0.1;
             }
         }
 
@@ -222,10 +237,10 @@ public class Collection2 extends SubSystem {
 
         double slidesthing = ((double) 35 /440);
         horizontalMotor.update(extendoPower);
-        System.out.println("extendoPower: " + extendoPower);
-        System.out.println("hor velocity " + horizontalMotor.getCurrentVelocity()*slidesthing);
+//        System.out.println("extendoPower: " + extendoPower);
+//        System.out.println("hor velocity " + horizontalMotor.getCurrentVelocity()*slidesthing);
         horizontalMotor.updateVelocity();
-        System.out.println("!profile.isSlideRunning() " + !profile.isSlideRunning());
+//        System.out.println("!profile.isSlideRunning() " + !profile.isSlideRunning());
 
         updateRailPosition();
 
@@ -289,7 +304,7 @@ public class Collection2 extends SubSystem {
     public final Command camera = new Execute(
             () -> {
                 fourBarMainPivot.setPosition(170);
-                fourBarSecondPivot.setPosition(107);
+                fourBarSecondPivot.setPosition(109);
                 griperRotate.setPosition(rotateTransInt);
             }
     );
@@ -309,7 +324,15 @@ public class Collection2 extends SubSystem {
     public Command collect(double slideTarget){
         profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
         slidesState = slideState.profile;
+        this.slideTarget = slideTarget;
         return collect;
+    }
+
+    public Command cameraSetPoint(double slideTarget){
+        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
+        slidesState = slideState.profile;
+        this.slideTarget = slideTarget;
+        return camera;
     }
 
     public Command collect = new LambdaCommand(
@@ -519,93 +542,8 @@ public class Collection2 extends SubSystem {
 
     public void updateRailPosition(){
 
-        double lastPosition = currentRailPosition;
-        lastAxonWirePos = currentAxonWirePos;
-
-        currentAxonWirePos = linearPosition.getPosition();
-
-        double deltaPosition = lastAxonWirePos - currentAxonWirePos;
-        double realDelta;
-        double deltaCM;
-
-        double spoolSize = 10.676;
-        double cmPerDegree = spoolSize / 360;
-
-        try {
-            fWriter.write(System.lineSeparator());
-            fWriter.write( "Last rail: " + lastPosition);
-            fWriter.write(System.lineSeparator());
-            fWriter.write( "currentRailPosition: " + currentRailPosition);
-            fWriter.write(System.lineSeparator());
-            fWriter.write( "currentAxonWirePos: " + currentAxonWirePos);
-            fWriter.write(System.lineSeparator());
-            fWriter.write( "lastAxonWirePos: " + lastAxonWirePos);
-            fWriter.write(System.lineSeparator());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        if ((lastAxonWirePos > 240 && currentAxonWirePos < 80) || (currentAxonWirePos > 240 && lastAxonWirePos < 80)){
-
-            if (deltaPosition > 0){
-
-                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
-                deltaCM = realDelta * cmPerDegree;
-                currentRailPosition -= deltaCM;
-
-                try {
-                    fWriter.write( "realDelta > 0: " + realDelta);
-                    fWriter.write(System.lineSeparator());
-                    fWriter.write( "deltaCM > 0: " + deltaCM);
-                    fWriter.write(System.lineSeparator());
-
-//                    Last rail: 12.338867878787884
-//                    currentRailPosition: 12.338867878787884
-//                    currentAxonWirePos: 2.8363636363636364
-//                    lastAxonWirePos: 354.1090909090909
-//                    realDelta > 0: 8.727272727272712
-//                    deltaCM > 0: 0.25881212121212077
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-            } else if (deltaPosition < 0) {
-                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
-                deltaCM = realDelta * cmPerDegree;
-                currentRailPosition += deltaCM;
-
-                try {
-                    fWriter.write( "realDelta < 0: " + realDelta);
-                    fWriter.write(System.lineSeparator());
-                    fWriter.write( "deltaCM < 0: " + deltaCM);
-                    fWriter.write(System.lineSeparator());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-        } else {
-            currentRailPosition += deltaPosition*cmPerDegree;
-
-            try {
-                fWriter.write( "deltaPosition normal: " + deltaPosition);
-                fWriter.write(System.lineSeparator());
-                fWriter.write( "deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
-                fWriter.write(System.lineSeparator());
-
-//                Last rail: 2.397247272727276
-//                currentRailPosition: 2.397247272727276
-//                currentAxonWirePos: 277.3090909090909
-//                lastAxonWirePos: 5.563636363636364
-//                deltaPosition normal: -271.74545454545455
-//                deltaPosition*cmPerDegree: -8.058762424242424
-
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        currentEncoderPosition = railEncoder.getCurrentPosition();
+        currentRailPosition = currentEncoderPosition*ticksToCM;
 
         if (railTime.milliseconds() > railTimeToPosition && runningToPosition){
             linerRailServo.setPosition(0.5);
@@ -615,12 +553,6 @@ public class Collection2 extends SubSystem {
             if (Math.abs(delta) > 0.5){
                 runToPosition();
             }
-        }
-
-        try {
-            fWriter.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
 
     }

@@ -38,7 +38,11 @@ public class Blue_Left extends OpModeEX {
         notBuilt
     }
     public enum targetAuto{
-    preload,
+        preload,
+        spikes,
+        sub,
+
+
     }
 
 
@@ -52,27 +56,27 @@ public class Blue_Left extends OpModeEX {
     };
 
     private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(315.4, 300), new Vector2D(303.6, 267)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(300, 315.4), new Vector2D(267, 303.6)),
 
     };
     private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(303.6, 267), new Vector2D(315.4, 300), new Vector2D(335.7, 335.3)),
+            () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(325.3, 324)),
 
     };
     private final sectionBuilder[] spike2Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(333.7, 311.7), new Vector2D(330.2, 267)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(311.7, 333.7), new Vector2D(267, 330.2)),
 
     };
     private final sectionBuilder[] spike2Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(330.2, 267), new Vector2D(333.7, 311.7), new Vector2D(335.7, 335.3)),
+            () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(325.3, 324)),
 
     };
     private final sectionBuilder[] spike3Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(335.7, 335.3), new Vector2D(303, 256.4), new Vector2D(331.2, 246.7)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(246.7, 331.2)),
 
     };
     private final sectionBuilder[] spike3Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(331.2, 246.7), new Vector2D(303, 256.4), new Vector2D(335.7, 335.3)),
+            () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(325.3, 324)),
 
     };
     @Override

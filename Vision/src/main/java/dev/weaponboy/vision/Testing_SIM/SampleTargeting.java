@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibra
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
@@ -39,7 +40,7 @@ public class SampleTargeting  implements VisionProcessor {
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(9, 31, 160);
+    public Scalar redLower = new Scalar(9, 100, 160);
     public Scalar redHigher = new Scalar(38,255,255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
@@ -91,7 +92,7 @@ public class SampleTargeting  implements VisionProcessor {
     int width = 1280;
     int height = 960;
 
-    double pixelsToCmWidth = (double) getHeight() / 36;
+    double pixelsToCmWidth = (double) getHeight() / 28;
     double pixelsToCmHeight = (double) getWidth() / 46;
 
     Point centerDet = new Point();
@@ -160,25 +161,60 @@ public class SampleTargeting  implements VisionProcessor {
 
                 Point pointThing;
 
-                if (sizeWH > maxSize){
-                    Point center =  findTopPosition(frame, contour);
-                    if (!(center == null)){
-                        avCounter++;
-                        pointsAve.add(center);
-                        pointThing = center;
-                    }
-                } else if (cx < 400) {
-                    Point center =  findTopPosition(frame, contour);
-                    if (!(center == null)){
-                        avCounter++;
-                        pointsAve.add(center);
-                        pointThing = center;
-                    }
-                }else {
-                    avCounter++;
-                    pointsAve.add(new Point(cx, cy));
-                    pointThing = new Point(cx, cy);
+                avCounter++;
+                pointsAve.add(new Point(cx, cy));
+                MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
+
+                RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
+
+//                    double angle = rotatedRect.angle;
+//
+////                    if (rotatedRect.size.width < rotatedRect.size.height) {
+////                        angle = 90 + angle;
+////                    }
+//
+//                    if (rotatedRect.size.width > rotatedRect.size.height) {
+//                        this.angleRotate = -(-angle + 90);
+//                    }else {
+//                        this.angleRotate = angle;
+//                    }
+
+                double angle = rotatedRect.angle;
+                Size rectSize = rotatedRect.size;
+
+                // Determine the long side of the rectangle
+                boolean isWidthLonger = rectSize.width > rectSize.height;
+
+                // Adjust the angle to ensure it's based on the long side of the rectangle
+                if (isWidthLonger) {
+                    angle = angle + 90; // Add 90 degrees if height is the longer side
                 }
+
+                // Normalize the angle:
+                // Positive angle = tipped right, Negative angle = tipped left
+                if (angle > 90) {
+                    angle -= 180; // Normalize to the range [-90, 90]
+                }
+
+                angleRotate = angle;
+
+//                if (sizeWH > maxSize){
+//                    Point center =  findTopPosition(frame, contour);
+//                    if (!(center == null)){
+//                        avCounter++;
+//                        pointsAve.add(center);
+//                        pointThing = center;
+//                    }
+//                } else if (cx < 400) {
+//                    Point center =  findTopPosition(frame, contour);
+//                    if (!(center == null)){
+//                        avCounter++;
+//                        pointsAve.add(center);
+//                        pointThing = center;
+//                    }
+//                }else {
+//                    // Returns the normalized angle
+//                }
 
 
 //                Imgproc.circle(frame, pointsAve.get(pointsAve.size()-1), 3, new Scalar(255,0, 0), -1);
@@ -214,6 +250,7 @@ public class SampleTargeting  implements VisionProcessor {
 
         //22.7 at current point
         //start slides at 0
+        //-5 to grip
 
         contours.clear();
         redContours.clear();
@@ -225,6 +262,7 @@ public class SampleTargeting  implements VisionProcessor {
 
         Imgproc.putText(frame, String.valueOf(railTarget), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
         Imgproc.putText(frame, String.valueOf(slidesDelta   ), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(frame, String.valueOf(angleRotate   ), new Point(20, 120), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
 
         return null;
@@ -244,10 +282,10 @@ public class SampleTargeting  implements VisionProcessor {
             avCounter = 0;
             pointsAve.clear();
 
-            double stuff = (getHeight()-center.y) / pixelsToCmWidth;
-            double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight);
+            double stuff = ((getHeight()-center.y) / pixelsToCmWidth);
+            double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 5.5;
 
-            railTarget = stuff-8;
+            railTarget = stuff-4;
             slidesDelta = stuff2;
 
         }
@@ -352,7 +390,7 @@ public class SampleTargeting  implements VisionProcessor {
 
 //        drawLineSegment(input, slope1, intercept1, new Scalar(255, 0, 0));
 //        drawLineSegment(input, slope2, intercept2,  new Scalar(0, 255, 255));
-        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
+//        Imgproc.circle(input, intersection, 4, new Scalar(0, 0, 255), -1);
 //
         Point furthestPoint = null;
         Point furthestPoint2 = null;
@@ -465,11 +503,11 @@ public class SampleTargeting  implements VisionProcessor {
 ////            firstLength = secondLength*0.4;
 ////        }
 //
-//        if (secondLength > firstLength){
-//            angleRotate = Math.toDegrees(Math.atan(slope2));
-//        }else {
-//            angleRotate = Math.toDegrees(Math.atan(slope1));
-//        }
+        if (secondLength < firstLength){
+            angleRotate = Math.toDegrees(Math.atan(slope2));
+        }else {
+            angleRotate = Math.toDegrees(Math.atan(slope1));
+        }
 //
         if ((secondLength < maxShort && secondLength > minShort) && (firstLength < maxLong && firstLength > minLong) &&!(intersection == null)){
             CenterPoint = new Point(intersection.x + (deltaXSecond/2) + (deltaXFirst/2), intersection.y -  (deltaYFirst/2) + (deltaYSecond/2));

@@ -51,36 +51,74 @@ public class CloseVisionAim extends OpModeEX {
 //        }
 //
 ////
-//        if (currentGamepad1.a && !lastGamepad1.a){
-//
-////            if (sampleSorter.getRailTarget() > 0 && sampleSorter.getRailTarget() < 20){
-////                collection.setRailTargetPosition(sampleSorter.getRailTarget());
-////            }
-//
-//            double newSlidesTarget = collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
-//
-//            if (newSlidesTarget > 0 && newSlidesTarget < 35){
-//                collection.queueCommand(collection.collect( (collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + sampleSorter.getSlidesDelta()));
-////                collection.queueCommand(collection.collect);
-//            }
-//
-//            collection.griperRotate.setPosition(135+sampleSorter.getAngleRotate());
-//        }
-//
-//        if (currentGamepad1.y && !lastGamepad1.y){
-////            collection.setRailTargetPosition(10);
-//        }
+        if (currentGamepad1.a && !lastGamepad1.a){
+
+            if (sampleSorter.getRailTarget() > 0 && sampleSorter.getRailTarget() < 20){
+                collection.setRailTargetPosition(sampleSorter.getRailTarget());
+            }
+
+            double newSlidesTarget = collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
+
+            if (newSlidesTarget > 0 && newSlidesTarget < 35){
+                if (sampleSorter.getSlidesDelta() > 0){
+                    collection.queueCommand(collection.cameraSetPoint(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + sampleSorter.getSlidesDelta()+3)));
+                }else {
+                    collection.queueCommand(collection.cameraSetPoint(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + sampleSorter.getSlidesDelta()+3)));
+                }
+//                collection.queueCommand(collection.collect);
+            }
+
+            collection.griperRotate.setPosition(135+sampleSorter.getAngleRotate());
+        }
+
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+
+            double railTarget = sampleSorter.getRailTarget()-10;
+            railTarget = collection.getRailPosition()+railTarget;
+
+            if (railTarget > 0 && railTarget < 20){
+                collection.setRailTargetPosition(railTarget);
+            }
+
+            double newSlidesTarget = collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
+
+            if (newSlidesTarget > 0 && newSlidesTarget < 35){
+                if (sampleSorter.getSlidesDelta() > 0){
+                    collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + sampleSorter.getSlidesDelta())));
+                }else {
+                    collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + sampleSorter.getSlidesDelta())));
+                }
+//                collection.queueCommand(collection.collect);
+            }
+
+            collection.griperRotate.setPosition(135+sampleSorter.getAngleRotate());
+        }
+
+
+        if (gamepad1.right_bumper){
+            collection.queueCommand(collection.collect(0));
+
+        }
+
+        if (currentGamepad1.x && !lastGamepad1.x){
+            collection.setRailTargetPosition(10);
+        }
 //
         if (currentGamepad1.b && !lastGamepad1.b){
             collection.queueCommand(collection.collect);
         }
+
+        if (currentGamepad1.y && !lastGamepad1.y){
+            collection.camera.execute();
+        }
 //
 
-
+        double newSlidesTarget = collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
         telemetry.addData("horizontal", collection.horizontalMotor.getCurrentPosition()/(440/35));
         telemetry.addData("sampleSorter.getAngleRotate()", sampleSorter.getAngleRotate());
         telemetry.addData("getRailTarget", sampleSorter.getRailTarget());
         telemetry.addData("collection.horizontalMotor.getCurrentPosition()", sampleSorter.getSlidesDelta());
+        telemetry.addData("newSlidesTarget", newSlidesTarget);
         telemetry.update();
 
     }
