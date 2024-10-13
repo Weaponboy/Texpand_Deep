@@ -83,17 +83,30 @@ public class Blue_Left extends OpModeEX {
     };
     @Override
     public void initEX() {
+        telemetry.addData("type",size);
+        telemetry.update();
+
         if (!lastGamepad1.b&& currentGamepad1.b){
              size = targetAuto.spikes;
              cycles=1;
+            telemetry.addData("type",size);
+            telemetry.addData("cycles",cycles);
+             telemetry.update();
         }
         if (!lastGamepad1.a&& currentGamepad1.a){
             size = targetAuto.spikes;
             cycles=2;
+            telemetry.addData("type",size);
+            telemetry.addData("cycles",cycles);
+            telemetry.update();
         }
 //        if (!lastGamepad1.x&& currentGamepad1.x){
 //            size = targetAuto.spikes;
 //            cycles=3;
+//            telemetry.addData("type",size);
+//            telemetry.addData("cycles",cycles);
+//            telemetry.update();
+//
 //        }
 
         odometry.startPosition(339, 202, 270);
