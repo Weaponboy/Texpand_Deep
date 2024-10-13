@@ -234,7 +234,7 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                 if (size!=targetAuto.spikes&&cycles>1){
+                 if (size!=targetAuto.spikes&&cycles>1&&!collect){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
@@ -268,11 +268,11 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size==targetAuto.spikes&&cycles<1.1){
+                if (size==targetAuto.spikes&&cycles<1.1&&collection.horizontalMotor.getCurrentPosition()<10){
 
                     state=autoState.finished;
 
-                }else if (size!=targetAuto.spikes&&cycles>1){
+                }else if (size!=targetAuto.spikes&&cycles>1&&collection.horizontalMotor.getCurrentPosition()<10){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
@@ -298,7 +298,7 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size!=targetAuto.spikes&&cycles>2){
+                if (size!=targetAuto.spikes&&cycles>2&&!collect){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
@@ -332,11 +332,11 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size==targetAuto.spikes&&cycles<2.1){
+                if (size==targetAuto.spikes&&cycles<2.1&&collection.horizontalMotor.getCurrentPosition()<10){
 
                     state=autoState.finished;
 
-                }else if (size!=targetAuto.spikes&&cycles>2){
+                }else if (size!=targetAuto.spikes&&cycles>2&&collection.horizontalMotor.getCurrentPosition()<10){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
@@ -362,7 +362,7 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size!=targetAuto.spikes&&cycles>3){
+                if (size!=targetAuto.spikes&&cycles>3&&!collect){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
@@ -396,11 +396,11 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size==targetAuto.spikes&&cycles<3.1){
+                if (size==targetAuto.spikes&&cycles<3.1&&collection.horizontalMotor.getCurrentPosition()<10){
 
                     state=autoState.finished;
 
-                }else if (size!=targetAuto.spikes&&cycles>3){
+                }else if (size!=targetAuto.spikes&&cycles>3&&collection.horizontalMotor.getCurrentPosition()<10){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }

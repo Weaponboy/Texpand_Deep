@@ -90,7 +90,7 @@ public class Collection extends SubSystem{
 
     private slideState slidesState = slideState.manuel;
     private gripper gripperState = gripper.drop;
-    private fourBar collectionState = fourBar.stowed;
+    public fourBar collectionState = fourBar.stowed;
     private Nest nestState = Nest.sample;
 
     double armLength = 9.6;
