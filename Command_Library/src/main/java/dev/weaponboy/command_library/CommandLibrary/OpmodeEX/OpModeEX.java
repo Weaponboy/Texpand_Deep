@@ -11,6 +11,7 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
+import dev.weaponboy.command_library.Subsystems.Hang;
 import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.command_library.Subsystems.Collection;
 
@@ -24,7 +25,9 @@ public abstract class OpModeEX extends OpMode {
 
     public Odometry odometry = new Odometry(this);
 
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
+    public Hang hang = new Hang(this);
+
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
 

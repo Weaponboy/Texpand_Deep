@@ -21,7 +21,7 @@ public class DriveBase extends SubSystem {
     MotorEx RB = new MotorEx();
     MotorEx LB = new MotorEx();
 
-    PIDController headingPID =new PIDController(0.02,0,0.0005);
+    PIDController headingPID =new PIDController(0.025,0,0.0003);
     public IMU imu;
 
     double vertikal ;
@@ -51,7 +51,12 @@ public class DriveBase extends SubSystem {
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
     }
-    public double headindinglockMotorPower (double headingError){
+    public double headindingLockMotorPower (double headingError){
+        if (headingError < -180) {
+            headingError = (360 + headingError);
+        } else if (headingError > 180) {
+            headingError = (headingError - 360);
+        }
         return headingPID.calculate(headingError);
     }
     @Override
@@ -62,7 +67,7 @@ public class DriveBase extends SubSystem {
     public Command drivePowers (double vertical, double turn, double strafe){
         this.vertikal =vertical;
         this.strafe =strafe;
-        this.turn =-turn*0.8;
+        this.turn = turn;
 
         return driveCommand;
     }

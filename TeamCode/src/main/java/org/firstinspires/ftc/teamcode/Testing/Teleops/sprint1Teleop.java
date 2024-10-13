@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
@@ -12,18 +13,42 @@ public class sprint1Teleop extends OpModeEX {
 
     boolean transferring = false;
     ElapsedTime transferringWait = new ElapsedTime();
-    double waitTime = 0;
+    double turnPower = 0;
+    double horizontal = 0;
+    double lastHeading;
+
+    double rotateTarget = 135;
+
+    Servo hang1;
+    Servo hang2;
 
     @Override
     public void initEX() {
+        hang1 = hardwareMap.get(Servo.class,"hang1");
+        hang2 = hardwareMap.get(Servo.class,"hang2");
+        hang1.setDirection(Servo.Direction.REVERSE);
 
+        hang1.setPosition(0.5);
+        hang2.setPosition(0.5);
     }
 
     @Override
     public void loopEX() {
 
+        horizontal = -gamepad2.right_stick_x*0.5;
+        double lastHor = -lastGamepad2.right_stick_x*0.5;
+
+        if (gamepad2.left_stick_x == 0 && Math.abs(horizontal) > 0){
+            if (Math.abs(horizontal) > 0 && lastHor == 0){
+                lastHeading = odometry.Heading();
+            }
+            turnPower = -driveBase.headindingLockMotorPower(lastHeading - odometry.Heading());
+        }else {
+            turnPower = -gamepad2.left_stick_x*0.5;
+        }
+
         // drive base code
-        driveBase.queueCommand(driveBase.drivePowers(-gamepad2.right_stick_y*0.5, -gamepad2.left_stick_x*0.5, gamepad2.right_stick_x*0.5));
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad2.right_stick_y*0.5, turnPower, -gamepad2.right_stick_x*0.5));
 
 //        //collection code
 //        if (currentGamepad1.start && !lastGamepad1.start && delivery.getGripperState() == Delivery.gripper.drop){
@@ -35,6 +60,7 @@ public class sprint1Teleop extends OpModeEX {
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
 //            collection.queueCommand(collection.collect(20));
             collection.queueCommand(collection.collect);
+            rotateTarget = 135;
         }
 
         if (currentGamepad1.back && !lastGamepad1.back){
@@ -42,8 +68,10 @@ public class sprint1Teleop extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
         }
 
-        if (currentGamepad1.left_stick_button && !lastGamepad1.left_stick_button){
-            collection.setSlideTarget(collection.getSlideTarget()+2);
+        if (currentGamepad1.left_stick_y < 0){
+            collection.setSlideTarget(collection.getSlideTarget()+0.2);
+        }else if (currentGamepad1.left_stick_y > 0){
+            collection.setSlideTarget(collection.getSlideTarget()-0.2);
         }
 
         if (currentGamepad1.x && !lastGamepad1.x && delivery.slideMotor.getCurrentPosition() < 200){
@@ -66,11 +94,19 @@ public class sprint1Teleop extends OpModeEX {
             delivery.queueCommand(delivery.deposit);
         }
 
-//        if (gamepad1.dpad_up){
-//            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
-//        }else if (gamepad1.dpad_down){
-//            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
-//        }
+        if (gamepad1.right_stick_x > 0){
+            rotateTarget += 1;
+            collection.griperRotate.setPosition(rotateTarget);
+        }
+
+        if (gamepad1.right_stick_x < 0){
+            rotateTarget -= 1;
+            collection.griperRotate.setPosition(rotateTarget);
+        }
+
+        if (gamepad2.dpad_down){
+            delivery.slideMotor.setPower(-0.4);
+        }
 
 //        if(gamepad1.dpad_left){
 //            collection.setNestState(Collection2.Nest.specimen);
@@ -96,12 +132,25 @@ public class sprint1Teleop extends OpModeEX {
             delivery.slidesState = Delivery.slideState.moving;
         }
 
+        if (gamepad2.right_bumper){
+            hang1.setPosition(0);
+            hang2.setPosition(0);
+        }else if (gamepad2.left_bumper){
+            hang1.setPosition(1);
+            hang2.setPosition(1);
+        }else{
+            hang1.setPosition(0.5);
+            hang2.setPosition(0.5);
+        }
+
 //        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
 //            delivery.genProfile(0);
 //            delivery.queueCommand(delivery.followMotionPro);
 //            delivery.slidesState = Delivery.slideState.moving;
 //        }
 
+        telemetry.addData("rotateTarget", collection.griperRotate.getPositionDegrees());
+        telemetry.addData("error", lastHeading - odometry.Heading());
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));

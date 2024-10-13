@@ -123,7 +123,13 @@ public class motionProfile {
         double targetVelocity;
         double targetMotorPower;
 
-        if (lastIndex < motionProfile.size()-2){
+        double deadZone = 1;
+
+        if (vertical && targetPosition != 0){
+            deadZone = 4;
+        }
+
+        if (lastIndex < motionProfile.size()-deadZone){
             targetVelocity = motionProfile.get(lastIndex);
             targetMotorPower = targetVelocity*velocityToMotorPower;
         }else {
@@ -191,8 +197,13 @@ public class motionProfile {
         double targetVelocity;
         double targetMotorPower;
 
+        double deadZone = 2;
 
-        if (lastIndex < motionProfile.size()-2){
+        if (vertical && targetPosition != 0){
+            deadZone = 6;
+        }
+
+        if (lastIndex < motionProfile.size()-deadZone){
             targetVelocity = motionProfile.get(lastIndex);
             double veloDef = targetVelocity - currentVelo;
             if (!(targetPosition == 0)){

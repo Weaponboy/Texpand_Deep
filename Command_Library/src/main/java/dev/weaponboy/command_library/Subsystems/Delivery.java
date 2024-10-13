@@ -27,7 +27,7 @@ public class Delivery extends SubSystem {
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
 
-    public final double highBasket = 65;
+    public final double highBasket = 67;
     public final double lowBasket = 200;
 
     public final double highChamber = 24;
@@ -138,6 +138,15 @@ public class Delivery extends SubSystem {
         registerSubsystem(opModeEX, holdPosition);
     }
 
+    public LambdaCommand followMotionPro = new LambdaCommand(
+            () ->{},
+            ()-> {
+                slideMotor.setPower(profile.followProfile(slideMotor.getCurrentPosition()));
+                System.out.println("slide motor power" + profile.followProfile(slideMotor.getCurrentPosition()));
+            },
+            ()-> !profile.isSlideRunning()
+    );
+
     public LambdaCommand holdPosition = new LambdaCommand(
             () -> {},
             () -> {
@@ -151,6 +160,7 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(mainPivotBehindTransfer);
                 secondPivot.setPosition(secondBehindTransfer);
                 griperSev.setPosition(gripperBehindTransfer);
+                gripperState = gripper.drop;
             }
     );
 
@@ -206,7 +216,11 @@ public class Delivery extends SubSystem {
     );
 
    public Command deposit = new LambdaCommand(
-           () -> {},
+           () -> {
+               if (slideMotor.getCurrentPosition() > 100){
+                   genProfile(0);
+               }
+           },
            () -> {
 
                if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.drop){
@@ -215,6 +229,9 @@ public class Delivery extends SubSystem {
 //                   transferWaitTime = 500;
                    fourbarState = fourBarState.transferringStates;
                    fourBarTargetState = fourBarState.behindNest;
+
+                   queueCommand(followMotionPro);
+                   slidesState = Delivery.slideState.moving;
 
                    behindNest.execute();
                } else if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 400) {
@@ -249,7 +266,7 @@ public class Delivery extends SubSystem {
             () -> {},
             () -> {
 
-                if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 300) {
+                if (fourbarState == fourBarState.grabNest) {
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
 //                   transferWaitTime = 500;
@@ -369,11 +386,7 @@ public class Delivery extends SubSystem {
     );
 
 
-    public LambdaCommand followMotionPro = new LambdaCommand(
-            () ->{},
-            ()-> slideMotor.setPower(profile.followProfile(slideMotor.getCurrentPosition())),
-            ()-> !profile.isSlideRunning()
-    );
+
     public Command slideSetPonts(double targetPozition){
         profile.generateMotionProfile(targetPozition, slideMotor.getCurrentPosition());
         if (targetPozition == 0){
@@ -399,7 +412,12 @@ public class Delivery extends SubSystem {
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         linierRail.setRange(335);
+
+        griperSev.setPosition(180);
+
         behindNest.execute();
+
+        profile.isVertical(true);
 
     }
 

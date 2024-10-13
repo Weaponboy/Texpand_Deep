@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -12,8 +11,8 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@Autonomous(name = "blueRight", group = "Autos")
-public class AutoBlueRight extends OpModeEX {
+@Autonomous(name = "Blue Right", group = "Autos")
+public class Blue_Right extends OpModeEX {
     double targetHeading;
 
     pathsManager paths = new pathsManager();
@@ -21,7 +20,7 @@ public class AutoBlueRight extends OpModeEX {
 
 
     private final sectionBuilder[] rightBluePath = {
-            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(254, 170))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 170))
 
     };
 
@@ -38,6 +37,7 @@ public class AutoBlueRight extends OpModeEX {
         deposit,
         collect,
         humanPlayer,
+        finished
     }
 
     public enum building {
@@ -52,6 +52,8 @@ public class AutoBlueRight extends OpModeEX {
 
     @Override
     public void initEX() {
+        collection.pullOut.execute();
+
         odometry.startPosition(339, 160, 180);
 
 
@@ -88,8 +90,16 @@ public class AutoBlueRight extends OpModeEX {
 
             if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.preClip){
                 delivery.queueCommand(delivery.Clip);
+                delivery.queueCommand(delivery.Clip);
+                delivery.queueCommand(delivery.slideSetPonts(0));
+            } else if (follow.isFinished() && delivery.slideMotor.getCurrentPosition() < 20) {
+                state = autoState.finished;
             }
 
+        }
+
+        if (state == autoState.finished){
+            requestOpModeStop();
         }
 
         odometry.queueCommand(odometry.updateLineBased);
