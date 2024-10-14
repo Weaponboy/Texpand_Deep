@@ -2,16 +2,13 @@ package org.firstinspires.ftc.teamcode.Testing.Vision;
 
 import android.util.Size;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection2;
+import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.vision.Testing_SIM.SampleTargeting;
 import dev.weaponboy.vision.SamplePipelines.singleSampleTargeting;
 
@@ -101,10 +98,10 @@ public class CloseVisionAim extends OpModeEX {
 
         }
 
-        if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection2.clawState.drop){
-            collection.setClawsState(Collection2.clawState.grab);
-        } else if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection2.clawState.grab) {
-            collection.setClawsState(Collection2.clawState.drop);
+        if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection.clawState.drop){
+            collection.setClawsState(Collection.clawState.grab);
+        } else if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection.clawState.grab) {
+            collection.setClawsState(Collection.clawState.drop);
         }
 
         if (currentGamepad1.x && !lastGamepad1.x){

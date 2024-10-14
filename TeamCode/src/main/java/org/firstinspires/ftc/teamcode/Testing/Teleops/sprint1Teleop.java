@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection2;
+import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
@@ -84,7 +84,7 @@ public class sprint1Teleop extends OpModeEX {
             delivery.queueCommand(delivery.Clip);
         }
 
-        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection2.fourBar.collect){
+        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
             collection.queueCommand(collection.transfer);
         }
 
@@ -96,6 +96,10 @@ public class sprint1Teleop extends OpModeEX {
 
         if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
             delivery.queueCommand(delivery.deposit);
+        }
+
+        if (currentGamepad1.start && !lastGamepad1.start){
+            collection.queueCommand(collection.autoCollect);
         }
 
         if (gamepad1.right_stick_x > 0){
