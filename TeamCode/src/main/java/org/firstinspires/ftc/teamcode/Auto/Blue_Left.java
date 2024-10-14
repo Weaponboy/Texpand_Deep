@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Examples.Pathing_Example;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
+import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
@@ -24,6 +25,8 @@ public class Blue_Left extends OpModeEX {
     boolean drop;
     ElapsedTime dropTimer=new ElapsedTime();
     boolean collect;
+    boolean collectdrop;
+    boolean collectDropDown;
     boolean collectionDone;
     ElapsedTime collectTimer=new ElapsedTime();
 
@@ -40,12 +43,11 @@ public class Blue_Left extends OpModeEX {
         built,
         notBuilt
     }
+
     public enum targetAuto{
         preload,
         spikes,
         sub,
-
-
     }
 
 
@@ -54,12 +56,12 @@ public class Blue_Left extends OpModeEX {
     public targetAuto size = targetAuto.preload;
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(339, 202), new Vector2D(290.3, 240.5), new Vector2D(329, 319)),
+            () -> paths.addPoints(new Vector2D(339, 202), new Vector2D(290.3, 240.5), new Vector2D(331, 320)),
 
     };
 
     private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(300, 315.4), new Vector2D(267, 294)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(300, 315.4), new Vector2D(270, 296)),
 
     };
     private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
@@ -224,12 +226,16 @@ public class Blue_Left extends OpModeEX {
                 targetHeading = 180;
                 built = building.built;
                 collection.queueCommand(collection.collect);
-                collection.griperRotate.setPosition(135);
+                collection.griperRotate.setPosition(90);
+                collectDropDown = true;
             }
 
-            if (collect&&collectTimer.milliseconds()>4000){
+            if (collect && collectTimer.milliseconds()>2000){
                 collection.queueCommand(collection.transfer);
                 collect=false;
+            }
+
+            if (collection.getFourBarState() == Collection2.fourBar.transferUp && !collect && collectTimer.milliseconds()>4000){
                 collectionDone = true;
             }
 
@@ -239,13 +245,14 @@ public class Blue_Left extends OpModeEX {
                 built = building.notBuilt;
                 collectionDone = false;
 
-            }
+            }else if (follow.isFinished() && collectDropDown){
 
-            if (follow.isFinished() && collect == false){
+                collectDropDown=false;
                 collect=true;
                 collectTimer.reset();
-                collection.griperRotate.setPosition(135);
+                collection.griperRotate.setPosition(90);
                 collection.queueCommand(collection.collect);
+
             }
 
 

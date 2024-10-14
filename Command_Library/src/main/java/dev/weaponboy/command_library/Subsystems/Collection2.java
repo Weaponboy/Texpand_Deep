@@ -465,7 +465,7 @@ public class Collection2 extends SubSystem {
                 } else if (fourBarState == fourBar.transferUp && griperRotate.getPositionDegrees() > 160) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = 500;
+                    transferWaitTime = Math.abs(griperRotate.getPositionDegrees()-rotatePlaceNest)*(microRoboticTime+4);
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.transferUp;
 
@@ -474,8 +474,8 @@ public class Collection2 extends SubSystem {
                 }else if (fourBarState == fourBar.transferUp && griperRotate.getPositionDegrees() < 100) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotAboveNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotAboveNest)*microRoboticTime);
-//                    transferWaitTime = 200;
+//                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotAboveNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotAboveNest)*microRoboticTime);
+                    transferWaitTime = 200;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.aboveNest;
 
@@ -484,8 +484,8 @@ public class Collection2 extends SubSystem {
                 } else if (fourBarState == fourBar.aboveNest) {
 
                     fourBarTimer.reset();
-//                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
-                    transferWaitTime = 200;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+//                    transferWaitTime = 200;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.dropNest;
 
