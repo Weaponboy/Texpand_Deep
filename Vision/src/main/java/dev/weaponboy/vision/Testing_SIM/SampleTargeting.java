@@ -43,9 +43,12 @@ public class SampleTargeting  implements VisionProcessor {
     public Scalar redLower = new Scalar(9, 100, 160);
     public Scalar redHigher = new Scalar(38,255,255);
 
-    ArrayList<MatOfPoint> redContours = new ArrayList<>();
-    ArrayList<Rect> redRects = new ArrayList<>();
-    Mat redHierarchy = new Mat();
+    ArrayList<MatOfPoint> redContoursSingle = new ArrayList<>();
+    ArrayList<Rect> redRectsSingle = new ArrayList<>();
+
+    ArrayList<MatOfPoint> redContoursMulti = new ArrayList<>();
+    ArrayList<Rect> redRectsMulti = new ArrayList<>();
+
 
     Size rectSize = new Size(280, 90);
 
@@ -105,6 +108,7 @@ public class SampleTargeting  implements VisionProcessor {
     }
 
     double angleRotate;
+    double ratio;
 
     Rect ROI = new Rect(0, 0, 1000, 960);
 
@@ -131,53 +135,87 @@ public class SampleTargeting  implements VisionProcessor {
 
         for (int i = 0; i < contours.size(); i++){
             Rect rect = boundingRect(contours.get(i));
-            if (rect.area() > 25000 && rect.area() < 1000000){
-                redContours.add(contours.get(i));
-                redRects.add(rect);
+            if (rect.area() > 20000 && rect.area() < 42000){
+                redContoursSingle.add(contours.get(i));
+                redRectsSingle.add(rect);
+            }else if (rect.area() > 42000 && rect.area() < 600000){
+                redContoursMulti.add(contours.get(i));
+                redRectsMulti.add(rect);
             }
         }
 
-        if (!redContours.isEmpty()){
-//            for (MatOfPoint contour : redContours) {
-//                Imgproc.drawContours(frame, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
-//            }
+        if (!redContoursSingle.isEmpty()){
 
-            for (MatOfPoint contour : redContours) {
 
-                Moments moments = Imgproc.moments(contour);
+            Moments moments = Imgproc.moments(redContoursSingle.get(redContoursSingle.size()-1));
+
+            double cx = moments.get_m10() / moments.get_m00();
+            double cy = moments.get_m01() / moments.get_m00();
+
+            avCounter++;
+            pointsAve.add(new Point(cx, cy));
+            MatOfPoint2f contour2f = new MatOfPoint2f(redContoursSingle.get(redContoursSingle.size()-1).toArray());
+
+            RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
+
+            double angle = rotatedRect.angle;
+            Size rectSize = rotatedRect.size;
+
+            ratio = rotatedRect.size.height/rotatedRect.size.width;
+            ratio = rotatedRect.size.height/rotatedRect.size.width;
+
+            // Determine the long side of the rectangle
+            boolean isWidthLonger = rectSize.width > rectSize.height;
+
+            // Adjust the angle to ensure it's based on the long side of the rectangle
+            if (isWidthLonger) {
+                angle = angle + 90; // Add 90 degrees if height is the longer side
+            }
+
+            // Normalize the angle:
+            // Positive angle = tipped right, Negative angle = tipped left
+            if (angle > 90) {
+                angle -= 180; // Normalize to the range [-90, 90]
+            }
+
+            angleRotate = angle;
+
+            center = new Point(cx, cy);
+
+            double stuff = ((getHeight()-center.y) / pixelsToCmWidth);
+            double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 5.5;
+
+            railTarget = stuff-4;
+            slidesDelta = stuff2;
+
+            Point[] rectPoints = new Point[4];
+            rotatedRect.points(rectPoints);  // Fills the array with the corner points
+
+            // Convert the points to a list for drawing the contour
+            MatOfPoint points = new MatOfPoint(rectPoints);
+
+            // Draw the rotated rectangle using drawContours
+            Imgproc.drawContours(frame,
+                    java.util.Collections.singletonList(points),
+                    -1,   // Index of contour (only one here)
+                    new Scalar(255, 0, 0),  // Color in BGR format (blue)
+                    2);
+
+        } else if ((!redContoursMulti.isEmpty())) {
+
+            for (int i = 0; i < redContoursMulti.size(); i++) {
+
+                Moments moments = Imgproc.moments(redContoursMulti.get(i));
 
                 // Calculate centroid
                 double cx = moments.get_m10() / moments.get_m00();
                 double cy = moments.get_m01() / moments.get_m00();
 
-                double maxSize = 350;
-                double sizeWH;
-
-                if (redRects.get(0).height > redRects.get(0).width){
-                    sizeWH = redRects.get(0).height;
-                }else{
-                    sizeWH = redRects.get(0).width;
-                }
-
-                Point pointThing;
-
                 avCounter++;
                 pointsAve.add(new Point(cx, cy));
-                MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
+                MatOfPoint2f contour2f = new MatOfPoint2f(redContoursMulti.get(i).toArray());
 
                 RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-
-//                    double angle = rotatedRect.angle;
-//
-////                    if (rotatedRect.size.width < rotatedRect.size.height) {
-////                        angle = 90 + angle;
-////                    }
-//
-//                    if (rotatedRect.size.width > rotatedRect.size.height) {
-//                        this.angleRotate = -(-angle + 90);
-//                    }else {
-//                        this.angleRotate = angle;
-//                    }
 
                 double angle = rotatedRect.angle;
                 Size rectSize = rotatedRect.size;
@@ -198,54 +236,29 @@ public class SampleTargeting  implements VisionProcessor {
 
                 angleRotate = angle;
 
-//                if (sizeWH > maxSize){
-//                    Point center =  findTopPosition(frame, contour);
-//                    if (!(center == null)){
-//                        avCounter++;
-//                        pointsAve.add(center);
-//                        pointThing = center;
-//                    }
-//                } else if (cx < 400) {
-//                    Point center =  findTopPosition(frame, contour);
-//                    if (!(center == null)){
-//                        avCounter++;
-//                        pointsAve.add(center);
-//                        pointThing = center;
-//                    }
-//                }else {
-//                    // Returns the normalized angle
-//                }
+                center = new Point(cx, cy);
 
+                double stuff = ((getHeight()-center.y) / pixelsToCmWidth);
+                double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 5.5;
 
-//                Imgproc.circle(frame, pointsAve.get(pointsAve.size()-1), 3, new Scalar(255,0, 0), -1);
+                railTarget = stuff-4;
+                slidesDelta = stuff2;
 
+                Point[] rectPoints = new Point[4];
+                rotatedRect.points(rectPoints);  // Fills the array with the corner points
 
-//                if(redRects.get(0).height > redRects.get(0).width){
-//                    Imgproc.putText(frame, String.valueOf(redRects.get(0).width), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//                    Imgproc.putText(frame, String.valueOf(redRects.get(0).height), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//                }
-//
-//                contour.
-//
-//                Imgproc.putText(frame, String.valueOf(cx), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//                Imgproc.putText(frame, String.valueOf(cy), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-//
+                // Convert the points to a list for drawing the contour
+                MatOfPoint points = new MatOfPoint(rectPoints);
 
-//                if (cx < 400){
-//
-//                } else if (cx > 400 && cx < maxLong && cx > minLong) {
-//                    Imgproc.circle(frame, new Point(cx, cy), 3, new Scalar(255,0, 0), -1);
-//                }
+                // Draw the rotated rectangle using drawContours
+                Imgproc.drawContours(frame,
+                        java.util.Collections.singletonList(points),
+                        -1,   // Index of contour (only one here)
+                        new Scalar(255, 255, 0),  // Color in BGR format (blue)
+                        2);
 
-
-
-
-//                Point center =  findTopPosition(frame, contour);
-//                if (!(center == null)){
-//                    avCounter++;
-//                    pointsAve.add(center);
-//                }
             }
+
         }
 
         //22.7 at current point
@@ -253,17 +266,19 @@ public class SampleTargeting  implements VisionProcessor {
         //-5 to grip
 
         contours.clear();
-        redContours.clear();
-        redRects.clear();
+        redContoursSingle.clear();
+        redRectsSingle.clear();
+        redContoursMulti.clear();
+        redRectsMulti.clear();
         topY.clear();
 //        redMat.copyTo(frame);
 
         redMat.release();
 
         Imgproc.putText(frame, String.valueOf(railTarget), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(frame, String.valueOf(slidesDelta   ), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(frame, String.valueOf(angleRotate   ), new Point(20, 120), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
+        Imgproc.putText(frame, String.valueOf(slidesDelta), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(frame, String.valueOf(angleRotate), new Point(20, 120), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+        Imgproc.putText(frame, String.valueOf(ratio), new Point(20, 160), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
         return null;
     }
@@ -275,6 +290,9 @@ public class SampleTargeting  implements VisionProcessor {
         red.setStrokeWidth(scaleCanvasDensity * 4);
 
 //        canvas.drawCircle((float) centerDet.x, (float) center.y, 4, red);
+
+        canvas.drawCircle((float) center.x*scaleBmpPxToCanvasPx, (float) center.y*scaleBmpPxToCanvasPx, 4, red);
+
 
         if (avCounter > 5){
             Point center = findAve(pointsAve, avCounter);

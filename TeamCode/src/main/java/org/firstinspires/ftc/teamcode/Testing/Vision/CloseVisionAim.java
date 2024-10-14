@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.vision.Testing_SIM.SampleTargeting;
 import dev.weaponboy.vision.SamplePipelines.singleSampleTargeting;
 
@@ -68,7 +69,7 @@ public class CloseVisionAim extends OpModeEX {
 //                collection.queueCommand(collection.collect);
             }
 
-            collection.griperRotate.setPosition(135+sampleSorter.getAngleRotate());
+            collection.griperRotate.setPosition(45+sampleSorter.getAngleRotate());
         }
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
@@ -91,13 +92,19 @@ public class CloseVisionAim extends OpModeEX {
 //                collection.queueCommand(collection.collect);
             }
 
-            collection.griperRotate.setPosition(135+sampleSorter.getAngleRotate());
+            collection.griperRotate.setPosition(45+sampleSorter.getAngleRotate());
         }
 
 
         if (gamepad1.right_bumper){
             collection.queueCommand(collection.collect(0));
 
+        }
+
+        if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection2.clawState.drop){
+            collection.setClawsState(Collection2.clawState.grab);
+        } else if (currentGamepad1.back && !(lastGamepad1.back) && collection.getClawsState() == Collection2.clawState.grab) {
+            collection.setClawsState(Collection2.clawState.drop);
         }
 
         if (currentGamepad1.x && !lastGamepad1.x){

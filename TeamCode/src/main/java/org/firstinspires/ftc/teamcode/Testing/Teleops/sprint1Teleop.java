@@ -68,6 +68,10 @@ public class sprint1Teleop extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
         }
 
+        if (currentGamepad1.a && !lastGamepad1.a){
+            collection.queueCommand(collection.clipTransfer);
+        }
+
         if (currentGamepad1.left_stick_y < 0){
             collection.setSlideTarget(collection.getSlideTarget()+0.2);
         }else if (currentGamepad1.left_stick_y > 0){
