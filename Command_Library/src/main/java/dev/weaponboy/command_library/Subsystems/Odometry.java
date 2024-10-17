@@ -100,8 +100,8 @@ public class Odometry extends SubSystem {
 //        currentXVelocity = RRXError;
 //        currentYVelocity = RRYError;
 
-        currentXVelocity = RRXError * Math.cos(Math.toDegrees(Heading)) - RRYError * Math.sin(Math.toDegrees(Heading));
-        currentYVelocity = RRXError * Math.sin(Math.toDegrees(Heading)) + RRYError * Math.cos(Math.toDegrees(Heading));
+        currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
+        currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
 
     }
 

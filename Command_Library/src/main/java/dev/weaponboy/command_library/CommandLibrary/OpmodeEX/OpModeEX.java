@@ -26,7 +26,7 @@ public abstract class OpModeEX extends OpMode {
 
     public Hang hang = new Hang(this);
 
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry, hang});
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
 
     List<LynxModule> allHubs;
 
@@ -63,6 +63,9 @@ public abstract class OpModeEX extends OpMode {
 
         lastGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
+
+        lastGamepad2.copy(currentGamepad2);
+        currentGamepad2.copy(gamepad2);
 
         lastTime = timer.milliseconds();
 

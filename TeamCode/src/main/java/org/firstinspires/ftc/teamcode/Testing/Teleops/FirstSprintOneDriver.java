@@ -1,237 +1,158 @@
-//package org.firstinspires.ftc.teamcode.Testing.Teleops;
-//
-//import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-//import com.qualcomm.robotcore.util.ElapsedTime;
-//
-//import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-//import dev.weaponboy.command_library.Subsystems.Collection;
-//import dev.weaponboy.command_library.Subsystems.Delivery;
-//
-//@TeleOp
-//public class FirstSprintOneDriver extends OpModeEX {
-//
-//    boolean colWaitForStow = false;
-//    boolean colBusyCollecting = false;
-//    boolean colWaitForTransfer = false;
-//    boolean colWaitForDrop = false;
-//    boolean depWaitforGrip = false;
-//    boolean depWaitforTakeOutOfTansfer = false;
-//    boolean depWaitForDrop = false;
-//    boolean waitForColection = false;
-//    boolean waitForRetern = false;
-//
-//    ElapsedTime collectionTimer = new ElapsedTime();
-//    ElapsedTime stowTimer = new ElapsedTime();
-//    ElapsedTime transferTime = new ElapsedTime();
-//    ElapsedTime gripTime = new ElapsedTime();
-//    ElapsedTime depGripTime = new ElapsedTime();
-//    ElapsedTime depTakeFromTransferTime = new ElapsedTime();
-//    ElapsedTime depDropTime = new ElapsedTime();
-//    ElapsedTime collectionMoveTimer = new ElapsedTime();
-//    ElapsedTime reternTimer = new ElapsedTime();
-//
-//    double targetPos = 128;
-//
-//    @Override
-//    public void initEX() {
-//
-//    }
-//
-//    @Override
-//    public void loopEX() {
-//
-//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.stowed) {
-//            collection.queueCommand(collection.preCollect);
-//        }
-//
-//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.preCollect) {
-//            collection.queueCommand(collection.collect);
-//            collection.setNestState(Collection.Nest.sample);
-//        }
-//
-//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.getCollectionState()== Collection.fourBar.collect) {
-//            collection.setGripperState(Collection.gripper.grab);
-//
-//            colBusyCollecting = true;
-//            collectionTimer.reset();
-//        }
-//
-//        if (colBusyCollecting && collectionTimer.milliseconds() > 500){
-//            collection.queueCommand(collection.stow);
-//            colBusyCollecting =false;
-//            colWaitForStow =true;
-//            stowTimer.reset();
-//        }
-//
-//        if (colWaitForStow && stowTimer.milliseconds() > 450){
-//            targetPos = 128;
-//            collection.queueCommand(collection.transfer);
-//            colWaitForStow =false;
-//            colWaitForTransfer =true;
-//
-//            transferTime.reset();
-//        }
-//
-//        if (colWaitForTransfer && transferTime.milliseconds() > 250){
-//            collection.setGripperState(Collection.gripper.drop);
-//            colWaitForTransfer =false;
-//            colWaitForDrop =true;
-//            gripTime.reset();
-//        }
-//
-//        if (colWaitForDrop && gripTime.milliseconds() > 300){
-//            collection.queueCommand(collection.stow);
-//            colWaitForDrop =false;
-//            gripTime.reset();
-//        }
-//
-//        if (currentGamepad1.left_bumper && lastGamepad1.left_bumper && delivery.depositstate == Delivery.deposit.preTransFer){
-//            collection.queueCommand(collection.init);
-//            waitForColection =true;
-//            collectionTimer.reset();
-//        }
-//        if (waitForColection && collectionTimer.milliseconds()>200) {
+package org.firstinspires.ftc.teamcode.Testing.Teleops;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+import dev.weaponboy.command_library.Subsystems.Collection;
+import dev.weaponboy.command_library.Subsystems.Delivery;
+
+@TeleOp
+public class FirstSprintOneDriver extends OpModeEX {
+
+    boolean transferring = false;
+    ElapsedTime transferringWait = new ElapsedTime();
+    double turnPower = 0;
+    double horizontal = 0;
+    double lastHeading;
+
+    double rotateTarget = 135;
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
+    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+    @Override
+    public void initEX() {
+        FtcDashboard.getInstance().startCameraStream(collection.sampleSorter, 30);
+
+//        delivery.Deposit.execute();
+    }
+
+    @Override
+    public void loopEX() {
+
+        horizontal = -gamepad1.right_stick_x*0.5;
+        double lastHor = -lastGamepad1.right_stick_x*0.5;
+
+        if (gamepad1.left_stick_x == 0 && Math.abs(horizontal) > 0){
+            if (Math.abs(horizontal) > 0 && lastHor == 0){
+                lastHeading = odometry.Heading();
+            }
+            turnPower = -driveBase.headindingLockMotorPower(lastHeading - odometry.Heading());
+        }else {
+            turnPower = -gamepad1.left_stick_x*0.5;
+        }
+
+        // drive base code
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y*0.5, turnPower, -gamepad1.right_stick_x*0.5));
+
+
+        /**
+         * Overwrites
+         * */
+        if (currentGamepad1.back && !lastGamepad1.back){
+            collection.overrideCurrent(true, collection.stow);
+            delivery.overrideCurrent(true, delivery.stow);
+        }
+
+        /**
+         * Collection code
+         * */
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.horizontalMotor.getCurrentPosition() < 50){
+            collection.setSlideTarget(18);
+            collection.camera.execute();
+            rotateTarget = 90;
+        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
+            collection.queueCommand(collection.collect);
+        }
+
+        if (currentGamepad1.right_stick_y < 0){
+            collection.setSlideTarget(collection.getSlideTarget()+0.4);
+        }else if (currentGamepad1.right_stick_y > 0){
+            collection.setSlideTarget(collection.getSlideTarget()-0.4);
+        }
+
+        if (currentGamepad1.right_stick_x < 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.setRailTargetPosition(collection.getRailPosition()-0.2);
+        }else if (currentGamepad1.right_stick_x > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.setRailTargetPosition(collection.getRailPosition()+0.2);
+        }
+
+        if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
+            collection.queueCommand(collection.transfer);
+            collection.setChamberCollect(false);
+            rotateTarget = 90;
+        }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
+            collection.setClawsState(Collection.clawState.drop);
+            collection.setSlideTarget(collection.getSlideTarget()-12);
+            collection.queueCommand(collection.autoCollect);
+        }
+
+        if (gamepad1.left_stick_x > 0){
+            rotateTarget += 1;
+            collection.griperRotate.setPosition(rotateTarget);
+        }
+
+        if (gamepad1.left_stick_x < 0){
+            rotateTarget -= 1;
+            collection.griperRotate.setPosition(rotateTarget);
+        }
+
+        if(currentGamepad1.b && !lastGamepad1.b){
+            collection.setNestState(Collection.Nest.specimen);
+        }
+
+        if (currentGamepad1.y && !lastGamepad1.y) {
+            collection.queueCommand(collection.autoCollect);
+            collection.setChamberCollect(true);
+        }
+
+        if (currentGamepad1.a && !lastGamepad1.a){
+            collection.queueCommand(collection.autoCollect);
+            collection.setChamberCollect(false);
+        }
+
+        /**
+         * Delivery code
+         * */
+        if (currentGamepad2.x && !lastGamepad2.x && delivery.slideMotor.getCurrentPosition() < 200){
+            delivery.queueCommand(delivery.slideSetPonts(delivery.highChamber));
+        }else if (currentGamepad2.x && !lastGamepad2.x && delivery.slideMotor.getCurrentPosition() > 200){
+            delivery.queueCommand(delivery.Clip);
+        }
+
+        if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
+            delivery.queueCommand(delivery.deposit);
+        }
+
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper &&delivery.fourbarState == Delivery.fourBarState.behindNest){
+            delivery.queueCommand(delivery.transfer);
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 1000){
+            delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+        }
+
+//        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10){
 //            delivery.queueCommand(delivery.transfer);
-//            waitForColection =false;
-//            depWaitforGrip =true;
-//            depGripTime.reset();
 //        }
-//
-//        if (depWaitforGrip && depGripTime.milliseconds()>400){
-//            delivery.queueCommand(delivery.postTransfer);
-//            depWaitforGrip =false;
-//            depWaitforTakeOutOfTansfer = true;
-//            depTakeFromTransferTime.reset();
+
+//        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.drop){
+//            collection.setClawsState(Collection.clawState.grab);
+//        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.grab){
+//            collection.setClawsState(Collection.clawState.drop);
 //        }
-//
-//        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer&&collection.getNestState()== Collection.Nest.sample){
-//            delivery.queueCommand(delivery.dropOff);
-//            depWaitforTakeOutOfTansfer =false;
-//        }
-//        if (currentGamepad1.left_bumper&&lastGamepad1.left_bumper&&delivery.depositstate == Delivery.deposit.postTransfer&&collection.getNestState()== Collection.Nest.specimen){
-//            delivery.queueCommand(delivery.cliping);
-//            depWaitforTakeOutOfTansfer =false;
-//        }
-//
-//
-//        if (currentGamepad1.a&&lastGamepad1.a&&delivery.depositstate == Delivery.deposit.basket){
-//            delivery.queueCommand(delivery.drop);
-//            depWaitForDrop =true;
-//            depDropTime.reset();
-//        }
-//
-//        if (depWaitForDrop&&depDropTime.milliseconds()>150){
-//            delivery.secondPivot.setPosition(258);
-//            delivery.griperSev.setPosition(90);
-//            depWaitForDrop =false;
-//            waitForRetern=true;
-//            reternTimer.reset();
-//
-//        }
-//
-//        if (waitForRetern&&reternTimer.milliseconds()>130){
-//            waitForRetern =false;
-//            delivery.mainPivot.setPosition(80);
-//            delivery.depositstate = Delivery.deposit.preTransFer;
-//
-//        }
-//
-//        if (gamepad1.dpad_up){
-//            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)+15);
-//        }
-//
-//        if (gamepad1.b){
-//            collection.setNestState(Collection.Nest.specimen);
-//            collection.queueCommand(collection.init);
-//        }
-//
-//        if (gamepad1.dpad_down){
-//            collection.griperRotate.setPosition((collection.griperRotate.getPosition()*270)-15);
-//        }
-//
-////        if (currentGamepad1.x&&lastGamepad1.x){
-////            collection.queueCommand(collection.PID);
-////        }
-//
-//
-//        if (gamepad1.back && collection.getCollectionState() == Collection.fourBar.collect){
-//            collection.queueCommand(collection.preCollect);
-//        }else if(gamepad1.back && delivery.depositstate ==Delivery.deposit.postTransfer){
-//            delivery.queueCommand(delivery.behindTransfer);
-//        }
-//
-//        if (gamepad1.start){
-//            collection.setGripperState(Collection.gripper.grab);
-//        }
-//
-////        if (gamepad1.back){
-////            colection.queueCommand(colection.drop);
-////        }
-////
-////        if (gamepad1.back){
-////            delivery.queueCommand(delivery.drop);
-////        }
-//
-//        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x));
-//
-//        if (collection.horizontalMotor.getCurrentPosition()< collection.maxSlideExtension) {
-//            collection.setExtendoPower(-gamepad1.left_stick_y/2);
-//        }
-////        if (delivery.slidesState== Delivery.slideState.holdPosition) {
-////            if (gamepad1.right_trigger > 0 && Math.abs(delivery.slideMotor.getCurrentPosition()) < delivery.maxSlideHeight) {
-////                delivery.slideMotor.setPower(0.05 + gamepad1.right_trigger);
-////            } else if (gamepad1.left_trigger > 0 && delivery.slideMotor.getCurrentPosition() > 90) {
-////                delivery.slideMotor.setPower(0.05 - gamepad1.left_trigger);
-////            } else {
-////                delivery.queueCommand(delivery.holdPosition);
-////            }
-////        }
-//        if (currentGamepad1.y && !lastGamepad1.y){
-//            delivery.genProfile(delivery.highBasket);
-//            delivery.queueCommand(delivery.followMotionPro);
-//            delivery.slidesState= Delivery.slideState.moving;
-////            double motorPower = 0;
-////            while (delivery.slideMotor.getCurrentPosition() < 400){
-////                motorPower += 0.05;
-////                delivery.slideMotor.setPower(motorPower);
-////            }
-////
-////            delivery.slideMotor.setPower(0.36);A
-//
-//        }
-//        if (currentGamepad1.left_stick_button && !lastGamepad1.left_stick_button){
-//            delivery.genProfile(0);
-//            delivery.queueCommand(delivery.followMotionPro);
-//            delivery.slidesState= Delivery.slideState.moving;
-////            double motorPower = 0;
-////            while (delivery.slideMotor.getCurrentPosition() < 400){
-////                motorPower += 0.05;
-////                delivery.slideMotor.setPower(motorPower);
-////            }
-////
-////            delivery.slideMotor.setPower(0.36);A
-//
-//        }
-////        if(gamepad1.dpad_left){
-////            collection.linerRailServo.setPosition(0);
-////        }else if(gamepad1.dpad_right){
-////            collection.linerRailServo.setPosition(1);
-////        }else{
-////            collection.linerRailServo.setPosition(0.5);
-////        }
-//
-//        if(gamepad1.dpad_left){
-//            collection.setRailTargetPosition(10);
-//        }
-//        collection.updateRailPosition();
-//
-//        telemetry.addData("horPos", collection.horizontalMotor.getCurrentPosition());
-//        telemetry.addData("looptime ", loopTime);
-////        telemetry.addData("vertPos",delivery.slideMotor.getCurrentPosition()*delivery.p);
-//        telemetry.addData("axon_pos",collection.linearPosition.getPosition());
-//        telemetry.addData("linear Rail Position",collection.getRailPosition());
-//        telemetry.addData("vertPow",delivery.slideMotor.getPower());
-//
-//        telemetry.update();
-//    }
-//}
+
+        telemetry.addData("loop time ", loopTime);
+        telemetry.addData("rail position ", collection.getRailPosition());
+        telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
+        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition()/(2250/65));
+        telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
+        telemetry.addData("nest sensor", collection.nestSensor.isPressed());
+        telemetry.addData("claw sensor", collection.clawSensor.isPressed());
+        telemetry.update();
+    }
+}

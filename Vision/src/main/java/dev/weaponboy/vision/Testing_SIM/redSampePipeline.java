@@ -12,6 +12,7 @@ import static org.opencv.imgproc.Imgproc.findContours;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
@@ -30,24 +31,12 @@ public class redSampePipeline extends OpenCvPipeline {
 
     Mat redMat = new Mat();
 
-    public Scalar redLower = new Scalar(0,110,20);
-    public Scalar redHigher = new Scalar(15,255,255);
+    public Scalar redLower = new Scalar(9, 40, 160);
+    public Scalar redHigher = new Scalar(38, 255, 255);
 
     ArrayList<MatOfPoint> redContours = new ArrayList<>();
     ArrayList<MatOfPoint> sortedRedContours = new ArrayList<>();
     Mat redHierarchy = new Mat();
-
-    Size rectSize = new Size(280, 90);
-    Point center = new Point(200, 200);
-    double angle = 30.0;
-
-    Point topY = new Point(0, 800);
-    Point rightX = new Point();
-
-    final double maxHypotLength = 440;
-    final double minHypotLength = 440;
-
-    RotatedRect rotatedRect = new RotatedRect(center, rectSize, angle);
 
     @Override
     public Mat processFrame(Mat input) {
@@ -67,110 +56,253 @@ public class redSampePipeline extends OpenCvPipeline {
             Imgproc.drawContours(input, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
         }
 
-//        findContours(redMat, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-//        findContours(redMat, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        for (int i = 0; i < redContours.size(); i++) {
+            Rect rect = boundingRect(redContours.get(i));
+            if (rect.area() > 30000 && rect.area() < 200000) {
+                sortedRedContours.add(redContours.get(i));
+            }
+        }
 
-//        for (int i = 0; i < redContours.size(); i++){
-//            Rect rect = boundingRect(redContours.get(i));
-//            if (rect.area() > 30000 && rect.area() < 35000){
-//                sortedRedContours.add(redContours.get(i));
+        for (MatOfPoint contour : sortedRedContours) {
+//
+//            // Approximate contour to polygon (rectangular approximation)
+//            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
+//            MatOfPoint2f approx = new MatOfPoint2f();
+//            Imgproc.approxPolyDP(contour2f, approx, Imgproc.arcLength(contour2f, true) * 0.04, true);
+//
+//            // Check if we have a rectangle (4 vertices)
+//            if (approx.total() == 4) {
+//                Point[] vertices = approx.toArray();
+//                List<Line> sides = new ArrayList<>();
+//
+//                // Find long and short sides
+//                for (int i = 0; i < 4; i++) {
+//                    Point p1 = vertices[i];
+//                    Point p2 = vertices[(i + 1) % 4]; // Next point (wrap around)
+//                    sides.add(new Line(p1, p2));
+//                }
+//
+//                // Sort sides by length to differentiate long and short sides
+//                sides.sort((l1, l2) -> Double.compare(l1.length(), l2.length()));
+//                Line longSide1 = sides.get(3);
+//                Line longSide2 = sides.get(2); // Two longest sides
+//
+//                // Try to move the long sides inward
+//                Line inwardLongSide1 = moveLineInward(longSide1, 10.0); // Move long side inward by 10 units
+//                Line inwardLongSide2 = moveLineInward(longSide2, 10.0);
+//
+//                // If not enough space, move the short sides inward
+//                Line inwardShortSide1 = moveLineInward(sides.get(0), 10.0);
+//                Line inwardShortSide2 = moveLineInward(sides.get(1), 10.0);
+//
+//                // Find intersection points between the inward long/short sides
+//                Point intersectionLong = getLineIntersection(inwardLongSide1, inwardLongSide2);
+//                Point intersectionShort = getLineIntersection(inwardShortSide1, inwardShortSide2);
+//
+//                // Decide which intersection to use (based on fitting logic or priority)
+//                Point targetPoint = (intersectionLong != null) ? intersectionLong : intersectionShort;
+//
+//                // Draw the target point for visualization
+//                if (targetPoint != null) {
+//                    Imgproc.circle(input, targetPoint, 5, new Scalar(255, 0, 0), -1); // Red dot for target
+//                }
+//
 //            }
-//        }
+//
+//            Imgproc.putText(input, String.valueOf(10000), new Point(20, 40), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+//
 
-        for (MatOfPoint contour : redContours) {
+            // Find a 90-degree corner with a tolerance of ±10 degrees
+            // Detect target point by moving 10 pixels inward
+            // Detect target point by moving 10 pixels and 5 pixels inward
+            double inwardDistance1 = 50;
+            double inwardDistance = 200;
+//            List<Point> inwardPoints = detectTargetPoints(contour.toList(), inwardDistance);
+//
+//            // Print out the inward points
+//            for (Point p : inwardPoints) {
+//                System.out.println("Inward Point: " + p);
+//                Imgproc.circle(input, p, 5, new Scalar(255, 0, 0), -1); // Red dot for target
+//            }
 
-            List<Point> contourPointsY = Arrays.asList(contour.toArray());
-            List<Point> contourPointsX = Arrays.asList(contour.toArray());
-            ArrayList<Point> farXPoints = new ArrayList<>();
-            ArrayList<Point> closeXPoints = new ArrayList<>();
+            // Distance to move inward
+//            double inwardDistance = 10.0;
 
-            contourPointsY.sort(Comparator.comparingDouble(p -> p.y));
-            Point centerPoint = contourPointsY.subList(0, 1).get(0);
+            // List to store inward points
+            List<Point> inwardPoints = new ArrayList<>();
 
-            for (int i = 0; i < contourPointsY.size(); i++){
-                if (Math.abs(centerPoint.x - contourPointsY.get(i).x) < 3){
-                    closeXPoints.add(contourPointsY.get(i));
+            MatOfPoint2f contourMat = new MatOfPoint2f(contour.toArray());
+
+            // Calculate inward points along normals
+            Point[] contourPoints = contour.toArray();
+
+            for (int i = 0; i < contourPoints.length; i++) {
+                // Get current point and previous/next point to calculate normal
+                Point p1 = contourPoints[(i - 1 + contourPoints.length) % contourPoints.length]; // previous point (wrap around)
+                Point p2 = contourPoints[i]; // current point
+                Point p3 = contourPoints[(i + 1) % contourPoints.length]; // next point
+
+                // Calculate the direction vector between previous and next points
+                double dx = p3.x - p1.x;
+                double dy = p3.y - p1.y;
+                double magnitude = Math.sqrt(dx * dx + dy * dy);
+
+                // Normalize and calculate normal (rotating 90 degrees)
+                // Invert the normal to move inward (negating it)
+                Point normal = new Point(dy / magnitude, -dx / magnitude); // Flip to ensure inward direction
+
+                // Calculate inward point by moving along the normal (inward distance is applied)
+                Point inwardPoint = new Point(p2.x + inwardDistance * normal.x, p2.y + inwardDistance * normal.y);
+
+                // Calculate the distance of the inward point from the contour
+                double distanceToEdge = Imgproc.pointPolygonTest(contourMat, inwardPoint, true);
+
+                // Only add the point if it's more than 50 pixels away from the edge
+                if (distanceToEdge > 50) {
+                    inwardPoints.add(inwardPoint);
                 }
             }
 
-            closeXPoints.sort(Comparator.comparingDouble(p -> p.x));
-            centerPoint = closeXPoints.subList(0, 1).get(0);
+            for (int i = 0; i < contourPoints.length; i++) {
+                // Get current point and previous/next point to calculate normal
+                Point p1 = contourPoints[(i - 1 + contourPoints.length) % contourPoints.length]; // previous point (wrap around)
+                Point p2 = contourPoints[i]; // current point
+                Point p3 = contourPoints[(i + 1) % contourPoints.length]; // next point
 
-            if(centerPoint.y < topY.y){
-                topY = centerPoint;
-            }
+                // Calculate the direction vector between previous and next points
+                double dx = p3.x - p1.x;
+                double dy = p3.y - p1.y;
+                double magnitude = Math.sqrt(dx * dx + dy * dy);
 
-            Point xRight = Collections.max(contourPointsX, Comparator.comparingDouble(p -> p.x));
+                // Normalize and calculate normal (rotating 90 degrees)
+                // Invert the normal to move inward (negating it)
+                Point normal = new Point(dy / magnitude, -dx / magnitude); // Flip to ensure inward direction
 
-            for (int i = 0; i < contourPointsX.size(); i++){
-                if (Math.abs(xRight.x - contourPointsX.get(i).x) < 2){
-                    farXPoints.add(contourPointsX.get(i));
+                // Calculate inward point by moving along the normal (inward distance is applied)
+                Point inwardPoint = new Point(p2.x + inwardDistance1 * normal.x, p2.y + inwardDistance1 * normal.y);
+
+                // Calculate the distance of the inward point from the contour
+                double distanceToEdge = Imgproc.pointPolygonTest(contourMat, inwardPoint, true);
+
+                // Only add the point if it's more than 50 pixels away from the edge
+                if (distanceToEdge > 50) {
+                    inwardPoints.add(inwardPoint);
                 }
             }
 
-            farXPoints.sort(Comparator.comparingDouble(p -> p.y));
-            centerPoint = farXPoints.subList(0, 1).get(0);
 
-            if(centerPoint.x > rightX.x ){
-                rightX = centerPoint;
+            Point TargetPoint = findCentroid(inwardPoints);
+
+            Imgproc.circle(input, TargetPoint, 5, new Scalar(0, 255, 0), -1); // Draw green circles for inward points
+
+            // Draw inward points on a new image (for visualization)
+//            Mat resultImage = new Mat(image.size(), CvType.CV_8UC3, new Scalar(255, 255, 255)); // Create white canvas
+            for (Point p : inwardPoints) {
+                Imgproc.circle(input, p, 3, new Scalar(255, 0, 0), -1); // Draw green circles for inward points
             }
 
-        }
+//            System.out.println("Target point for the claw: " + targetPoint);
+//
+//            Imgproc.putText(input, String.valueOf(targetPoint), new Point(20, 80), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//            Imgproc.circle(input, targetPoint, 5, new Scalar(0, 255, 0), -1); // Red dot for target
 
-        double deltaX = Math.abs(topY.x - rightX.x);
-        double deltaY = Math.abs(topY.y - rightX.y);
-        double hypot = Math.hypot(deltaY, deltaX);
-
-        double angle = 0;
-
-        if (hypot > 200){
-            angle = Math.toDegrees(Math.acos(deltaX/hypot));
-        } else if (hypot < 200) {
-            angle = Math.toDegrees(Math.asin(deltaX/hypot));
-        }
-
-        Imgproc.putText(input, String.valueOf(angle), new Point(200, 200), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-       // Imgproc.putText(input, String.valueOf(Math.toDegrees(Math.acos(deltaX/hypot))), new Point(200, 230), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        //Imgproc.putText(input, String.valueOf(Math.toDegrees(Math.asin(deltaX/hypot))), new Point(200, 260), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-        Imgproc.putText(input, String.valueOf(hypot), new Point(200, 290), 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-        rotatedRect.angle = angle;
-        rectSize = new Size(hypot, hypot*0.35);
-        rotatedRect.size = rectSize;
-        rotatedRect.center = createRotatedRectFromTopLeft(topY, rectSize, angle);
-
-        Imgproc.circle(input, topY,4, redHigher);
-        Imgproc.circle(input, rightX,4, redHigher);
-
-        Point[] vertices = new Point[4];
-        rotatedRect.points(vertices);
-
-        for (int i = 0; i < 4; i++) {
-            Imgproc.line(input, vertices[i], vertices[(i + 1) % 4], new Scalar(0, 255, 0), 2);
+//
+//            if (!corners.isEmpty()) {
+//                System.out.println("90-degree corners found at:");
+//                for (Point corner : corners) {
+//                    System.out.println(corner);
+//
+//                }
+//            } else {
+//                System.out.println("No 90-degree corners found.");
+//            }
         }
 
         redContours.clear();
-        topY = new Point(0, 800);
-        rightX = new Point();
+        sortedRedContours.clear();
 
         return input;
     }
 
-    public Point createRotatedRectFromTopLeft(Point topLeft, Size size, double angle) {
-        double radians = Math.toRadians(angle);
-
-        double centerX = topLeft.x + (size.width / 2) * Math.cos(radians) - (size.height / 2) * Math.sin(radians);
-        double centerY = topLeft.y + (size.width / 2) * Math.sin(radians) + (size.height / 2) * Math.cos(radians);
-        Point center = new Point(centerX, centerY);
-
-        return center;
+    public static Point findCentroid(List<Point> points) {
+        double sumX = 0;
+        double sumY = 0;
+        for (Point p : points) {
+            sumX += p.x;
+            sumY += p.y;
+        }
+        return new Point(sumX / points.size(), sumY / points.size());
     }
 
-    public double getHypot(Point one, Point two){
-        double deltaX = Math.abs(one.x - two.x);
-        double deltaY = Math.abs(one.y - two.y);
-        return Math.hypot(deltaY, deltaX);
+
+    public static List<Point> findInwardPointsForRectangle(List<Point> contour, double inwardDistance) {
+        List<Point> inwardPoints = new ArrayList<>();
+        int size = contour.size();
+
+        for (int i = 0; i < size; i++) {
+            // Get the current point and the next point (to form a line segment)
+            Point p1 = contour.get(i);                      // Current point
+            Point p2 = contour.get((i + 1) % size);         // Next point (with wrap-around)
+
+            // Calculate the direction vector of the side (p2 - p1)
+            Point sideVector = new Point(p2.x - p1.x, p2.y - p1.y);
+
+            // Calculate the normal vector (perpendicular to the side)
+            Point inwardNormal = new Point(-sideVector.y, sideVector.x);
+            double length = Math.sqrt(inwardNormal.x * inwardNormal.x + inwardNormal.y * inwardNormal.y);
+
+            // Normalize the normal vector
+            inwardNormal.x /= length;
+            inwardNormal.y /= length;
+
+            // Move both p1 and p2 inward by the specified distance along the normal
+            Point inwardP1 = new Point(
+                    p1.x + inwardDistance * inwardNormal.x,
+                    p1.y + inwardDistance * inwardNormal.y
+            );
+            Point inwardP2 = new Point(
+                    p2.x + inwardDistance * inwardNormal.x,
+                    p2.y + inwardDistance * inwardNormal.y
+            );
+
+            // Ensure the inward points remain inside the contour
+            if (isPointInContour(inwardP1, contour)) {
+                inwardPoints.add(inwardP1);
+            }
+            if (isPointInContour(inwardP2, contour)) {
+                inwardPoints.add(inwardP2);
+            }
+        }
+
+        return inwardPoints;
+    }
+
+    /**
+     * Checks if a point is inside the contour using point polygon test.
+     *
+     * @param point The point to check.
+     * @param contour The contour represented as a list of points.
+     * @return True if the point is inside the contour, false otherwise.
+     */
+    private static boolean isPointInContour(Point point, List<Point> contour) {
+        // Convert the contour to an array of Point2f for OpenCV
+        Point[] contourArray = contour.toArray(new Point[0]);
+        return Imgproc.pointPolygonTest(new MatOfPoint2f(contourArray), point, false) >= 0;
+    }
+
+    /**
+     * Detects the target points based on inward points from all sides of a rectangle.
+     *
+     * @param contour The list of points representing the rectangular contour.
+     * @param inwardDistance The distance to move inward from each side.
+     * @return The list of inward points that remain inside the contour.
+     */
+    public static List<Point> detectTargetPoints(List<Point> contour, double inwardDistance) {
+        // Find inward points for the rectangle
+        return findInwardPointsForRectangle(contour, inwardDistance);
     }
 
 
 }
+

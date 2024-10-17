@@ -6,14 +6,15 @@ import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
-import static org.opencv.imgproc.Imgproc.findContours;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -26,11 +27,9 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class SampleTargeting  implements VisionProcessor {
+public class SampleTargeting_Sim implements VisionProcessor{
 
     Mat redMat = new Mat();
 
@@ -74,6 +73,12 @@ public class SampleTargeting  implements VisionProcessor {
     double singleMaxRatio = 2.6;
 
     double railTarget;
+
+    public boolean isRotate() {
+        return rotate;
+    }
+
+    boolean rotate = false;
 
     public double getSlidesDelta() {
         return slidesDelta;
@@ -120,11 +125,10 @@ public class SampleTargeting  implements VisionProcessor {
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-
     }
 
     @Override
-    public Object processFrame(Mat frame, long captureTimeNanos) {
+    public Object processFrame(Mat frame, long captureTimeNanos){
 
         Imgproc.cvtColor(frame, redMat, COLOR_RGB2HSV);
 
@@ -151,6 +155,8 @@ public class SampleTargeting  implements VisionProcessor {
         }
 
         if (!redContoursSingle.isEmpty()){
+
+            rotate = true;
 
             ArrayList<Point> centerPoints = new ArrayList<>();
 
@@ -183,9 +189,9 @@ public class SampleTargeting  implements VisionProcessor {
             boolean isWidthLonger = rectSize.width > rectSize.height;
 
             if (isWidthLonger) {
-                angle = angle + 90; // Add 90 degrees if height is the longer side
                 ratio = rotatedRect.size.width/rotatedRect.size.height;
             }else {
+                angle = angle + 90;
                 ratio = rotatedRect.size.height/rotatedRect.size.width;
             }
 
@@ -193,7 +199,7 @@ public class SampleTargeting  implements VisionProcessor {
                 angle -= 180; // Normalize to the range [-90, 90]
             }
 
-            angleRotate = angle;
+            angleRotate = -angle;
 
             center = new Point(cx, cy);
 
@@ -214,6 +220,8 @@ public class SampleTargeting  implements VisionProcessor {
             pointsAve.add(center);
 
         } else if (!redContoursMulti.isEmpty() && redContoursSingle.isEmpty()) {
+
+            rotate = true;
 
             for (int i = 0; i < redContoursMulti.size(); i++) {
 
@@ -248,14 +256,6 @@ public class SampleTargeting  implements VisionProcessor {
 
                 angleRotate = angle;
 
-                center = rectCenter;
-
-                double stuff = ((getHeight()-center.y) / pixelsToCmWidth);
-                double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 5.5;
-
-                railTarget = stuff-4;
-                slidesDelta = stuff2;
-
                 Point[] rectPoints = new Point[4];
                 Point[] rectPointsDraw = new Point[4];
                 rotatedRect.points(rectPoints);
@@ -281,7 +281,7 @@ public class SampleTargeting  implements VisionProcessor {
 
                 double slope = deltaY / deltaX;
 
-                angleRotate = slope;
+//                angleRotate = slope;
 
                 double hypot;
 
@@ -302,10 +302,6 @@ public class SampleTargeting  implements VisionProcessor {
                 }
 
                 Point deltaPoint = calculateDeltas(slope, (hypot/2)-60);
-
-                slidesDelta =  deltaPoint.x;
-
-//                angleRotate = hypot;
 
                 boolean isBottom = findIsBottom(rotatedRect, contourCenter);
 
@@ -443,16 +439,16 @@ public class SampleTargeting  implements VisionProcessor {
         red.setStyle(Paint.Style.STROKE);
         red.setStrokeWidth(scaleCanvasDensity * 4);
 
-        if (avCounter > 5){
+        if (avCounter >= 1){
             Point center = findAve(pointsAve, avCounter);
             canvas.drawCircle((float) center.x*scaleBmpPxToCanvasPx, (float) center.y*scaleBmpPxToCanvasPx, 4, red);
             avCounter = 0;
             pointsAve.clear();
 
             double stuff = ((getHeight()-center.y) / pixelsToCmWidth);
-            double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 5.5;
+            double stuff2 = ((getWidth() -  center.x) / pixelsToCmHeight)-((double) 46 /2) - 8;
 
-            railTarget = stuff-4;
+            railTarget = stuff-8;
             slidesDelta = stuff2;
 
         }
