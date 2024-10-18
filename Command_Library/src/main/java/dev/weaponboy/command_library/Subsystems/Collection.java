@@ -361,15 +361,15 @@ public class Collection extends SubSystem {
 //            resettingSlides = false;
 //        }
 
-        if(!slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 20){
-            extendoPower = -0.55;
-            resettingSlides = true;
-        }else if(slidesReset.isPressed() && resettingSlides){
-            extendoPower = -0.1;
-            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            resettingSlides = false;
-        }
+//        if(!slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 20){
+//            extendoPower = -0.55;
+//            resettingSlides = true;
+//        }else if(slidesReset.isPressed() && resettingSlides){
+//            extendoPower = -0.1;
+//            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            resettingSlides = false;
+//        }
 
         if (slidesReset.isPressed() && slideTarget == 0){
             extendoPower = 0;
