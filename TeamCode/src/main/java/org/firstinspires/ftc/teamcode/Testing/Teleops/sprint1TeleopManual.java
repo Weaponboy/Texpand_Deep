@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,7 +11,7 @@ import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
-public class FirstSprintOneDriver extends OpModeEX {
+public class sprint1TeleopManual extends OpModeEX {
 
     boolean transferring = false;
     ElapsedTime transferringWait = new ElapsedTime();
@@ -36,20 +35,20 @@ public class FirstSprintOneDriver extends OpModeEX {
     @Override
     public void loopEX() {
 
-        horizontal = -gamepad1.right_stick_x*0.5;
-        double lastHor = -lastGamepad1.right_stick_x*0.5;
+        horizontal = -gamepad2.right_stick_x*0.5;
+        double lastHor = -lastGamepad2.right_stick_x*0.5;
 
-        if (gamepad1.left_stick_x == 0 && Math.abs(horizontal) > 0){
+        if (gamepad2.left_stick_x == 0 && Math.abs(horizontal) > 0){
             if (Math.abs(horizontal) > 0 && lastHor == 0){
                 lastHeading = odometry.Heading();
             }
             turnPower = -driveBase.headindingLockMotorPower(lastHeading - odometry.Heading());
         }else {
-            turnPower = -gamepad1.left_stick_x*0.5;
+            turnPower = -gamepad2.left_stick_x*0.5;
         }
 
         // drive base code
-        driveBase.queueCommand(driveBase.drivePowers(-gamepad1.right_stick_y*0.5, turnPower, -gamepad1.right_stick_x*0.5));
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad2.right_stick_y*0.5, turnPower, -gamepad2.right_stick_x*0.5));
 
 
         /**
@@ -65,7 +64,8 @@ public class FirstSprintOneDriver extends OpModeEX {
          * */
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.horizontalMotor.getCurrentPosition() < 50){
             collection.setSlideTarget(18);
-            collection.camera.execute();
+//            collection.camera.execute();
+            collection.queueCommand(collection.collect);
             rotateTarget = 90;
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
             collection.queueCommand(collection.collect);
@@ -77,20 +77,10 @@ public class FirstSprintOneDriver extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-0.4);
         }
 
-        if (currentGamepad1.right_stick_x < 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
-            collection.setRailTargetPosition(collection.getRailPosition()-0.2);
-        }else if (currentGamepad1.right_stick_x > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
-            collection.setRailTargetPosition(collection.getRailPosition()+0.2);
-        }
-
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
             collection.queueCommand(collection.transfer);
             collection.setChamberCollect(false);
             rotateTarget = 90;
-        }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
-            collection.setClawsState(Collection.clawState.drop);
-            collection.setSlideTarget(collection.getSlideTarget()-12);
-            collection.queueCommand(collection.autoCollect);
         }
 
         if (gamepad1.left_stick_x > 0){
@@ -105,16 +95,6 @@ public class FirstSprintOneDriver extends OpModeEX {
 
         if(currentGamepad1.b && !lastGamepad1.b){
             collection.setNestState(Collection.Nest.specimen);
-        }
-
-        if (currentGamepad1.y && !lastGamepad1.y) {
-            collection.queueCommand(collection.autoCollect);
-            collection.setChamberCollect(true);
-        }
-
-        if (currentGamepad1.a && !lastGamepad1.a){
-            collection.queueCommand(collection.autoCollect);
-            collection.setChamberCollect(false);
         }
 
         /**
@@ -136,21 +116,17 @@ public class FirstSprintOneDriver extends OpModeEX {
             delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
         }
 
-//        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10){
-//            delivery.queueCommand(delivery.transfer);
-//        }
-
-//        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.drop){
-//            collection.setClawsState(Collection.clawState.grab);
-//        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.grab){
-//            collection.setClawsState(Collection.clawState.drop);
-//        }
+        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10 && delivery.fourbarState == Delivery.fourBarState.behindNest){
+            delivery.queueCommand(delivery.transfer);
+        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
         telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition()/(2250/65));
+        telemetry.addData("collection  slides velo ", collection.horizontalMotor.getVelocity());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
+        telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("nest sensor", collection.nestSensor.isPressed());
         telemetry.addData("claw sensor", collection.clawSensor.isPressed());
         telemetry.update();
