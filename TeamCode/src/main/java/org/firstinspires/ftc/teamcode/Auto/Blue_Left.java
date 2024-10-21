@@ -1,20 +1,19 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Examples.Pathing_Example;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
-import dev.weaponboy.command_library.Subsystems.Collection2;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-import dev.weaponboy.nexus_pathing.PathGeneration.pathBuilder;
+
 @Autonomous(name = "Blue Left", group = "Test Autos")
 public class Blue_Left extends OpModeEX {
 
@@ -25,11 +24,8 @@ public class Blue_Left extends OpModeEX {
     boolean drop;
     ElapsedTime dropTimer=new ElapsedTime();
     boolean collect;
-    boolean collectdrop;
-    boolean collectDropDown;
-    boolean collectionDone;
+    boolean autoQueued;
     ElapsedTime collectTimer=new ElapsedTime();
-
 
     public enum autoState{
         preload,
@@ -47,48 +43,52 @@ public class Blue_Left extends OpModeEX {
     public enum targetAuto{
         preload,
         spikes,
-        sub,
+        sub
     }
-
 
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public targetAuto size = targetAuto.preload;
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(339, 202), new Vector2D(290.3, 240.5), new Vector2D(331, 320)),
-
+            () -> paths.addPoints(new Vector2D(339, 263), new Vector2D(282, 272), new Vector2D(330, 319.5)),
     };
 
     private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(300, 315.4), new Vector2D(270, 296)),
-
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(300, 315.4), new Vector2D(275, 294)),
     };
+
     private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(325.3, 324)),
-
     };
+
     private final sectionBuilder[] spike2Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(311.7, 333.7), new Vector2D(267, 330.2)),
-
     };
+
     private final sectionBuilder[] spike2Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(325.3, 324)),
-
     };
+
     private final sectionBuilder[] spike3Pickup = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(246.7, 331.2)),
-
     };
+
     private final sectionBuilder[] spike3Drop = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(325.3, 324)),
-
     };
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
+    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+
     @Override
     public void initEX() {
 
+        FtcDashboard.getInstance().startCameraStream(collection.sampleSorter, 30);
 
-        odometry.startPosition(339, 202, 270);
+        odometry.startPosition(339, 263, 270);
 
         paths.addNewPath("preloadPath");
 
@@ -190,7 +190,7 @@ public class Blue_Left extends OpModeEX {
             }
 
 
-            if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>4000){
+            if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>3500){
 
                 delivery.queueCommand(delivery.deposit);
 
@@ -225,34 +225,28 @@ public class Blue_Left extends OpModeEX {
                 follow.setPath(paths.returnPath("spike1Pickup"));
                 targetHeading = 180;
                 built = building.built;
-                collection.queueCommand(collection.collect);
-                collection.griperRotate.setPosition(90);
-                collectDropDown = true;
+//                collection.camera.execute();
+                collection.griperRotate.setPosition(135);
+
+                autoQueued = false;
             }
 
-            if (collect && collectTimer.milliseconds()>2000){
-                collection.queueCommand(collection.transfer);
-                collect=false;
-            }
+//            if (collect&&collectTimer.milliseconds()>4000){
+//                collection.queueCommand(collection.transfer);
+//                collect=false;
+//                collectionDone = true;
+//            }
 
-            if (collection.getFourBarState() == Collection2.fourBar.transferUp && !collect && collectTimer.milliseconds()>4000){
-                collectionDone = true;
-            }
-
-            if (follow.isFinished() && collectionDone){
+            if (follow.isFinished() && !collection.nestSensor.isPressed()){
 
                 state = autoState.delivering;
                 built = building.notBuilt;
-                collectionDone = false;
+//                collectionDone = false;
 
-            }else if (follow.isFinished() && collectDropDown){
-
-                collectDropDown=false;
-                collect=true;
-                collectTimer.reset();
-                collection.griperRotate.setPosition(90);
-                collection.queueCommand(collection.collect);
-
+            } else if (follow.isFinished() && !autoQueued){
+//                collection.griperRotate.setPosition(135);
+                collection.queueCommand(collection.autoCollect);
+                autoQueued = true;
             }
 
 
@@ -272,7 +266,7 @@ public class Blue_Left extends OpModeEX {
 
             if (follow.isFinished()){
 
-                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>4000){
+                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit && drop && dropTimer.milliseconds()>3500){
 
                     delivery.queueCommand(delivery.deposit);
 
@@ -285,7 +279,7 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size==targetAuto.spikes&&cycles<1.1&&collection.horizontalMotor.getCurrentPosition()<10){
+                if (size==targetAuto.spikes&&cycles<1.1&&delivery.slideMotor.getCurrentPosition()<10&&delivery.getCurrentCommand() != delivery.followMotionPro&&delivery.fourbarState == Delivery.fourBarState.behindNest){
 
                     state=autoState.finished;
 

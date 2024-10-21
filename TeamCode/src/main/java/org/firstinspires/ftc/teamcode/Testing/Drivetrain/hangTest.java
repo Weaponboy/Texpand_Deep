@@ -9,15 +9,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 @TeleOp
 public class hangTest extends OpMode {
-    CRServo hang1;
-    CRServo hang2;
+    Servo hang1;
+    Servo hang2;
     @Override
     public void init() {
-        hang1=hardwareMap.get(CRServo.class,"hang1");
-        hang2=hardwareMap.get(CRServo.class,"hang2");
+        hang1=hardwareMap.get(Servo.class,"hang1");
+        hang2=hardwareMap.get(Servo.class,"hang2");
 
-        hang1.setPower(0);  // ensure power is explicitly set to 0 after initialization
-        hang2.setPower(0);
+        hang1.setPosition(0.5);  // ensure power is explicitly set to 0 after initialization
+        hang2.setPosition(0.5);
 
 //        hang1.setDirection(CRServo.Direction.REVERSE);
 
@@ -27,24 +27,24 @@ public class hangTest extends OpMode {
             throw new RuntimeException(e);
         }
 
-        hang1.setPower(0);  // ensure power is explicitly set to 0 after initialization
-        hang2.setPower(0);  // ensure power is explicitly set to 0 after initialization
+        hang1.setPosition(0.5);  // ensure power is explicitly set to 0 after initialization
+        hang2.setPosition(0.5);  // ensure power is explicitly set to 0 after initialization
 
     }
 
     @Override
     public void loop() {
         if (gamepad1.y){
-            hang1.setPower(-1);
-            hang2.setPower(1);
+            hang1.setPosition(0);
+            hang2.setPosition(0);
 
         }else if (gamepad1.b){
-            hang1.setPower(1);
-            hang2.setPower(-1);
+            hang1.setPosition(1);
+            hang2.setPosition(1);
 
         }else {
-            hang1.setPower(0);
-            hang2.setPower(0);
+            hang1.setPosition(0.5);
+            hang2.setPosition(0.5);
         }
 //        telemetry.addData("pos", hang1.getPosition());
 

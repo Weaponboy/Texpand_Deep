@@ -88,6 +88,7 @@ public class motionProfile {
             if (lastIndex - time.size() < 0){
                 lastIndex++;
             }
+
             if (targetPosition > this.startPosition){
                 System.out.println("in first if: " + lastIndex);
                 while (positions.get(lastIndex-time.size()) < this.currentPosition){
@@ -108,6 +109,8 @@ public class motionProfile {
                     }
                 }
             }
+
+
         }else {
 
             while (time.get(lastIndex) < currentTime.milliseconds()) {

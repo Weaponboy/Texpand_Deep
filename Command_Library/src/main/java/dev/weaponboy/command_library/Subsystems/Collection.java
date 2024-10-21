@@ -1,76 +1,134 @@
 package dev.weaponboy.command_library.Subsystems;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.ArrayList;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
+import dev.weaponboy.command_library.CommandLibrary.Commands.Execute;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
-import dev.weaponboy.command_library.Hardware.collectionTarget;
 import dev.weaponboy.command_library.Hardware.motionProfile;
+import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
+import dev.weaponboy.vision.SamplePipelines.SampleTargeting;
 
-public class Collection extends SubSystem{
+public class Collection extends SubSystem {
 
-    //motion profile
-    motionProfile profile = new motionProfile(1400, 140, 54, 1720, 0.15);
+    public SampleTargeting sampleSorter = new SampleTargeting();
+    public VisionPortal portal;
+    WebcamName closeAim;
+    ElapsedTime autoCollectTimer = new ElapsedTime();
+    double cameraWaitTime;
 
-    /**
-     * linear rail constants
-     * */
-    double currentRailPosition;
-    double railTargetPosition;
-    public double currentAxonWirePos;
-    double lastAxonWirePos;
-    final double spoolSize = 3.6; //in cm
-    double railTimeToPosition;
-    double rotationsForFullTravel = 20/(spoolSize*Math.PI);
-    double timeForFullRotation = 400; // in ms
-    double timePerCM = (rotationsForFullTravel*timeForFullRotation)/20;
-    ElapsedTime railTime = new ElapsedTime();
-    boolean runningToPosition = false;
+    boolean rotateWhileCollecting;
 
-    double waitForTransfer;
-    double timePerDegree = (double) 720 /360;
-    ElapsedTime initialTransfer = new ElapsedTime();
+    enum targeting{
+        camera,
+        detecting,
+        movingToTargeting,
+        targeting,
+        collecting,
+        transferring
+    }
 
-    /**
-     * transfer constants
-     * */
-    ElapsedTime transferTime = new ElapsedTime();
-    boolean transferHappening = false;
-    double gripperWaitTime = 500;
+    targeting targetingState = targeting.camera;
+    targeting targetTargetingState = targeting.camera;
 
-    /**
-     * Motor and servos
-     * */
+    // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
+    motionProfile profile = new motionProfile(508, 100, 35, 440, 0.15);
 
+    //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
     public ServoDegrees griperRotate= new ServoDegrees();
     public ServoImplEx gripServo;
-    public Servo linerRailServo;
+    public ServoDegrees linerRailServo=new ServoDegrees();
     public ServoDegrees nest = new ServoDegrees();
+
+    public TouchSensor nestSensor;
+    public TouchSensor clawSensor;
+
+    public TouchSensor slidesReset;
+
+    /**
+     * linear rail constants
+     * */
+    double railTargetPosition;
+    boolean sensorTransfer = true;
+
+    public boolean isSensorTransfer() {
+        return sensorTransfer;
+    }
+
+    public void setSensorTransfer(boolean sensorTransfer) {
+        this.sensorTransfer = sensorTransfer;
+    }
+
+    /**
+     * servo time per degrees
+     * */
+    double axonMaxTime = (double) 750 / 360;
+    double microRoboticTime = (double) 900 / 360;
+    double gripperOpenTime = 400;
+
+    public boolean getChamberCollect() {
+        return chamberCollectBool;
+    }
+
+    public void setChamberCollect(boolean chamberCollectBool) {
+        this.chamberCollectBool = chamberCollectBool;
+    }
+
+    boolean chamberCollectBool = false;
 
     public AxonEncoder linearPosition = new AxonEncoder();
 
+    /**states*/
     public enum fourBar{
         preCollect,
         collect,
+        rotateBack,
         dropNest,
+        transferringStates,
+        transferUp,
+        aboveNest,
+        collectChamber,
+        stowed,
+        transferInt
+    }
+
+    public enum collection{
+        collecting,
         transferring,
         stowed
+    }
+
+    public enum slideState{
+        manuel,
+        profile
+    }
+
+    public enum clawState{
+        drop,
+        grab,
+        slightRelease
     }
 
     public enum Nest{
@@ -78,32 +136,191 @@ public class Collection extends SubSystem{
         specimen
     }
 
-    public enum slideState{
-        moving,
-        manuel
-    }
+    /**
+     * collect position values
+     * */
+    double mainPivotCollect = 93;
+    double secondPivotCollect = 10;
 
-    public enum gripper{
-        drop,
-        grab
-    }
+    /**
+     * preCollect position values
+     * */
+    double mainPivotPreCollect = 116;
+    double secondPivotPreCollect = 40;
+    double rotatePreCollect = 90;
 
-    private slideState slidesState = slideState.manuel;
-    private gripper gripperState = gripper.drop;
-    public fourBar collectionState = fourBar.stowed;
+    /**
+     * transfer up position values
+     * */
+    double mainPivotTransferUp = 154;
+    double secondPivotTransferUp = 175;
+
+    /**
+     * stowed position values
+     * */
+    double mainPivotStow = 165;
+    double secondPivotStow = 195;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotTransInt = 90;
+    double secondPivotTransInt = 140;
+    double railTargetTransInt = 9.2;
+    double rotateTransInt = 180;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotCamera = 170;
+    double secondPivotCamera = 118;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotAboveNest = 185;
+    double secondPivotAboveNest = 200;
+
+    /**
+     * drop nest position values
+     * */
+    double mainPivotPlaceNest = 200;
+    double secondPlaceNest = 215;
+    double rotatePlaceNest = 90;
+
+    /**
+     * stow position values
+     * */
+    double mainPivotChamberCollect = 145;
+    double secondPivotChamberCollect = 70;
+    double rotateChamberCollect = 90;
+
+    /**
+     * drop nest above position values
+     * */
+    double mainPivotDropNestPull = 170;
+    double secondDropNestPull = 210;
+    double rotateDropNestPull = 90;
+
+    ElapsedTime fourBarTimer = new ElapsedTime();
+    double transferWaitTime;
+
+    boolean autoCollecting = false;
+
+    /**enum states*/
     private Nest nestState = Nest.sample;
+    private fourBar fourBarState = fourBar.transferUp;
+    private fourBar fourBarTargetState = fourBar.transferUp;
+    private collection collectionState = collection.stowed;
+    private slideState slidesState = slideState.manuel;
 
-    double armLength = 9.6;
-    double mainPivotHeight = 12.4;
+    public clawState getClawsState() {
+        return clawsState;
+    }
 
-    collectionTarget target = new collectionTarget();
-    double lastClawY = 0;
-    double currentClawY = 0;
+    public void setClawsState(clawState clawsState) {
+        this.clawsState = clawsState;
+    }
 
-    public final int maxSlideExtension = 640;
+    private clawState clawsState = clawState.drop;
+
+    PIDController adjustment = new PIDController(0.008, 0, 0.0005);
+
+    public void setSlideTarget(double slideTarget) {
+        if (slideTarget < 0){
+            this.slideTarget = 0;
+        }else {
+           this.slideTarget = slideTarget;
+        }
+
+
+    }
+
+    boolean cancelTransfer = false;
+
+    public double getSlideTarget() {
+        return slideTarget;
+    }
+
+    double slideTarget;
+
+    double slideI;
+
+    boolean autoCollected = false;
 
     public Collection(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX, holdPosition);
+        registerSubsystem(opModeEX, defaultCommand);
+    }
+
+    static FileWriter fWriter;
+
+    ElapsedTime slidesResetTimer = new ElapsedTime();
+    boolean resettingSlides = false;
+
+    static {
+        try {
+            fWriter = new FileWriter("/sdcard/railLogs.txt");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public void init() {
+        horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
+
+        fourBarMainPivot.initServo("fourBarMainPivot", getOpModeEX().hardwareMap);
+        fourBarSecondPivot.initServo("fourBarSecondPivot", getOpModeEX().hardwareMap);
+        griperRotate.initServo("gripperRotate", getOpModeEX().hardwareMap);
+        gripServo = getOpModeEX().hardwareMap.get(ServoImplEx.class, "gripServo");
+        linerRailServo.initServo("linearRailServo", getOpModeEX().hardwareMap);
+        nest.initServo("nest", getOpModeEX().hardwareMap);
+        linearPosition.init(getOpModeEX().hardwareMap, "axon2");
+
+        clawSensor = getOpModeEX().hardwareMap.get(TouchSensor.class, "clawIR");
+        nestSensor = getOpModeEX().hardwareMap.get(TouchSensor.class, "nestIR");
+
+        fourBarMainPivot.setRange(335);
+        fourBarSecondPivot.setRange(335);
+        linerRailServo.setRange(1800);
+        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 270);
+        gripServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        nest.setRange(new PwmControl.PwmRange(500, 2500), 270);
+
+        slidesReset = getOpModeEX().hardwareMap.get(TouchSensor.class, "CollectionReset");
+
+        closeAim = getOpModeEX().hardwareMap.get(WebcamName.class, "webcam");
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        builder.setCamera(closeAim);
+        builder.addProcessor(sampleSorter);
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
+        builder.setCameraResolution(new Size(sampleSorter.getWidth(), sampleSorter.getHeight()));
+        portal = builder.build();
+
+        profile.isVertical(false);
+
+        fourBarMainPivot.setDirection(Servo.Direction.REVERSE);
+        fourBarMainPivot.setOffset(36);
+
+//        fourBarMainPivot.setPosition(90);
+//        fourBarSecondPivot.setPosition(100);
+
+        nest.setDirection(Servo.Direction.REVERSE);
+        nest.setOffset(5);
+        nest.setPosition(135);
+
+        griperRotate.setDirection(Servo.Direction.REVERSE);
+        griperRotate.setOffset(-10);
+        griperRotate.setPosition(90);
+
+        gripServo.setPosition(0.4);
+
+        Stowed.execute();
+
+        //max left = 570
+        //max right = 1340
+        linerRailServo.setDirection(Servo.Direction.REVERSE);
+        linerRailServo.setPosition(900);
+
     }
 
     @Override
@@ -111,9 +328,55 @@ public class Collection extends SubSystem{
 
         executeEX();
 
-        horizontalMotor.update(extendoPower);
+        if (fourBarState == fourBar.collect && !clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
+            if (getChamberCollect()){
+                queueCommand(chamberCollect);
+            }else {
+                queueCommand(transfer);
+            }
 
-        updateRailPosition();
+            autoCollected = true;
+        } else if (autoCollected && fourBarState == fourBar.transferUp) {
+            autoCollected = false;
+        }
+
+        double ticksPerCM = (double) 440 /35;
+        double error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
+
+        System.out.println("error PID" + error);
+
+//        if(!slidesReset.isPressed() && slideTarget <= 0 && horizontalMotor.getVelocity() < 20){
+//            slideTarget -= 0.5;
+//        } else if(slidesReset.isPressed() && slideTarget < 0 && horizontalMotor.getVelocity() < 20) {
+//            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            slidesResetTimer.reset();
+//            resettingSlides = true;
+//            extendoPower = 0;
+//        }
+//
+//        if (slidesResetTimer.milliseconds() > 300 && resettingSlides){
+//            slideTarget = 0;
+//            extendoPower = 0;
+//            resettingSlides = false;
+//        }
+
+//        if(!slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 20){
+//            extendoPower = -0.55;
+//            resettingSlides = true;
+//        }else if(slidesReset.isPressed() && resettingSlides){
+//            extendoPower = -0.1;
+//            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            resettingSlides = false;
+//        }
+
+        if (slidesReset.isPressed() && slideTarget == 0){
+            extendoPower = 0;
+        }else if (error > 2 && !resettingSlides){
+            extendoPower = adjustment.calculate((slideTarget*ticksPerCM) ,  horizontalMotor.getCurrentPosition());
+            System.out.println("extendoPower PID" + extendoPower);
+        }
 
         if (nestState == Nest.sample){
             nest.setPosition(135);
@@ -121,300 +384,674 @@ public class Collection extends SubSystem{
             nest.setPosition(45);
         }
 
-        if (gripperState == gripper.grab){
-            gripServo.setPosition(0.5);
-            if (collectionState == fourBar.collect){
-                transferTime.reset();
-                transferHappening = true;
+        if (clawsState == clawState.grab){
+            gripServo.setPosition(0.15);
+        } else if (clawsState == clawState.drop) {
+            gripServo.setPosition(0.8);
+        } else if (clawsState == clawState.slightRelease) {
+            gripServo.setPosition(0.495);
+        }
+
+        horizontalMotor.update(extendoPower);
+        horizontalMotor.updateVelocity();
+    }
+
+    private final Command preCollect = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPreCollect);
+                fourBarSecondPivot.setPosition(secondPivotPreCollect);
+//                griperRotate.setPosition(rotatePreCollect);
+                clawsState = clawState.drop;
             }
-        } else if (gripperState == gripper.drop) {
-            gripServo.setPosition(0);
-        }
+    );
 
-        if (transferTime.milliseconds() > gripperWaitTime && transferHappening){
-            queueCommand(transfer);
-            transferHappening = false;
-        }
+    private final Command Collect = new Execute(
+            () -> {
+                System.out.println("Running collect command");
 
-    }
+                fourBarMainPivot.setPosition(mainPivotCollect);
+                fourBarSecondPivot.setPosition(secondPivotCollect);
+            }
+    );
 
-    @Override
-    public void init() {
+    private final Command transferUp = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotTransferUp);
+                fourBarSecondPivot.setPosition(secondPivotTransferUp);
+            }
+    );
 
-        horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
+    private final Command AboveNest = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotAboveNest);
+                fourBarSecondPivot.setPosition(secondPivotAboveNest);
+            }
+    );
 
-        fourBarMainPivot.initServo("fourBarMainPivot", getOpModeEX().hardwareMap);
-        fourBarSecondPivot.initServo("fourBarSecondPivot", getOpModeEX().hardwareMap);
-        griperRotate.initServo("gripperRotate", getOpModeEX().hardwareMap);
-        gripServo = getOpModeEX().hardwareMap.get(ServoImplEx.class, "gripServo");
-        linerRailServo  = getOpModeEX().hardwareMap.get(ServoImplEx.class, "linearRailServo");
-        nest.initServo("nest", getOpModeEX().hardwareMap);
-        linearPosition.init(getOpModeEX().hardwareMap, "axon2");
+    private final Command Stowed = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotStow);
+                fourBarSecondPivot.setPosition(secondPivotStow);
+            }
+    );
 
-        fourBarMainPivot.setRange(335);
-        fourBarSecondPivot.setRange(new PwmControl.PwmRange(500, 2500), 270);
-        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 270);
-        gripServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
-        nest.setRange(new PwmControl.PwmRange(500, 2500), 270);
+    private final Command dropNest = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotPlaceNest);
+                fourBarSecondPivot.setPosition(secondPlaceNest);
+                griperRotate.setPosition(rotatePlaceNest);
+            }
+    );
 
-        profile.isVertical(false);
+    public final Command pullOut = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotDropNestPull);
+                fourBarSecondPivot.setPosition(secondDropNestPull);
+                griperRotate.setPosition(rotateDropNestPull);
+            }
+    );
 
-        fourBarMainPivot.setDirection(Servo.Direction.REVERSE);
-        fourBarMainPivot.setOffset(36);
+    private final Command transInt = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotTransInt);
+                fourBarSecondPivot.setPosition(secondPivotTransInt);
+                griperRotate.setPosition(rotateTransInt);
+//                setClawsState(clawState.slightRelease);
+            }
+    );
 
-        nest.setDirection(Servo.Direction.REVERSE);
-        nest.setOffset(5);
+    public final Command camera = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotCamera);
+                fourBarSecondPivot.setPosition(secondPivotCamera);
+                griperRotate.setPosition(rotatePreCollect);
+            }
+    );
 
-        griperRotate.setOffset(-10);
-        griperRotate.setPosition(135);
+    public final Command ChamberCollect = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotChamberCollect);
+                fourBarSecondPivot.setPosition(secondPivotChamberCollect);
+                griperRotate.setPosition(rotateChamberCollect);
+            }
+    );
 
-        stow.execute();
-
-    }
-
-    public Command kinModel(collectionTarget target){
-        this.target = target;
-        return kinModel;
-    }
-
-    public Command kinModel = new LambdaCommand(
+    public Command defaultCommand = new LambdaCommand(
             () -> {},
             () -> {
-                double mainAngle = 0;
-                double secondAngle = 0;
-                double railTarget = 0;
-                lastClawY = currentClawY;
-
-                double secondPivotHeight = target.getZ() + armLength;
-
-                if (secondPivotHeight > mainPivotHeight){
-                    mainAngle = Math.toRadians(90) + (Math.toRadians(90) - (Math.acos((secondPivotHeight - mainPivotHeight) / armLength)));
-                }else if (secondPivotHeight < mainPivotHeight){
-                    mainAngle = Math.acos((secondPivotHeight - mainPivotHeight) / armLength);
-                }
-
-                currentClawY = armLength * Math.sin(mainAngle);
-                secondAngle = 180 - Math.toDegrees(mainAngle);
-
-                double targetPosition = currentClawY - lastClawY;
-                //spool ==40mm
-                // cir 12.56cm
-
-                fourBarMainPivot.setPosition(mainAngle);
-                fourBarSecondPivot.setPosition(secondAngle);
-
-
+//                if (horizontalMotor.getCurrentPosition() < 40){
+//                    extendoPower = 0;
+//                }else if (horizontalMotor.getCurrentPosition() > 40){
+//                    extendoPower = 0.01;
+//                }
             },
             () -> true
     );
 
-    public Command holdPosition = new LambdaCommand(
-            () -> {},
-            () -> {
-                if (horizontalMotor.getCurrentPosition() < 40){
-                    extendoPower = 0;
-                }else if (horizontalMotor.getCurrentPosition() > 40){
-                    extendoPower = 0.01;
-                }
-            },
-            () -> true
-    );
+    public Command collect(double slideTarget){
+//        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
+//        slidesState = slideState.profile;
+        this.slideTarget = slideTarget;
+        return collect;
+    }
 
-    public  Command init = new LambdaCommand(
-            () -> {
-            },
-            () -> {
-                fourBarMainPivot.setPosition(160);
-                fourBarSecondPivot.setPosition(128);
-                griperRotate.setPosition(130);
-            },
-            () -> true
-    );
+    public Command cameraSetPoint(double slideTarget){
+//        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
+//        slidesState = slideState.profile;
+        this.slideTarget = slideTarget;
+        return camera;
+    }
 
-   public Command collect = new LambdaCommand(
-        () -> {},
-        () -> {
-            fourBarMainPivot.setPosition(96);
-            fourBarSecondPivot.setPosition(6);
-            collectionState = fourBar.collect;
-        },
-        () -> true
-    );
-
-    public Command dropNest = new LambdaCommand(
+    public Command collect = new LambdaCommand(
             () -> {},
             () -> {
 
-                fourBarMainPivot.setPosition(191);
-                fourBarSecondPivot.setPosition(189);
-                griperRotate.setPosition(45);
+                System.out.println("Running collect command FULL");
 
-                collectionState = fourBar.dropNest;
                 setNestState(Nest.sample);
 
+                if (fourBarState == fourBar.preCollect){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    Collect.execute();
+
+                } else if (fourBarState == fourBar.collect) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotTransferUp)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.preCollect;
+
+                    preCollect.execute();
+
+                }else if (!(fourBarState == fourBar.transferringStates)){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotTransferUp)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.preCollect;
+
+                    preCollect.execute();
+
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
             },
-            () -> true
+            () -> !(fourBarState == fourBar.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
     );
 
-    public Command stow = new LambdaCommand(
+    public Command autoCollect = new LambdaCommand(
             () -> {
-                initialTransfer.reset();
-                waitForTransfer = Math.abs(fourBarMainPivot.getPositionDegrees() - 175)*timePerDegree;
+                camera.execute();
+                setRailTargetPosition(9);
+                autoCollectTimer.reset();
+                targetingState = targeting.transferring;
+                targetTargetingState = targeting.camera;
+                cameraWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCamera)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotCamera)*(microRoboticTime+2));
             },
             () -> {
-                fourBarMainPivot.setPosition(175);
-                fourBarSecondPivot.setPosition(180);
 
-                if (initialTransfer.milliseconds() > waitForTransfer){
-                    griperRotate.setPosition(45);
-                    collectionState = fourBar.stowed;
+                setNestState(Nest.sample);
+
+                if (targetingState == targeting.camera){
+
+                    System.out.println("First Detect");
+
+                    autoCollectTimer.reset();
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.detecting;
+                    cameraWaitTime = 1000;
+
+                    sampleSorter.resetDetectionCounter();
+//                    clawsState = clawState.grab;
+
+                }else if (targetingState == targeting.detecting){
+                    System.out.println("First Movement");
+
+                    autoCollectTimer.reset();
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.movingToTargeting;
+                    cameraWaitTime = 1000;
+
+                    if (sampleSorter.getRailTarget() < 0){
+                        setRailTargetPosition(0);
+                    }else if (sampleSorter.getRailTarget() > 20){
+                        setRailTargetPosition(20);
+                    }else {
+                        setRailTargetPosition(sampleSorter.getRailTarget()-1);
+                    }
+
+                    double newSlidesTarget = slideTarget + sampleSorter.getSlidesDelta() + 5;
+
+                    if (newSlidesTarget < 0){
+//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = 0;
+                    }else if (newSlidesTarget > 35){
+//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+
+                        this.slideTarget = 35;
+                    }else {
+//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = newSlidesTarget;
+                    }
+
+                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
+
+                }else if (targetingState == targeting.movingToTargeting){
+
+                    System.out.println("Second Detect");
+
+                    autoCollectTimer.reset();
+                    cameraWaitTime = 1000;
+                    sampleSorter.resetAve();
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.targeting;
+
+                    sampleSorter.resetDetectionCounter();
+
+                } else if (targetingState == targeting.targeting){
+
+                    System.out.println("Second Movement");
+
+                    autoCollectTimer.reset();
+//                        cameraWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    cameraWaitTime = 500;
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.collecting;
+
+                    double railTarget = sampleSorter.getRailTarget()-11;
+                    railTarget = getRailPosition()+railTarget;
+
+                    if (railTarget < 0){
+                        setRailTargetPosition(0);
+                    }else if (railTarget > 20){
+                        setRailTargetPosition(20);
+                    }else {
+                        setRailTargetPosition(railTarget);
+                    }
+
+                    double newSlidesTarget = slideTarget + sampleSorter.getSlidesDelta();
+
+                    if (newSlidesTarget < 0){
+//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = 0;
+                    }else if (newSlidesTarget > 35){
+//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = 35;
+                    }else {
+//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = newSlidesTarget;
+                    }
+
+//                    if (newSlidesTarget > 0 && newSlidesTarget < 35){
+//                        if (collection.sampleSorter.getSlidesDelta() > 0){
+//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
+//                        }else {
+//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
+//                        }
+////                collection.queueCommand(collection.collect);
+//                    }
+
+                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
+
+                    preCollect.execute();
+                    fourBarState = fourBar.preCollect;
+                    rotateWhileCollecting = sampleSorter.isRotate();
+                    queueCommand(collect);
+                    rotateWhileCollecting = true;
+//                    autoCollecting = true;
+
                 }
+
+                if (targetingState == targeting.transferring && autoCollectTimer.milliseconds() > cameraWaitTime && targetTargetingState != targeting.detecting){
+                    targetingState = targetTargetingState;
+                }else if (targetingState == targeting.transferring && sampleSorter.getDetectionCounter() >= 2 && (targetTargetingState == targeting.detecting || targetTargetingState == targeting.movingToTargeting)){
+                    targetingState = targetTargetingState;
+                }
+
             },
-            () -> initialTransfer.milliseconds() > waitForTransfer
+            () -> targetingState == targeting.collecting
+    );
+
+    public Command autoCollectSingleDetect = new LambdaCommand(
+            () -> {
+                camera.execute();
+                setRailTargetPosition(9);
+                autoCollectTimer.reset();
+                targetingState = targeting.transferring;
+                targetTargetingState = targeting.camera;
+                cameraWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCamera)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotCamera)*(microRoboticTime+2));
+            },
+            () -> {
+
+                setNestState(Nest.sample);
+
+                if (targetingState == targeting.camera){
+
+                    autoCollectTimer.reset();
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.targeting;
+                    cameraWaitTime = 1000;
+
+                    sampleSorter.resetDetectionCounter();
+//                    clawsState = clawState.grab;
+
+                }else if (targetingState == targeting.targeting){
+
+                    autoCollectTimer.reset();
+//                        cameraWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    cameraWaitTime = 1000;
+                    targetingState = targeting.transferring;
+                    targetTargetingState = targeting.collecting;
+
+                    double railTarget = sampleSorter.getRailTarget()-10;
+                    railTarget = getRailPosition()+railTarget;
+
+                    if (railTarget < 0){
+                        setRailTargetPosition(0);
+                    }else if (railTarget > 20){
+                        setRailTargetPosition(20);
+                    }else {
+                        setRailTargetPosition(railTarget);
+                    }
+
+                    double newSlidesTarget = horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
+
+                    if (newSlidesTarget < 0){
+//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = 0;
+                    }else if (newSlidesTarget > 35){
+//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = 35;
+                    }else {
+//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
+//                        slidesState = slideState.profile;
+                        this.slideTarget = newSlidesTarget;
+                    }
+
+//                    if (newSlidesTarget > 0 && newSlidesTarget < 35){
+//                        if (collection.sampleSorter.getSlidesDelta() > 0){
+//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
+//                        }else {
+//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
+//                        }
+////                collection.queueCommand(collection.collect);
+//                    }
+
+                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
+
+                    preCollect.execute();
+                    fourBarState = fourBar.preCollect;
+                    rotateWhileCollecting = sampleSorter.isRotate();
+                    queueCommand(collect);
+//                    autoCollecting = true;
+
+                }
+
+                if (targetingState == targeting.transferring && autoCollectTimer.milliseconds() > cameraWaitTime && targetTargetingState != targeting.detecting){
+                    targetingState = targetTargetingState;
+                }else if (targetingState == targeting.transferring && sampleSorter.getDetectionCounter() >= 4 && (targetTargetingState == targeting.detecting || targetTargetingState == targeting.targeting)){
+                    targetingState = targetTargetingState;
+                }
+
+            },
+            () -> targetingState == targeting.collecting
     );
 
     public Command transfer = new LambdaCommand(
             () -> {
-                initialTransfer.reset();
-                waitForTransfer = Math.abs(fourBarSecondPivot.getPositionDegrees() - 190)*timePerDegree;
+//                if(horizontalMotor.getCurrentPosition() > 30){
+//                    profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
+//                }
+
+                cancelTransfer = false;
             },
             () -> {
-                fourBarMainPivot.setPosition(90);
-                fourBarSecondPivot.setPosition(190);
-                griperRotate.setPosition(135);
 
-                collectionState = fourBar.transferring;
+//                if (rotateWhileCollecting && fourBarState == fourBar.collect && clawsState == clawState.drop){
+//
+//                    fourBarTimer.reset();
+//                    transferWaitTime = 1000;
+//                    fourBarState = fourBar.transferringStates;
+//                    fourBarTargetState = fourBar.rotateBack;
+//
+//                    lastRotate = griperRotate.getPositionDegrees();
+//                    griperRotate.setPosition(lastRotate + 90);
+//
+//                }else if (rotateWhileCollecting && fourBarState == fourBar.rotateBack){
+//
+//                    fourBarTimer.reset();
+//                    transferWaitTime = 1000;
+//                    fourBarState = fourBar.transferringStates;
+//                    fourBarTargetState = fourBar.collect;
+//
+//                    rotateWhileCollecting = false;
+//
+//                    griperRotate.setPosition(lastRotate + 10);
+//
+//                }else
+//
 
-                if (initialTransfer.milliseconds() > waitForTransfer){
-                    queueCommand(stow);
+                if (autoCollecting && fourBarState == fourBar.collect && clawsState == clawState.grab){
+
+                    clawsState = clawState.drop;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 1000;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    fourBarMainPivot.setPosition(102);
+                    autoCollecting = false;
+
+                } else if (fourBarState == fourBar.collect && clawsState == clawState.drop){
+
+                    clawsState = clawState.grab;
+
+                    fourBarMainPivot.setPosition(92);
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 600;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                } else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransInt)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+                    setRailTargetPosition(railTargetTransInt);
+
+                } else if (fourBarState == fourBar.transferInt && !clawSensor.isPressed()) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotTransferUp)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                    slidesState = slideState.profile;
+                    setSlideTarget(0);
+                    transferUp.execute();
+                    setClawsState(clawState.grab);
+
+                } else if (fourBarState == fourBar.transferInt && clawSensor.isPressed()) {
+
+                    cancelTransfer = true;
+                    queueCommand(collect);
+
+                } else if (fourBarState == fourBar.transferUp && griperRotate.getPositionDegrees() > 160) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 500;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                    griperRotate.setPosition(rotatePlaceNest);
+
+                }else if (fourBarState == fourBar.transferUp && griperRotate.getPositionDegrees() < 100) {
+
+                    fourBarTimer.reset();
+//                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotAboveNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotAboveNest)*microRoboticTime);
+                    transferWaitTime = 400;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.aboveNest;
+//
+//                    fourBarSecondPivot.setPosition(170);
+
+                    clawsState = clawState.slightRelease;
+                    fourBarMainPivot.setPosition(mainPivotAboveNest);
+                    fourBarSecondPivot.setPosition(secondPivotAboveNest);
+
+                }else if (fourBarState == fourBar.aboveNest) {
+
+                    fourBarTimer.reset();
+//                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPlaceNest)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPlaceNest)*microRoboticTime);
+                    transferWaitTime = 200;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.dropNest;
+
+                    dropNest.execute();
+
+                }else if (fourBarState == fourBar.dropNest && (clawsState == clawState.grab || clawsState == clawState.slightRelease)) {
+
+                    clawsState = clawState.drop;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 400;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.dropNest;
+
+                    dropNest.execute();
+
+                }else if (fourBarState == fourBar.dropNest && clawsState == clawState.drop) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 90;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                    Stowed.execute();
+
+                }else if (fourBarState == fourBar.transferringStates) {
+
+                    if (fourBarTimer.milliseconds() > transferWaitTime){
+                        fourBarState = fourBarTargetState;
+                    }
+
                 }
+//                else if (fourBarState == fourBar.dropNest && clawsState == clawState.drop) {
+//
+//                    fourBarTimer.reset();
+//                    transferWaitTime = 350;
+//                    fourBarState = fourBar.transferringStates;
+//                    fourBarTargetState = fourBar.dropPullOut;
+//
+//                    pullOut.execute();
+//
+//                }
+
+
             },
-            () -> initialTransfer.milliseconds() > waitForTransfer
+            () -> (fourBarState == fourBar.transferUp && clawsState == clawState.drop) || cancelTransfer
     );
 
-   public Command camera = new LambdaCommand(
+
+    public Command chamberCollect = new LambdaCommand(
             () -> {},
             () -> {
-                fourBarMainPivot.setPosition(180);
-                fourBarSecondPivot.setPosition(120);
-                griperRotate.setPosition(90);
+
+                if (fourBarState == fourBar.collect && clawsState == clawState.drop){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 500;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    clawsState = clawState.grab;
+
+                }else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 500;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collectChamber;
+
+                    ChamberCollect.execute();
+
+                }else if (fourBarState == fourBar.transferringStates) {
+
+                    if (fourBarTimer.milliseconds() > transferWaitTime){
+                        fourBarState = fourBarTargetState;
+                    }
+
+                }
+
             },
-            () -> true
+            () -> fourBarState == fourBar.collectChamber
     );
 
-    public Command preCollect = new LambdaCommand(
+    public Command stow = new LambdaCommand(
             () -> {},
             () -> {
-                fourBarMainPivot.setPosition(109);
-                fourBarSecondPivot.setPosition(30);
-                griperRotate.setPosition(90);
-                collectionState = fourBar.preCollect;
-            },
-            () -> true
-    );
 
-    public LambdaCommand followMotionPro = new LambdaCommand(
-            () -> {},
-            ()-> {
-                extendoPower = profile.followProfile(horizontalMotor.getCurrentPosition());
-            },
-            ()-> profile.isSlideRunning()
-    );
+                if (fourBarState == fourBar.collect){
 
-    public void generateMotionProfile(double targetPosition){
-        profile.generateMotionProfile(targetPosition, horizontalMotor.getCurrentPosition());
-    }
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.preCollect){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.collectChamber){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+
+                    transInt.execute();
+
+                }else if (fourBarState == fourBar.dropNest) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotTransferUp)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                }else if (fourBarState == fourBar.transferInt) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotTransferUp)*axonMaxTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                    transferUp.execute();
+
+                } else if (fourBarState == fourBar.transferringStates) {
+
+                    if (fourBarTimer.milliseconds() > transferWaitTime){
+                        fourBarState = fourBarTargetState;
+                    }
+
+                    if (fourBarState == fourBar.transferUp){
+                        griperRotate.setPosition(rotatePlaceNest);
+                    }
+
+                }
+
+            },
+            () -> fourBarState == fourBar.transferUp
+    );
 
     public double getRailPosition() {
-        return currentRailPosition;
+        double degreesPerCM = (double) 720 / 20;
+        return (linerRailServo.getPositionDegrees() - 570)/degreesPerCM;
     }
 
     public void setRailTargetPosition(double targetPosition) {
         this.railTargetPosition = targetPosition;
-        runToPosition();
-        updateRailPosition();
-    }
+        double degreesPerCM = (double) 720 /20;
 
-    public void updateRailPosition(){
+        double servoTarget = 570+(degreesPerCM*targetPosition);
 
-        double lastPosition = currentRailPosition;
-        lastAxonWirePos = currentAxonWirePos;
-
-        currentAxonWirePos = linearPosition.getPosition();
-
-        double deltaPosition = currentAxonWirePos - lastAxonWirePos;
-        double realDelta;
-        double deltaCM;
-
-        double spoolSize = 10.676;
-        double cmPerDegree = spoolSize / 360;
-
-        System.out.println("Last rail: " + lastPosition);
-        System.out.println("currentRailPosition: " + currentRailPosition);
-        System.out.println("currentAxonWirePos: " + currentAxonWirePos);
-        System.out.println("lastAxonWirePos: " + lastAxonWirePos);
-
-        if ((lastAxonWirePos > 280 && currentAxonWirePos < 80) || (currentAxonWirePos > 280 && lastAxonWirePos < 80)){
-
-            if (deltaPosition > 0){
-
-                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
-                deltaCM = realDelta * cmPerDegree;
-                currentRailPosition += deltaCM;
-                System.out.println("realDelta > 0: " + realDelta);
-                System.out.println("deltaCM > 0: " + deltaCM);
-
-            } else if (deltaPosition < 0) {
-                realDelta = findRealDelta(lastAxonWirePos, currentAxonWirePos);
-                deltaCM = realDelta * cmPerDegree;
-                currentRailPosition -= deltaCM;
-
-                System.out.println("realDelta < 0: " + realDelta);
-                System.out.println("deltaCM < 0: " + deltaCM);
-            }
-
-        } else {
-            currentRailPosition += deltaPosition*cmPerDegree;
-
-            System.out.println("deltaPosition normal: " + deltaPosition);
-            System.out.println("deltaPosition*cmPerDegree: " + deltaPosition*cmPerDegree);
-        }
-
-        if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
-            linerRailServo.setPosition(0.5);
-            runningToPosition = false;
-        }
-
-    }
-
-    private void runToPosition(){
-
-        double delta = railTargetPosition - currentRailPosition;
-
-        railTimeToPosition = Math.abs(delta)*timePerCM;
-        railTime.reset();
-
-        if (delta > 0){
-            linerRailServo.setPosition(1);
+        if (servoTarget < 570){
+            linerRailServo.setPosition(570);
+        } else if (servoTarget > 1340) {
+            linerRailServo.setPosition(1340);
         }else {
-            linerRailServo.setPosition(0);
+            linerRailServo.setPosition(servoTarget);
         }
 
-        runningToPosition = true;
-
-//        if (Math.abs(delta) < 0.2){
-//            linerRailServo.setPosition(0.5);
-//            runningToPosition = false;
-//        }else if(Math.abs(delta) > 1 && !runningToPosition){
-//
-//
-//        }else if (railTime.milliseconds() >= railTimeToPosition && runningToPosition){
-//            linerRailServo.setPosition(0.5);
-//            runningToPosition = false;
-//        }
-
-        updateRailPosition();
     }
+
 
     private static double findRealDelta(double last, double current){
         double realDelta;
@@ -428,31 +1065,18 @@ public class Collection extends SubSystem{
         return realDelta;
     }
 
-    public void disableServos(){
-        fourBarMainPivot.disableServo();
-        fourBarSecondPivot.disableServo();
-        griperRotate.disableServo();
-        gripServo.getController().pwmDisable();
-        linerRailServo.getController().pwmDisable();
-        nest.disableServo();
+    public fourBar getFourBarState() {
+        return fourBarState;
     }
 
-    public void safePositions(){
-        fourBarMainPivot.setPosition(180);
-        fourBarSecondPivot.setPosition(160);
-        griperRotate.setPosition(135);
-        gripServo.setPosition(0.3);
-        linerRailServo.setPosition(0.5);
-        nest.setPosition(135);
+    public collection getCollectionState() {
+        return collectionState;
     }
 
-    public gripper getGripperState() {
-        return gripperState;
+    public Collection.slideState getSlideState() {
+        return slidesState;
     }
 
-    public void setGripperState(gripper gripperState) {
-        this.gripperState = gripperState;
-    }
 
     public Nest getNestState() {
         return nestState;
@@ -462,25 +1086,13 @@ public class Collection extends SubSystem{
         this.nestState = nestState;
     }
 
-    public fourBar getCollectionState() {
-        return collectionState;
+    public void disableServos(){
+        fourBarMainPivot.disableServo();
+        fourBarSecondPivot.disableServo();
+        griperRotate.disableServo();
+        gripServo.getController().pwmDisable();
+        linerRailServo.disableServo();
+        nest.disableServo();
     }
-
-    public void setCollectionState(fourBar collectionState) {
-        this.collectionState = collectionState;
-    }
-
-    public slideState getSlidesState() {
-        return slidesState;
-    }
-
-    public void xsetSlidesState(slideState slidesState) {
-        this.slidesState = slidesState;
-    }
-
-    public void setExtendoPower(double extendoPower) {
-        this.extendoPower = extendoPower;
-    }
-
 
 }
