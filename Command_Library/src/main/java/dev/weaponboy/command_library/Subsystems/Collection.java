@@ -345,33 +345,20 @@ public class Collection extends SubSystem {
 
         System.out.println("error PID" + error);
 
-//        if(!slidesReset.isPressed() && slideTarget <= 0 && horizontalMotor.getVelocity() < 20){
-//            slideTarget -= 0.5;
-//        } else if(slidesReset.isPressed() && slideTarget < 0 && horizontalMotor.getVelocity() < 20) {
-//            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            slidesResetTimer.reset();
-//            resettingSlides = true;
-//            extendoPower = 0;
-//        }
-//
-//        if (slidesResetTimer.milliseconds() > 300 && resettingSlides){
-//            slideTarget = 0;
-//            extendoPower = 0;
-//            resettingSlides = false;
-//        }
+        if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 10){
+            slideTarget = 0;
+            extendoPower = -0.4;
+            resettingSlides = true;
+        }else if (resettingSlides && slidesReset.isPressed() && slideTarget == 0){
+            slideTarget = 0;
+            extendoPower = 0;
+            resettingSlides = false;
 
-//        if(!slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 20){
-//            extendoPower = -0.55;
-//            resettingSlides = true;
-//        }else if(slidesReset.isPressed() && resettingSlides){
-//            extendoPower = -0.1;
-//            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            resettingSlides = false;
-//        }
+            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
 
-        if (slidesReset.isPressed() && slideTarget == 0){
+        if (slidesReset.isPressed() && slideTarget == 0 && !resettingSlides){
             extendoPower = 0;
         }else if (error > 2 && !resettingSlides){
             extendoPower = adjustment.calculate((slideTarget*ticksPerCM) ,  horizontalMotor.getCurrentPosition());
