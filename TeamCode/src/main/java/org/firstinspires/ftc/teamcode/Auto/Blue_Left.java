@@ -45,7 +45,12 @@ public class Blue_Left extends OpModeEX {
         spikes,
         sub
     }
-
+    public enum spikeState{
+        zero,
+        two,
+        three,
+    }
+    public spikeState spike = spikeState.zero;
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public targetAuto size = targetAuto.preload;
@@ -59,23 +64,23 @@ public class Blue_Left extends OpModeEX {
     };
 
     private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(325.3, 324)),
+            () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(330, 319.5)),
     };
 
     private final sectionBuilder[] spike2Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(311.7, 333.7), new Vector2D(267, 330.2)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(311.7, 333.7), new Vector2D(275, 320)),
     };
 
     private final sectionBuilder[] spike2Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(325.3, 324)),
+            () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(330, 319.5)),
     };
 
     private final sectionBuilder[] spike3Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(246.7, 331.2)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(225.5, 319.2)),
     };
 
     private final sectionBuilder[] spike3Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(325.3, 324)),
+            () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(330, 319.5)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -158,14 +163,14 @@ public class Blue_Left extends OpModeEX {
             size = targetAuto.spikes;
             cycles=2;
         }
-//        if (!lastGamepad1.x&& currentGamepad1.x){
-//            size = targetAuto.spikes;
-//            cycles=3;
-//            telemetry.addData("type",size);
-//            telemetry.addData("cycles",cycles);
-//            telemetry.update();
-//
-//        }
+        if (!lastGamepad1.x&& currentGamepad1.x){
+            size = targetAuto.spikes;
+            cycles=3;
+            telemetry.addData("type",size);
+            telemetry.addData("cycles",cycles);
+            telemetry.update();
+
+        }
 
         super.init_loop();
     }
@@ -245,7 +250,79 @@ public class Blue_Left extends OpModeEX {
 
             } else if (follow.isFinished() && !autoQueued){
 //                collection.griperRotate.setPosition(135);
-                collection.queueCommand(collection.autoCollect);
+                collection.queueCommand(collection.autoCollectSingleDetect);
+                autoQueued = true;
+            }
+
+
+        } else if ( state == autoState.delivering) {
+
+            if (built == building.notBuilt) {
+                delivery.queueCommand(delivery.transfer);
+                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+                delivery.queueCommand(delivery.deposit);
+                follow.setPath(paths.returnPath("spike1Drop"));
+                targetHeading = 225;
+                drop = true;
+                dropTimer.reset();
+                built = building.built;
+
+            }
+
+            if (follow.isFinished()) {
+
+                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && dropTimer.milliseconds() > 3500) {
+
+                    delivery.queueCommand(delivery.deposit);
+
+                    delivery.queueCommand(delivery.deposit);
+
+                    delivery.queueCommand(delivery.slideSetPonts(0));
+
+                    drop = false;
+
+                }
+
+
+                if (size == targetAuto.spikes && cycles < 1.1 && delivery.slideMotor.getCurrentPosition() < 40 && delivery.getCurrentCommand() != delivery.followMotionPro && delivery.fourbarState == Delivery.fourBarState.behindNest) {
+
+                    state = autoState.finished;
+
+                } else if (size != targetAuto.spikes && cycles > 1 ) {
+                    state = autoState.collectingSpike;
+                    built = building.notBuilt;
+                    spike = spikeState.two;
+                }
+
+            }
+            //spike 2
+        }else if (state == autoState.collectingSpike && spike == spikeState.two) {
+
+            if (built == building.notBuilt){
+                follow.setPath(paths.returnPath("spike2Pickup"));
+                targetHeading = 180;
+                built = building.built;
+//                collection.camera.execute();
+                collection.griperRotate.setPosition(135);
+
+                autoQueued = false;
+            }
+
+//            if (collect&&collectTimer.milliseconds()>4000){
+//                collection.queueCommand(collection.transfer);
+//                collect=false;
+//                collectionDone = true;
+//            }
+
+            if (follow.isFinished() && !collection.nestSensor.isPressed()){
+
+                state = autoState.delivering;
+                built = building.notBuilt;
+//                collectionDone = false;
+
+            } else if (follow.isFinished() && !autoQueued){
+//                collection.griperRotate.setPosition(135);
+                collection.queueCommand(collection.autoCollectSingleDetect);
                 autoQueued = true;
             }
 
@@ -256,7 +333,7 @@ public class Blue_Left extends OpModeEX {
                 delivery.queueCommand(delivery.transfer);
                 delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
                 delivery.queueCommand(delivery.deposit);
-                follow.setPath(paths.returnPath("spike1Drop"));
+                follow.setPath(paths.returnPath("spike2Drop"));
                 targetHeading = 225;
                 drop=true;
                 dropTimer.reset();
@@ -279,147 +356,92 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size==targetAuto.spikes&&cycles<1.1&&delivery.slideMotor.getCurrentPosition()<10&&delivery.getCurrentCommand() != delivery.followMotionPro&&delivery.fourbarState == Delivery.fourBarState.behindNest){
+                if (size==targetAuto.spikes&&cycles<2.1&&delivery.slideMotor.getCurrentPosition()<40&&delivery.getCurrentCommand() != delivery.followMotionPro&&delivery.fourbarState == Delivery.fourBarState.behindNest){
 
                     state=autoState.finished;
 
-                }else if (size!=targetAuto.spikes&&cycles>1&&collection.horizontalMotor.getCurrentPosition()<10){
+                }else if (size!=targetAuto.spikes&&cycles>2){
+                    state = autoState.collectingSpike;
+                    built = building.notBuilt;
+                    spike = spikeState.three;
+                }
+
+            }
+            //spike3
+        }else if (state == autoState.collectingSpike && spike == spikeState.three) {
+
+            if (built == building.notBuilt){
+                follow.setPath(paths.returnPath("spike3Pickup"));
+                targetHeading = 90;
+                built = building.built;
+//                collection.camera.execute();
+                collection.griperRotate.setPosition(135);
+
+                autoQueued = false;
+            }
+
+//            if (collect&&collectTimer.milliseconds()>4000){
+//                collection.queueCommand(collection.transfer);
+//                collect=false;
+//                collectionDone = true;
+//            }
+
+            if (follow.isFinished() && !collection.nestSensor.isPressed()){
+
+                state = autoState.delivering;
+                built = building.notBuilt;
+//                collectionDone = false;
+
+            } else if (follow.isFinished() && !autoQueued){
+//                collection.griperRotate.setPosition(135);
+                collection.queueCommand(collection.autoCollectSingleDetect);
+                autoQueued = true;
+            }
+
+
+        } else if ( state == autoState.delivering) {
+
+            if (built == building.notBuilt){
+                delivery.queueCommand(delivery.transfer);
+                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+                delivery.queueCommand(delivery.deposit);
+                follow.setPath(paths.returnPath("spike3Drop"));
+                targetHeading = 225;
+                drop=true;
+                dropTimer.reset();
+                built = building.built;
+
+            }
+
+            if (follow.isFinished()){
+
+                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit && drop && dropTimer.milliseconds()>3500){
+
+                    delivery.queueCommand(delivery.deposit);
+
+                    delivery.queueCommand(delivery.deposit);
+
+                    delivery.queueCommand(delivery.slideSetPonts(0));
+
+                    drop=false;
+
+                }
+
+
+                if (size==targetAuto.spikes&&cycles<3.1&&delivery.slideMotor.getCurrentPosition()<10&&delivery.getCurrentCommand() != delivery.followMotionPro&&delivery.fourbarState == Delivery.fourBarState.behindNest){
+
+                    state=autoState.finished;
+
+                }else if (size!=targetAuto.spikes&&cycles>3&&collection.horizontalMotor.getCurrentPosition()<10){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                 }
 
             }
-            //spike 2
         }
-//
-//        else if (state == autoState.collectingSpike||state == autoState.collectingSub&&cycles>1.9 ) {
-//
-//            if (built == building.notBuilt){
-//                follow.setPath(paths.returnPath("spike1Pickup"));
-//                targetHeading = 180;
-//                built = building.built;
-//                collection.queueCommand(collection.collect);
-//            }
-//            if (follow.isFinished()){
-//                collect=true;
-//                collectTimer.reset();
-//                collection.griperRotate.setPosition(45);
-//                collection.queueCommand(collection.collect);
-//                if (collect&&collectTimer.milliseconds()>700){
-//                    collection.queueCommand(collection.transfer);
-//                    collect=false;
-//                }
-//
-//
-//                if (size!=targetAuto.spikes&&cycles>2&&!collect){
-//                    state = autoState.collectingSpike;
-//                    built = building.notBuilt;
-//                }
-//
-//            }
-//        } else if ( state == autoState.delivering) {
-//
-//            if (built == building.notBuilt){
-//                delivery.queueCommand(delivery.transfer);
-//                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
-//                delivery.queueCommand(delivery.deposit);
-//                follow.setPath(paths.returnPath("spike1Drop"));
-//                targetHeading = 225;
-//                drop=true;
-//                dropTimer.reset();
-//                built = building.built;
-//
-//            }
-//            if (follow.isFinished()){
-//
-//                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>4000){
-//
-//                    delivery.queueCommand(delivery.deposit);
-//
-//                    delivery.queueCommand(delivery.deposit);
-//
-//                    delivery.queueCommand(delivery.slideSetPonts(0));
-//
-//                    drop=false;
-//
-//                }
-//
-//
-//                if (size==targetAuto.spikes&&cycles<2.1&&collection.horizontalMotor.getCurrentPosition()<10){
-//
-//                    state=autoState.finished;
-//
-//                }else if (size!=targetAuto.spikes&&cycles>2&&collection.horizontalMotor.getCurrentPosition()<10){
-//                    state = autoState.collectingSpike;
-//                    built = building.notBuilt;
-//                }
-//
-//            }
-//            //spike3
-//        } else if (state == autoState.collectingSpike||state == autoState.collectingSub&&cycles>2.9 ) {
-//
-//            if (built == building.notBuilt){
-//                follow.setPath(paths.returnPath("spike1Pickup"));
-//                targetHeading = 180;
-//                built = building.built;
-//                collection.queueCommand(collection.collect);
-//            }
-//            if (follow.isFinished()){
-//                collect=true;
-//                collectTimer.reset();
-//                collection.griperRotate.setPosition(45);
-//                collection.queueCommand(collection.collect);
-//                if (collect&&collectTimer.milliseconds()>700){
-//                    collection.queueCommand(collection.transfer);
-//                    collect=false;
-//                }
-//
-//
-//                if (size!=targetAuto.spikes&&cycles>3&&!collect){
-//                    state = autoState.collectingSpike;
-//                    built = building.notBuilt;
-//                }
-//
-//            }
-//        } else if ( state == autoState.delivering) {
-//
-//            if (built == building.notBuilt){
-//                delivery.queueCommand(delivery.transfer);
-//                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
-//                delivery.queueCommand(delivery.deposit);
-//                follow.setPath(paths.returnPath("spike1Drop"));
-//                targetHeading = 225;
-//                drop=true;
-//                dropTimer.reset();
-//                built = building.built;
-//
-//            }
-//            if (follow.isFinished()){
-//
-//                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>4000){
-//
-//                    delivery.queueCommand(delivery.deposit);
-//
-//                    delivery.queueCommand(delivery.deposit);
-//
-//                    delivery.queueCommand(delivery.slideSetPonts(0));
-//
-//                    drop=false;
-//
-//                }
-//
-//
-//                if (size==targetAuto.spikes&&cycles<3.1&&collection.horizontalMotor.getCurrentPosition()<10){
-//
-//                    state=autoState.finished;
-//
-//                }else if (size!=targetAuto.spikes&&cycles>3&&collection.horizontalMotor.getCurrentPosition()<10){
-//                    state = autoState.collectingSpike;
-//                    built = building.notBuilt;
-//                }
-//
-//            }
-//        }
+
+
+
 
         if (state==autoState.finished){
             requestOpModeStop();

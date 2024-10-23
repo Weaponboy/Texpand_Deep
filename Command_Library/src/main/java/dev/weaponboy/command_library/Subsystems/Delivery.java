@@ -60,7 +60,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 20;
-    double secondTransfer = 244;
+    double secondTransfer = 250;
     double gripperTransfer = gripergrab;
 
     /**
