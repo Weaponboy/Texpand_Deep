@@ -88,7 +88,6 @@ public class Blue_Left extends OpModeEX {
 
     public Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-
     @Override
     public void initEX() {
 
@@ -226,7 +225,7 @@ public class Blue_Left extends OpModeEX {
            }
 
             //spike1
-        } else if (state == autoState.collectingSpike) {
+        } else if (state == autoState.collectingSpike && spike == spikeState.one) {
 
             if (built == building.notBuilt){
                 follow.setPath(paths.returnPath("spike1Pickup"));
@@ -257,7 +256,7 @@ public class Blue_Left extends OpModeEX {
             }
 
 
-        } else if ( state == autoState.delivering) {
+        } else if (state == autoState.delivering) {
 
             if (built == building.notBuilt) {
                 delivery.queueCommand(delivery.transfer);
