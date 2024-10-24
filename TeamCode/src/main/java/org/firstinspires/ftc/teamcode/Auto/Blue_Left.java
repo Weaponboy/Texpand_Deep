@@ -47,6 +47,7 @@ public class Blue_Left extends OpModeEX {
     }
     public enum spikeState{
         zero,
+        one,
         two,
         three,
     }
@@ -56,7 +57,7 @@ public class Blue_Left extends OpModeEX {
     public targetAuto size = targetAuto.preload;
 
     private final sectionBuilder[] preloadPath = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(339, 263), new Vector2D(282, 272), new Vector2D(330, 319.5)),
+            () -> paths.addPoints(new Vector2D(344.3, 263), new Vector2D(282, 272), new Vector2D(330, 322.5)),
     };
 
     private final sectionBuilder[] spike1Pickup = new sectionBuilder[]{
@@ -64,7 +65,7 @@ public class Blue_Left extends OpModeEX {
     };
 
     private final sectionBuilder[] spike1Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(330, 319.5)),
+            () -> paths.addPoints(new Vector2D(267, 303.6), new Vector2D(300, 315.4), new Vector2D(330, 322.5)),
     };
 
     private final sectionBuilder[] spike2Pickup = new sectionBuilder[]{
@@ -72,15 +73,15 @@ public class Blue_Left extends OpModeEX {
     };
 
     private final sectionBuilder[] spike2Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(330, 319.5)),
+            () -> paths.addPoints(new Vector2D(267, 330.2), new Vector2D(311.7, 333.7), new Vector2D(330, 322.5)),
     };
 
     private final sectionBuilder[] spike3Pickup = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(225.5, 319.2)),
+            () -> paths.addPoints(new Vector2D(325.3, 324), new Vector2D(256.4, 303), new Vector2D(225.5, 345.2)),
     };
 
     private final sectionBuilder[] spike3Drop = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(330, 319.5)),
+            () -> paths.addPoints(new Vector2D(246.7, 331.2), new Vector2D(256.4, 303), new Vector2D(330, 322.5)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -93,7 +94,7 @@ public class Blue_Left extends OpModeEX {
 
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorter, 30);
 
-        odometry.startPosition(339, 263, 270);
+        odometry.startPosition(344.3, 263, 270);
 
         paths.addNewPath("preloadPath");
 
@@ -218,6 +219,7 @@ public class Blue_Left extends OpModeEX {
 
                      state = autoState.collectingSpike;
                      built = building.notBuilt;
+                     spike = spikeState.one;
 
                 }
 
@@ -288,7 +290,7 @@ public class Blue_Left extends OpModeEX {
 
                     state = autoState.finished;
 
-                } else if (size != targetAuto.spikes && cycles > 1 ) {
+                } else if (size == targetAuto.spikes && cycles > 1 && delivery.slideMotor.getCurrentPosition()<20) {
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                     spike = spikeState.two;
@@ -360,7 +362,7 @@ public class Blue_Left extends OpModeEX {
 
                     state=autoState.finished;
 
-                }else if (size!=targetAuto.spikes&&cycles>2){
+                }else if (size == targetAuto.spikes&&cycles>2 && delivery.slideMotor.getCurrentPosition()<40){
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                     spike = spikeState.three;
