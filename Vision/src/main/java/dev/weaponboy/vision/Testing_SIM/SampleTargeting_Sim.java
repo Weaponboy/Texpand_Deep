@@ -39,7 +39,7 @@ public class SampleTargeting_Sim implements VisionProcessor{
     public Scalar yellowLower = new Scalar(0, 80.8, 126.1);
     public Scalar yellowHigher = new Scalar(26, 255, 255);
 
-    public Scalar redLower = new Scalar(9, 40, 160);
+    public Scalar redLower = new Scalar(9, 92, 104);
     public Scalar redHigher = new Scalar(38,255,255);
 
     ArrayList<MatOfPoint> redContoursSingle = new ArrayList<>();
