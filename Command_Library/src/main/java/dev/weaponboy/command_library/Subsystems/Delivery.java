@@ -60,7 +60,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 20;
-    double secondTransfer = 250;
+    double secondTransfer = 242;
     double gripperTransfer = gripergrab;
 
     /**
@@ -74,14 +74,14 @@ public class Delivery extends SubSystem {
      * clipping position values
      * */
     double mainPivotClip = 127;
-    double secondClip = 242;
+    double secondClip = 242/1.5;
     double gripperClip = gripergrab;
 
     /**
      * PRE clipping position values
      * */
     double mainPivotPreClip = 260;
-    double secondPreClip = 190;
+    double secondPreClip = 190/1.5;
     double gripperPreClip = gripergrab;
 
     public enum DeliveryState{

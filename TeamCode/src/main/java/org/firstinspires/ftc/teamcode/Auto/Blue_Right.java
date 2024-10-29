@@ -15,6 +15,7 @@ import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 public class Blue_Right extends OpModeEX {
     double targetHeading;
 
+
     pathsManager paths = new pathsManager();
     follower follow = new follower();
 
@@ -22,6 +23,9 @@ public class Blue_Right extends OpModeEX {
     private final sectionBuilder[] rightBluePath = {
             () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 170))
 
+    };
+    private final sectionBuilder[] rightBlueHumanPlayer = {
+            () -> paths.addPoints( new Vector2D(255, 170),new Vector2D(83,333))
     };
 
     private final sectionBuilder[] rightBlueFull = {
@@ -64,6 +68,9 @@ public class Blue_Right extends OpModeEX {
         paths.addNewPath("rightBlueBasket");
         paths.buildPath(rightBlueBasket);
 
+        paths.addNewPath("rightBlueHumanPlayer");
+        paths.buildPath(rightBlueHumanPlayer);
+
 
         paths.addNewPath("rightBlueFull");
         paths.buildPath(rightBlueFull);
@@ -84,16 +91,18 @@ public class Blue_Right extends OpModeEX {
                 targetHeading = 180;
                 following = true;
                 built = building.built;
+                delivery.queueCommand(delivery.transfer);
                 delivery.queueCommand(delivery.Clip);
 
             }
 
-            if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.preClip){
+            if (follow.isFinished() ){
                 delivery.queueCommand(delivery.Clip);
                 delivery.queueCommand(delivery.Clip);
                 delivery.queueCommand(delivery.slideSetPonts(0));
             } else if (follow.isFinished() && delivery.slideMotor.getCurrentPosition() < 20) {
                 state = autoState.finished;
+                built = building.notBuilt;
             }
 
         }
@@ -101,6 +110,22 @@ public class Blue_Right extends OpModeEX {
         if (state == autoState.finished){
             requestOpModeStop();
         }
+//        if (state == autoState.humanPlayer) {
+//
+//            if (built == building.notBuilt) {
+//                follow.setPath(paths.returnPath("rightBlueHumanPlayer"));
+//                targetHeading = 0;
+//                following = true;
+//                built = building.built;
+//                collection.queueCommand(collection.camera);
+//
+//
+//            } else if (follow.isFinished()) {
+//                collection.queueCommand(collection.autoCollectSingleDetect);
+//
+//            }
+//
+//        }
 
         odometry.queueCommand(odometry.updateLineBased);
 
