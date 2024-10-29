@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ8OZYQO" parentModuleAddress="2">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <goBILDA5202SeriesMotor name="slideMotor" port="0" />
+            <goBILDA5202SeriesMotor name="horizontalMotor" port="1" />
+            <Servo name="devClaw" port="0" />
+            <Servo name="gripperRotate" port="1" />
+            <Servo name="mainPivot" port="2" />
+            <Servo name="secondPivot" port="3" />
+            <Servo name="hang1" port="4" />
+            <Servo name="hang2" port="5" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+            <goBILDA5202SeriesMotor name="RF" port="0" />
+            <goBILDA5202SeriesMotor name="RB" port="1" />
+            <goBILDA5202SeriesMotor name="LB" port="2" />
+            <goBILDA5202SeriesMotor name="LF" port="3" />
+            <Servo name="linearRailServo" port="0" />
+            <Servo name="gripServo" port="2" />
+            <Servo name="nest" port="3" />
+            <Servo name="fourBarMainPivot" port="4" />
+            <Servo name="fourBarSecondPivot" port="5" />
+            <AnalogInput name="axon1" port="0" />
+            <AnalogInput name="axon2" port="1" />
+            <AnalogInput name="axon3" port="2" />
+            <RevTouchSensor name="CollectionReset" port="4" />
+            <RevTouchSensor name="DeliveryReset" port="5" />
+            <RevTouchSensor name="nestIR" port="6" />
+            <RevTouchSensor name="clawIR" port="7" />
+            <ControlHubImuBHI260AP name="imu" port="0" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <Webcam name="webcam" serialNumber="01.00.00" />
+</Robot>

@@ -92,6 +92,7 @@ public class sprint1Teleop extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-12);
             collection.queueCommand(collection.autoCollect);
         }
+        
 
         if (gamepad1.left_stick_x > 0){
             rotateTarget += 1;
