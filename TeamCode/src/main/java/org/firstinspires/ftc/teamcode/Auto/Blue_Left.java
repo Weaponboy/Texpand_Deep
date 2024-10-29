@@ -158,17 +158,19 @@ public class Blue_Left extends OpModeEX {
         if (gamepad1.b){
             size = targetAuto.spikes;
             cycles=1;
+            spike = spikeState.one;
         }
         if (gamepad1.a){
             size = targetAuto.spikes;
             cycles=2;
+            spike = spikeState.one;
+
         }
         if (!lastGamepad1.x&& currentGamepad1.x){
             size = targetAuto.spikes;
             cycles=3;
-            telemetry.addData("type",size);
-            telemetry.addData("cycles",cycles);
-            telemetry.update();
+            spike = spikeState.one;
+
 
         }
 
@@ -285,11 +287,11 @@ public class Blue_Left extends OpModeEX {
                 }
 
 
-                if (size == targetAuto.spikes && cycles < 1.1 && delivery.slideMotor.getCurrentPosition() < 40 && delivery.getCurrentCommand() != delivery.followMotionPro && delivery.fourbarState == Delivery.fourBarState.behindNest) {
+                if (size == targetAuto.spikes && cycles < 1.1 && delivery.fourbarState == Delivery.fourBarState.behindNest && delivery.getCurrentCommand() != delivery.followMotionPro && delivery.fourbarState == Delivery.fourBarState.behindNest) {
 
                     state = autoState.finished;
 
-                } else if (size == targetAuto.spikes && cycles > 1 && delivery.slideMotor.getCurrentPosition()<20) {
+                } else if (size == targetAuto.spikes && cycles > 1 && delivery.fourbarState == Delivery.fourBarState.behindNest) {
                     state = autoState.collectingSpike;
                     built = building.notBuilt;
                     spike = spikeState.two;
