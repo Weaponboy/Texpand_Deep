@@ -26,10 +26,12 @@ import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.motionProfile;
 import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 import dev.weaponboy.vision.SamplePipelines.SampleTargeting;
+import dev.weaponboy.vision.Testing_SIM.findAngleUsingContour;
 
 public class Collection extends SubSystem {
 
     public SampleTargeting sampleSorter = new SampleTargeting();
+    public findAngleUsingContour sampleSorterContour = new findAngleUsingContour();
     public VisionPortal portal;
     WebcamName closeAim;
     ElapsedTime autoCollectTimer = new ElapsedTime();
@@ -291,7 +293,7 @@ public class Collection extends SubSystem {
         closeAim = getOpModeEX().hardwareMap.get(WebcamName.class, "webcam");
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(closeAim);
-        builder.addProcessor(sampleSorter);
+        builder.addProcessor(sampleSorterContour);
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
         builder.setCameraResolution(new Size(sampleSorter.getWidth(), sampleSorter.getHeight()));
         portal = builder.build();
