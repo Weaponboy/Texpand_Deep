@@ -169,17 +169,17 @@ public class DeliveryCameraDetection implements VisionProcessor{
 
         ArrayList<MatOfPoint> sortedContours = sortContoursByY(redContoursSingle, centerPoints);
 
-//        for (int i = 0; i < sortedContours.size(); i++) {
-//
+////        for (int i = 0; i < sortedContours.size(); i++) {
+////
 //            Point center = getContourCenter(sortedContours.get(i));
-//            Imgproc.circle(frameSub, center, 5, new Scalar(255, 0, 0), -1);
-//            Imgproc.putText(frameSub, String.valueOf(i+1), center, 2, 1, new Scalar(255, 0, 0), 4, 2, false);
-//
-//        }
+////            Imgproc.circle(frameSub, center, 5, new Scalar(255, 0, 0), -1);
+////            Imgproc.putText(frameSub, String.valueOf(i+1), center, 2, 1, new Scalar(255, 0, 0), 4, 2, false);
+////
+////        }
 
-//        Point center = getContourCenter(sortedContours.get(sortedContours.size()-1));
-//        Imgproc.circle(frameSub, center, 5, new Scalar(0, 0, 255), -1);
-//        Imgproc.putText(frameSub, String.valueOf(sortedContours.size()), center, 2, 1, new Scalar(0, 0, 255), 4, 2, false);
+        Point center = getContourCenter(sortedContours.get(sortedContours.size()-1));
+        Imgproc.circle(frameSub, center, 5, new Scalar(0, 0, 255), -1);
+        Imgproc.putText(frameSub, String.valueOf(sortedContours.size()), center, 2, 1, new Scalar(0, 0, 255), 4, 2, false);
 
         if (!sortedContours.isEmpty()){
 
@@ -190,12 +190,23 @@ public class DeliveryCameraDetection implements VisionProcessor{
             Rect closestRest = boundingRect(sortedContours.get(sortedContours.size()-1));
             MatOfPoint closestContour = sortedContours.get(sortedContours.size()-1);
 
-            boolean isWidthLonger = rotatedRect.size.width > rotatedRect.size.height;
+            boolean isWidthLonger = rectSize.width > rectSize.height;
             angle = rotatedRect.angle;
 
-            if (!isWidthLonger || Math.abs(rectSize.width - rectSize.height) < 20) {
-                angle = Math.abs(angle - 90); // Add 90 degrees if height is the longer side
+            // Adjust the angle to ensure it's based on the long side of the rectangle
+            if (isWidthLonger) {
+                angle = angle + 90; // Add 90 degrees if height is the longer side
             }
+
+            // Normalize the angle:
+            // Positive angle = tipped right, Negative angle = tipped left
+            if (angle > 90) {
+                angle -= 180; // Normalize to the range [-90, 90]
+            }
+
+//            if (!isWidthLonger || Math.abs(rectSize.width - rectSize.height) < 20) {
+//                angle = Math.abs(angle - 90); // Add 90 degrees if height is the longer side
+//            }
 
             if (closestRest.area() > 1500){
                 Point lowestPoint = getLowestYPoint(closestContour);
@@ -219,7 +230,7 @@ public class DeliveryCameraDetection implements VisionProcessor{
                 Imgproc.circle(frameSub, targetPoint, 5, new Scalar(0, 0, 255), -1);
                 Imgproc.circle(frameSub, lowestPoint, 5, new Scalar(0, 0, 255), -1);
 //
-//                Imgproc.putText(frameSub, String.valueOf(angle), new Point(20, 100), 2, 1, new Scalar(0, 0, 255), 4, 2, false);
+                Imgproc.putText(frameSub, String.valueOf(angle), new Point(20, 100), 2, 1, new Scalar(0, 0, 255), 4, 2, false);
 //                Imgproc.putText(frameSub, String.valueOf(relativeXCorrective), new Point(20, 200), 2, 1, new Scalar(0, 0, 255), 4, 2, false);
 //                Imgproc.putText(frameSub, String.valueOf(Math.hypot(34,14)), new Point(20, 300), 2, 1, new Scalar(0, 0, 255), 4, 2, false);
 
