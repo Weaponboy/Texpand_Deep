@@ -71,8 +71,10 @@ public abstract class OpModeEX extends OpMode {
         lastTime = timer.milliseconds();
 
         scheduler.execute();
-        collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
+//        collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
         loopEX();
+
+        collection.updateRobotPosition(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
 //
 //        try {
 //

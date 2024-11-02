@@ -137,9 +137,9 @@ public class sprint1Teleop extends OpModeEX {
             delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
         }
 
-        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10 && delivery.fourbarState == Delivery.fourBarState.behindNest){
-            delivery.queueCommand(delivery.transfer);
-        }
+//        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.slidesReset.isPressed() && delivery.fourbarState == Delivery.fourBarState.behindNest){
+//            delivery.queueCommand(delivery.transfer);
+//        }
 
 //        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.drop){
 //            collection.setClawsState(Collection.clawState.grab);
