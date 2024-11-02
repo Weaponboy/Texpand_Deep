@@ -25,6 +25,10 @@ public class TestMaxVelocity extends OpModeEX {
     double lastTimeX;
     double lastTimeY;
 
+    double turnPower = 0;
+    double horizontal = 0;
+    double lastHeading;
+
 //    public void getAcc(){
 //
 //        drive.RF.setPower(1);
@@ -64,7 +68,21 @@ public class TestMaxVelocity extends OpModeEX {
     @Override
     public void loopEX() {
 
-        driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x));
+        horizontal = -gamepad2.right_stick_x*0.5;
+        double lastHor = -lastGamepad2.right_stick_x*0.5;
+
+        if (gamepad2.left_stick_x == 0 && Math.abs(horizontal) > 0){
+            if (Math.abs(horizontal) > 0 && lastHor == 0){
+                lastHeading = odometry.Heading();
+            }
+            turnPower = -driveBase.headindingLockMotorPower(lastHeading - odometry.Heading());
+        }else {
+            turnPower = -gamepad2.left_stick_x*0.5;
+        }
+
+        // drive base code
+        driveBase.queueCommand(driveBase.drivePowers(-gamepad2.right_stick_y, turnPower, -gamepad2.right_stick_x));
+
 
         double differenceX = odometry.getXVelocity()- maxVecticalVelo;
 
