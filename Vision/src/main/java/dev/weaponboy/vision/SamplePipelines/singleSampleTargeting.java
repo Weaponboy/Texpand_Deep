@@ -155,8 +155,8 @@ public class singleSampleTargeting implements VisionProcessor, CameraStreamSourc
 
         for (MatOfPoint contour : sortedRedContours) {
 
-            telemetry.addData("contour.toArray().length", contour.toArray().length);
-            telemetry.update();
+//            telemetry.addData("contour.toArray().length", contour.toArray().length);
+//            telemetry.update();
 
             List<Point> contourPointsX = Arrays.asList(contour.toArray());
             ArrayList<Point> farXPoints = new ArrayList<>();
@@ -182,13 +182,16 @@ public class singleSampleTargeting implements VisionProcessor, CameraStreamSourc
             double deltaY = (xRight.y - xLeft.y)/2;
 
             centerPoint = new Point(xLeft.x + deltaX, xLeft.y + deltaY);
-
-            telemetry.addData("yTop", centerPoint);
-            telemetry.update();
+//
+//            telemetry.addData("yTop", centerPoint);
+//            telemetry.update();
 
         }
 
-        redMat.copyTo(frame);
+//        redMat.copyTo(frame);
+
+        System.out.println("width" + frame.width());
+        System.out.println("height" + frame.height());
 
         blueContours.clear();
         yellowContours.clear();

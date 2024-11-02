@@ -1,4 +1,4 @@
-package dev.weaponboy.command_library.Subsystems;
+package dev.weaponboy.command_library.Subsystems.Examples;
 
 import java.util.ArrayList;
 

@@ -18,11 +18,19 @@ public class MotorEx {
     double currentPower;
     int currentPosition;
 
+    double velocity;
+
+    public double getTimeCompleted() {
+        return timeCompleted;
+    }
+
+    double timeCompleted;
+
     boolean updatePosition;
 
     CompletableFuture<Boolean> setPowerFuture;
     CompletableFuture<Boolean> getPowerFuture;
-    CompletableFuture<Boolean> getPositionFuture;
+    CompletableFuture<Boolean> getVelocityFuture;
 
     public void initMotor(String motorName, HardwareMap hardwareMap){
         motor = hardwareMap.get(DcMotorEx.class, motorName);
@@ -36,7 +44,11 @@ public class MotorEx {
     }
 
     public Integer getCurrentPosition() {
-        return currentPosition;
+        return motor.getCurrentPosition();
+    }
+
+    public double getCurrentVelocity() {
+        return velocity;
     }
 
     public void setDirection(DcMotorSimple.Direction direction){
@@ -47,21 +59,22 @@ public class MotorEx {
         motor.setMode(runMode);
     }
 
-    public void update(Double power){
+    public void update(double power){
 
         double powerDelta = Math.abs(power - currentPower);
 
-        if (setPowerFuture == null && powerDelta > tolerance){
+        if (setPowerFuture == null){
             setPowerFuture = setPowerAsync(power);
-        }else if (setPowerFuture.isDone() && powerDelta > tolerance){
+        }else if (setPowerFuture.isDone() &&( powerDelta > tolerance || power == 0)){
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getPositionFuture == null && updatePosition){
-            getPositionFuture = getPositionAsync();
+        if (getVelocityFuture == null){
+            getVelocityFuture = getPositionAsync();
             updatePosition = false;
-        }else if (getPositionFuture.isDone()  && updatePosition){
-            getPositionFuture = getPositionAsync();
+        }else if (getVelocityFuture.isDone()  && updatePosition){
+            timeCompleted = System.nanoTime();
+            getVelocityFuture = getPositionAsync();
             updatePosition = false;
         }
 
@@ -69,9 +82,13 @@ public class MotorEx {
 
     private CompletableFuture<Boolean> getPositionAsync() {
         return CompletableFuture.supplyAsync(() -> {
-            currentPosition = motor.getCurrentPosition();
+            velocity = motor.getVelocity();
             return true;
         }, executor);
+    }
+
+    public int getDouble (){
+        return motor.getCurrentPosition();
     }
 
     private CompletableFuture<Boolean> setPowerAsync(double power) {
@@ -79,6 +96,10 @@ public class MotorEx {
             motor.setPower(power);
             return true;
         }, executor);
+    }
+
+    public double getVelocity(){
+        return motor.getVelocity();
     }
 
     public CompletableFuture<Boolean> getSetPowerFuture() {
@@ -89,7 +110,7 @@ public class MotorEx {
         executor.shutdown();
     }
 
-    public void updatePosition() {
+    public void updateVelocity() {
         this.updatePosition = true;
     }
 

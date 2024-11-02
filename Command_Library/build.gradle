@@ -28,5 +28,6 @@ android {
 }
 
 dependencies {
+    implementation project(':Vision')
 //    implementation project(path: ':TeamCode')
 }
