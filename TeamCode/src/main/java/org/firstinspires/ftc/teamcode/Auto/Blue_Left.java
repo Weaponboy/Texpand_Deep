@@ -262,7 +262,7 @@ public class Blue_Left extends OpModeEX {
 
             } else if (follow.isFinished() && !autoQueued){
 //                collection.griperRotate.setPosition(135);
-                collection.queueCommand(collection.autoCollectSingleDetect);
+                collection.queueCommand(collection.autoCollectGlobal);
                 autoQueued = true;
             }
 
@@ -293,7 +293,7 @@ public class Blue_Left extends OpModeEX {
 
             } else if (follow.isFinished() && !autoQueued){
 //                collection.griperRotate.setPosition(135);
-                collection.queueCommand(collection.autoCollectSingleDetect);
+                collection.queueCommand(collection.autoCollectGlobal);
                 autoQueued = true;
             }
 
@@ -324,7 +324,7 @@ public class Blue_Left extends OpModeEX {
 
             } else if (follow.isFinished() && !autoQueued){
 //                collection.griperRotate.setPosition(135);
-                collection.queueCommand(collection.autoCollectSingleDetect);
+                collection.queueCommand(collection.autoCollectGlobal);
                 autoQueued = true;
             }
 
@@ -380,7 +380,7 @@ public class Blue_Left extends OpModeEX {
             requestOpModeStop();
         }
 
-        if (collection.getCurrentCommand() != collection.autoCollectSingleDetect){
+        if (collection.getCurrentCommand() != collection.autoCollectGlobal){
             odometry.queueCommand(odometry.updateLineBased);
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
             telemetry.addData("Loop time", loopTime);

@@ -102,7 +102,7 @@ public class Collection extends SubSystem {
     public enum fourBar{
         preCollect,
         collect,
-        rotateBack,
+        detectingSample,
         dropNest,
         transferringStates,
         transferUp,
@@ -264,19 +264,11 @@ public class Collection extends SubSystem {
     }
 
     boolean resettingSlides = false;
-    public static FileWriter fWriter;
-
-    static {
-        try {
-            fWriter = new FileWriter("/sdcard/railLogs.txt");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     RobotPower RobotPosition = new RobotPower();
     public Point targetPointGlobal;
     public double angle;
+    int detectionAttemptsCounter = 0;
 
     @Override
     public void init() {
@@ -548,232 +540,6 @@ public class Collection extends SubSystem {
             () -> !(fourBarState == fourBar.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
     );
 
-    public Command autoCollect = new LambdaCommand(
-            () -> {
-                camera.execute();
-                setRailTargetPosition(9);
-                autoCollectTimer.reset();
-                targetingState = targeting.transferring;
-                targetTargetingState = targeting.camera;
-                cameraWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCamera)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotCamera)*(microRoboticTime+2));
-            },
-            () -> {
-
-                setNestState(Nest.sample);
-
-                if (targetingState == targeting.camera){
-
-                    System.out.println("First Detect");
-
-                    autoCollectTimer.reset();
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.detecting;
-                    cameraWaitTime = 1000;
-
-                    sampleSorter.resetDetectionCounter();
-//                    clawsState = clawState.grab;
-
-                }else if (targetingState == targeting.detecting){
-                    System.out.println("First Movement");
-
-                    autoCollectTimer.reset();
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.movingToTargeting;
-                    cameraWaitTime = 1000;
-
-                    if (sampleSorter.getRailTarget() < 0){
-                        setRailTargetPosition(0);
-                    }else if (sampleSorter.getRailTarget() > 20){
-                        setRailTargetPosition(20);
-                    }else {
-                        setRailTargetPosition(sampleSorter.getRailTarget()-1);
-                    }
-
-                    double newSlidesTarget = slideTarget + sampleSorter.getSlidesDelta() + 5;
-
-                    if (newSlidesTarget < 0){
-//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = 0;
-                    }else if (newSlidesTarget > 35){
-//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-
-                        this.slideTarget = 35;
-                    }else {
-//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = newSlidesTarget;
-                    }
-
-                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
-
-                }else if (targetingState == targeting.movingToTargeting){
-
-                    System.out.println("Second Detect");
-
-                    autoCollectTimer.reset();
-                    cameraWaitTime = 1000;
-                    sampleSorter.resetAve();
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.targeting;
-
-                    sampleSorter.resetDetectionCounter();
-
-                } else if (targetingState == targeting.targeting){
-
-                    System.out.println("Second Movement");
-
-                    autoCollectTimer.reset();
-//                        cameraWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
-                    cameraWaitTime = 500;
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.collecting;
-
-                    double railTarget = sampleSorter.getRailTarget()-11;
-                    railTarget = getRailPosition()+railTarget;
-
-                    if (railTarget < 0){
-                        setRailTargetPosition(0);
-                    }else if (railTarget > 20){
-                        setRailTargetPosition(20);
-                    }else {
-                        setRailTargetPosition(railTarget);
-                    }
-
-                    double newSlidesTarget = slideTarget + sampleSorter.getSlidesDelta();
-
-                    if (newSlidesTarget < 0){
-//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = 0;
-                    }else if (newSlidesTarget > 35){
-//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = 35;
-                    }else {
-//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = newSlidesTarget;
-                    }
-
-//                    if (newSlidesTarget > 0 && newSlidesTarget < 35){
-//                        if (collection.sampleSorter.getSlidesDelta() > 0){
-//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
-//                        }else {
-//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
-//                        }
-////                collection.queueCommand(collection.collect);
-//                    }
-
-                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
-
-                    preCollect.execute();
-                    fourBarState = fourBar.preCollect;
-                    rotateWhileCollecting = sampleSorter.isRotate();
-                    queueCommand(collect);
-                    rotateWhileCollecting = true;
-//                    autoCollecting = true;
-
-                }
-
-                if (targetingState == targeting.transferring && autoCollectTimer.milliseconds() > cameraWaitTime && targetTargetingState != targeting.detecting){
-                    targetingState = targetTargetingState;
-                }else if (targetingState == targeting.transferring && sampleSorter.getDetectionCounter() >= 2 && (targetTargetingState == targeting.detecting || targetTargetingState == targeting.movingToTargeting)){
-                    targetingState = targetTargetingState;
-                }
-
-            },
-            () -> targetingState == targeting.collecting
-    );
-
-    public Command autoCollectSingleDetect = new LambdaCommand(
-            () -> {
-                camera.execute();
-                setRailTargetPosition(9);
-                autoCollectTimer.reset();
-                targetingState = targeting.transferring;
-                targetTargetingState = targeting.camera;
-                cameraWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCamera)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotCamera)*(microRoboticTime+2));
-            },
-            () -> {
-
-                setNestState(Nest.sample);
-
-                if (targetingState == targeting.camera){
-
-                    autoCollectTimer.reset();
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.targeting;
-                    cameraWaitTime = 1000;
-
-                    sampleSorter.resetDetectionCounter();
-//                    clawsState = clawState.grab;
-
-                }else if (targetingState == targeting.targeting){
-
-                    autoCollectTimer.reset();
-//                        cameraWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotTransferUp)*microRoboticTime);
-                    cameraWaitTime = 1000;
-                    targetingState = targeting.transferring;
-                    targetTargetingState = targeting.collecting;
-
-                    double railTarget = sampleSorter.getRailTarget()-10;
-                    railTarget = getRailPosition()+railTarget;
-
-                    if (railTarget < 0){
-                        setRailTargetPosition(0);
-                    }else if (railTarget > 20){
-                        setRailTargetPosition(20);
-                    }else {
-                        setRailTargetPosition(railTarget);
-                    }
-
-                    double newSlidesTarget = horizontalMotor.getCurrentPosition() / ((double) 440 /35) + sampleSorter.getSlidesDelta();
-
-                    if (newSlidesTarget < 0){
-//                        profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = 0;
-                    }else if (newSlidesTarget > 35){
-//                        profile.generateMotionProfile(35, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = 35;
-                    }else {
-//                        profile.generateMotionProfile(newSlidesTarget, horizontalMotor.getCurrentPosition());
-//                        slidesState = slideState.profile;
-                        this.slideTarget = newSlidesTarget;
-                    }
-
-//                    if (newSlidesTarget > 0 && newSlidesTarget < 35){
-//                        if (collection.sampleSorter.getSlidesDelta() > 0){
-//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
-//                        }else {
-//                            collection.queueCommand(collection.collect(((collection.horizontalMotor.getCurrentPosition() / ((double) 440 /35)) + collection.sampleSorter.getSlidesDelta())));
-//                        }
-////                collection.queueCommand(collection.collect);
-//                    }
-
-                    griperRotate.setPosition(90+sampleSorter.getAngleRotate());
-
-                    preCollect.execute();
-                    fourBarState = fourBar.preCollect;
-                    rotateWhileCollecting = sampleSorter.isRotate();
-                    queueCommand(collect);
-//                    autoCollecting = true;
-
-                }
-
-                if (targetingState == targeting.transferring && autoCollectTimer.milliseconds() > cameraWaitTime && targetTargetingState != targeting.detecting){
-                    targetingState = targetTargetingState;
-                }else if (targetingState == targeting.transferring && sampleSorter.getDetectionCounter() >= 4 && (targetTargetingState == targeting.detecting || targetTargetingState == targeting.targeting)){
-                    targetingState = targetTargetingState;
-                }
-
-            },
-            () -> targetingState == targeting.collecting
-    );
-
     public Command autoCollectGlobal(RobotPower robotPosition){
         RobotPosition = robotPosition;
         return autoCollectGlobal;
@@ -785,110 +551,160 @@ public class Collection extends SubSystem {
 
     public final Command autoCollectGlobal = new LambdaCommand(
             () -> {
-                preCollect.execute();
 
+                detectionAttemptsCounter = 0;
                 fourBarTimer.reset();
                 fourBarState = fourBar.transferringStates;
-                fourBarTargetState = fourBar.preCollect;
-                transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPreCollect)*(microRoboticTime+30), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*microRoboticTime);
+                fourBarTargetState = fourBar.detectingSample;
 
-                sampleSorterContour.setScanning(false);
-
-                setNestState(Nest.sample);
-
-                targetPointGlobal = sampleMap.get(0).getTargetPoint();
-
-                double angle = findAngle(targetPointGlobal, new Point(RobotPosition.getVertical(), RobotPosition.getHorizontal()));
-
-                double xError = targetPointGlobal.x-RobotPosition.getVertical();
-                double yError = RobotPosition.getHorizontal()-targetPointGlobal.y;
-
-                double angleDelta = Math.abs(angle - RobotPosition.getPivot());
-
-                double deltaHeading = Math.toRadians(RobotPosition.getPivot() - angle);
-
-                double convertedDelta = Math.toDegrees(deltaHeading);
-
-                if (convertedDelta < -180) {
-                    deltaHeading = Math.toRadians(-(convertedDelta + 360));
-                } else if (convertedDelta > 180) {
-                    deltaHeading = Math.toRadians(360 - convertedDelta);
+                if (sampleSorterContour.isScanning() && !sampleSorterContour.detections.isEmpty()){
+                    transferWaitTime = 10;
+                    sampleSorterContour.setScanning(false);
+                }else if (!sampleSorterContour.isScanning()) {
+                    transferWaitTime = 500;
+                    sampleSorterContour.setScanning(true);
+                    detectionAttemptsCounter++;
                 }
 
-                double disToTarget = Math.hypot(xError, yError);
-
-                double railDisToTarget;
-                double v = disToTarget * Math.sin((deltaHeading));
-
-                if (Math.toDegrees(deltaHeading) > 0){
-                    railDisToTarget = v;
-                }else {
-                    railDisToTarget = -v;
-                }
-
-                double otherAngle = (180 - angleDelta)/2;
-                double targetRailPosition;
-                double slideTarget;
-
-                if (deltaHeading == 0){
-                    targetRailPosition = 9.5;
-                    slideTarget = disToTarget-36;
-                }else {
-                    targetRailPosition = 9.5 + (railDisToTarget * Math.sin(Math.toRadians(otherAngle)));
-
-                    slideTarget = (disToTarget - Math.abs((railDisToTarget * Math.cos((Math.toRadians(otherAngle))))))-31;
-                }
-
-                railTarget = (Math.abs((railDisToTarget * Math.cos((Math.toRadians(otherAngle))))));
-                slideTargetPosition = slideTarget;
-
-                if (slideTarget > 36 || targetRailPosition > 20 || targetRailPosition < 0){
-                    System.out.println("Out of range");
-                    targetingState = targeting.collecting;
-                }else {
-                    setSlideTarget(slideTarget);
-                    setRailTargetPosition(targetRailPosition);
-                    griperRotate.setPosition((180+Math.toDegrees(deltaHeading)) - sampleMap.get(0).getAngle());
-
-                    FileWriter fWriter = null;
-                    try {
-                        fWriter = new FileWriter("/sdcard/VisionLogs.txt", true);
-
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("current point " + new Point(RobotPosition.getVertical(), RobotPosition.getHorizontal()));
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("target point " + targetPointGlobal);
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("xError " + xError);
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("yError " + yError);
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("targetRailPosition " + targetRailPosition);
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("slideTarget " + slideTarget);
-                        fWriter.write(System.lineSeparator());
-                        fWriter.write("sample Angle " + sampleMap.get(0).getAngle());
-
-                        fWriter.flush();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    } finally {
-                        if (fWriter != null) {
-                            try {
-                                fWriter.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();  // Handle any issues closing the writer
-                            }
-                        }
-                    }
-
-                    sampleMap.remove(0);
-                }
             },
             () -> {
 
-                if (fourBarState == fourBar.preCollect){
+                if (fourBarState == fourBar.detectingSample){
+
+                    sampleSorterContour.setScanning(false);
+
+                    if (!sampleSorterContour.detections.isEmpty()){
+
+                        sampleMap = sampleSorterContour.convertPositionsToFieldPositions(RobotPosition);
+                        angle = sampleMap.get(0).getAngle();
+
+                        preCollect.execute();
+
+                        fourBarTimer.reset();
+                        fourBarState = fourBar.transferringStates;
+                        fourBarTargetState = fourBar.preCollect;
+                        transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPreCollect)*(microRoboticTime), Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*microRoboticTime, Math.abs(slideTarget - horizontalMotor.getCurrentPosition())*5));
+
+                        setNestState(Nest.sample);
+
+                        targetPointGlobal = sampleMap.get(0).getTargetPoint();
+
+                        double angle = findAngle(targetPointGlobal, new Point(RobotPosition.getVertical(), RobotPosition.getHorizontal()));
+
+                        double xError = targetPointGlobal.x-RobotPosition.getVertical();
+                        double yError = RobotPosition.getHorizontal()-targetPointGlobal.y;
+
+                        double angleDelta = Math.abs(angle - RobotPosition.getPivot());
+
+                        double deltaHeading = Math.toRadians(RobotPosition.getPivot() - angle);
+
+                        double convertedDelta = Math.toDegrees(deltaHeading);
+
+                        if (convertedDelta < -180) {
+                            deltaHeading = Math.toRadians(-(convertedDelta + 360));
+                        } else if (convertedDelta > 180) {
+                            deltaHeading = Math.toRadians(360 - convertedDelta);
+                        }
+
+                        double disToTarget = Math.hypot(xError, yError);
+
+                        double railDisToTarget;
+                        double v = disToTarget * Math.sin((deltaHeading));
+
+                        if (Math.toDegrees(deltaHeading) > 0){
+                            railDisToTarget = v;
+                        }else {
+                            railDisToTarget = -v;
+                        }
+
+                        double otherAngle = (180 - angleDelta)/2;
+                        double targetRailPosition;
+                        double slideTarget;
+
+                        if (deltaHeading == 0){
+                            targetRailPosition = 9.5;
+                            slideTarget = disToTarget-36;
+                        }else {
+                            targetRailPosition = 9.5 + (railDisToTarget * Math.sin(Math.toRadians(otherAngle)));
+
+                            slideTarget = (disToTarget - Math.abs((railDisToTarget * Math.cos((Math.toRadians(otherAngle))))))-31;
+                        }
+
+                        railTarget = (Math.abs((railDisToTarget * Math.cos((Math.toRadians(otherAngle))))));
+                        slideTargetPosition = slideTarget;
+
+                        if (slideTarget > 36 || targetRailPosition > 20 || targetRailPosition < 0){
+                            System.out.println("Out of range");
+                            targetingState = targeting.collecting;
+                        }else {
+                            setSlideTarget(slideTarget);
+                            setRailTargetPosition(targetRailPosition);
+                            griperRotate.setPosition((180+Math.toDegrees(deltaHeading)) - sampleMap.get(0).getAngle());
+
+                            FileWriter fWriter = null;
+                            try {
+                                fWriter = new FileWriter("/sdcard/VisionLogs.txt", true);
+
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("current point " + new Point(RobotPosition.getVertical(), RobotPosition.getHorizontal()));
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("target point " + targetPointGlobal);
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("xError " + xError);
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("yError " + yError);
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("targetRailPosition " + targetRailPosition);
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("slideTarget " + slideTarget);
+                                fWriter.write(System.lineSeparator());
+                                fWriter.write("sample Angle " + sampleMap.get(0).getAngle());
+
+                                fWriter.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            } finally {
+                                if (fWriter != null) {
+                                    try {
+                                        fWriter.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            sampleMap.remove(0);
+                        }
+                    }else {
+
+                        if (detectionAttemptsCounter <= 2){
+                            fourBarTimer.reset();
+                            fourBarState = fourBar.transferringStates;
+                            fourBarTargetState = fourBar.detectingSample;
+
+                            if (sampleSorterContour.isScanning() && !sampleSorterContour.detections.isEmpty()){
+                                transferWaitTime = 10;
+                                sampleSorterContour.setScanning(false);
+                            }else if (!sampleSorterContour.isScanning()) {
+                                transferWaitTime = 500;
+                                detectionAttemptsCounter++;
+                                sampleSorterContour.setScanning(true);
+                            }
+                        }else {
+                            Stowed.execute();
+
+                            fourBarTimer.reset();
+                            fourBarState = fourBar.transferringStates;
+                            fourBarTargetState = fourBar.stowed;
+                            transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+
+                        }
+
+
+                    }
+
+                }else if (fourBarState == fourBar.preCollect){
 
                     Collect.execute();
 
@@ -906,7 +722,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> fourBarState == fourBar.collect
+            () -> fourBarState == fourBar.collect || (fourBarState == fourBar.stowed && fourBarTimer.milliseconds() > transferWaitTime)
     );
 
     public Command transfer = new LambdaCommand(
@@ -1189,18 +1005,6 @@ public class Collection extends SubSystem {
             linerRailServo.setPosition(servoTarget);
         }
 
-    }
-
-    private static double findRealDelta(double last, double current){
-        double realDelta;
-
-        if (last > current){
-            realDelta = current + (360 - last);
-        }else {
-            realDelta = last + (360 - current);
-        }
-
-        return realDelta;
     }
 
     public fourBar getFourBarState() {

@@ -88,7 +88,6 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         frameSub = frame.submat(ROI);
 
         if (scanning){
-            detections.clear();
 
             Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
 
@@ -123,7 +122,9 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                 Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
             }
 
-            if (sortedContoursSingle.size() > 0) {
+            if (!sortedContoursSingle.isEmpty()) {
+
+                detections.clear();
 
 //                MatOfPoint Contour = sortedContoursSingle.get(sortedContoursSingle.size() - 1);
 
