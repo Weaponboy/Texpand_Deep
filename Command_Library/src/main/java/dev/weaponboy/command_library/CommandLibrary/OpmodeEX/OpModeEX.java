@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.io.IOException;
 import java.util.List;
 
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
@@ -41,6 +42,8 @@ public abstract class OpModeEX extends OpMode {
     public Gamepad currentGamepad2 = new Gamepad();
     public Gamepad lastGamepad2 = new Gamepad();
 
+    public RobotPower RobotPosition = new RobotPower();
+
     public abstract void initEX();
 
     public abstract void loopEX();
@@ -70,25 +73,11 @@ public abstract class OpModeEX extends OpMode {
 
         lastTime = timer.milliseconds();
 
-        scheduler.execute();
-//        collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
-        loopEX();
+        RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
+        collection.updateRobotPosition(RobotPosition);
 
-        collection.updateRobotPosition(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
-//
-//        try {
-//
-//        } catch (Exception e) {
-//
-//            collection.safePositions();
-//            delivery.safePositions();
-//
-//            collection.disableServos();
-//            delivery.disableServos();
-//        } finally {
-//            collection.disableServos();
-//            delivery.disableServos();
-//        }
+        scheduler.execute();
+        loopEX();
 
         loopTime = timer.milliseconds() - lastTime;
     }

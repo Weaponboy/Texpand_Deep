@@ -83,6 +83,8 @@ public class sprint1Teleop extends OpModeEX {
             collection.setRailTargetPosition(collection.getRailPosition()+0.2);
         }
 
+        //first statement is the normal transfer in case the auto transfer fails
+        //second statement is for drop and collect at the observation zone
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
             collection.queueCommand(collection.transfer);
             collection.setChamberCollect(false);
@@ -90,7 +92,7 @@ public class sprint1Teleop extends OpModeEX {
         }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
             collection.setClawsState(Collection.clawState.drop);
             collection.setSlideTarget(collection.getSlideTarget()-12);
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
         }
         
 
@@ -109,12 +111,12 @@ public class sprint1Teleop extends OpModeEX {
         }
 
         if (currentGamepad1.y && !lastGamepad1.y) {
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(true);
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(false);
         }
 
