@@ -13,6 +13,7 @@ import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 import dev.weaponboy.command_library.Subsystems.Hang;
 import dev.weaponboy.command_library.Subsystems.Odometry;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 public abstract class OpModeEX extends OpMode {
 
@@ -70,7 +71,10 @@ public abstract class OpModeEX extends OpMode {
         lastTime = timer.milliseconds();
 
         scheduler.execute();
+//        collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
         loopEX();
+
+        collection.updateRobotPosition(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
 //
 //        try {
 //

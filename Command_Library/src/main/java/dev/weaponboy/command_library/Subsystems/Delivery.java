@@ -33,7 +33,7 @@ public class Delivery extends SubSystem {
     public final double highBasket = 66;
     public final double lowBasket = 200;
 
-    public final double highChamber = 24;
+    public final double highChamber = 30;
     public final double lowChamber = 0;
 
     ElapsedTime transferTimer = new ElapsedTime();
@@ -60,7 +60,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 20;
-    double secondTransfer = 242;
+    double secondTransfer = 235;
     double gripperTransfer = gripergrab;
 
     /**
@@ -71,17 +71,23 @@ public class Delivery extends SubSystem {
     double gripperDepo = gripergrab;
 
     /**
+     * bucket deposit position values
+     * */
+    double mainPivotScan = 140;
+    double secondScan = 100;
+
+    /**
      * clipping position values
      * */
-    double mainPivotClip = 127;
-    double secondClip = 242/1.5;
+    double mainPivotClip = 68;
+    double secondClip = 345/1.5;
     double gripperClip = gripergrab;
 
     /**
      * PRE clipping position values
      * */
-    double mainPivotPreClip = 260;
-    double secondPreClip = 190/1.5;
+    double mainPivotPreClip = 165;
+    double secondPreClip = 170;
     double gripperPreClip = gripergrab;
 
     public enum DeliveryState{
@@ -177,6 +183,13 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(mainPivotDepo);
                 secondPivot.setPosition(secondDepo);
                 griperSev.setPosition(gripperDepo);
+            }
+    );
+
+    public Command Scanning = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotScan);
+                secondPivot.setPosition(secondScan);
             }
     );
 

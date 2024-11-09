@@ -8,9 +8,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.sun.tools.javac.util.MandatoryWarningHandler;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.opencv.core.Point;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,11 +27,14 @@ import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.command_library.Hardware.motionProfile;
 import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.vision.SamplePipelines.SampleTargeting;
+import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
 public class Collection extends SubSystem {
 
     public SampleTargeting sampleSorter = new SampleTargeting();
+    public findAngleUsingContour sampleSorterContour = new findAngleUsingContour();
     public VisionPortal portal;
     WebcamName closeAim;
     ElapsedTime autoCollectTimer = new ElapsedTime();
@@ -146,7 +151,7 @@ public class Collection extends SubSystem {
      * preCollect position values
      * */
     double mainPivotPreCollect = 116;
-    double secondPivotPreCollect = 40;
+    double secondPivotPreCollect = 65;
     double rotatePreCollect = 90;
 
     /**
@@ -224,7 +229,10 @@ public class Collection extends SubSystem {
 
     private clawState clawsState = clawState.drop;
 
-    PIDController adjustment = new PIDController(0.008, 0, 0.0005);
+    PIDController adjustment = new PIDController(0.002, 0, 0.00001);
+
+    double slideTarget;
+    double slideI = 0;
 
     public void setSlideTarget(double slideTarget) {
         if (slideTarget < 0){
@@ -233,7 +241,7 @@ public class Collection extends SubSystem {
            this.slideTarget = slideTarget;
         }
 
-
+        slideI = 0;
     }
 
     boolean cancelTransfer = false;
@@ -242,9 +250,8 @@ public class Collection extends SubSystem {
         return slideTarget;
     }
 
-    double slideTarget;
-
-    double slideI;
+    public double slideTargetPosition;
+    public double railTarget;
 
     boolean autoCollected = false;
 
@@ -264,6 +271,10 @@ public class Collection extends SubSystem {
             throw new RuntimeException(e);
         }
     }
+
+    RobotPower RobotPosition = new RobotPower();
+    public Point targetPointGlobal;
+
     @Override
     public void init() {
         horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
@@ -291,9 +302,9 @@ public class Collection extends SubSystem {
         closeAim = getOpModeEX().hardwareMap.get(WebcamName.class, "webcam");
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(closeAim);
-        builder.addProcessor(sampleSorter);
+        builder.addProcessor(sampleSorterContour);
         builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
-        builder.setCameraResolution(new Size(sampleSorter.getWidth(), sampleSorter.getHeight()));
+        builder.setCameraResolution(new Size(1280, 960));
         portal = builder.build();
 
         profile.isVertical(false);
@@ -312,7 +323,7 @@ public class Collection extends SubSystem {
         griperRotate.setOffset(-10);
         griperRotate.setPosition(90);
 
-        gripServo.setPosition(0.4);
+        gripServo.setPosition(0);
 
         Stowed.execute();
 
@@ -340,14 +351,37 @@ public class Collection extends SubSystem {
             autoCollected = false;
         }
 
-        double ticksPerCM = (double) 440 /35;
+        double ticksPerCM = (double) 440 / 35;
         double error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
 
         System.out.println("error PID" + error);
 
-        if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && horizontalMotor.getVelocity() < 10){
+        if (slidesReset.isPressed() && slideTarget == 0 && !resettingSlides){
+            extendoPower = 0;
+        }else if (error > 3 && !resettingSlides){
+
+            if((slideTarget*ticksPerCM) > horizontalMotor.getCurrentPosition()){
+                extendoPower = adjustment.calculate((slideTarget*ticksPerCM) ,  horizontalMotor.getCurrentPosition())+0.1;
+            } else {
+                extendoPower = adjustment.calculate((slideTarget*ticksPerCM) ,  horizontalMotor.getCurrentPosition())-0.1;
+            }
+
+            if (horizontalMotor.getVelocity() < 5 && error > 15){
+                slideI += 0.00008;
+            }else {
+                slideI = 0;
+            }
+
+            adjustment.setI(slideI);
+
+            System.out.println("extendoPower PID" + extendoPower);
+        }else {
+            slideI = 0;
+        }
+
+        if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10){
             slideTarget = 0;
-            extendoPower = -0.4;
+            extendoPower = -0.6;
             resettingSlides = true;
         }else if (resettingSlides && slidesReset.isPressed() && slideTarget == 0){
             slideTarget = 0;
@@ -358,13 +392,6 @@ public class Collection extends SubSystem {
             horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        if (slidesReset.isPressed() && slideTarget == 0 && !resettingSlides){
-            extendoPower = 0;
-        }else if (error > 2 && !resettingSlides){
-            extendoPower = adjustment.calculate((slideTarget*ticksPerCM) ,  horizontalMotor.getCurrentPosition());
-            System.out.println("extendoPower PID" + extendoPower);
-        }
-
         if (nestState == Nest.sample){
             nest.setPosition(135);
         } else if (nestState == Nest.specimen) {
@@ -372,11 +399,21 @@ public class Collection extends SubSystem {
         }
 
         if (clawsState == clawState.grab){
-            gripServo.setPosition(0.15);
+            gripServo.setPosition(0);
         } else if (clawsState == clawState.drop) {
-            gripServo.setPosition(0.8);
+            gripServo.setPosition(0.45);
         } else if (clawsState == clawState.slightRelease) {
-            gripServo.setPosition(0.495);
+            gripServo.setPosition(0.09);
+        }
+
+        try {
+            fWriter.write("Rail position " + getRailPosition());
+            fWriter.write(System.lineSeparator());
+            fWriter.write("Slides position " +  horizontalMotor.getCurrentPosition()/(440/35));
+            fWriter.write(System.lineSeparator());
+            fWriter.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         horizontalMotor.update(extendoPower);
@@ -465,26 +502,16 @@ public class Collection extends SubSystem {
 
     public Command defaultCommand = new LambdaCommand(
             () -> {},
-            () -> {
-//                if (horizontalMotor.getCurrentPosition() < 40){
-//                    extendoPower = 0;
-//                }else if (horizontalMotor.getCurrentPosition() > 40){
-//                    extendoPower = 0.01;
-//                }
-            },
+            () -> {},
             () -> true
     );
 
     public Command collect(double slideTarget){
-//        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
-//        slidesState = slideState.profile;
         this.slideTarget = slideTarget;
         return collect;
     }
 
     public Command cameraSetPoint(double slideTarget){
-//        profile.generateMotionProfile(slideTarget, horizontalMotor.getCurrentPosition());
-//        slidesState = slideState.profile;
         this.slideTarget = slideTarget;
         return camera;
     }
@@ -760,6 +787,105 @@ public class Collection extends SubSystem {
             () -> targetingState == targeting.collecting
     );
 
+    public Command autoCollectGlobal(RobotPower robotPosition){
+        RobotPosition = robotPosition;
+        return autoCollectGlobal;
+    }
+
+    public void updateRobotPosition(RobotPower robotPosition){
+        RobotPosition = robotPosition;
+    }
+
+    public final Command autoCollectGlobal = new LambdaCommand(
+            () -> {
+                preCollect.execute();
+                setRailTargetPosition(9);
+                autoCollectTimer.reset();
+                targetingState = targeting.transferring;
+                targetTargetingState = targeting.camera;
+                cameraWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCamera)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotCamera)*(microRoboticTime+2));
+
+                sampleSorterContour.setScanning(false);
+            },
+            () -> {
+
+                setNestState(Nest.sample);
+
+//                Point targetPointGlobal = new Point(141, 100);
+
+                double angle = findAngle(targetPointGlobal, new Point(RobotPosition.getVertical(), RobotPosition.getHorizontal()));
+
+                double xError = targetPointGlobal.x-RobotPosition.getVertical();
+                double yError = RobotPosition.getHorizontal()-targetPointGlobal.y;
+
+                double angleDelta = Math.abs(angle - RobotPosition.getPivot());
+
+                double deltaHeading = Math.toRadians(RobotPosition.getPivot() - angle);
+
+                double convertedDelta = Math.toDegrees(deltaHeading);
+
+                if (convertedDelta < -180) {
+                    deltaHeading = Math.toRadians(-(convertedDelta + 360));
+                } else if (convertedDelta > 180) {
+                    deltaHeading = Math.toRadians(360 - convertedDelta);
+                }
+
+                double disToTarget = Math.hypot(xError, yError);
+
+                double railDisToTarget;
+                double v = disToTarget * Math.sin((deltaHeading));
+
+                if (Math.toDegrees(deltaHeading) > 0){
+                    railDisToTarget = v;
+                }else {
+                    railDisToTarget = -v;
+                }
+
+                double otherAngle = (180 - angleDelta)/2;
+                double targetRailPosition;
+                double slideTarget;
+
+                if (deltaHeading == 0){
+                    targetRailPosition = 9.5;
+                    slideTarget = disToTarget-32;
+                }else {
+                    targetRailPosition = 9.5 + (railDisToTarget * Math.sin(Math.toRadians(otherAngle)));
+                    slideTarget = (disToTarget - (Math.abs((railDisToTarget * Math.cos((Math.toRadians(otherAngle)))))))-32;
+//                    railTarget = xError;
+//                    slideTargetPosition = slideTarget;
+                }
+
+                railTarget = targetRailPosition;
+                slideTargetPosition = slideTarget;
+
+                try {
+                    fWriter.write("xError " + xError);
+                    fWriter.write(System.lineSeparator());
+                    fWriter.write("yError " + yError);
+                    fWriter.write(System.lineSeparator());
+                    fWriter.write("targetRailPosition " + targetRailPosition);
+                    fWriter.write(System.lineSeparator());
+                    fWriter.write("slideTarget " + slideTarget);
+                    fWriter.write(System.lineSeparator());
+
+                    fWriter.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (slideTarget > 36 || targetRailPosition > 20 || targetRailPosition < 0){
+                    System.out.println("Out of range");
+                    targetingState = targeting.collecting;
+                }else {
+                    setSlideTarget(slideTarget);
+                    setRailTargetPosition(targetRailPosition);
+                    griperRotate.setPosition(90+Math.toDegrees(deltaHeading));
+                }
+
+            },
+            () -> targetingState == targeting.collecting
+    );
+
     public Command transfer = new LambdaCommand(
             () -> {
 //                if(horizontalMotor.getCurrentPosition() > 30){
@@ -1023,6 +1149,10 @@ public class Collection extends SubSystem {
         return (linerRailServo.getPositionDegrees() - 570)/degreesPerCM;
     }
 
+    public void setTargetPoint(Point targetPoint){
+        this.targetPointGlobal = targetPoint;
+    }
+
     public void setRailTargetPosition(double targetPosition) {
         this.railTargetPosition = targetPosition;
         double degreesPerCM = (double) 720 /20;
@@ -1064,7 +1194,6 @@ public class Collection extends SubSystem {
         return slidesState;
     }
 
-
     public Nest getNestState() {
         return nestState;
     }
@@ -1080,6 +1209,27 @@ public class Collection extends SubSystem {
         gripServo.getController().pwmDisable();
         linerRailServo.disableServo();
         nest.disableServo();
+    }
+
+    public double findAngle(Point targetPoint, Point currentPoint){
+        double xError = targetPoint.x-currentPoint.x;
+        double yError = targetPoint.y-currentPoint.y;
+
+        double slope = Math.atan(yError/xError);
+
+        double degrees = 0;
+
+        if (xError >= 0 && yError <= 0){
+            degrees = (90-(-Math.toDegrees(slope)))+270;
+        }else if (xError <= 0 && yError >= 0){
+            degrees = (90-(-Math.toDegrees(slope)))+90;
+        }else if (xError <= 0 && yError <= 0){
+            degrees = Math.toDegrees(slope)+180;
+        }else {
+            degrees = Math.toDegrees(slope);
+        }
+
+        return degrees;
     }
 
 }
