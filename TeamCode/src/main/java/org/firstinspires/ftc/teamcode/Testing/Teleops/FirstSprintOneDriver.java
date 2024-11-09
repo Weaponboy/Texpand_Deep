@@ -90,7 +90,7 @@ public class FirstSprintOneDriver extends OpModeEX {
         }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
             collection.setClawsState(Collection.clawState.drop);
             collection.setSlideTarget(collection.getSlideTarget()-12);
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
         }
 
         if (gamepad1.left_stick_x > 0){
@@ -108,12 +108,12 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (currentGamepad1.y && !lastGamepad1.y) {
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(true);
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){
-            collection.queueCommand(collection.autoCollect);
+            collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(false);
         }
 
