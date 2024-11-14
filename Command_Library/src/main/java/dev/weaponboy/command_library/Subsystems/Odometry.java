@@ -42,11 +42,10 @@ public class Odometry extends SubSystem {
     double currentXVelocity = 0;
     double currentYVelocity = 0;
 
-    private ExecutorService executor;
+    public double sampleTime = 0;
 
     public Odometry(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, updateLineBased);
-        this.executor = Executors.newFixedThreadPool(2);
     }
 
     public void startPosition(double X, double Y, int Heading){
@@ -61,8 +60,8 @@ public class Odometry extends SubSystem {
         leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
         rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
         backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
-
     }
+
     public double headingError(double targetHeading){
         return Heading-targetHeading;
 
@@ -97,9 +96,6 @@ public class Odometry extends SubSystem {
         double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
         double RRYError = ticksPerCM * -backPod.getVelocity();
 
-//        currentXVelocity = RRXError;
-//        currentYVelocity = RRYError;
-
         currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
         currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
 
@@ -123,6 +119,8 @@ public class Odometry extends SubSystem {
                 lastBackPod = currentBackPod;
                 lastLeftPod = currentLeftPod;
                 lastRightPod = currentRightPod;
+
+                sampleTime = System.nanoTime();
 
                 currentBackPod = -backPod.getCurrentPosition();
                 currentLeftPod = -leftPod.getCurrentPosition();
