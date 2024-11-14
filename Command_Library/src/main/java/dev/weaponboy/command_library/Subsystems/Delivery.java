@@ -17,6 +17,8 @@ import dev.weaponboy.command_library.Hardware.motionProfile;
 public class Delivery extends SubSystem {
 
    public DcMotor slideMotor;
+   public DcMotor slideMotor2;
+
 
     public ServoDegrees griperSev =new ServoDegrees();
     public ServoDegrees mainPivot=new ServoDegrees();
@@ -24,14 +26,18 @@ public class Delivery extends SubSystem {
     public ServoDegrees linierRail= new ServoDegrees();
 
     public TouchSensor slidesReset;
-
-    motionProfile profile = new motionProfile(1400, 140, 65, 2250, 0.15);
+//1150
+//312
+    motionProfile profile = new motionProfile(1000, 210, 65, 611, 0.15);
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
 
+
+    public TouchSensor clawSensor;
+
+
     public final double highBasket = 66;
-    public final double lowBasket = 200;
 
     public final double highChamber = 30;
     public final double lowChamber = 0;
@@ -39,7 +45,7 @@ public class Delivery extends SubSystem {
     ElapsedTime transferTimer = new ElapsedTime();
     boolean flipBackTime;
     boolean gripTimer;
-    double griperDrop = 110;
+    double griperDrop = 90;
     double gripergrab = 180;
 
     /**
@@ -52,42 +58,42 @@ public class Delivery extends SubSystem {
     /**
      * behind transfer position values
      * */
-    double mainPivotBehindTransfer = 0;
-    double secondBehindTransfer = 242;
+    double mainPivotBehindTransfer = 278;
+    double secondBehindTransfer = 70;
     double gripperBehindTransfer = griperDrop;
 
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 20;
-    double secondTransfer = 235;
+    double mainPivotTransfer = 260;
+    double secondTransfer = 70;
     double gripperTransfer = gripergrab;
 
     /**
      * bucket deposit position values
      * */
-    double mainPivotDepo = 233;
-    double secondDepo = 15;
+    double mainPivotDepo = 100;
+    double secondDepo = 240;
     double gripperDepo = gripergrab;
 
     /**
      * bucket deposit position values
      * */
-    double mainPivotScan = 140;
-    double secondScan = 100;
+    double mainPivotScan = 160;
+    double secondScan = 170;
 
     /**
      * clipping position values
      * */
-    double mainPivotClip = 68;
-    double secondClip = 345/1.5;
+    double mainPivotClip =160;
+    double secondClip =160;
     double gripperClip = gripergrab;
 
     /**
      * PRE clipping position values
      * */
-    double mainPivotPreClip = 165;
-    double secondPreClip = 170;
+    double mainPivotPreClip = 160;
+    double secondPreClip = 160;
     double gripperPreClip = gripergrab;
 
     public enum DeliveryState{
@@ -148,6 +154,7 @@ public class Delivery extends SubSystem {
             () ->{},
             ()-> {
                 slideMotor.setPower(profile.followProfile(slideMotor.getCurrentPosition()));
+                slideMotor2.setPower(profile.followProfile(slideMotor2.getCurrentPosition()));
                 System.out.println("slide motor power" + profile.followProfile(slideMotor.getCurrentPosition()));
             },
             ()-> !profile.isSlideRunning()
@@ -198,13 +205,13 @@ public class Delivery extends SubSystem {
             () -> {
 
                 if (fourbarState == fourBarState.behindNest){
-
+                    slideSetPonts(4.9);
                     fourBarTimer.reset();
 //                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
-                    transferWaitTime = 500;
+                    transferWaitTime = 1000;
+
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.grabNest;
-
                     Transfer.execute();
 
                 }else if (fourbarState == fourBarState.grabNest && gripperState == gripper.drop){
@@ -413,6 +420,9 @@ public class Delivery extends SubSystem {
         slideMotor = getOpModeEX().hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor2 = getOpModeEX().hardwareMap.get(DcMotor.class, "slideMotor2");
+        slideMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         mainPivot.initServo("mainPivot",getOpModeEX().hardwareMap);
         secondPivot.initServo("secondPivot",getOpModeEX().hardwareMap);
@@ -421,13 +431,15 @@ public class Delivery extends SubSystem {
 
         slidesReset = getOpModeEX().hardwareMap.get(TouchSensor.class, "DeliveryReset");
 
+        clawSensor = getOpModeEX().hardwareMap.get(TouchSensor.class, "clawsensor   ");
+
+
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
         griperSev.setPosition(180);
 
-        mainPivot.setOffset(50);
         mainPivot.setPosition(mainPivotBehindTransfer);
         secondPivot.setPosition(secondBehindTransfer);
 
@@ -455,13 +467,13 @@ public class Delivery extends SubSystem {
 
         if (getCurrentCommand() != followMotionPro){
             if (Math.abs(slideMotor.getCurrentPosition())>200){
-                slideMotor.setPower(0.05);
+                slideMotor.setPower(0.00005);
             }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
-                slideMotor.setPower(0.055);
+                slideMotor.setPower(0.00055);
             }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
-                slideMotor.setPower(0.075);
+                slideMotor.setPower(0.00075);
             }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
-                slideMotor.setPower(0.08);
+                slideMotor.setPower(0.0008);
             }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 120 && retracting){
                 slideMotor.setPower(-1);
                 counter++;

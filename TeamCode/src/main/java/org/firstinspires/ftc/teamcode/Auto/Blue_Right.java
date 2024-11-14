@@ -58,7 +58,6 @@ public class Blue_Right extends OpModeEX {
 
     @Override
     public void initEX() {
-        collection.pullOut.execute();
 
         odometry.startPosition(339, 160, 180);
 
@@ -140,7 +139,7 @@ public class Blue_Right extends OpModeEX {
 //
 //
 
-                } else if (follow.isFinished() && !collection.nestSensor.isPressed()) {
+                } else if (follow.isFinished() ) {
 
                     state = autoState.finished;
                     

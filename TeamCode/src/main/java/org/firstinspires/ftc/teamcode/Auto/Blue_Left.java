@@ -250,7 +250,7 @@ public class Blue_Left extends OpModeEX {
 //                collectionDone = true;
 //            }
 
-            if (follow.isFinished() && !collection.nestSensor.isPressed()){
+            if (follow.isFinished() ){
 
                 state = autoState.delivering;
                 built = building.notBuilt;
@@ -285,7 +285,7 @@ public class Blue_Left extends OpModeEX {
 //                collectionDone = true;
 //            }
 
-            if (follow.isFinished() && !collection.nestSensor.isPressed()){
+            if (follow.isFinished()){
 
                 state = autoState.delivering;
                 built = building.notBuilt;
@@ -316,7 +316,7 @@ public class Blue_Left extends OpModeEX {
 //                collectionDone = true;
 //            }
 
-            if (follow.isFinished() && !collection.nestSensor.isPressed()){
+            if (follow.isFinished()){
 
                 state = autoState.delivering;
                 built = building.notBuilt;

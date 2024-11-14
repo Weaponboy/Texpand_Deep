@@ -27,7 +27,7 @@ public abstract class OpModeEX extends OpMode {
     public Odometry odometry = new Odometry(this);
 
     public Hang hang = new Hang(this);
-
+//collection, delivery, driveBase, odometry
     private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
 
     List<LynxModule> allHubs;

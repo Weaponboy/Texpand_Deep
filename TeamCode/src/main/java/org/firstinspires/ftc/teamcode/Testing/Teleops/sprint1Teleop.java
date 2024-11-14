@@ -63,11 +63,7 @@ public class sprint1Teleop extends OpModeEX {
         /**
          * Collection code
          * */
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.horizontalMotor.getCurrentPosition() < 50){
-            collection.setSlideTarget(18);
-            collection.camera.execute();
-            rotateTarget = 90;
-        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
             collection.queueCommand(collection.collect);
         }
 
@@ -86,13 +82,17 @@ public class sprint1Teleop extends OpModeEX {
         //first statement is the normal transfer in case the auto transfer fails
         //second statement is for drop and collect at the observation zone
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.Transfer);
             collection.setChamberCollect(false);
             rotateTarget = 90;
         }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
             collection.setClawsState(Collection.clawState.drop);
             collection.setSlideTarget(collection.getSlideTarget()-12);
             collection.queueCommand(collection.autoCollectGlobal);
+        }
+        if (collection.getFourBarState() == Collection.fourBar.transfering && delivery.slidesState == Delivery.slideState.holdPosition && collection.clawSensor.isPressed() && !delivery.clawSensor.isPressed() && collection.horizontalMotor.getCurrentPosition()<10 && delivery.slideMotor.getCurrentPosition()<100){
+            delivery.queueCommand(delivery.transfer);
+            collection.queueCommand(collection.transferDrop);
         }
         
 
@@ -119,6 +119,7 @@ public class sprint1Teleop extends OpModeEX {
             collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(false);
         }
+
 
         /**
          * Delivery code
@@ -156,7 +157,6 @@ public class sprint1Teleop extends OpModeEX {
         telemetry.addData("collection  slides velo ", collection.horizontalMotor.getVelocity());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
-        telemetry.addData("nest sensor", collection.nestSensor.isPressed());
         telemetry.addData("claw sensor", collection.clawSensor.isPressed());
         telemetry.update();
     }
