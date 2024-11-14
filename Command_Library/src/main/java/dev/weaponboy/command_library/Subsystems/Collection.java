@@ -352,7 +352,7 @@ public class Collection extends SubSystem {
                 slideI = 0;
             }
 
-            adjustment.setI(slideI);
+//            adjustment.setI(slideI);
 
             System.out.println("extendoPower PID" + extendoPower);
         }else {
