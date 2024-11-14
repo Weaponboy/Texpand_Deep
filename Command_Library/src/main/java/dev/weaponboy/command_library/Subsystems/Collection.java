@@ -386,7 +386,7 @@ public class Collection extends SubSystem {
             gripServo.setPosition(0.9);
         }
 
-        horizontalMotor.update(extendoPower);
+        horizontalMotor.update(0);
         horizontalMotor.updateVelocity();
     }
 
@@ -411,7 +411,7 @@ public class Collection extends SubSystem {
                 fourBarState = fourBar.transferUp;
             }
     );
-    private final Command transfer = new Execute(
+    private final Command Transfer = new Execute(
             () -> {
                 fourBarMainPivot.setPosition(mainPivotTransfer);
                 fourBarSecondPivot.setPosition(secondPivotTransfer);
@@ -435,16 +435,24 @@ public class Collection extends SubSystem {
                 fourBarSecondPivot.setPosition(secondPivotStow);
             }
     );
-    public final Command transferDrop = new Execute(
+    public final  Command transferDrop = new LambdaCommand(
+            () -> {
+
+            },
             () -> {
                 clawsState = clawState.drop;
                 TransferDrop =true;
                 WaitForTranferDrop.reset();
                 if (TransferDrop && WaitForTranferDrop.milliseconds()>100){
                     transferUp.execute();
+                    TransferDrop = false;
                 }
 
-            }
+
+
+            },
+            () -> TransferDrop && WaitForTranferDrop.milliseconds()>100
+
     );
 
 
@@ -700,7 +708,7 @@ public class Collection extends SubSystem {
             () -> fourBarState == fourBar.collect || (fourBarState == fourBar.stowed && fourBarTimer.milliseconds() > transferWaitTime)
     );
 
-    public Command Transfer = new LambdaCommand(
+    public Command transfer = new LambdaCommand(
             () -> {
 //                if(horizontalMotor.getCurrentPosition() > 30){
 //                    profile.generateMotionProfile(0, horizontalMotor.getCurrentPosition());
@@ -734,27 +742,16 @@ public class Collection extends SubSystem {
 //                }else
 //
 
-                if (autoCollecting && fourBarState == fourBar.collect && clawsState == clawState.grab){
+                if ( fourBarState == fourBar.collect && clawsState == clawState.drop){
 
-                    clawsState = clawState.drop;
+                    clawsState = clawState.grab;
 
                     fourBarTimer.reset();
                     transferWaitTime = 1000;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
-                    fourBarMainPivot.setPosition(102);
                     autoCollecting = false;
-
-                } else if (fourBarState == fourBar.collect && clawsState == clawState.drop && clawSensor.isPressed()){
-
-                    clawsState = clawState.grab;
-                    setClawsState(clawState.grab);
-
-                    fourBarTimer.reset();
-                    transferWaitTime = 600;
-                    fourBarState = fourBar.transferringStates;
-                    fourBarTargetState = fourBar.collect;
 
                 } else if (fourBarState == fourBar.collect && clawsState == clawState.grab){
 
@@ -766,23 +763,16 @@ public class Collection extends SubSystem {
                     transInt.execute();
                     setRailTargetPosition(railTargetTransInt);
 
-                } else if (fourBarState == fourBar.transferInt && clawSensor.isPressed()) {
-                    slidesState = slideState.profile;
+                } else if (fourBarState == fourBar.transferInt ) {
                     setSlideTarget(0);
                     setClawsState(clawState.grab);
-
-                } else if (fourBarState == fourBar.transferInt && !clawSensor.isPressed()) {
-
-                    cancelTransfer = true;
-                    queueCommand(collect);
-
-                } else if (fourBarState == fourBar.transferInt && horizontalMotor.getCurrentPosition()<10) {
-
                     fourBarTimer.reset();
-                    transfer.execute();
+                    Transfer.execute();
                     fourBarState = fourBar.transfering;
 
-
+                }
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
                 }
             },
             () -> (fourBarState == fourBar.transferUp && clawsState == clawState.drop) || cancelTransfer

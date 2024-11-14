@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -68,9 +67,9 @@ public class sprint1Teleop extends OpModeEX {
         }
 
         if (currentGamepad1.right_stick_y < 0){
-            collection.setSlideTarget(collection.getSlideTarget()+0.4);
+            collection.setSlideTarget(collection.getSlideTarget()+0.04);
         }else if (currentGamepad1.right_stick_y > 0){
-            collection.setSlideTarget(collection.getSlideTarget()-0.4);
+            collection.setSlideTarget(collection.getSlideTarget()-0.04);
         }
 
         if (currentGamepad1.right_stick_x < 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
@@ -82,7 +81,7 @@ public class sprint1Teleop extends OpModeEX {
         //first statement is the normal transfer in case the auto transfer fails
         //second statement is for drop and collect at the observation zone
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.Transfer);
+            collection.queueCommand(collection.transfer);
             collection.setChamberCollect(false);
             rotateTarget = 90;
         }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
@@ -90,10 +89,10 @@ public class sprint1Teleop extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-12);
             collection.queueCommand(collection.autoCollectGlobal);
         }
-        if (collection.getFourBarState() == Collection.fourBar.transfering && delivery.slidesState == Delivery.slideState.holdPosition && collection.clawSensor.isPressed() && !delivery.clawSensor.isPressed() && collection.horizontalMotor.getCurrentPosition()<10 && delivery.slideMotor.getCurrentPosition()<100){
-            delivery.queueCommand(delivery.transfer);
-            collection.queueCommand(collection.transferDrop);
-        }
+//        if (collection.getFourBarState() == Collection.fourBar.transfering && delivery.slidesState == Delivery.slideState.holdPosition && collection.clawSensor.isPressed() && !delivery.clawSensor.isPressed() && collection.horizontalMotor.getCurrentPosition()<10 && delivery.slideMotor.getCurrentPosition()<100){
+//            delivery.queueCommand(delivery.transfer);
+//            collection.queueCommand(collection.transferDrop);
+//        }
         
 
         if (gamepad1.left_stick_x > 0){
