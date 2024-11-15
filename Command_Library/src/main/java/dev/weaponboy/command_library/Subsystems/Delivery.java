@@ -6,6 +6,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -118,6 +119,8 @@ public class Delivery extends SubSystem {
         grab
     }
 
+
+
     public gripper getGripperState() {
         return gripperState;
     }
@@ -130,6 +133,7 @@ public class Delivery extends SubSystem {
     public Delivery.fourBarState fourbarState = fourBarState.behindNest;
     public Delivery.fourBarState fourBarTargetState = fourBarState.behindNest;
     public Delivery.DeliveryState depositState = DeliveryState.stowed;
+    public Delivery.slideState slides = slideState.holdPosition;
 
 
     ElapsedTime fourBarTimer = new ElapsedTime();
@@ -203,9 +207,13 @@ public class Delivery extends SubSystem {
    public LambdaCommand transfer = new LambdaCommand(
             () -> {},
             () -> {
+                slideSetPonts(4.9);
+                slides = slideState.moving;
+
+
 
                 if (fourbarState == fourBarState.behindNest){
-                    slideSetPonts(4.9);
+
                     fourBarTimer.reset();
 //                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
                     transferWaitTime = 1000;
@@ -438,6 +446,8 @@ public class Delivery extends SubSystem {
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
+        slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+
         griperSev.setPosition(180);
 
         mainPivot.setPosition(mainPivotBehindTransfer);
@@ -452,17 +462,21 @@ public class Delivery extends SubSystem {
     @Override
     public void execute() {
 
+
+
 //        Deposit.execute();
 
         executeEX();
-//        if(slidesState==slideState.holdPosition){
-//            queueCommand(holdPosition);
-//        }
+        if(slides==slideState.moving){
+            double slidePower = profile.followProfile(slideMotor.getCurrentPosition());
+            slideMotor.setPower(slidePower);
+            slideMotor2.setPower(slidePower);
+        }
 
         if (gripperState == Delivery.gripper.grab){
-            griperSev.setPosition(110);
+            griperSev.setPosition(0);
         } else if (gripperState == Delivery.gripper.drop) {
-            griperSev.setPosition(180);
+            griperSev.setPosition(90);
         }
 
         if (getCurrentCommand() != followMotionPro){

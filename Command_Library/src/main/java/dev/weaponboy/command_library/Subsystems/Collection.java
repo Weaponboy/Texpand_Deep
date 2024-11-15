@@ -50,7 +50,7 @@ public class Collection extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
-    motionProfile profile = new motionProfile(508, 250, 52.2, 492, 0.15);
+    motionProfile profile = new motionProfile(508, 250, 50, 492, 0.15);
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -148,13 +148,13 @@ public class Collection extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 288;
+    double mainPivotCollect = 280;
     double secondPivotCollect = 225;
 
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 260;
+    double mainPivotPreCollect = 250;
     double secondPivotPreCollect = 225;
     double rotatePreCollect = 90;
 
@@ -302,14 +302,16 @@ public class Collection extends SubSystem {
         griperRotate.setOffset(-10);
         griperRotate.setPosition(90);
 
-        gripServo.setPosition(0);
+        setClawsState(clawState.drop);
+
 
         Stowed.execute();
 
         //max left = 570
         //max right = 1340
         linerRailServo.setDirection(Servo.Direction.REVERSE);
-        linerRailServo.setPosition(900);
+        linerRailServo.setPosition(railTargetTransInt);
+
 
     }
 
@@ -379,14 +381,14 @@ public class Collection extends SubSystem {
         }
 
         if (clawsState == clawState.grab){
-            gripServo.setPosition(1);
+            gripServo.setPosition(0.35);
         } else if (clawsState == clawState.drop) {
-            gripServo.setPosition(0.40);
+            gripServo.setPosition(0.70);
         } else if (clawsState == clawState.slightRelease) {
-            gripServo.setPosition(0.9);
+            gripServo.setPosition(0.4);
         }
 
-        horizontalMotor.update(0);
+        horizontalMotor.update(extendoPower);
         horizontalMotor.updateVelocity();
     }
 
