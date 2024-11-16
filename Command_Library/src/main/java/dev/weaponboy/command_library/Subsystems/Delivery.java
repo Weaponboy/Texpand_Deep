@@ -29,7 +29,7 @@ public class Delivery extends SubSystem {
     public TouchSensor slidesReset;
 //1150
 //312
-    motionProfile profile = new motionProfile(1000, 210, 65, 611, 0.15);
+    motionProfile profile = new motionProfile(1200, 210, 65, 611, 0.25);
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
@@ -205,12 +205,12 @@ public class Delivery extends SubSystem {
     );
 
    public LambdaCommand transfer = new LambdaCommand(
-            () -> {},
             () -> {
                 slideSetPonts(4.9);
+            },
+            () -> {
+
                 slides = slideState.moving;
-
-
 
                 if (fourbarState == fourBarState.behindNest){
 
@@ -462,15 +462,14 @@ public class Delivery extends SubSystem {
     @Override
     public void execute() {
 
-
-
-//        Deposit.execute();
-
         executeEX();
-        if(slides==slideState.moving){
+
+        if(slides == slideState.moving){
             double slidePower = profile.followProfile(slideMotor.getCurrentPosition());
             slideMotor.setPower(slidePower);
             slideMotor2.setPower(slidePower);
+        }if (!profile.isSlideRunning()){
+            slides = slideState.holdPosition;
         }
 
         if (gripperState == Delivery.gripper.grab){
@@ -479,7 +478,7 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(90);
         }
 
-        if (getCurrentCommand() != followMotionPro){
+        if (slides == slideState.holdPosition){
             if (Math.abs(slideMotor.getCurrentPosition())>200){
                 slideMotor.setPower(0.00005);
             }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
