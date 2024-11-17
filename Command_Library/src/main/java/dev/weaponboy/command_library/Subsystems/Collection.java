@@ -50,7 +50,7 @@ public class Collection extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
-    motionProfile profile = new motionProfile(508, 250, 50, 492, 0.15);
+    motionProfile profile = new motionProfile(508, 350, 50, 492, 0.15);
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -148,14 +148,14 @@ public class Collection extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 280;
-    double secondPivotCollect = 225;
+    double mainPivotCollect = 77;
+    double secondPivotCollect = 320;
 
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 250;
-    double secondPivotPreCollect = 225;
+    double mainPivotPreCollect = 105;
+    double secondPivotPreCollect = 310;
     double rotatePreCollect = 90;
 
     /**
@@ -169,27 +169,27 @@ public class Collection extends SubSystem {
      * */
     double rotateTransInt = 90;
     double railTargetTransInt = 10;
-    double mainPivotTransInt = 140;
-    double secondPivotTransInt = 187;
+    double mainPivotTransInt = 180;
+    double secondPivotTransInt = 180;
 
 
 
     /**
      * stowed position values
      * */
-    double mainPivotTransferUp = 130;
-    double secondPivotTransferUp = 215;
+    double mainPivotTransferUp = 210;
+    double secondPivotTransferUp = 100;
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 140;
-    double secondPivotTransfer = 187;
+    double mainPivotTransfer = 210;
+    double secondPivotTransfer = 122;
 
     /**
      * stow position values
      * */
-    double mainPivotChamberCollect = 260;
-    double secondPivotChamberCollect = 170;
+    double mainPivotChamberCollect = 120;
+    double secondPivotChamberCollect = 310;
     double rotateChamberCollect = 90;
 
 
@@ -288,9 +288,9 @@ public class Collection extends SubSystem {
 
         profile.isVertical(false);
 
-        fourBarMainPivot.setOffset(-79);
+        fourBarMainPivot.setOffset(10);
 
-        fourBarSecondPivot.setOffset(-24);
+        fourBarSecondPivot.setOffset(-20);
 
 
 
@@ -381,7 +381,7 @@ public class Collection extends SubSystem {
         }
 
         if (clawsState == clawState.grab){
-            gripServo.setPosition(0.35);
+            gripServo.setPosition(0.3);
         } else if (clawsState == clawState.drop) {
             gripServo.setPosition(0.70);
         } else if (clawsState == clawState.slightRelease) {
@@ -445,7 +445,7 @@ public class Collection extends SubSystem {
                 clawsState = clawState.drop;
                 TransferDrop =true;
                 WaitForTranferDrop.reset();
-                if (TransferDrop && WaitForTranferDrop.milliseconds()>100){
+                if (TransferDrop && WaitForTranferDrop.milliseconds()>400){
                     transferUp.execute();
                     TransferDrop = false;
                 }

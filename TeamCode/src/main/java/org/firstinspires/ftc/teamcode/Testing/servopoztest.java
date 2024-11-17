@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
@@ -17,18 +18,18 @@ public class servopoztest extends OpMode {
     public ServoDegrees secondPivot = new ServoDegrees();
 
 
-    double CollectSecondPivot = 225;
-    double CollectMainPivot = 288;
-    double transferMainPivot = 140;
-    double transferSecondPivot = 187;
+    double CollectSecondPivot = 320;
+    double CollectMainPivot = 75;
+    double transferMainPivot = 210;
+    double transferSecondPivot = 122;
     double stowMainPivot = 180;
     double stowSecondPivot = 180;
-    double transferUpMainPivot = 130;
-    double transferUpSecondPivot = 215;
-    double preCollectMainPivot =260;
-    double preCollectSecondPivot =225;
-    double preCollectChamberMainPivot =260;
-    double preCollectChamberSecondPivot =170;
+    double transferUpMainPivot = 250;
+    double transferUpSecondPivot = 145;
+    double preCollectMainPivot =95;
+    double preCollectSecondPivot =310;
+    double preCollectChamberMainPivot =120;
+    double preCollectChamberSecondPivot =310;
 
 //4.9cm
     double secondPivotBehindTransfer = 70;
@@ -69,16 +70,17 @@ public class servopoztest extends OpMode {
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
+
         fourBarMainPivot.setRange(335);
         fourBarSecondPivot.setRange(335);
-        fourBarSecondPivot.setOffset(-24);
-        fourBarMainPivot.setOffset(-79);
-        fourBarSecondPivot.setPosition(stowSecondPivot);
-        fourBarMainPivot.setPosition(stowMainPivot);
+        fourBarSecondPivot.setOffset(-20);
+        fourBarMainPivot.setOffset(10);
+        fourBarSecondPivot.setPosition(transferSecondPivot);
+        fourBarMainPivot.setPosition(transferMainPivot);
 
 
-//        secondPivot.setPosition(secondPivotScan);
-//        mainPivot.setPosition(mainPivotScan);
+        secondPivot.setPosition(secondPivotTransfer);
+        mainPivot.setPosition(mainPivotTransfer);
 
 
     }

@@ -89,11 +89,15 @@ public class sprint1Teleop extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-12);
             collection.queueCommand(collection.autoCollectGlobal);
         }
-        if (collection.getFourBarState() == Collection.fourBar.transfering && delivery.slidesState == Delivery.slideState.holdPosition && collection.clawSensor.isPressed() && !delivery.clawSensor.isPressed() && collection.horizontalMotor.getCurrentPosition()<10 && delivery.slideMotor.getCurrentPosition()<100){
-            delivery.queueCommand(delivery.transfer);
-            collection.queueCommand(collection.transferDrop);
+
+        if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
+            delivery.slideSetPonts(50);
+            delivery.slides = Delivery.slideState.moving;
+
+
         }
-        
+
+
 
         if (gamepad1.left_stick_x > 0){
             rotateTarget += 1;
@@ -141,8 +145,16 @@ public class sprint1Teleop extends OpModeEX {
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper &&delivery.fourbarState == Delivery.fourBarState.behindNest){
             delivery.queueCommand(delivery.transfer);
+            transferring =true;
+            transferringWait.reset();
+
+
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 1000){
             delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+        }
+        if (transferring && transferringWait.milliseconds()>500){
+            collection.queueCommand(collection.transferDrop);
+            transferring = false;
         }
 
 //        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.slidesReset.isPressed() && delivery.fourbarState == Delivery.fourBarState.behindNest){
@@ -153,12 +165,12 @@ public class sprint1Teleop extends OpModeEX {
 //            collection.setClawsState(Collection.clawState.grab);
 //        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getClawsState() == Collection.clawState.grab){
 //            collection.setClawsState(Collection.clawState.drop);
-//        }
+//        }1054/75
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
-        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition()/(2250/65));
+        telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition());
         telemetry.addData("collection  slides velo ", collection.horizontalMotor.getVelocity());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());

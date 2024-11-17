@@ -29,7 +29,7 @@ public class Delivery extends SubSystem {
     public TouchSensor slidesReset;
 //1150
 //312
-    motionProfile profile = new motionProfile(1200, 210, 65, 611, 0.25);
+    motionProfile profile = new motionProfile(1700, 210, 75, 1100, 0.35);
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
@@ -46,8 +46,8 @@ public class Delivery extends SubSystem {
     ElapsedTime transferTimer = new ElapsedTime();
     boolean flipBackTime;
     boolean gripTimer;
-    double griperDrop = 90;
-    double gripergrab = 180;
+    double griperDrop = 55;
+    double gripergrab = 100;
 
     /**
      * servo time per degrees
@@ -206,11 +206,14 @@ public class Delivery extends SubSystem {
 
    public LambdaCommand transfer = new LambdaCommand(
             () -> {
-                slideSetPonts(4.9);
+                slideSetPonts(4);
+                slides = slideState.moving;
             },
             () -> {
-
                 slides = slideState.moving;
+
+
+
 
                 if (fourbarState == fourBarState.behindNest){
 
@@ -446,9 +449,9 @@ public class Delivery extends SubSystem {
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
-        slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setPosition(180);
+        griperSev.setPosition(griperDrop);
 
         mainPivot.setPosition(mainPivotBehindTransfer);
         secondPivot.setPosition(secondBehindTransfer);
@@ -473,9 +476,9 @@ public class Delivery extends SubSystem {
         }
 
         if (gripperState == Delivery.gripper.grab){
-            griperSev.setPosition(0);
+            griperSev.setPosition(55);
         } else if (gripperState == Delivery.gripper.drop) {
-            griperSev.setPosition(90);
+            griperSev.setPosition(110);
         }
 
         if (slides == slideState.holdPosition){

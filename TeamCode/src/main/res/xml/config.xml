@@ -6,8 +6,8 @@
             <goBILDA5202SeriesMotor name="slideMotor2" port="2"/>
             <Servo name="gripServo" port="5"/>
             <Servo name="gripperRotate" port="4"/>
-            <Servo name="fourBarMainPivot" port="2"/>
-            <Servo name="fourBarSecondPivot" port="3"/>
+            <Servo name="fourBarMainPivot" port="3"/>
+            <Servo name="fourBarSecondPivot" port="2"/>
             <Servo name="hang1" port="0"/>
             <Servo name="linearRailServo" port="1"/>
         </LynxModule>
