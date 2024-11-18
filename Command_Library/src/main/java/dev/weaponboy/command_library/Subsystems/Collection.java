@@ -310,9 +310,7 @@ public class Collection extends SubSystem {
         //max left = 570
         //max right = 1340
         linerRailServo.setDirection(Servo.Direction.REVERSE);
-        linerRailServo.setPosition(railTargetTransInt);
-
-
+        setRailTargetPosition(railTargetTransInt);
     }
 
     @Override
@@ -363,7 +361,7 @@ public class Collection extends SubSystem {
 
         if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10){
             slideTarget = 0;
-            extendoPower = -0.6;
+            extendoPower = -0.4;
             resettingSlides = true;
         }else if (resettingSlides && slidesReset.isPressed() && slideTarget == 0){
             slideTarget = 0;
@@ -424,7 +422,7 @@ public class Collection extends SubSystem {
             () -> {
                 fourBarMainPivot.setPosition(mainPivotTransInt);
                 fourBarSecondPivot.setPosition(secondPivotTransInt);
-                linerRailServo.setPosition(railTargetTransInt);
+                setRailTargetPosition(railTargetTransInt);
                 griperRotate.setPosition(rotateTransInt);
             }
     );
@@ -437,6 +435,7 @@ public class Collection extends SubSystem {
                 fourBarSecondPivot.setPosition(secondPivotStow);
             }
     );
+
     public final  Command transferDrop = new LambdaCommand(
             () -> {
 
@@ -449,9 +448,6 @@ public class Collection extends SubSystem {
                     transferUp.execute();
                     TransferDrop = false;
                 }
-
-
-
             },
             () -> TransferDrop && WaitForTranferDrop.milliseconds()>100
 
