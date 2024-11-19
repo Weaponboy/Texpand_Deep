@@ -449,7 +449,7 @@ public class Collection extends SubSystem {
                     TransferDrop = false;
                 }
             },
-            () -> TransferDrop && WaitForTranferDrop.milliseconds()>100
+            () -> TransferDrop && WaitForTranferDrop.milliseconds()>500
 
     );
 
@@ -476,7 +476,8 @@ public class Collection extends SubSystem {
 
 
 
-    public Command collect = new LambdaCommand(
+    public Command
+            collect = new LambdaCommand(
             () -> {},
             () -> {
 
@@ -766,14 +767,17 @@ public class Collection extends SubSystem {
                     setClawsState(clawState.grab);
                     fourBarTimer.reset();
                     Transfer.execute();
-                    fourBarState = fourBar.transfering;
+                    fourBarState = fourBar.transferringStates;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransInt)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransInt)*microRoboticTime);
+                    fourBarTargetState = fourBar.transferUp;
+
 
                 }
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
                 }
             },
-            () -> (fourBarState == fourBar.transferUp && clawsState == clawState.drop) || cancelTransfer
+            () -> (fourBarState == fourBar.transferUp  || cancelTransfer)
     );
 
     public Command chamberCollect = new LambdaCommand(

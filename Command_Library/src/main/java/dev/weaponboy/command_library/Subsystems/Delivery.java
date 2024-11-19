@@ -29,7 +29,7 @@ public class Delivery extends SubSystem {
     public TouchSensor slidesReset;
 //1150
 //312
-    motionProfile profile = new motionProfile(1700, 210, 75, 1100, 0.35);
+    motionProfile profile = new motionProfile(1200, 210, 75, 1100, 0.2);
 
     double topRailFullExtension = 0;
     double topRailAllTheWayIn = 335;
@@ -206,10 +206,9 @@ public class Delivery extends SubSystem {
 
    public LambdaCommand transfer = new LambdaCommand(
             () -> {
-                slideSetPonts(4);
-                slides = slideState.moving;
             },
             () -> {
+                slideSetPonts(6);
                 slides = slideState.moving;
 
 
@@ -219,7 +218,7 @@ public class Delivery extends SubSystem {
 
                     fourBarTimer.reset();
 //                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
-                    transferWaitTime = 1000;
+                    transferWaitTime = 200;
 
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.grabNest;
@@ -253,6 +252,9 @@ public class Delivery extends SubSystem {
                }
            },
            () -> {
+               if (slideMotor.getCurrentPosition()<5 ){
+                   slides = slideState.holdPosition;
+               }
 
                if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.drop){
                    fourBarTimer.reset();
@@ -261,8 +263,7 @@ public class Delivery extends SubSystem {
                    fourbarState = fourBarState.transferringStates;
                    fourBarTargetState = fourBarState.behindNest;
 
-                   queueCommand(followMotionPro);
-                   slidesState = Delivery.slideState.moving;
+                   slides = Delivery.slideState.moving;
 
                    behindNest.execute();
                } else if (fourbarState == fourBarState.grabNest && slideMotor.getCurrentPosition() > 400) {
@@ -466,6 +467,11 @@ public class Delivery extends SubSystem {
     public void execute() {
 
         executeEX();
+//        if (slides == slideState.holdPosition && slideMotor.getCurrentPosition()<10){
+//            slideMotor.setPower(0);
+//            slideMotor2.setPower(0);
+//
+//        }
 
         if(slides == slideState.moving){
             double slidePower = profile.followProfile(slideMotor.getCurrentPosition());
@@ -482,22 +488,24 @@ public class Delivery extends SubSystem {
         }
 
         if (slides == slideState.holdPosition){
-            if (Math.abs(slideMotor.getCurrentPosition())>200){
+            if (Math.abs(slideMotor.getCurrentPosition())>70){
                 slideMotor.setPower(0.00005);
-            }else if(Math.abs(slideMotor.getCurrentPosition())>1000){
+                slideMotor2.setPower(0.00005);
+            }else if(Math.abs(slideMotor.getCurrentPosition())>300){
                 slideMotor.setPower(0.00055);
-            }else if(Math.abs(slideMotor.getCurrentPosition())>1400){
+                slideMotor2.setPower(0.00055);
+
+            }else if(Math.abs(slideMotor.getCurrentPosition())>500){
                 slideMotor.setPower(0.00075);
-            }else if(Math.abs(slideMotor.getCurrentPosition())>2000){
+                slideMotor2.setPower(0.00075);
+
+            }else if(Math.abs(slideMotor.getCurrentPosition())>750){
                 slideMotor.setPower(0.0008);
-            }else if(slideMotor.getCurrentPosition() > 15 && slideMotor.getCurrentPosition() < 120 && retracting){
-                slideMotor.setPower(-1);
-                counter++;
-                if(counter == 5){
-                    retracting = false;
-                }
+                slideMotor.setPower(0.0008);
             }else {
                 slideMotor.setPower(0);
+                slideMotor2.setPower(0);
+
             }
         }
     }

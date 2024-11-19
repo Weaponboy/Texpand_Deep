@@ -11,7 +11,7 @@ import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 
 @TeleOp
-public class sprint1Teleop extends OpModeEX {
+public class sprint2Teleop extends OpModeEX {
 
     boolean transferring = false;
     ElapsedTime transferringWait = new ElapsedTime();
@@ -150,10 +150,11 @@ public class sprint1Teleop extends OpModeEX {
 
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 1000){
-            delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
+            delivery.slideSetPonts(65);
+            delivery.slides = Delivery.slideState.moving;
         }
-        if (transferring && transferringWait.milliseconds()>500){
-            collection.queueCommand(collection.transferDrop);
+        if (transferring && transferringWait.milliseconds()>100){
+            collection.setClawsState(Collection.clawState.drop);
             transferring = false;
         }
 
