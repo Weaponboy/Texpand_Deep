@@ -65,7 +65,7 @@ public class FirstSprintOneDriver extends OpModeEX {
          * */
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && collection.horizontalMotor.getCurrentPosition() < 50){
             collection.setSlideTarget(18);
-            collection.camera.execute();
+//            collection.camera.execute();
             rotateTarget = 90;
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper){
             collection.queueCommand(collection.collect);
@@ -84,7 +84,7 @@ public class FirstSprintOneDriver extends OpModeEX {
         }
 
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.transfer);
+//            collection.queueCommand(collection.transfer);
             collection.setChamberCollect(false);
             rotateTarget = 90;
         }else if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collectChamber){
@@ -151,7 +151,6 @@ public class FirstSprintOneDriver extends OpModeEX {
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition()/(440/35));
         telemetry.addData("vertical slides ", delivery.slideMotor.getCurrentPosition()/(2250/65));
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
-        telemetry.addData("nest sensor", collection.nestSensor.isPressed());
         telemetry.addData("claw sensor", collection.clawSensor.isPressed());
         telemetry.update();
     }

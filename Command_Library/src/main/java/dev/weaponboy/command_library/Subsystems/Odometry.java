@@ -29,10 +29,9 @@ public class Odometry extends SubSystem {
     public double currentRightPod, currentLeftPod, currentBackPod;
     public double rightPodPos, leftPodPos, backPodPos;
 
-
     double podTicks = 2000;
     double wheelRadius = 2.4;
-    double trackWidth = 25.1;
+    double trackWidth = 24.2;
     double backPodOffset = 10.5;
 
     double ticksPerCM = ((2.0 * Math.PI) * wheelRadius)/podTicks;
@@ -42,10 +41,11 @@ public class Odometry extends SubSystem {
     double currentXVelocity = 0;
     double currentYVelocity = 0;
 
-    public double sampleTime = 0;
+    private ExecutorService executor;
 
     public Odometry(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, updateLineBased);
+        this.executor = Executors.newFixedThreadPool(2);
     }
 
     public void startPosition(double X, double Y, int Heading){
@@ -58,10 +58,10 @@ public class Odometry extends SubSystem {
     @Override
     public void init() {
         leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
-        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
-        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
-    }
+        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
+        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
 
+    }
     public double headingError(double targetHeading){
         return Heading-targetHeading;
 
@@ -93,8 +93,11 @@ public class Odometry extends SubSystem {
     }
 
     public void updateVelocity(){
-        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
-        double RRYError = ticksPerCM * -backPod.getVelocity();
+        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(leftPod.getVelocity()))/2);
+        double RRYError = ticksPerCM * backPod.getVelocity();
+
+//        currentXVelocity = RRXError;
+//        currentYVelocity = RRYError;
 
         currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
         currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
@@ -120,17 +123,15 @@ public class Odometry extends SubSystem {
                 lastLeftPod = currentLeftPod;
                 lastRightPod = currentRightPod;
 
-                sampleTime = System.nanoTime();
-
-                currentBackPod = -backPod.getCurrentPosition();
-                currentLeftPod = -leftPod.getCurrentPosition();
+                currentBackPod = backPod.getCurrentPosition();
+                currentLeftPod = leftPod.getCurrentPosition();
                 currentRightPod = -rightPod.getCurrentPosition();
 
                 double deltaRight = currentRightPod - lastRightPod;
                 double deltaLeft = currentLeftPod - lastLeftPod;
                 double deltaBack = currentBackPod - lastBackPod;
 
-                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / (trackWidth+0.1);
+                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / (trackWidth+0.2);
                 Heading += deltaHeading;
 
                 if (Math.toDegrees(Heading) < 0){
@@ -139,11 +140,13 @@ public class Odometry extends SubSystem {
                     Heading = Math.toRadians(Math.toDegrees(Heading) - 360);
                 }
 
-                double deltaX = (((deltaRight*ticksPerCM) - Math.toDegrees(deltaHeading) * cmPerDegreeV) + (((deltaLeft*ticksPerCM)- Math.toDegrees(deltaHeading) * cmPerDegreeV)))/2;
+                double deltaX = ((((deltaRight+deltaLeft)*ticksPerCM)/2));
                 double deltaY = (ticksPerCM * deltaBack) - (Math.toDegrees(deltaHeading) * cmPerDegree);
 
                 X += deltaX * Math.cos(Heading) - deltaY * Math.sin(Heading);
                 Y += deltaX * Math.sin(Heading) + deltaY * Math.cos(Heading);
+
+                //4165 back pod 180
 
 //                updatePodReadings();
 //                leftPod.update(0);
