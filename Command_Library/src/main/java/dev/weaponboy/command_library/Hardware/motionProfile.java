@@ -6,6 +6,10 @@ import java.util.ArrayList;
 
 public class motionProfile {
 
+    public double getTargetPosition() {
+        return targetPosition;
+    }
+
     double targetPosition = 0;
     double currentPosition = 0;
 

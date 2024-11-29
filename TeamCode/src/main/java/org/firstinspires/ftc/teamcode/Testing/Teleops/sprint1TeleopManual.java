@@ -78,7 +78,7 @@ public class sprint1TeleopManual extends OpModeEX {
         }
 
         if (currentGamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.transfer);
+//            collection.queueCommand(collection.transfer);
             collection.setChamberCollect(false);
             rotateTarget = 90;
         }
@@ -116,9 +116,9 @@ public class sprint1TeleopManual extends OpModeEX {
             delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
         }
 
-        if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10 && delivery.fourbarState == Delivery.fourBarState.behindNest){
-            delivery.queueCommand(delivery.transfer);
-        }
+//            if (!collection.nestSensor.isPressed() && delivery.slidesReset.isPressed() && collection.getCurrentCommand() != collection.transfer && collection.horizontalMotor.getCurrentPosition() < 10 && delivery.fourbarState == Delivery.fourBarState.behindNest){
+//                delivery.queueCommand(delivery.transfer);
+//        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
@@ -127,7 +127,6 @@ public class sprint1TeleopManual extends OpModeEX {
         telemetry.addData("collection  slides velo ", collection.horizontalMotor.getVelocity());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
-        telemetry.addData("nest sensor", collection.nestSensor.isPressed());
         telemetry.addData("claw sensor", collection.clawSensor.isPressed());
         telemetry.update();
     }

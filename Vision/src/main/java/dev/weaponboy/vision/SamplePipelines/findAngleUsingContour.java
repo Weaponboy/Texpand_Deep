@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -45,9 +46,19 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
     public ArrayList<detectionData> detections = new ArrayList<>();
 
     Mat redMat = new Mat();
+    Mat redMat2 = new Mat();
 
-    public Scalar redLower = new Scalar(9, 92, 104);
-    public Scalar redHigher = new Scalar(38,255,255);
+    public Scalar redLower = new Scalar(0, 148, 36);
+    public Scalar redHigher = new Scalar(9,255,255);
+
+    public Scalar redLower2 = new Scalar(160, 25, 123);
+    public Scalar redHigher2 = new Scalar(220,255,255);
+
+    public Scalar blueLower = new Scalar(40, 60, 60);
+    public Scalar blueHigher = new Scalar(160,255,255);
+
+    public Scalar yellowLower = new Scalar(9, 145, 134);
+    public Scalar yellowHigher = new Scalar(38,255,255);
 
     ArrayList<MatOfPoint> redContoursSingle = new ArrayList<>();
     ArrayList<Rect> redRectsSingle = new ArrayList<>();
@@ -58,7 +69,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
     double angle = 0;
 
     private final double viewSizeCMXAxis = 70;
-    private final double viewSizeCMYAxis = 45;
+    private final double viewSizeCMYAxis = 53;
 
     public boolean isScanning() {
         return scanning;
@@ -71,6 +82,24 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
     boolean scanning = true;
 
     public Mat frameSub;
+
+    public enum TargetColor{
+        red,
+        blue,
+        yellow
+    }
+
+    public boolean closestFirst = false;
+
+    public TargetColor getTargetColor() {
+        return targetColor;
+    }
+
+    public void setTargetColor(TargetColor targetColor) {
+        this.targetColor = targetColor;
+    }
+
+    TargetColor targetColor = TargetColor.yellow;
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
@@ -89,22 +118,54 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
         if (scanning){
 
-            Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
-
-            inRange(redMat, redLower, redHigher, redMat);
-
-            erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-            dilate(redMat, redMat, new Mat(5, 5, CV_8U));
-
             ArrayList<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
 
-            Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+            if (targetColor == TargetColor.red){
+                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
+                Imgproc.cvtColor(frameSub, redMat2, COLOR_RGB2HSV);
+
+                inRange(redMat, redLower, redHigher, redMat);
+                inRange(redMat2, redLower2, redHigher2, redMat2);
+
+                erode(redMat, redMat, new Mat(5, 5, CV_8U));
+                erode(redMat2, redMat2, new Mat(5, 5, CV_8U));
+
+                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+                dilate(redMat2, redMat2, new Mat(5, 5, CV_8U));
+
+                Mat output = new Mat();
+                Core.bitwise_or(redMat, redMat2, output);
+
+                Imgproc.findContours(output, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+            } else if (targetColor == TargetColor.blue) {
+                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
+
+                inRange(redMat, blueLower, blueHigher, redMat);
+
+                erode(redMat, redMat, new Mat(5, 5, CV_8U));
+
+                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+
+                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+            } else if (targetColor == TargetColor.yellow) {
+                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
+
+                inRange(redMat, yellowLower, yellowHigher, redMat);
+
+                erode(redMat, redMat, new Mat(5, 5, CV_8U));
+
+                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
+
+                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+            }
 
             for (int i = 0; i < contours.size(); i++){
                 Rect rect = boundingRect(contours.get(i));
-                if (rect.area() > 1000 && rect.area() < 150000){
+                if (rect.area() > 500 && rect.area() < 5000){
                     redContoursSingle.add(contours.get(i));
                     redRectsSingle.add(rect);
                 }
@@ -116,7 +177,13 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                 centerPointsSingle.add(getContourCenter(redContoursSingle.get(i)));
             }
 
-            ArrayList<MatOfPoint> sortedContoursSingle = sortContoursByY(redContoursSingle, centerPointsSingle);
+            ArrayList<MatOfPoint> sortedContoursSingle;
+
+            if (closestFirst){
+                sortedContoursSingle = sortContoursByYClosest(redContoursSingle, centerPointsSingle);
+            }else{
+                sortedContoursSingle = sortContoursByY(redContoursSingle, centerPointsSingle);
+            }
 
             for (MatOfPoint contour : sortedContoursSingle) {
                 Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
@@ -163,6 +230,9 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                         TargetPoint = new Point(contourCenter.x, contourCenter.y - x);
 
                         detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
+
+                        Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
+                        Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
                     } else if (rect.area() > 5000 && rect.area() < 150000) {
 
@@ -268,7 +338,11 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                             relativeXCorrective = (yError) * Math.sin(angleRadians) + (xError) * Math.cos(angleRadians);
                             relativeYCorrective = (yError) * Math.cos(angleRadians) - (xError) * Math.sin(angleRadians);
 
-                            Point centerPoint = new Point(intercept.x + relativeXCorrective, intercept.y + relativeYCorrective);
+                            Point centerPoint = new Point();
+
+                            if (intercept != null){
+                                centerPoint = new Point(intercept.x + relativeXCorrective, intercept.y + relativeYCorrective);
+                            }
 
                             double x = calculateAdjustment(centerPoint.y, 496, 0, 0, 20);
                             double y = calculateAdjustment(centerPoint.y, 496, 0, 0, 300);
@@ -280,9 +354,15 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                                 yError = 0;
                             }
 
-                            TargetPoint = new Point(intercept.x + relativeXCorrective + xError, intercept.y + relativeYCorrective + yError);
+                            if (intercept != null){
+                                TargetPoint = new Point(intercept.x + relativeXCorrective + xError, intercept.y + relativeYCorrective + yError);
 
-                            detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
+                                detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
+
+                                Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
+                                Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+
+                            }
 
                         } else {
                             Imgproc.putText(frameSub, "Bad", new Point(20, 600), 2, 4, new Scalar(0, 255, 0), 4, 2, false);
@@ -290,8 +370,6 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
                     }
 
-                    Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
-                    Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
 
                 }
 
@@ -301,17 +379,17 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         }
 
 //        Imgproc.circle(frameSub, new Point(75, 20), 4, new Scalar(255, 0, 0), -1);
-//        Imgproc.circle(frameSub, new Point(300, 20), 4, new Scalar(255, 0, 0), -1);
+        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
 
         redContoursSingle.clear();
         redRectsSingle.clear();
-        redMat.release();
 //        frameSub.copyTo(frame);
 
         Bitmap b = Bitmap.createBitmap(frameSub.width(), frameSub.height(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(frameSub, b);
         lastFrame.set(b);
 
+        redMat.release();
         frameSub.release();
 
         return null;
@@ -391,6 +469,228 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         return fieldDetections;
     }
 
+    public ArrayList<detectionData> convertPositionsToFieldPositions(RobotPower power, double slidePosition){
+
+        //first triangle
+        double pivotHeight = slidePosition + 43;
+        double firstHypot = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
+
+        double angleA = Math.toDegrees(Math.atan(29/pivotHeight));
+        double angleB = Math.toDegrees(Math.atan(pivotHeight/29));
+        double angleC = 90;
+
+        //second triangle
+        double angleD = 81;
+        double angleE = Math.toDegrees(Math.atan(8 / firstHypot));
+        double angleF = 180 - angleE - angleD;
+
+        double sideD = firstHypot;
+        double sideE = 8;
+        double sideF = sideD * (Math.sin(Math.toRadians(angleF)) / Math.sin(Math.toRadians(angleD)));
+
+        //vision triangle
+        double angleG = 34.6;
+        double angleH = 180 - angleB - angleE;
+        double angleI = 180 - angleH - angleG;
+
+        double sideI = sideF;
+        double sideG = sideI * (Math.sin(Math.toRadians(angleG)) / Math.sin(Math.toRadians(angleI)));
+        double sideH = sideI * (Math.sin(Math.toRadians(angleH)) / Math.sin(Math.toRadians(angleI)));
+
+        //top vision triangle
+        double angleJ = angleG;
+        double angleK = (180 - angleJ)/2;
+        double angleL = (180 - angleJ)/2;
+
+        double sideL = sideI;
+        double sideJ = sideL * (Math.sin(Math.toRadians(angleJ)) / Math.sin(Math.toRadians(angleL)));
+        double sideK = sideL;
+
+        //bottom vision triangle
+        double angleM = angleH - angleK;
+        double angleN = 180 - angleL;
+        double angleO = angleI;
+
+        double sideN = sideG;
+        double sideO = sideJ;
+        double sideM = sideN * (Math.sin(Math.toRadians(angleM)) / Math.sin(Math.toRadians(angleN)));
+
+        ArrayList<detectionData> fieldDetections = new ArrayList<>();
+
+        for (detectionData detection: detections){
+
+            double centerPoint = 190;
+
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.609);
+
+//            yExtra = 1;
+
+            if (detection.getTargetPoint().x < 180 || detection.getTargetPoint().x > 200){
+
+            }else {
+                yExtra = 1;
+            }
+
+            double pixelsToCMRelX = sideJ /ROI.height;
+            double pixelsToCMRelY = viewSizeCMYAxis/ROI.width;
+
+            double relYPosition = 0;
+            if (detection.getTargetPoint().x > centerPoint){
+
+                double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
+
+                relYPosition = ((detection.getTargetPoint().x-centerPoint)*pixelsToCMRelY) * yExtra;
+
+            } else if (detection.getTargetPoint().x < centerPoint) {
+
+                double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
+
+                relYPosition = ((detection.getTargetPoint().x  - centerPoint)*pixelsToCMRelY) * yExtra;
+
+            }
+
+            double relXPosition = ((((ROI.height - detection.getTargetPoint().y))*pixelsToCMRelX));
+
+            double targetPoint = relXPosition;
+
+            double miniTriangleSide = Math.sqrt(Math.pow(targetPoint, 2) + Math.pow(sideI, 2) - 2 * targetPoint * sideI * Math.cos(Math.toRadians(angleK)));
+            double angleMini = Math.toDegrees(targetPoint * Math.sin(Math.toRadians(angleK)) / miniTriangleSide);
+            double otherAngle = 180 - angleMini - angleK;
+
+            double invertedOtherAngle = 180 - otherAngle;
+
+            double otherInsideAngle = 180 - invertedOtherAngle - angleM;
+
+            double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
+
+            relXPosition = realWorldPosition + 22;
+
+//            relXPosition = sideN;
+
+            double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
+            double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
+
+            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 17.5 - 10) < 45){
+                fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
+
+            }
+
+        }
+
+        return fieldDetections;
+    }
+
+    public ArrayList<detectionData> convertPositionsToFieldPositions(RobotPower power, double slidePosition, double pivotAngle){
+
+        //first triangle
+        double pivotHeight = slidePosition + 43;
+        double firstHypot = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
+
+        double angleA = Math.toDegrees(Math.atan(29/pivotHeight));
+        double angleB = Math.toDegrees(Math.atan(pivotHeight/29));
+        double angleC = 90;
+
+        //second triangle
+        double angleD = pivotAngle - angleA;
+        double angleE = Math.toDegrees(Math.atan(8 / firstHypot));
+        double angleF = 180 - angleE - angleD;
+
+        double sideD = firstHypot;
+        double sideE = 8;
+        double sideF = sideD * (Math.sin(Math.toRadians(angleF)) / Math.sin(Math.toRadians(angleD)));
+
+        //vision triangle
+        double angleG = 34.6;
+        double angleH = 180 - angleB - angleE;
+        double angleI = 180 - angleH - angleG;
+
+        double sideI = sideF;
+        double sideG = sideI * (Math.sin(Math.toRadians(angleG)) / Math.sin(Math.toRadians(angleI)));
+        double sideH = sideI * (Math.sin(Math.toRadians(angleH)) / Math.sin(Math.toRadians(angleI)));
+
+        //top vision triangle
+        double angleJ = angleG;
+        double angleK = (180 - angleJ)/2;
+        double angleL = (180 - angleJ)/2;
+
+        double sideL = sideI;
+        double sideJ = sideL * (Math.sin(Math.toRadians(angleJ)) / Math.sin(Math.toRadians(angleL)));
+        double sideK = sideL;
+
+        //bottom vision triangle
+        double angleM = angleH - angleK;
+        double angleN = 180 - angleL;
+        double angleO = angleI;
+
+        double sideN = sideG;
+        double sideO = sideJ;
+        double sideM = sideN * (Math.sin(Math.toRadians(angleM)) / Math.sin(Math.toRadians(angleN)));
+
+        ArrayList<detectionData> fieldDetections = new ArrayList<>();
+
+        for (detectionData detection: detections){
+
+            double centerPoint = 190;
+
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.609);
+
+//            yExtra = 1;
+
+            if (detection.getTargetPoint().x < 180 || detection.getTargetPoint().x > 200){
+
+            }else {
+                yExtra = 1;
+            }
+
+            double pixelsToCMRelX = sideJ /ROI.height;
+            double pixelsToCMRelY = viewSizeCMYAxis/ROI.width;
+
+            double relYPosition = 0;
+            if (detection.getTargetPoint().x > centerPoint){
+
+                double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
+
+                relYPosition = ((detection.getTargetPoint().x-centerPoint)*pixelsToCMRelY) * yExtra;
+
+            } else if (detection.getTargetPoint().x < centerPoint) {
+
+                double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
+
+                relYPosition = ((detection.getTargetPoint().x  - centerPoint)*pixelsToCMRelY) * yExtra;
+
+            }
+
+            double relXPosition = ((((ROI.height - detection.getTargetPoint().y))*pixelsToCMRelX));
+
+            double targetPoint = relXPosition;
+
+            double miniTriangleSide = Math.sqrt(Math.pow(targetPoint, 2) + Math.pow(sideI, 2) - 2 * targetPoint * sideI * Math.cos(Math.toRadians(angleK)));
+            double angleMini = Math.toDegrees(targetPoint * Math.sin(Math.toRadians(angleK)) / miniTriangleSide);
+            double otherAngle = 180 - angleMini - angleK;
+
+            double invertedOtherAngle = 180 - otherAngle;
+
+            double otherInsideAngle = 180 - invertedOtherAngle - angleM;
+
+            double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
+
+            relXPosition = realWorldPosition + 22;
+
+//            relXPosition = sideN;
+
+            double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
+            double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
+
+            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 17.5 - 10) < 45){
+                fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
+
+            }
+
+        }
+
+        return fieldDetections;
+    }
+
     public Point getLowestYPoint(MatOfPoint contour) {
         List<Point> points = contour.toList();
 
@@ -447,6 +747,33 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
         return sortedContours;
     }
+
+    public ArrayList<MatOfPoint> sortContoursByYClosest(ArrayList<MatOfPoint> contours, ArrayList<Point> centerPoints) {
+        // Create a list of indices for sorting
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < centerPoints.size(); i++) {
+            indices.add(i);
+        }
+
+        // Sort indices in reverse order based on Y-coordinate of center points
+        Collections.sort(indices, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer index1, Integer index2) {
+                return Double.compare(centerPoints.get(index2).y, centerPoints.get(index1).y); // Reverse comparison
+            }
+        });
+
+        // Create a list for sorted contours
+        ArrayList<MatOfPoint> sortedContours = new ArrayList<>();
+
+        // Filter and add contours to the sorted list
+        for (int i = 0; i < indices.size(); i++) {
+            sortedContours.add(contours.get(indices.get(i)));
+        }
+
+        return sortedContours;
+    }
+
 
     public static Point findLowestYPointOnLine(double slope, double yIntercept, List<Point> contourPoints, double tolerance) {
         Point lowestYPoint = null;
