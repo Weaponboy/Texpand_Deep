@@ -183,30 +183,32 @@ public class Blue_Left extends OpModeEX {
 
             if (built == building.notBuilt){
 
-                delivery.queueCommand(delivery.transfer);
-                delivery.queueCommand(delivery.slideSetPonts(delivery.highBasket));
-                delivery.queueCommand(delivery.deposit);
+                delivery.slideSetPonts(delivery.highBasket);
+                delivery.slides = Delivery.slideState.moving;
+
                 follow.setPath(paths.returnPath("preloadPath"));
                 targetHeading = 225;
                 built = building.built;
                 drop=true;
                 dropTimer.reset();
+
+                pathing = true;
             }
 
 
-            if (delivery.fourbarState== Delivery.fourBarState.basketDeposit&&drop&&dropTimer.milliseconds()>3500){
+            if (delivery.fourbarState== Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > delivery.highBasket-4){
 
                 delivery.queueCommand(delivery.deposit);
 
                 delivery.queueCommand(delivery.deposit);
 
-                delivery.queueCommand(delivery.slideSetPonts(0));
+                delivery.queueCommand(delivery.deposit);
 
                 drop=false;
 
             }
 
-            if (follow.isFinished()&&delivery.fourbarState== Delivery.fourBarState.behindNest){
+            if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.behindNest && delivery.getGripperState() == Delivery.gripper.drop){
 
 
                 if (size==targetAuto.preload && delivery.slideMotor.getCurrentPosition() < 20){
@@ -308,6 +310,8 @@ public class Blue_Left extends OpModeEX {
                 collection.griperRotate.setPosition(135);
 
                 autoQueued = false;
+
+                pathing = true;
             }
 
 //            if (collect&&collectTimer.milliseconds()>4000){
@@ -341,11 +345,13 @@ public class Blue_Left extends OpModeEX {
                 dropTimer.reset();
                 built = building.built;
 
+                pathing = true;
+
             }
 
             if (follow.isFinished()){
 
-                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit && drop && dropTimer.milliseconds()>3500){
+                if (delivery.fourbarState== Delivery.fourBarState.basketDeposit && drop && dropTimer.milliseconds()>1000){
 
                     delivery.queueCommand(delivery.deposit);
 

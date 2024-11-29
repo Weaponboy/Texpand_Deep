@@ -73,7 +73,7 @@ public class DriveBase extends SubSystem {
     }
 
     public Command drivePowers (RobotPower power){
-        this.vertikal =power.getVertical();
+        this.vertikal =-power.getVertical();
         this.strafe = -power.getHorizontal();
         this.turn = power.getPivot();
 
@@ -100,6 +100,13 @@ public class DriveBase extends SubSystem {
         this.turn =turn*0.5;
 
         return driveField;
+    }
+
+    public void setAll(double power){
+        LF.update(power);
+        RF.update(power);
+        LB.update(power);
+        RB.update(power);
     }
 
     LambdaCommand driveField = new LambdaCommand(

@@ -10,12 +10,15 @@ public class OdometryTesting extends OpModeEX {
     @Override
     public void initEX() {
 
-        odometry.startPosition(339, 263, 270);
+        odometry.startPosition(342.5, 164, 180);
+
+//        odometry.startPosition(0, 0, 0);
     }
 
     @Override
     public void loopEX() {
         odometry.queueCommand(odometry.updateLineBased);
+
         telemetry.addData("x", odometry.X());
         telemetry.addData("y",odometry.Y());
         telemetry.addData("heading", odometry.Heading());

@@ -4,6 +4,7 @@
             <goBILDA5202SeriesMotor name="horizontalMotor" port="0"/>
             <goBILDA5202SeriesMotor name="slideMotor" port="1"/>
             <goBILDA5202SeriesMotor name="slideMotor2" port="2"/>
+            <goBILDA5202SeriesMotor name="hangPower" port="3"/>
             <Servo name="gripServo" port="5"/>
             <Servo name="gripperRotate" port="4"/>
             <Servo name="fourBarMainPivot" port="3"/>
@@ -22,7 +23,7 @@
             <Servo name="hang2" port="3"/>
             <Servo name="mainPivot" port="2"/>
             <Servo name="secondPivot" port="0"/>
-            <Servo name="nest" port="4"/>
+            <Servo name="hangPTO" port="4"/>
             <AnalogInput name="axon1" port="0"/>
             <AnalogInput name="axon2" port="1"/>
             <AnalogInput name="axon3" port="2"/>

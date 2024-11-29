@@ -32,6 +32,8 @@ public abstract class OpModeEX extends OpMode {
 
     List<LynxModule> allHubs;
 
+    ElapsedTime autoTime = new ElapsedTime();
+
     ElapsedTime timer = new ElapsedTime();
     double lastTime;
     public double loopTime;
@@ -50,6 +52,7 @@ public abstract class OpModeEX extends OpMode {
 
     @Override
     public void init() {
+
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -57,6 +60,12 @@ public abstract class OpModeEX extends OpMode {
         timer.reset();
         scheduler.init();
         initEX();
+    }
+
+    @Override
+    public void start() {
+        autoTime.reset();
+        super.start();
     }
 
     @Override
@@ -80,6 +89,7 @@ public abstract class OpModeEX extends OpMode {
         loopEX();
 
         loopTime = timer.milliseconds() - lastTime;
+//        System.out.println("loop time: " +loopTime);
     }
 
     /**
