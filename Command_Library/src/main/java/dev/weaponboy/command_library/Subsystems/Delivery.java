@@ -422,7 +422,6 @@ public class Delivery extends SubSystem {
                     gripperState = gripper.slightRelease;
 
                     PreClip.execute();
-
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
@@ -585,13 +584,12 @@ public class Delivery extends SubSystem {
     public double findCameraScanPosition(){
 
         double pivotHeight = getSlidePositionCM() + 43;
+
         double X = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
 
-        double angleInRadians = Math.asin(8 * Math.sin(Math.toRadians(65)) / X);
+        double angleInRadians = Math.acos(8 * Math.sin(80) / X);
 
-        double angleInDegrees = (180 - Math.toDegrees(angleInRadians) - 65) + Math.toDegrees(Math.atan(29/pivotHeight));
-
-        return 271 - ((angleInDegrees)*0.794);
+        return   190.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
     }
 
     public void findCameraViewWidth(){
