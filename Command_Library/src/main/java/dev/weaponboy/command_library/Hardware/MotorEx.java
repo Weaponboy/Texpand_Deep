@@ -18,6 +18,8 @@ public class MotorEx {
     double currentPower;
     int currentPosition;
 
+    double velocity;
+
     public double getTimeCompleted() {
         return timeCompleted;
     }
@@ -28,7 +30,7 @@ public class MotorEx {
 
     CompletableFuture<Boolean> setPowerFuture;
     CompletableFuture<Boolean> getPowerFuture;
-    CompletableFuture<Boolean> getPositionFuture;
+    CompletableFuture<Boolean> getVelocityFuture;
 
     public void initMotor(String motorName, HardwareMap hardwareMap){
         motor = hardwareMap.get(DcMotorEx.class, motorName);
@@ -43,6 +45,10 @@ public class MotorEx {
 
     public Integer getCurrentPosition() {
         return motor.getCurrentPosition();
+    }
+
+    public double getCurrentVelocity() {
+        return velocity;
     }
 
     public void setDirection(DcMotorSimple.Direction direction){
@@ -63,12 +69,12 @@ public class MotorEx {
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getPositionFuture == null){
-            getPositionFuture = getPositionAsync();
+        if (getVelocityFuture == null){
+            getVelocityFuture = getPositionAsync();
             updatePosition = false;
-        }else if (getPositionFuture.isDone()  && updatePosition){
+        }else if (getVelocityFuture.isDone()  && updatePosition){
             timeCompleted = System.nanoTime();
-            getPositionFuture = getPositionAsync();
+            getVelocityFuture = getPositionAsync();
             updatePosition = false;
         }
 
@@ -76,7 +82,7 @@ public class MotorEx {
 
     private CompletableFuture<Boolean> getPositionAsync() {
         return CompletableFuture.supplyAsync(() -> {
-            currentPosition = motor.getCurrentPosition();
+            velocity = motor.getVelocity();
             return true;
         }, executor);
     }
@@ -92,6 +98,10 @@ public class MotorEx {
         }, executor);
     }
 
+    public double getVelocity(){
+        return motor.getVelocity();
+    }
+
     public CompletableFuture<Boolean> getSetPowerFuture() {
         return setPowerFuture;
     }
@@ -100,7 +110,7 @@ public class MotorEx {
         executor.shutdown();
     }
 
-    public void updatePosition() {
+    public void updateVelocity() {
         this.updatePosition = true;
     }
 

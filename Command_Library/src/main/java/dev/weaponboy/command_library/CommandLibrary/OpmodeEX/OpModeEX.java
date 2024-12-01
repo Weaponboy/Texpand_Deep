@@ -5,13 +5,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.io.IOException;
 import java.util.List;
 
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
+import dev.weaponboy.command_library.Subsystems.Hang;
 import dev.weaponboy.command_library.Subsystems.Odometry;
-import dev.weaponboy.command_library.Subsystems.Collection;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 public abstract class OpModeEX extends OpMode {
 
@@ -23,9 +26,13 @@ public abstract class OpModeEX extends OpMode {
 
     public Odometry odometry = new Odometry(this);
 
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {driveBase, odometry, collection, delivery});
+    public Hang hang = new Hang(this);
+//collection, delivery, driveBase, odometry
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
 
     List<LynxModule> allHubs;
+
+    ElapsedTime autoTime = new ElapsedTime();
 
     ElapsedTime timer = new ElapsedTime();
     double lastTime;
@@ -37,15 +44,18 @@ public abstract class OpModeEX extends OpMode {
     public Gamepad currentGamepad2 = new Gamepad();
     public Gamepad lastGamepad2 = new Gamepad();
 
+    public RobotPower RobotPosition = new RobotPower();
+
     public abstract void initEX();
 
     public abstract void loopEX();
 
     @Override
     public void init() {
+
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         timer.reset();
         scheduler.init();
@@ -53,34 +63,33 @@ public abstract class OpModeEX extends OpMode {
     }
 
     @Override
-    public void loop() {
-        lastGamepad1.copy(currentGamepad1);
-        currentGamepad1.copy(gamepad1);
+    public void start() {
+        autoTime.reset();
+        super.start();
+    }
 
+    @Override
+    public void loop() {
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
 
+        lastGamepad1.copy(currentGamepad1);
+        currentGamepad1.copy(gamepad1);
+
+        lastGamepad2.copy(currentGamepad2);
+        currentGamepad2.copy(gamepad2);
+
         lastTime = timer.milliseconds();
+
+        RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
+        collection.updateRobotPosition(RobotPosition);
 
         scheduler.execute();
         loopEX();
-//
-//        try {
-//
-//        } catch (Exception e) {
-//
-//            collection.safePositions();
-//            delivery.safePositions();
-//
-//            collection.disableServos();
-//            delivery.disableServos();
-//        } finally {
-//            collection.disableServos();
-//            delivery.disableServos();
-//        }
 
         loopTime = timer.milliseconds() - lastTime;
+//        System.out.println("loop time: " +loopTime);
     }
 
     /**
@@ -89,7 +98,7 @@ public abstract class OpModeEX extends OpMode {
     @Override
     public void stop() {
         collection.disableServos();
-        delivery.disableServos();
+//        delivery.disableServos();
 //        super.stop();
     }
 }
