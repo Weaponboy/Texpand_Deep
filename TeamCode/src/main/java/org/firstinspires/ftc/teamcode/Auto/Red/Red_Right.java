@@ -1,16 +1,13 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Auto.Red;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
-import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
@@ -18,7 +15,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@Autonomous(name = "Red Right", group = "Red Autos")
+@Autonomous(name = "Red Right 1+1", group = "Red Autos")
 public class Red_Right extends OpModeEX {
 
     double targetHeading;
@@ -119,7 +116,7 @@ public class Red_Right extends OpModeEX {
                 delivery.queueCommand(delivery.Clip);
             }
 
-            if (follow.isFinished() && delivery.getSlidePositionCM() < 15 && delivery.getCurrentCommand() != delivery.preClip) {
+            if (follow.isFinished() && delivery.getSlidePositionCM() < 10 && delivery.getCurrentCommand() != delivery.preClip) {
                 state = autoState.obs_collect;
                 built = building.notBuilt;
             }
@@ -155,6 +152,11 @@ public class Red_Right extends OpModeEX {
                 following = true;
 
                 targetHeading = 180;
+            }
+
+            if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 2 && follow.getXError() < 5){
+                following = false;
+                follow.finishPath();
             }
 
             if (collection.clawSensor.isPressed() && !transferring && collection.slidesReset.isPressed()){
