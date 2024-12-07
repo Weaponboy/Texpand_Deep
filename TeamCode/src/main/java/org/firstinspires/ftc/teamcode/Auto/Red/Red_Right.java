@@ -161,16 +161,17 @@ public class Red_Right extends OpModeEX {
 
             if (collection.clawSensor.isPressed() && !transferring && collection.slidesReset.isPressed()){
                 delivery.queueCommand(delivery.transfer);
+
+                delivery.queueCommand(collection.transferDrop);
+
+                delivery.queueCommand(delivery.transfer);
+
                 transferring = true;
-                transferringWait.reset();
-            } else if (transferring && transferringWait.milliseconds() > 500 && transferringWait.milliseconds() < 600) {
-                collection.setClawsState(Collection.clawState.drop);
-            } else if (transferring && transferringWait.milliseconds() > 800) {
-                transferring = false;
+            }else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
                 delivery.queueCommand(delivery.preClip);
             }
 
-            if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !transferring){
+            if (follow.isFinished(2,2) && delivery.getCurrentCommand() != delivery.preClip && !transferring && !clipped){
                 delivery.queueCommand(delivery.Clip);
                 clipped = true;
             }
@@ -185,6 +186,7 @@ public class Red_Right extends OpModeEX {
 
             if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClip && delivery.getSlidePositionCM() < 4) {
                 state = autoState.finished;
+                delivery.setGripperState(Delivery.gripper.drop);
             }
         }
 

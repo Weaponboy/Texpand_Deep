@@ -131,7 +131,7 @@ public class Odometry extends SubSystem {
                 double deltaLeft = currentLeftPod - lastLeftPod;
                 double deltaBack = currentBackPod - lastBackPod;
 
-                double deltaHeading = ticksPerCM * (deltaLeft - deltaRight) / (trackWidth+0.2);
+                double deltaHeading = (ticksPerCM * (deltaLeft - deltaRight)) / (trackWidth+0.2);
                 Heading += deltaHeading;
 
                 if (Math.toDegrees(Heading) < 0){

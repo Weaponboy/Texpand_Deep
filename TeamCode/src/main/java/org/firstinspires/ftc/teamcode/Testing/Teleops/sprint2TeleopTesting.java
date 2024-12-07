@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,11 +10,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
-import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.vision.detectionData;
 
 @TeleOp
-public class sprint2Teleop extends OpModeEX {
+@Disabled
+public class sprint2TeleopTesting extends OpModeEX {
 
     boolean transferring = false;
     ElapsedTime transferringWait = new ElapsedTime();

@@ -3,6 +3,7 @@ package dev.weaponboy.vision.SamplePipelines;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.Core.mean;
 import static org.opencv.core.CvType.CV_8U;
+import static org.opencv.imgproc.Imgproc.COLOR_RGB2BGR;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
@@ -48,8 +49,11 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
     Mat redMat = new Mat();
     Mat redMat2 = new Mat();
 
-    public Scalar redLower = new Scalar(0, 148, 36);
-    public Scalar redHigher = new Scalar(9,255,255);
+//    public Scalar redLower = new Scalar(0, 148, 36);
+//    public Scalar redHigher = new Scalar(9,255,255);
+
+    public Scalar redLower = new Scalar(0, 0, 164);
+    public Scalar redHigher = new Scalar(222,160,255);
 
     public Scalar redLower2 = new Scalar(160, 25, 123);
     public Scalar redHigher2 = new Scalar(220,255,255);
@@ -122,22 +126,15 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             Mat hierarchy = new Mat();
 
             if (targetColor == TargetColor.red){
-                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
-                Imgproc.cvtColor(frameSub, redMat2, COLOR_RGB2HSV);
+                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2BGR);
 
                 inRange(redMat, redLower, redHigher, redMat);
-                inRange(redMat2, redLower2, redHigher2, redMat2);
 
                 erode(redMat, redMat, new Mat(5, 5, CV_8U));
-                erode(redMat2, redMat2, new Mat(5, 5, CV_8U));
 
                 dilate(redMat, redMat, new Mat(5, 5, CV_8U));
-                dilate(redMat2, redMat2, new Mat(5, 5, CV_8U));
 
-                Mat output = new Mat();
-                Core.bitwise_or(redMat, redMat2, output);
-
-                Imgproc.findContours(output, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
             } else if (targetColor == TargetColor.blue) {
                 Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
@@ -165,7 +162,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             for (int i = 0; i < contours.size(); i++){
                 Rect rect = boundingRect(contours.get(i));
-                if (rect.area() > 500 && rect.area() < 5000){
+                if (rect.area() > 1000 && rect.area() < 5000){
                     redContoursSingle.add(contours.get(i));
                     redRectsSingle.add(rect);
                 }
@@ -632,7 +629,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double centerPoint = 190;
 
-            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.609);
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.709);
 
 //            yExtra = 1;
 
@@ -674,7 +671,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
 
-            relXPosition = realWorldPosition + 22;
+            relXPosition = realWorldPosition + 19.8;
 
 //            relXPosition = sideN;
 

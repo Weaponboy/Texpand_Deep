@@ -16,8 +16,8 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@Autonomous(name = "Red Right", group = "Red Autos")
-public class Red_Right_Full_Auto extends OpModeEX {
+@Autonomous(name = "Blue Right", group = "Blue Autos")
+public class Blue_Right_Full_Auto extends OpModeEX {
 
     double targetHeading;
 
@@ -116,7 +116,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
 
         collection.sampleSorterContour.setScanning(false);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.red);
+        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.blue);
         collection.sampleSorterContour.closestFirst = true;
     }
 
@@ -193,7 +193,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                     delivery.secondPivot.setPosition(80);
                 }
 
-                if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed()) {
+                if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
                     state = autoState.cycle_one;
                     built = building.notBuilt;
                     runCollect = false;
@@ -425,7 +425,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                     delivery.secondPivot.setPosition(80);
                 }
 
-                if (follow.isFinished(2, 2) && runCollect && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed()) {
+                if (follow.isFinished(2, 2) && runCollect && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
