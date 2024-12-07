@@ -183,7 +183,6 @@ public class Red_Right_Full_Auto extends OpModeEX {
                     }
 
                     collection.queueCommand(collection.autoCollectChamber);
-                    delivery.fourbarState = Delivery.fourBarState.postTransfer;
                     delivery.queueCommand(delivery.preClip);
                     delivery.queueCommand(delivery.Clip);
                     collection.setChamberCollect(true);
@@ -415,7 +414,6 @@ public class Red_Right_Full_Auto extends OpModeEX {
                     }
 
                     collection.queueCommand(collection.autoCollectChamber);
-                    delivery.fourbarState = Delivery.fourBarState.postTransfer;
                     delivery.queueCommand(delivery.preClip);
                     delivery.queueCommand(delivery.Clip);
                     collection.setChamberCollect(true);

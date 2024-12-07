@@ -103,7 +103,7 @@ public class Blue_Right_Preload extends OpModeEX {
 
         follow.setPath(paths.returnPath("rightBluePath"));
 
-        delivery.slideSetPonts(delivery.highChamber);
+        delivery.slideSetPoint(delivery.highChamber);
         delivery.slides = Delivery.slideState.moving;
     }
 

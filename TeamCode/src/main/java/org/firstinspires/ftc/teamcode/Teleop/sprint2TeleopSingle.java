@@ -147,7 +147,7 @@ public class sprint2TeleopSingle extends OpModeEX {
             delivery.queueCommand(delivery.Clip);
         }
 
-        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.behindNest){
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer){
 
 //            delivery.queueCommand(delivery.transfer);
 //
@@ -161,9 +161,9 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             delivery.queueCommand(delivery.transfer);
 
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.postTransfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700){
 
-            delivery.slideSetPonts(68);
+            delivery.slideSetPoint(68);
             delivery.slides = Delivery.slideState.moving;
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){

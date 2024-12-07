@@ -107,7 +107,7 @@ public class Blue_Right_2 extends OpModeEX {
 
         follow.setPath(paths.returnPath("rightBluePath"));
 
-        delivery.slideSetPonts(delivery.highChamber);
+        delivery.slideSetPoint(delivery.highChamber);
         delivery.slides = Delivery.slideState.moving;
 
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
@@ -150,7 +150,7 @@ public class Blue_Right_2 extends OpModeEX {
                 delivery.queueCommand(delivery.Clip);
                 delivery.queueCommand(delivery.Clip);
 
-            } else if (queuedClipCommands && collection.horizontalMotor.getCurrentPosition() < 40 && delivery.getSlidePositionCM() < 25 && delivery.fourbarState == Delivery.fourBarState.behindNest) {
+            } else if (queuedClipCommands && collection.horizontalMotor.getCurrentPosition() < 40 && delivery.getSlidePositionCM() < 25 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                 state = autoState.obs_collect;
                 built = building.notBuilt;
             }
@@ -162,7 +162,7 @@ public class Blue_Right_2 extends OpModeEX {
                 follow.setPath(paths.returnPath("colecting"));
                 targetHeading = 315;
                 detectingInSub = true;
-                delivery.slideSetPonts(delivery.highChamber);
+                delivery.slideSetPoint(delivery.highChamber);
                 delivery.slides = Delivery.slideState.moving;
             }
 
