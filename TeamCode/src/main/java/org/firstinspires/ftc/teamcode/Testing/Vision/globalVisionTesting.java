@@ -50,7 +50,7 @@ public class globalVisionTesting extends OpModeEX {
 
 //        collection.sampleSorterContour.setScanning(false);
 
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.red);
+        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
     }
 
     @Override

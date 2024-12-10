@@ -32,7 +32,7 @@ public class Odometry extends SubSystem {
     double podTicks = 2000;
     double wheelRadius = 2.4;
     double trackWidth = 24.2;
-    double backPodOffset = 10.5;
+    double backPodOffset = 9.8;
 
     double ticksPerCM = ((2.0 * Math.PI) * wheelRadius)/podTicks;
     double cmPerDegreeV = ((2.0 * Math.PI) * (trackWidth/2)) / 360;
@@ -41,11 +41,8 @@ public class Odometry extends SubSystem {
     double currentXVelocity = 0;
     double currentYVelocity = 0;
 
-    private ExecutorService executor;
-
     public Odometry(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, updateLineBased);
-        this.executor = Executors.newFixedThreadPool(2);
     }
 
     public void startPosition(double X, double Y, int Heading){
@@ -57,8 +54,8 @@ public class Odometry extends SubSystem {
 
     @Override
     public void init() {
-        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
-        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
+        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
+        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
         backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
 
     }
@@ -93,7 +90,7 @@ public class Odometry extends SubSystem {
     }
 
     public void updateVelocity(){
-        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(leftPod.getVelocity()))/2);
+        double RRXError = ticksPerCM * ((rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
         double RRYError = ticksPerCM * backPod.getVelocity();
 
 //        currentXVelocity = RRXError;
@@ -124,14 +121,14 @@ public class Odometry extends SubSystem {
                 lastRightPod = currentRightPod;
 
                 currentBackPod = backPod.getCurrentPosition();
-                currentLeftPod = leftPod.getCurrentPosition();
-                currentRightPod = -rightPod.getCurrentPosition();
+                currentLeftPod = -leftPod.getCurrentPosition();
+                currentRightPod = rightPod.getCurrentPosition();
 
                 double deltaRight = currentRightPod - lastRightPod;
                 double deltaLeft = currentLeftPod - lastLeftPod;
                 double deltaBack = currentBackPod - lastBackPod;
 
-                double deltaHeading = (ticksPerCM * (deltaLeft - deltaRight)) / (trackWidth+0.2);
+                double deltaHeading = (ticksPerCM * (deltaLeft - deltaRight)) / (trackWidth+0.22);
                 Heading += deltaHeading;
 
                 if (Math.toDegrees(Heading) < 0){

@@ -48,7 +48,7 @@ public class sprint2Teleop extends OpModeEX {
         /**
          * Overwrites
          * */
-        if (gamepad2.back){
+        if (currentGamepad2.back && !lastGamepad1.back){
             collection.sampleSorterContour.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
@@ -75,8 +75,17 @@ public class sprint2Teleop extends OpModeEX {
             collection.setChamberCollect(false);
         }
 
-        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0)){
+        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
             collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(delivery.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
         }
 
         if (currentGamepad2.right_stick_y < -0.5){
@@ -109,16 +118,16 @@ public class sprint2Teleop extends OpModeEX {
 //            collection.setChamberCollect(true);
 //        }
 
-//        if (gamepad1.dpad_left){
-//            hang.hang1.setPosition(1);
-//            hang.hang2.setPosition(1);
-//        }else if (gamepad1.dpad_right){
-//            hang.hang1.setPosition(0);
-//            hang.hang2.setPosition(0);
-//        }else{
-//            hang.hang1.setPosition(0.5);
-//            hang.hang2.setPosition(0.5);
-//        }
+        if (gamepad1.dpad_left){
+            hang.hang1.setPosition(1);
+            hang.hang2.setPosition(1);
+        }else if (gamepad1.dpad_right){
+            hang.hang1.setPosition(0);
+            hang.hang2.setPosition(0);
+        }else{
+            hang.hang1.setPosition(0.5);
+            hang.hang2.setPosition(0.5);
+        }
 
         if(currentGamepad2.b && !lastGamepad2.b){
             delivery.queueCommand(delivery.cameraScan);
@@ -226,6 +235,7 @@ public class sprint2Teleop extends OpModeEX {
         telemetry.addData("claw sensor collection", collection.clawSensor.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
         telemetry.addData("rail target", collection.getRailPosition());
+        telemetry.addData("Resetting slides", collection.resettingSlides);
         telemetry.addData("Target point", collection.sampleMap.size());
         for (detectionData detection: collection.sampleMap){
             telemetry.addData("Target point", detection.getTargetPoint());
