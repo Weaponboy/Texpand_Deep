@@ -24,6 +24,7 @@
             <Servo name="mainPivot" port="2"/>
             <Servo name="secondPivot" port="0"/>
             <Servo name="hangPTO" port="4"/>
+            <Servo name="devClawRotate" port="5"/>
             <AnalogInput name="axon1" port="0"/>
             <AnalogInput name="axon2" port="1"/>
             <AnalogInput name="axon3" port="2"/>

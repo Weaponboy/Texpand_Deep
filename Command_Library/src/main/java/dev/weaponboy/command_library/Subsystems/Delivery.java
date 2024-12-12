@@ -31,6 +31,8 @@ public class Delivery extends SubSystem {
     public ServoDegrees griperSev =new ServoDegrees();
     public ServoDegrees mainPivot=new ServoDegrees();
     public ServoDegrees secondPivot = new ServoDegrees();
+    public ServoDegrees griperRotateSev =new ServoDegrees();
+
 
     public TouchSensor slidesReset;
 
@@ -47,7 +49,7 @@ public class Delivery extends SubSystem {
 
     PIDController adjustment = new PIDController(0.015, 0, 0.00005);
 
-    double gripperDrop = 120;
+    double gripperDrop = 130;
     double gripperGrab = 68;
     double gripperSlightRelease = 78;
 
@@ -62,7 +64,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 260;
-    double secondTransfer = 140;
+    double secondTransfer = 135;
 
     /**
      * bucket deposit position values
@@ -193,7 +195,7 @@ public class Delivery extends SubSystem {
 
                     Transfer.execute();
 
-                } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 400) {
+                } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 300) {
 
                     fourBarTimer.reset();
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*4, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*4);
@@ -370,15 +372,21 @@ public class Delivery extends SubSystem {
         mainPivot.initServo("mainPivot",getOpModeEX().hardwareMap);
         secondPivot.initServo("secondPivot",getOpModeEX().hardwareMap);
         griperSev.initServo("devClaw",getOpModeEX().hardwareMap);
+        griperRotateSev.initServo("devClawRotate",getOpModeEX().hardwareMap);
 
         slidesReset = getOpModeEX().hardwareMap.get(TouchSensor.class, "DeliveryReset");
         clawSensor = getOpModeEX().hardwareMap.get(TouchSensor.class, "clawIR");
 
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
+        griperRotateSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
+        griperRotateSev.setPosition(0);
+
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        griperSev.setOffset(18);
 
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);

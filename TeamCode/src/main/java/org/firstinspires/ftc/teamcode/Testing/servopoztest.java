@@ -102,14 +102,14 @@ public class servopoztest extends OpMode {
         fourBarSecondPivot.setOffset(-20);
         fourBarMainPivot.setOffset(10);
 
-        fourBarSecondPivot.setPosition(138);
-        fourBarMainPivot.setPosition(200);
+        fourBarSecondPivot.setPosition(148);
+        fourBarMainPivot.setPosition(195);
 
 //        secondPivot.setPosition(preSecondClip);
 //        mainPivot.setPosition(120);
 
         mainPivot.setPosition(260);
-        secondPivot.setPosition(140);
+        secondPivot.setPosition(135);
 
         //straight down = 271
         //parallel to hte ground = 190.5
