@@ -47,16 +47,21 @@ public class servopoztest extends OpMode {
 //4.9cm
     double secondPivotBehindTransfer = 70;
     double mainPivotBehindTransfer =278;
+
     double secondPivotTransfer = 70;
     double mainPivotTransfer =260;
+
     double secondPivotBucket =240;
     double mainPivotBucket =100;
-    double secondPivotScan =170;
-    double mainPivotScan =160;
-    double preMainClip = 182;
-    double preSecondClip =150;
-    double mainClip = 185;
-    double secondClip =100;
+
+    double secondPivotScan = 160;
+    double mainPivotScan = 160;
+
+    double preMainClip = 100;
+    double preSecondClip = 210;
+
+    double mainClip = 140;
+    double secondClip = 220;
 
     public TouchSensor ClawSensor;
     public TouchSensor clawIR;
@@ -97,19 +102,21 @@ public class servopoztest extends OpMode {
         griperRotate.setOffset(10);
         griperRotate.setPosition(0);
 
+        deliveryGrip.setOffset(18);
+
         fourBarMainPivot.setRange(335);
         fourBarSecondPivot.setRange(335);
         fourBarSecondPivot.setOffset(-20);
         fourBarMainPivot.setOffset(10);
 
-        fourBarSecondPivot.setPosition(148);
-        fourBarMainPivot.setPosition(195);
+//        fourBarSecondPivot.setPosition(preSecondClip);
+//        fourBarMainPivot.setPosition(preMainClip);
 
 //        secondPivot.setPosition(preSecondClip);
 //        mainPivot.setPosition(120);
 
-        mainPivot.setPosition(260);
-        secondPivot.setPosition(135);
+        mainPivot.setPosition(preMainClip);
+        secondPivot.setPosition(preSecondClip);
 
         //straight down = 271
         //parallel to hte ground = 190.5
@@ -135,6 +142,13 @@ public class servopoztest extends OpMode {
             gripServo.setPosition(100);
         }
 
+        if (gamepad1.left_bumper){
+//
+            mainPivot.setPosition(mainClip);
+            secondPivot.setPosition(secondClip);
+//            deliveryGrip.disableServo();
+        }
+
         if (gamepad1.dpad_left){
             fourBarSecondPivot.setPosition(150);
             fourBarMainPivot.setPosition(190);
@@ -146,7 +160,7 @@ public class servopoztest extends OpMode {
         }
 
         if (gamepad1.dpad_up){
-            deliveryGrip.setPosition(72);
+            deliveryGrip.setPosition(68);
         }
 
         if (gamepad1.dpad_down){

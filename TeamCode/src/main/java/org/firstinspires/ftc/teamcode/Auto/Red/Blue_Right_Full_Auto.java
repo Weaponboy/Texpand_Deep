@@ -133,7 +133,7 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                 runCollect = false;
                 built = building.built;
 
-                delivery.queueCommand(delivery.preClip);
+                delivery.queueCommand(delivery.preClipFront);
             }
 
             if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 2 && follow.getXError() < 5){
@@ -143,8 +143,8 @@ public class Blue_Right_Full_Auto extends OpModeEX {
 
             if (targetState == autoState.final_Clip){
 
-                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !collection.getChamberCollect() && !clipped){
-                    delivery.queueCommand(delivery.Clip);
+                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront && !collection.getChamberCollect() && !clipped){
+                    delivery.queueCommand(delivery.clipFront);
                     clipped = true;
                 }
 
@@ -156,7 +156,7 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                 }
 
             }else{
-                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !collection.getChamberCollect()){
+                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront && !collection.getChamberCollect()){
 
                     runCollect = true;
                     collection.sampleSorterContour.setScanning(true);
@@ -183,8 +183,8 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                     }
 
                     collection.queueCommand(collection.autoCollectChamber);
-                    delivery.queueCommand(delivery.preClip);
-                    delivery.queueCommand(delivery.Clip);
+                    delivery.queueCommand(delivery.preClipFront);
+                    delivery.queueCommand(delivery.clipFront);
                     collection.setChamberCollect(true);
 
                 }else if (delivery.getSlidePositionCM() > 15 && !runCollect){
@@ -192,7 +192,7 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                     delivery.secondPivot.setPosition(80);
                 }
 
-                if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
+                if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClipFront && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
                     state = autoState.cycle_one;
                     built = building.notBuilt;
                     runCollect = false;
@@ -270,16 +270,16 @@ public class Blue_Right_Full_Auto extends OpModeEX {
 
                 } else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
                     transferring = false;
-                    delivery.queueCommand(delivery.preClip);
+                    delivery.queueCommand(delivery.preClipFront);
                 }
 
-                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !transferring && !clipped){
-                    delivery.queueCommand(delivery.preClip);
-                    delivery.queueCommand(delivery.Clip);
+                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront && !transferring && !clipped){
+                    delivery.queueCommand(delivery.preClipFront);
+                    delivery.queueCommand(delivery.clipFront);
                     clipped = true;
                 }
 
-                if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClip && delivery.getSlidePositionCM() < 4) {
+                if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.getSlidePositionCM() < 4) {
                     state = autoState.finished;
                 }
 
@@ -365,7 +365,7 @@ public class Blue_Right_Full_Auto extends OpModeEX {
             } else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
                 transferring = false;
                 if (state == targetState){
-                    delivery.queueCommand(delivery.preClip);
+                    delivery.queueCommand(delivery.preClipFront);
                 }else{
                     delivery.queueCommand(delivery.cameraScan);
                 }
@@ -373,19 +373,19 @@ public class Blue_Right_Full_Auto extends OpModeEX {
 
             if (state == targetState){
 
-                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !clipped && !transferring){
-                    delivery.queueCommand(delivery.Clip);
+                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront && !clipped && !transferring){
+                    delivery.queueCommand(delivery.clipFront);
                     clipped = true;
                 }
 
-                if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClip && delivery.getSlidePositionCM() < 4) {
+                if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.getSlidePositionCM() < 4) {
                     state = autoState.final_Clip;
                     built = building.notBuilt;
                 }
 
             }else {
 
-                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !collection.getChamberCollect()){
+                if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront && !collection.getChamberCollect()){
 
                     delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
 
@@ -414,8 +414,8 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                     }
 
                     collection.queueCommand(collection.autoCollectChamber);
-                    delivery.queueCommand(delivery.preClip);
-                    delivery.queueCommand(delivery.Clip);
+                    delivery.queueCommand(delivery.preClipFront);
+                    delivery.queueCommand(delivery.clipFront);
                     collection.setChamberCollect(true);
 
                 }else if (delivery.getSlidePositionCM() > 15 && !runCollect){
@@ -423,7 +423,7 @@ public class Blue_Right_Full_Auto extends OpModeEX {
                     delivery.secondPivot.setPosition(80);
                 }
 
-                if (follow.isFinished(2, 2) && runCollect && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClip && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
+                if (follow.isFinished(2, 2) && runCollect && delivery.getSlidePositionCM() < 5 && collection.getSlidePositionCM() < 5.5 && delivery.getCurrentCommand() != delivery.preClipFront && collection.getChamberCollect() && collection.clawSensor.isPressed() && collection.fourBarMainPivot.getPositionDegrees() > 90) {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;

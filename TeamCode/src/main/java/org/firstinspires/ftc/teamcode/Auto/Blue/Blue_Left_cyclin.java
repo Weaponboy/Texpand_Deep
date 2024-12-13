@@ -177,6 +177,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     state = autoState.finished;
                 }else{
                     state = autoState.spikeOne;
+                    collection.setSlideTarget(20);
                     built = building.notBuilt;
                 }
 
@@ -221,7 +222,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,306));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247,306));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -230,7 +231,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 306)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 306)));
 
                     collection.queueCommand(collection.collect);
 
@@ -276,6 +277,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
+                    collection.setSlideTarget(15);
                     state = autoState.spikeTwo;
                     built = building.notBuilt;
                 }
@@ -331,7 +333,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 331)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 331)));
 
                     collection.queueCommand(collection.collect);
 
@@ -376,6 +378,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
+                    collection.setSlideTarget(20);
                     state = autoState.spikeThree;
                     built = building.notBuilt;
                 }
@@ -426,11 +429,11 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 Vector2D armPosition = collection.extendoPoint();
 
-                if (Math.abs(armPosition.getX() - 250) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5){
+                if (Math.abs(armPosition.getX() - 250) < 10 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 354)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 355)));
 
                     collection.queueCommand(collection.collect);
 
@@ -475,7 +478,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
-                    state = autoState.finished;
+                    state = autoState.one;
                     built = building.notBuilt;
                 }
 
@@ -525,7 +528,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (cycleBuilt == building.notBuilt){
                 follow.setPath(paths.returnPath("collectSub"));
-                targetHeading = 225;
+                targetHeading = 235;
 
                 cycleBuilt = building.built;
 

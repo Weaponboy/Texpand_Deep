@@ -177,9 +177,9 @@ public class sprint2Teleop extends OpModeEX {
          * Delivery code
          * */
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
-            delivery.queueCommand(delivery.preClip);
+            delivery.queueCommand(delivery.preClipFront);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.Clip);
+            delivery.queueCommand(delivery.clipFront);
         }
 
         if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.drop){

@@ -103,7 +103,7 @@ public class Blue_Right_Preload extends OpModeEX {
 
         follow.setPath(paths.returnPath("rightBluePath"));
 
-        delivery.slideSetPoint(delivery.highChamber);
+        delivery.slideSetPoint(delivery.highChamberFront);
         delivery.slides = Delivery.slideState.moving;
     }
 
@@ -118,7 +118,7 @@ public class Blue_Right_Preload extends OpModeEX {
                 targetHeading = 180;
                 following = true;
                 built = building.built;
-                delivery.PreClip.execute();
+                delivery.PreClipFront.execute();
             }
 
             if (!follow.isFinished() && odometry.getXVelocity() < 2 && follow.getXError() < 5){
@@ -147,10 +147,10 @@ public class Blue_Right_Preload extends OpModeEX {
                 }
 
                 queuedClipCommands = true;
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
 
             } else if (delivery.slideMotor.getCurrentPosition() < 20 && queuedClipCommands) {
                 state = autoState.obs_collect;

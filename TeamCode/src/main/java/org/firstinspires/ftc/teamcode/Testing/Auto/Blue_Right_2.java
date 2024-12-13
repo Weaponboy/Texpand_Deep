@@ -107,7 +107,7 @@ public class Blue_Right_2 extends OpModeEX {
 
         follow.setPath(paths.returnPath("rightBluePath"));
 
-        delivery.slideSetPoint(delivery.highChamber);
+        delivery.slideSetPoint(delivery.highChamberFront);
         delivery.slides = Delivery.slideState.moving;
 
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
@@ -128,10 +128,10 @@ public class Blue_Right_2 extends OpModeEX {
                 targetHeading = 180;
                 following = true;
                 built = building.built;
-                delivery.PreClip.execute();
+                delivery.PreClipFront.execute();
             }
 
-            if (follow.isFinished(1, 4) && detectingInSub && delivery.getCurrentCommand() != delivery.Clip){
+            if (follow.isFinished(1, 4) && detectingInSub && delivery.getCurrentCommand() != delivery.clipFront){
                 detectingInSub = false;
                 busyDetecting = true;
                 detectingTimer.reset();
@@ -145,10 +145,10 @@ public class Blue_Right_2 extends OpModeEX {
             if (follow.isFinished(1, 4) && !queuedClipCommands && !detectingInSub && detectingTimer.milliseconds() > 500) {
 
                 queuedClipCommands = true;
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
 
             } else if (queuedClipCommands && collection.horizontalMotor.getCurrentPosition() < 40 && delivery.getSlidePositionCM() < 25 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                 state = autoState.obs_collect;
@@ -162,7 +162,7 @@ public class Blue_Right_2 extends OpModeEX {
                 follow.setPath(paths.returnPath("colecting"));
                 targetHeading = 315;
                 detectingInSub = true;
-                delivery.slideSetPoint(delivery.highChamber);
+                delivery.slideSetPoint(delivery.highChamberFront);
                 delivery.slides = Delivery.slideState.moving;
             }
 

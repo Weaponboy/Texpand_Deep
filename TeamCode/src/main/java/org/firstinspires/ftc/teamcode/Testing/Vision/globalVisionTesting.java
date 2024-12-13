@@ -50,7 +50,7 @@ public class globalVisionTesting extends OpModeEX {
 
 //        collection.sampleSorterContour.setScanning(false);
 
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
+        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.red);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class globalVisionTesting extends OpModeEX {
 
 
 //            delivery.queueCommand(delivery.preClip);
-            delivery.queueCommand(delivery.Clip);
+            delivery.queueCommand(delivery.clipFront);
             collection.setChamberCollect(true);
         }
 
@@ -103,7 +103,7 @@ public class globalVisionTesting extends OpModeEX {
         }
 
         if (gamepad1.left_bumper){
-            delivery.slideSetPoint(delivery.highChamber);
+            delivery.slideSetPoint(delivery.highChamberFront);
             delivery.slides = Delivery.slideState.moving;
 
         }
@@ -229,7 +229,7 @@ public class globalVisionTesting extends OpModeEX {
 
     public void clipAndCollect(){
 
-        if (detectingInSub && delivery.getCurrentCommand() != delivery.Clip){
+        if (detectingInSub && delivery.getCurrentCommand() != delivery.clipFront){
             detectingInSub = false;
             detectingTimer.reset();
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
@@ -264,9 +264,9 @@ public class globalVisionTesting extends OpModeEX {
 
             queuedClipCommands = true;
 
-            delivery.queueCommand(delivery.Clip);
-            delivery.queueCommand(delivery.Clip);
-            delivery.queueCommand(delivery.Clip);
+            delivery.queueCommand(delivery.clipFront);
+            delivery.queueCommand(delivery.clipFront);
+            delivery.queueCommand(delivery.clipFront);
 
             runningClipAndCollect = false;
 
