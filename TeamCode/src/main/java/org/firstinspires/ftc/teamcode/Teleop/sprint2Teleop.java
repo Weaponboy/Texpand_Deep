@@ -76,9 +76,10 @@ public class sprint2Teleop extends OpModeEX {
         }
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
+
             collection.queueCommand(collection.transfer);
 
-            collection.queueCommand(delivery.transfer);
+//            collection.queueCommand(delivery.transfer);
 
             collection.queueCommand(collection.transferDrop);
 
@@ -207,29 +208,11 @@ public class sprint2Teleop extends OpModeEX {
 
         }
 
-        if (collection.clawSensor.isPressed() && collection.getFourBarState() == Collection.fourBar.transferUp && !transferring && collection.slidesReset.isPressed()){
-
-            delivery.queueCommand(delivery.transfer);
-
-            delivery.queueCommand(collection.transferDrop);
-
-            delivery.queueCommand(delivery.closeGripper);
-
-            delivery.queueCommand(collection.openGripper);
-
-            transferring = true;
-
-        } else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
-
-            transferring = false;
-
-        }
-
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
-        telemetry.addData("collection current command ", collection.getCurrentCommand());
+        telemetry.addData("collection current command ", collection.getCurrentCommand().toString());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.clawSensor.isPressed());

@@ -47,7 +47,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
     };
 
     private final sectionBuilder[] spikeMarks = {
-            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172),new Vector2D(290, 106))
+            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(290,172),new Vector2D(290, 106))
     };
 
     private final sectionBuilder[] spikeMarks2 = {
@@ -125,12 +125,12 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
     boolean runCollect = false;
 
+    boolean firstSpike = false;
+
     @Override
     public void initEX() {
 
         delivery.setGripperState(Delivery.gripper.grab);
-
-        delivery.griperSev.setPosition(78);
 
         odometry.startPosition(342.5, 164, 180);
 
@@ -285,15 +285,19 @@ public class Red_Right_Full_Auto extends OpModeEX {
             }
 
             if (odometry.Heading() > 200 && TargetExtendo == targetExtendo.notSet){
-                collection.targetPointWithExtendoNoArm(new Vector2D(247,58));
+                collection.targetPointWithExtendoNoArm(new Vector2D(248,59));
+            }
+
+            if (odometry.Heading() > 200 && TargetExtendo == targetExtendo.notSet && !firstSpike){
+                collection.queueCommand(collection.preCollectNoRotate(45));
+                firstSpike = true;
             }
 
             if (follow.isFinished(4,4) && TargetExtendo == targetExtendo.notSet){
 
                 following = false;
 
-                collection.queueCommand(collection.preCollectNoRotate(45));
-                collection.queueCommand(collection.extendoTargetPoint(new Point(248,58)));
+                collection.queueCommand(collection.extendoTargetPoint(new Point(248,59)));
                 TargetExtendo = targetExtendo.one;
 
             }
@@ -347,7 +351,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 collection.queueCommand(collection.preCollectNoRotate(45));
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
-                collection.queueCommand(collection.extendoTargetPoint(new Point(247,33)));
+                collection.queueCommand(collection.extendoTargetPoint(new Point(246,33.5)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -399,7 +403,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 collection.queueCommand(collection.preCollectNoRotate(45));
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
-                collection.queueCommand(collection.extendoTargetPoint(new Point(247,6)));
+                collection.queueCommand(collection.extendoTargetPoint(new Point(247,6.5)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -501,7 +505,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
                 follow.setPath(paths.returnPath("goToGrabPreload"));
 
-                collection.queueCommand(collection.preCollectNoRotate(0));
+                collection.queueCommand(collection.preCollectNoRotate(180));
 
                 delivery.griperRotateSev.setPosition(0);
             }
@@ -511,17 +515,17 @@ public class Red_Right_Full_Auto extends OpModeEX {
             }
 
             if (odometry.Heading() > 290 && odometry.Heading() < 312 && !collectSample && state != autoState.cycle_one){
-                collection.targetPointWithExtendo(new Vector2D(334, 69.5));
+                collection.targetPointWithExtendo(new Vector2D(333.5, 70.5));
                 delivery.griperRotateSev.setPosition(0);
             }
 
-            if (follow.isFinished(2,2) && !collectSample){
+            if (follow.isFinished(4,4) && odometry.getYVelocity() < 10 && odometry.getXVelocity() < 10 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
 
                 following = false;
 
                 delivery.griperRotateSev.setPosition(0);
 
-                collection.queueCommand(collection.extendoTargetPoint(new Point(334, 69.5)));
+                collection.queueCommand(collection.extendoTargetPoint(new Point(333.5, 70.5)));
 
                 collection.queueCommand(collection.collect);
 
@@ -537,7 +541,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
                 collectSample = true;
 
-            } else if (follow.isFinished(2,2) && collectSample && collection.getSlideTarget() == 0){
+            } else if (follow.isFinished(4,4) && collectSample && collection.getSlideTarget() == 0){
                 cycleState = CycleState.clip_and_collect;
                 cycleBuilt = building.notBuilt;
             }
@@ -551,7 +555,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 following = true;
                 clipped = false;
 
-                targetHeading = 340;
+                targetHeading = 337;
             }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){

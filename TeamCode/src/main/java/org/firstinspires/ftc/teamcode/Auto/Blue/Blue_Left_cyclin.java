@@ -75,7 +75,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     public cycleState CycleState = cycleState.basketDrob;
 
-    public autoState targetState = autoState.two;
+    public autoState targetState = autoState.three;
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public building cycleBuilt = building.notBuilt;
@@ -97,7 +97,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(330, 330)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(331, 331)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -106,6 +106,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     @Override
     public void initEX() {
+
         odometry.startPosition(344, 282, 270);
 
         paths.addNewPath("preloadPath");
@@ -146,7 +147,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (built == building.notBuilt) {
 
-                delivery.slideSetPoint(delivery.highBasket);
+                delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
 
                 follow.setPath(paths.returnPath("preloadPath"));
@@ -159,12 +160,12 @@ public class Blue_Left_cyclin extends OpModeEX {
                 follow.setExtendoHeading(true);
             }
 
-            if (delivery.slideMotor.getCurrentPosition() > 250 && delivery.fourbarState == Delivery.fourBarState.transfer){
+            if (delivery.slideMotor.getCurrentPosition() > 200 && delivery.fourbarState == Delivery.fourBarState.transfer){
                 delivery.queueCommand(delivery.deposit);
 //                collection.setSlideTarget(40);
             }
 
-            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > delivery.highBasket - 4 && follow.isFinished(4,4)) {
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(12,12)) {
                 delivery.queueCommand(delivery.deposit);
 
                 pathing = false;
@@ -172,7 +173,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 drop = false;
             }
 
-            if (follow.isFinished(4, 4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
+            if (follow.isFinished(13, 13) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
                 if (state == targetState){
                     state = autoState.finished;
                 }else{
@@ -222,7 +223,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(247,306));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(245,306));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -231,13 +232,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 306)));
+                    pathing = false;
+
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(245, 306)));
 
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer);
-
-                    collection.queueCommand(delivery.transfer);
 
                     collection.queueCommand(collection.transferDrop);
 
@@ -267,15 +268,15 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (collection.getCurrentCommand() == collection.defaultCommand){
-                    delivery.slideSetPoint(delivery.highBasket);
+                    delivery.slideSetPoint(delivery.autoHighBasket);
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
+                if (follow.isFinished(8,8) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
                     collection.setSlideTarget(15);
                     state = autoState.spikeTwo;
@@ -306,7 +307,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 178;
+                    targetHeading = 175;
 
                     cycleBuilt = building.built;
 
@@ -324,7 +325,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,331));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -333,13 +334,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 331)));
+                    pathing = false;
+
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 328.5)));
 
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer);
-
-                    collection.queueCommand(delivery.transfer);
 
                     collection.queueCommand(collection.transferDrop);
 
@@ -368,15 +369,15 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (collection.getCurrentCommand() == collection.defaultCommand){
-                    delivery.slideSetPoint(delivery.highBasket);
+                    delivery.slideSetPoint(delivery.autoHighBasket);
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
+                if (follow.isFinished(8,8) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
                     collection.setSlideTarget(20);
                     state = autoState.spikeThree;
@@ -424,7 +425,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(248,355));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247,354));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -433,13 +434,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     autoQueued = true;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 355)));
+                    pathing = false;
+
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 354)));
 
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer);
-
-                    collection.queueCommand(delivery.transfer);
 
                     collection.queueCommand(collection.transferDrop);
 
@@ -468,18 +469,19 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (collection.getCurrentCommand() == collection.defaultCommand){
-                    delivery.slideSetPoint(delivery.highBasket);
+                    delivery.slideSetPoint(delivery.autoHighBasket);
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (follow.isFinished(4,4) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
+                if (follow.isFinished(6,6) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
                     delivery.queueCommand(delivery.deposit);
                     state = autoState.one;
                     built = building.notBuilt;
+                    collection.queueCommand(collection.collect);
                 }
 
             }
@@ -505,6 +507,7 @@ public class Blue_Left_cyclin extends OpModeEX {
         dashboardTelemetry.update();
 
         if (pathing){
+
             odometry.queueCommand(odometry.updateLineBased);
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
             telemetry.addData("Loop time", loopTime);
@@ -518,7 +521,8 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             driveBase.queueCommand(driveBase.drivePowers(currentPower));
         }else{
-            driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading()))));
+//            driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading()))));
+            driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, 0)));
         }
     }
 
@@ -547,7 +551,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 delivery.queueCommand(delivery.cameraScan);
             }
 
-            if (follow.isFinished(4,4) && !busyDetecting){
+            if (follow.isFinished(6,6) && !busyDetecting){
 
                 autoQueued = false;
                 pathing = false;
@@ -565,7 +569,8 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 counter++;
 
-                if (!collection.sampleSorterContour.detections.isEmpty() && counter > 8){
+                if (!collection.sampleSorterContour.detections.isEmpty() && counter > 5){
+
                     collection.sampleSorterContour.setScanning(false);
                     collection.portal.stopStreaming();
                     collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
@@ -582,7 +587,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             }
 
-            if (follow.isFinished(4,4) && collection.getCurrentCommand() != collection.autoCollectGlobal && collect && !autoQueued){
+            if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
                 collection.queueCommand(collection.transfer);
 
@@ -597,7 +602,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(4,4) && collection.getSlidePositionCM() < 15 && collection.getCurrentCommand() != collection.autoCollectGlobal && delivery.getSlidePositionCM() < 5 && collect && autoQueued){
+            if (follow.isFinished(10,10) && collection.getSlidePositionCM() < 15 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 5 && collect && autoQueued){
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
@@ -617,15 +622,15 @@ public class Blue_Left_cyclin extends OpModeEX {
             }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 280 && drop){
-                delivery.slideSetPoint(delivery.highBasket);
+                delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
             }
 
-            if (delivery.slideMotor.getCurrentPosition() > 200 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
+            if (delivery.slideMotor.getCurrentPosition() > 160 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
                 delivery.queueCommand(delivery.deposit);
             }
 
-            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > delivery.highBasket - 4 && follow.isFinished(9,9)) {
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(9,9)) {
 
                 delivery.queueCommand(delivery.deposit);
 
@@ -654,6 +659,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (follow.isFinished(9, 9) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.next(state);
                     built = building.notBuilt;
+                    collection.queueCommand(collection.collect);
                 }
 
             }

@@ -48,8 +48,8 @@ public class servopoztest extends OpMode {
     double secondPivotBehindTransfer = 70;
     double mainPivotBehindTransfer =278;
 
-    double secondPivotTransfer = 70;
-    double mainPivotTransfer =260;
+    double secondPivotTransfer = 115;
+    double mainPivotTransfer = 205;
 
     double secondPivotBucket =240;
     double mainPivotBucket =100;
@@ -100,7 +100,7 @@ public class servopoztest extends OpMode {
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
         griperRotate.setOffset(10);
-        griperRotate.setPosition(0);
+//        griperRotate.setPosition(0);
 
         deliveryGrip.setOffset(18);
 
@@ -109,14 +109,14 @@ public class servopoztest extends OpMode {
         fourBarSecondPivot.setOffset(-20);
         fourBarMainPivot.setOffset(10);
 
-//        fourBarSecondPivot.setPosition(preSecondClip);
-//        fourBarMainPivot.setPosition(preMainClip);
+        fourBarSecondPivot.setPosition(175);
+        fourBarMainPivot.setPosition(158);
 
 //        secondPivot.setPosition(preSecondClip);
 //        mainPivot.setPosition(120);
 
-        mainPivot.setPosition(preMainClip);
-        secondPivot.setPosition(preSecondClip);
+        mainPivot.setPosition(mainPivotTransfer);
+        secondPivot.setPosition(secondPivotTransfer);
 
         //straight down = 271
         //parallel to hte ground = 190.5
