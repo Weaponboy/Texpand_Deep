@@ -272,7 +272,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 255 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -373,7 +373,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 255 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -473,7 +473,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 260 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 255 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -481,7 +481,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                     state = autoState.one;
                     built = building.notBuilt;
-                    collection.queueCommand(collection.collect);
                 }
 
             }
@@ -542,8 +541,9 @@ public class Blue_Left_cyclin extends OpModeEX {
                 collect = false;
             }
 
-            if (odometry.X() < 240){
+            if (odometry.X() < 240 && targetHeading != 270){
                 targetHeading = 270;
+                collection.queueCommand(collection.collect);
             }
 
             if (odometry.X() < 300 && !pullDownSlides){
@@ -659,7 +659,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (follow.isFinished(9, 9) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.next(state);
                     built = building.notBuilt;
-                    collection.queueCommand(collection.collect);
+//                    collection.queueCommand(collection.collect);
                 }
 
             }
