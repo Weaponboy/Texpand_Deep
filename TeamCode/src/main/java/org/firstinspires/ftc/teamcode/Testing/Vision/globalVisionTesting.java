@@ -4,13 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
-import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 import dev.weaponboy.vision.detectionData;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
@@ -52,7 +48,7 @@ public class globalVisionTesting extends OpModeEX {
 
         collection.sampleSorterContour.closestFirst = true;
 
-        collection.sampleSorterContour.setScanning(false);
+//        collection.sampleSorterContour.setScanning(false);
 
         collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
     }
@@ -61,49 +57,87 @@ public class globalVisionTesting extends OpModeEX {
     public void loopEX() {
 
         if(currentGamepad1.b && !lastGamepad1.b){
-            delivery.slideSetPonts(20);
-            delivery.slides = Delivery.slideState.moving;
-
-            raisingSlides = true;
-        }else if (raisingSlides && delivery.slides == Delivery.slideState.holdPosition){
-            delivery.secondPivot.setPosition(170);
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-            collection.sampleSorterContour.setScanning(true);
+            delivery.queueCommand(delivery.cameraScan);
         }
 
-        if (gamepad1.left_trigger > 0){
-            collection.targetPointWithExtendo(new Vector2D(120, 105));
-        }
+//        if (gamepad1.dpad_up){
+//            collection.setSlideTarget(10);
+//            collection.setChamberCollect(true);
+//        } else if (gamepad1.dpad_down) {
+//            collection.setSlideTarget(0);
+//            collection.setChamberCollect(false);
+//        }
+//
+//        if (currentGamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)){
+//            collection.sampleSorterContour.setScanning(true);
+//            collection.portal.resumeStreaming();
+//
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            collection.sampleSorterContour.setScanning(false);
+//            collection.portal.stopStreaming();
+//            collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+//
+//            collection.queueCommand(collection.autoCollectChamber);
+////            delivery.fourbarState = Delivery.fourBarState.postTransfer;
+//
+//
+////            delivery.queueCommand(delivery.preClip);
+//            delivery.queueCommand(delivery.clipFront);
+//            collection.setChamberCollect(true);
+//        }
 
-        if (gamepad1.back){
+//        if (gamepad1.back){
+//            collection.sampleSorterContour.setScanning(false);
+//            delivery.overrideCurrent(true, delivery.stow);
+//            collection.overrideCurrent(true, collection.stow);
+//            delivery.runReset();
+//        }
+//
+//        if (currentGamepad1.a && !lastGamepad1.a){
+//            collection.queueCommand(collection.collect);
+//        }
+//
+//        if (gamepad1.left_bumper){
+//            delivery.slideSetPoint(delivery.highChamberFront);
+//            delivery.slides = Delivery.slideState.moving;
+//
+//        }
+//
+//        if (gamepad1.start){
+//            runningClipAndCollect = true;
+//            queuedClipCommands = false;
+//            detectingInSub = true;
+//        }
+
+        if (gamepad1.a && !lastGamepad1.a){
+            collection.queueCommand(collection.autoCollectGlobal);
+            collection.setChamberCollect(false);
+
             delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
         }
 
-        if (currentGamepad1.a && !lastGamepad1.a){
-            collection.queueCommand(collection.collect);
-        }
-
-        if (gamepad1.start){
-            runningClipAndCollect = true;
-            queuedClipCommands = false;
-            detectingInSub = true;
-        }
-
         if (currentGamepad1.x && !lastGamepad1.x && collection.sampleSorterContour.isScanning() && !collection.sampleSorterContour.detections.isEmpty()){
             collection.sampleSorterContour.setScanning(false);
+            collection.portal.stopStreaming();
             collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-            collection.angle = collection.sampleMap.get(0).getAngle();
-            //            collection.targetPointGlobal = collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
         }else if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
             collection.sampleSorterContour.setScanning(true);
+            collection.portal.resumeStreaming();
         }
 
-        if (!collection.sampleSorterContour.isScanning()){
-            collection.portal.stopStreaming();
+        if (!collection.sampleSorterContour.isScanning() || delivery.getSlidePositionCM() < 15){
+
         }else {
-            collection.portal.resumeStreaming();
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+//            collection.portal.resumeStreaming();
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+//            delivery.secondPivot.setPosition(80);
+//            delivery.fourbarState = Delivery.fourBarState.basketDeposit;
 //            delivery.mainPivot.setPosition(190.5);
 
             //0.794
@@ -113,37 +147,37 @@ public class globalVisionTesting extends OpModeEX {
 
         }
 
-        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
-            FileWriter fWriter = null;
-            try {
-                fWriter = new FileWriter("/sdcard/VisionLogs.txt", true);
-
-                fWriter.write(System.lineSeparator());
-                fWriter.write("WORKED!!!!");
-
-                fWriter.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (fWriter != null) {
-                    try {
-                        fWriter.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();  // Handle any issues closing the writer
-                    }
-                }
-            }
-        }
-
-        if (runningClipAndCollect){
-            clipAndCollect();
-        }
-
-        if (gamepad1.right_trigger > 0){
-            obsCollect = Obs_Collect.extendSlides;
-        } else if (obsCollect != Obs_Collect.waiting) {
-            ObsCollecting();
-        }
+//        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+//            FileWriter fWriter = null;
+//            try {
+//                fWriter = new FileWriter("/sdcard/VisionLogs.txt", true);
+//
+//                fWriter.write(System.lineSeparator());
+//                fWriter.write("WORKED!!!!");
+//
+//                fWriter.flush();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            } finally {
+//                if (fWriter != null) {
+//                    try {
+//                        fWriter.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();  // Handle any issues closing the writer
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (runningClipAndCollect){
+//            clipAndCollect();
+//        }
+//
+//        if (gamepad1.right_trigger > 0){
+//            obsCollect = Obs_Collect.extendSlides;
+//        } else if (obsCollect != Obs_Collect.waiting) {
+//            ObsCollecting();
+//        }
 
 //        if (gamepad1.right_stick_y < -0.5 && slideMotor.getCurrentPosition() < 10){
 //            slideMotor.setPower(0.5);
@@ -154,6 +188,8 @@ public class globalVisionTesting extends OpModeEX {
 //        }
 
 
+
+//        double ticksPerCM = (double) 1050 / 71;
 
         telemetry.addData("slides position ", obsCollect);
         telemetry.addData("collection slides position ", collection.getSlidePositionCM());
@@ -201,7 +237,7 @@ public class globalVisionTesting extends OpModeEX {
 
     public void clipAndCollect(){
 
-        if (detectingInSub && delivery.getCurrentCommand() != delivery.Clip){
+        if (detectingInSub && delivery.getCurrentCommand() != delivery.clipFront){
             detectingInSub = false;
             detectingTimer.reset();
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
@@ -236,9 +272,9 @@ public class globalVisionTesting extends OpModeEX {
 
             queuedClipCommands = true;
 
-            delivery.queueCommand(delivery.Clip);
-            delivery.queueCommand(delivery.Clip);
-            delivery.queueCommand(delivery.Clip);
+            delivery.queueCommand(delivery.clipFront);
+            delivery.queueCommand(delivery.clipFront);
+            delivery.queueCommand(delivery.clipFront);
 
             runningClipAndCollect = false;
 

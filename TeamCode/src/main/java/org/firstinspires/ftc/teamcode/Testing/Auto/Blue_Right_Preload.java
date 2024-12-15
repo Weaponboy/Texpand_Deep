@@ -1,22 +1,21 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Testing.Auto;
 
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@Autonomous(name = "Blue Righ_2t", group = "Autos")
-public class Blue_Right_2 extends OpModeEX {
+@Disabled
+@Autonomous(name = "Blue_Right_Preload", group = "Autos")
+public class Blue_Right_Preload extends OpModeEX {
     double targetHeading;
 
 
@@ -25,11 +24,11 @@ public class Blue_Right_2 extends OpModeEX {
 
 
     private final sectionBuilder[] rightBluePath = {
-            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(251, 170))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(248, 170))
 
     };
     private final sectionBuilder[] colecting = {
-            () -> paths.addPoints(new Vector2D(251, 170), new Vector2D(311,126))
+            () -> paths.addPoints(new Vector2D(251, 170), new Vector2D(330,80))
     };
     private final sectionBuilder[] cliping = {
             () -> paths.addPoints(new Vector2D(83, 333), new Vector2D(211,319 ),new Vector2D(174, 252))
@@ -66,7 +65,6 @@ public class Blue_Right_2 extends OpModeEX {
     boolean following = false;
     boolean queuedClipCommands = false;
     boolean detectingInSub = true;
-    boolean busyDetecting = false;
     ElapsedTime detectingTimer = new ElapsedTime();
 
     autoState state = autoState.preLoad;
@@ -105,14 +103,8 @@ public class Blue_Right_2 extends OpModeEX {
 
         follow.setPath(paths.returnPath("rightBluePath"));
 
-        delivery.slideSetPonts(delivery.highChamber);
+        delivery.slideSetPoint(delivery.highChamberFront);
         delivery.slides = Delivery.slideState.moving;
-
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
-
-        collection.sampleSorterContour.setScanning(true);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.red);
-        collection.sampleSorterContour.closestFirst = true;
     }
 
 
@@ -126,75 +118,53 @@ public class Blue_Right_2 extends OpModeEX {
                 targetHeading = 180;
                 following = true;
                 built = building.built;
-                delivery.PreClip.execute();
+                delivery.PreClipFront.execute();
             }
 
-            if (follow.isFinished(1, 4) && detectingInSub && delivery.getCurrentCommand() != delivery.Clip){
-                detectingInSub = false;
-                busyDetecting = true;
-                detectingTimer.reset();
-//                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+            if (!follow.isFinished() && odometry.getXVelocity() < 2 && follow.getXError() < 5){
+                follow.finishPath();
             }
-//
-//            if (busyDetecting){
-//                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-//            }
 
-            if (follow.isFinished(1, 4) && !queuedClipCommands && !detectingInSub && detectingTimer.milliseconds() > 500) {
+            if (follow.isFinished(1, 4) && !queuedClipCommands) {
+
+                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+
+                for (int i = 0; i < 20; i++){
+
+                    delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
 
                 queuedClipCommands = true;
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
-                delivery.queueCommand(delivery.Clip);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
+                delivery.queueCommand(delivery.clipFront);
 
-            } else if (queuedClipCommands && collection.horizontalMotor.getCurrentPosition() < 40 && delivery.getSlidePositionCM() < 25 && delivery.fourbarState == Delivery.fourBarState.behindNest) {
+            } else if (delivery.slideMotor.getCurrentPosition() < 20 && queuedClipCommands) {
                 state = autoState.obs_collect;
                 built = building.notBuilt;
             }
 
         }else if (state == autoState.obs_collect) {
-
             if (built == building.notBuilt) {
-                built = building.built;
                 follow.setPath(paths.returnPath("colecting"));
-                targetHeading = 315;
-                detectingInSub = true;
-                delivery.slideSetPonts(delivery.highChamber);
-                delivery.slides = Delivery.slideState.moving;
+                targetHeading = 180;
             }
 
-            if (follow.isFinished(1, 4) && detectingInSub){
-                detectingInSub = false;
-                busyDetecting = true;
-                collection.sampleSorterContour.setScanning(true);
-                detectingTimer.reset();
-                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-            }
-
-            if (busyDetecting){
-                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-            }
-
-            if (follow.isFinished(2, 2) && !detectingInSub && detectingTimer.milliseconds() > 2000) {
-                busyDetecting = false;
-            }
-
-            if (follow.isFinished(2, 2) && collection.horizontalMotor.getCurrentPosition() < 80 && !busyDetecting && !detectingInSub){
-                collection.ChamberCollect.execute();
-                collection.setSlideTarget(30);
-            }
-
-            if (collection.horizontalMotor.getCurrentPosition()/(492/50)>29 && follow.isFinished(2, 2) && collection.sampleSorterContour.isScanning()){
-                collection.setClawsState(Collection.clawState.drop);
-                collection.sampleSorterContour.setScanning(false);
-                collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(RobotPosition, delivery.getSlidePositionCM());
-                collection.queueCommand(collection.autoCollectGlobal);
-                collection.setChamberCollect(false);
-            }
-
-            if (follow.isFinished() && collection.horizontalMotor.getCurrentPosition()/(492/50)>2 && collection.getClawsState() == Collection.clawState.drop){
-
+            if (follow.isFinished()){
+                state = autoState.finished;
             }
         }
 
@@ -215,7 +185,15 @@ public class Blue_Right_2 extends OpModeEX {
             telemetry.addData("getPivot", currentPower.getPivot());
             telemetry.update();
 
-            driveBase.queueCommand(driveBase.drivePowers(currentPower));
+            if (follow.isFinished()){
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0,0)));
+            }else {
+                driveBase.queueCommand(driveBase.drivePowers(currentPower));
+            }
+
+        }else {
+            driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0,0)));
+
         }
     }
 }

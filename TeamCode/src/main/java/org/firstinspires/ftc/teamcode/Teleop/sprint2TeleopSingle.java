@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
+import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 import dev.weaponboy.vision.detectionData;
 
 @TeleOp
@@ -23,10 +25,8 @@ public class sprint2TeleopSingle extends OpModeEX {
 
     public Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-    boolean raisingSlides = false;
-
-    boolean flipArmClip = true;
-    ElapsedTime armFlipOutWait = new ElapsedTime();
+    boolean busyDetecting = false;
+    ElapsedTime detectionTimer = new ElapsedTime();
 
     @Override
     public void initEX() {
@@ -34,6 +34,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         odometry.startPosition(1000,1000,0);
 
+        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
         collection.sampleSorterContour.closestFirst = true;
     }
 
@@ -46,9 +47,11 @@ public class sprint2TeleopSingle extends OpModeEX {
         /**
          * Overwrites
          * */
-        if (currentGamepad1.back && !lastGamepad1.back){
-//            collection.overrideCurrent(true, collection.stow);
+        if (gamepad1.back){
+            collection.sampleSorterContour.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
+            collection.overrideCurrent(true, collection.stow);
+            delivery.runReset();
         }
 
         /**
@@ -88,14 +91,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if(currentGamepad1.b && !lastGamepad1.b){
-            delivery.slideSetPonts(30);
-            delivery.slides = Delivery.slideState.moving;
-
-            raisingSlides = true;
-        }else if (raisingSlides && delivery.slides == Delivery.slideState.holdPosition){
-            delivery.secondPivot.setPosition(170);
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-            collection.sampleSorterContour.setScanning(true);
+            delivery.queueCommand(delivery.cameraScan);
         }
 
 //        if (currentGamepad1.y && !lastGamepad1.y) {
@@ -112,44 +108,62 @@ public class sprint2TeleopSingle extends OpModeEX {
 //        }
 
         if (currentGamepad1.y && !lastGamepad1.y){
-            if (collection.sampleSorterContour.isScanning()){
-                raisingSlides = false;
-                collection.sampleSorterContour.setScanning(false);
-                collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(RobotPosition, delivery.getSlidePositionCM());
-            }
 
-            delivery.runReset();
-            delivery.behindNest.execute();
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+
+            collection.sampleSorterContour.setScanning(true);
+            collection.portal.resumeStreaming();
+
+            busyDetecting = true;
+            detectionTimer.reset();
+
+        }
+
+        if (busyDetecting && detectionTimer.milliseconds() > 1000 && !collection.sampleSorterContour.detections.isEmpty()){
+            busyDetecting = false;
+            collection.sampleSorterContour.setScanning(false);
+            collection.portal.stopStreaming();
+            collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+
             collection.queueCommand(collection.autoCollectGlobal);
             collection.setChamberCollect(false);
+
+            delivery.overrideCurrent(true, delivery.stow);
+            delivery.runReset();
         }
 
-        if (!collection.sampleSorterContour.isScanning()){
-            collection.portal.stopStreaming();
-        }else {
-            collection.portal.resumeStreaming();
-        }
+//        if (!collection.sampleSorterContour.isScanning()){
+//            collection.portal.stopStreaming();
+//        }else {
+//            collection.portal.resumeStreaming();
+//        }
 
         /**
          * Delivery code
          * */
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
-            delivery.queueCommand(delivery.preClip);
+            delivery.queueCommand(delivery.preClipFront);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.Clip);
+            delivery.queueCommand(delivery.clipFront);
         }
 
-        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.behindNest){
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer){
+
+//            delivery.queueCommand(delivery.transfer);
+//
+//            transferring = true;
+//
+//            transferringWait.reset();
 
             delivery.queueCommand(delivery.transfer);
 
-            transferring = true;
+            delivery.queueCommand(collection.transferDrop);
 
-            transferringWait.reset();
+            delivery.queueCommand(delivery.transfer);
 
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.postTransfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700){
 
-            delivery.slideSetPonts(68);
+            delivery.slideSetPoint(68);
             delivery.slides = Delivery.slideState.moving;
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){
@@ -160,16 +174,21 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             delivery.queueCommand(delivery.transfer);
 
+            delivery.queueCommand(collection.transferDrop);
+
+            delivery.queueCommand(delivery.transfer);
+
             transferring = true;
 
-            transferringWait.reset();
-
-        }
-
-        if (transferring && delivery.fourBarTargetState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && transferringWait.milliseconds() > 500){
-            collection.setClawsState(Collection.clawState.drop);
+        } else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
             transferring = false;
         }
+
+//        if (transferring && delivery.fourBarTargetState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && transferringWait.milliseconds() > 500){
+//            collection.setClawsState(Collection.clawState.drop);
+//            collection.Stowed.execute();
+//            transferring = false;
+//        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());

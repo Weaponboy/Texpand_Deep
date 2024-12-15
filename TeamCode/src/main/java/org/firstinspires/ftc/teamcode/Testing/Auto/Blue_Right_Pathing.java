@@ -24,12 +24,13 @@ public class Blue_Right_Pathing extends OpModeEX {
     follower follow = new follower();
 
     private final sectionBuilder[] preloadDelivery = {
-            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(0, 100))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(250, 168))
     };
 
     private final sectionBuilder[] collecting = {
-            () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(280, 190), new Vector2D(332,121))
+            () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(280, 190), new Vector2D(339,90))
     };
+
 
     private final sectionBuilder[] cliping = {
             () -> paths.addPoints(new Vector2D(83, 333), new Vector2D(211,319 ),new Vector2D(174, 252))
@@ -77,7 +78,7 @@ public class Blue_Right_Pathing extends OpModeEX {
 
         delivery.setGripperState(Delivery.gripper.grab);
 
-        odometry.startPosition(0, 0, 0);
+        odometry.startPosition(342.5, 164, 180);
 
         paths.addNewPath("preloadPath");
             paths.buildPath(preloadDelivery);
@@ -126,15 +127,16 @@ public class Blue_Right_Pathing extends OpModeEX {
                 built = building.built;
                 following = true;
 
-                targetHeading = 0;
+                targetHeading = 180;
             }
 
-//            if (!follow.isFinished() && odometry.getXVelocity() < 2 && follow.getXError() < 5){
-//                follow.finishPath();
-//            }
+            if (!follow.isFinished() && odometry.getXVelocity() < 2 && follow.getXError() < 5) {
+                follow.finishPath();
+            }
 
             if (follow.isFinished()) {
-//                state = autoState.finished;
+//                state = autoState.obs_collect;
+//                built = building.notBuilt;
                 following = false;
             }
 
@@ -145,11 +147,12 @@ public class Blue_Right_Pathing extends OpModeEX {
                 built = building.built;
                 following = true;
 
-                targetHeading = 270;
+                targetHeading = 180;
             }
 
             if (follow.isFinished()){
-                state = autoState.finished;
+//                state = autoState.finished;
+                following = false;
             }
         }
 
