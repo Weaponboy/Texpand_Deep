@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.io.IOException;
 import java.util.List;
 
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
@@ -26,10 +27,12 @@ public abstract class OpModeEX extends OpMode {
     public Odometry odometry = new Odometry(this);
 
     public Hang hang = new Hang(this);
-
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
+//collection, delivery, driveBase, odometry
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
+
+    ElapsedTime autoTime = new ElapsedTime();
 
     ElapsedTime timer = new ElapsedTime();
     double lastTime;
@@ -41,12 +44,15 @@ public abstract class OpModeEX extends OpMode {
     public Gamepad currentGamepad2 = new Gamepad();
     public Gamepad lastGamepad2 = new Gamepad();
 
+    public RobotPower RobotPosition = new RobotPower();
+
     public abstract void initEX();
 
     public abstract void loopEX();
 
     @Override
     public void init() {
+
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -54,6 +60,12 @@ public abstract class OpModeEX extends OpMode {
         timer.reset();
         scheduler.init();
         initEX();
+    }
+
+    @Override
+    public void start() {
+        autoTime.reset();
+        super.start();
     }
 
     @Override
@@ -70,27 +82,14 @@ public abstract class OpModeEX extends OpMode {
 
         lastTime = timer.milliseconds();
 
+        RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
+        collection.updateRobotPosition(RobotPosition);
+
         scheduler.execute();
-//        collection.sampleSorterContour.convertToFieldCoor(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
         loopEX();
 
-        collection.updateRobotPosition(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()));
-//
-//        try {
-//
-//        } catch (Exception e) {
-//
-//            collection.safePositions();
-//            delivery.safePositions();
-//
-//            collection.disableServos();
-//            delivery.disableServos();
-//        } finally {
-//            collection.disableServos();
-//            delivery.disableServos();
-//        }
-
         loopTime = timer.milliseconds() - lastTime;
+//        System.out.println("loop time: " +loopTime);
     }
 
     /**

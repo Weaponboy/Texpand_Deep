@@ -6,6 +6,10 @@ import java.util.ArrayList;
 
 public class motionProfile {
 
+    public double getTargetPosition() {
+        return targetPosition;
+    }
+
     double targetPosition = 0;
     double currentPosition = 0;
 
@@ -129,7 +133,7 @@ public class motionProfile {
         double deadZone = 1;
 
         if (vertical && targetPosition != 0){
-            deadZone = 4;
+            deadZone = 1;
         }
 
         if (lastIndex < motionProfile.size()-deadZone){
