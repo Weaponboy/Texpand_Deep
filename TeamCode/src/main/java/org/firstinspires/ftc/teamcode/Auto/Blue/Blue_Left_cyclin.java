@@ -272,7 +272,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 710 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -373,7 +373,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 710 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -473,7 +473,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 710 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -620,11 +620,11 @@ public class Blue_Left_cyclin extends OpModeEX {
             }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 280 && drop){
-                delivery.slideSetPoint(delivery.highBasket);
+                delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
             }
 
-            if (delivery.slideMotor.getCurrentPosition() > 710 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
+            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
                 delivery.queueCommand(delivery.deposit);
             }
 
