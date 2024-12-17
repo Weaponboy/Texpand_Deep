@@ -151,7 +151,7 @@ public class sprint2Teleop extends OpModeEX {
 
             counter++;
 
-            if (!collection.sampleSorterContour.detections.isEmpty() && counter > 5){
+            if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
                 busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();

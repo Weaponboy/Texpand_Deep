@@ -616,7 +616,7 @@ public class Delivery extends SubSystem {
         double angleInRadians = Math.acos(8 * Math.sin(80) / X);
 
         if (chamberCollect){
-            return 193 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
+            return 187.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
         }else {
             return 191.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
         }
