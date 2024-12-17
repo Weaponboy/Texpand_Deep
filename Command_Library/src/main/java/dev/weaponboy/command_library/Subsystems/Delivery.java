@@ -585,9 +585,10 @@ public class Delivery extends SubSystem {
 
         double X = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
 
-        double angleInRadians = Math.acos(8 * Math.sin(80) / X);
+        double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
+        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
 
-        return 194 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
+        return 189.5 - ((firstAngle + secondAngle)-90 * 0.794);
 
     }
 
