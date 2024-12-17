@@ -135,7 +135,7 @@ public class globalVisionTesting extends OpModeEX {
 
         }else {
 //            collection.portal.resumeStreaming();
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 //            delivery.secondPivot.setPosition(80);
 //            delivery.fourbarState = Delivery.fourBarState.basketDeposit;
 //            delivery.mainPivot.setPosition(190.5);
