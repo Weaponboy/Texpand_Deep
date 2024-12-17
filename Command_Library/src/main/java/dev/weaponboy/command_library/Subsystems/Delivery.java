@@ -40,7 +40,7 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 58;
+    public final double highBasket = 60;
     public final double autoHighBasket = 56;
     public final double lowBasket = 20;
 
