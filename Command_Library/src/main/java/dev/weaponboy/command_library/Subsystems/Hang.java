@@ -8,8 +8,8 @@ import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 public class Hang  extends SubSystem {
 
-    Servo hang1;
-    Servo hang2;
+    public Servo hang1;
+    public Servo hang2;
 
     public Hang(OpModeEX opModeEX){
         registerSubsystem(opModeEX, stop);
@@ -19,7 +19,7 @@ public class Hang  extends SubSystem {
     public void init() {
         hang1 = getOpModeEX().hardwareMap.get(Servo.class,"hang1");
         hang2 = getOpModeEX().hardwareMap.get(Servo.class,"hang2");
-        hang1.setDirection(Servo.Direction.REVERSE);
+//        hang1.setDirection(Servo.Direction.REVERSE);
 
         hang1.setPosition(0.5);
         hang2.setPosition(0.5);
