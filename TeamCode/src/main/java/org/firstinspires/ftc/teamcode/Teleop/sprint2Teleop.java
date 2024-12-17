@@ -111,13 +111,8 @@ public class sprint2Teleop extends OpModeEX {
             collection.griperRotate.setPosition(rotateTarget);
         }
 
-//        if (gamepad2.dpad_left){
-//            collection.setChamberCollect(false);
-//        }
-//
-//        if (gamepad2.dpad_right){
-//            collection.setChamberCollect(true);
-//        }
+
+
 
         if (gamepad2.start){
             hang.hang1.setPosition(1);
@@ -145,6 +140,9 @@ public class sprint2Teleop extends OpModeEX {
             detectionTimer.reset();
             counter = 0;
 
+        }
+        if (currentGamepad2.dpad_up && lastGamepad2.dpad_up && collection.getClawsState() == Collection.clawState.drop ){
+            collection.setClawsState(Collection.clawState.grab);
         }
 
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){

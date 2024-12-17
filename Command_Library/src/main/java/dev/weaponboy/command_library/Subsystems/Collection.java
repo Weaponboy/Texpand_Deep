@@ -172,8 +172,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 196;
-    double secondPivotTransfer = 144;
+    double mainPivotTransfer = 186.5;
+    double secondPivotTransfer = 139.7;
     double rotateTransfer = 180;
 
     /**
@@ -310,6 +310,7 @@ public class Collection extends SubSystem {
 
         executeEX();
 
+
 //        if (fourBarState == fourBar.collect && clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
 //
 //            if (getChamberCollect()){
@@ -369,7 +370,7 @@ public class Collection extends SubSystem {
         }
 
         if (clawsState == clawState.grab){
-            gripServo.setPosition(34);
+            gripServo.setPosition(35);
         } else if (clawsState == clawState.drop){
             gripServo.setPosition(110);
         } else if (clawsState == clawState.slightRelease){
@@ -1056,6 +1057,7 @@ public class Collection extends SubSystem {
             },
             () -> {
 
+
                 if (fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 5) {
 
                     clawsState = clawState.grab;
@@ -1096,7 +1098,7 @@ public class Collection extends SubSystem {
                         Transfer.execute();
                         commandTimer.reset();
                     }else{
-//                        preCollect.execute();
+                        preCollect.execute();
                         transferToFar = true;
                     }
 

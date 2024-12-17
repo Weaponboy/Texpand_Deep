@@ -75,7 +75,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     public cycleState CycleState = cycleState.basketDrob;
 
-    public autoState targetState = autoState.three;
+    public autoState targetState = autoState.spikeThree;
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public building cycleBuilt = building.notBuilt;
