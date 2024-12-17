@@ -40,8 +40,8 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 58;
-    public final double autoHighBasket = 54;
+    public final double highBasket = 60;
+    public final double autoHighBasket = 56;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
@@ -74,7 +74,7 @@ public class Delivery extends SubSystem {
      * Bucket deposit position values
      * */
     double mainPivotDepo = 100;
-    double secondDepo = 220;
+    double secondDepo = 240;
     double gripperDepo = gripperGrab;
 
     /**
@@ -616,7 +616,7 @@ public class Delivery extends SubSystem {
         double angleInRadians = Math.acos(8 * Math.sin(80) / X);
 
         if (chamberCollect){
-            return 193 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
+            return 187.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
         }else {
             return 191.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
         }
