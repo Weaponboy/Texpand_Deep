@@ -588,7 +588,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         double angleC = 90;
 
         //second triangle
-        double angleD = pivotAngle - angleA;
+        double angleD = 80;
         double angleE = Math.toDegrees(Math.atan(8 / firstHypot));
         double angleF = 180 - angleE - angleD;
 
@@ -643,6 +643,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             double pixelsToCMRelY = viewSizeCMYAxis/ROI.width;
 
             double relYPosition = 0;
+
             if (detection.getTargetPoint().x > centerPoint){
 
                 double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
@@ -671,7 +672,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
 
-            relXPosition = realWorldPosition + 19.8;
+            relXPosition = realWorldPosition + 17.5;
 
 //            relXPosition = sideN;
 
