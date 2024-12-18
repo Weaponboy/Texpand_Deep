@@ -79,8 +79,6 @@ public class sprint2Teleop extends OpModeEX {
 
             collection.queueCommand(collection.transfer);
 
-//            collection.queueCommand(delivery.transfer);
-
             collection.queueCommand(collection.transferDrop);
 
             collection.queueCommand(delivery.closeGripper);
@@ -110,9 +108,6 @@ public class sprint2Teleop extends OpModeEX {
             rotateTarget = 180;
             collection.griperRotate.setPosition(rotateTarget);
         }
-
-
-
 
         if (gamepad2.start){
             hang.hang1.setPosition(1);
