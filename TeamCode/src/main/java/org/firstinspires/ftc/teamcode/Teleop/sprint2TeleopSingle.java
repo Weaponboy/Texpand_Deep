@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -15,6 +16,8 @@ import dev.weaponboy.vision.detectionData;
 
 @TeleOp
 public class sprint2TeleopSingle extends OpModeEX {
+
+
 
     boolean transferring = false;
     ElapsedTime transferringWait = new ElapsedTime();

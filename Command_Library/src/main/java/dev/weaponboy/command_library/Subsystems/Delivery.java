@@ -40,8 +40,8 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 60;
-    public final double autoHighBasket = 56;
+    public final double highBasket = 62;
+    public final double autoHighBasket = 59;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
@@ -74,7 +74,7 @@ public class Delivery extends SubSystem {
      * Bucket deposit position values
      * */
     double mainPivotDepo = 100;
-    double secondDepo = 240;
+    double secondDepo = 230;
     double gripperDepo = gripperGrab;
 
     /**
@@ -510,6 +510,7 @@ public class Delivery extends SubSystem {
     public void execute() {
 
         executeEX();
+        griperRotateSev.setPosition(90);
 
         double ticksPerCM = (double) 1080 / 71;
         double error;

@@ -172,7 +172,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 187.5;
+    double mainPivotTransfer = 189;
     double secondPivotTransfer = 139.7;
     double rotateTransfer = 180;
 
@@ -309,6 +309,7 @@ public class Collection extends SubSystem {
     public void execute() {
 
         executeEX();
+
 
 
 //        if (fourBarState == fourBar.collect && clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
