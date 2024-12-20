@@ -151,6 +151,15 @@ public class sprint2Teleop extends OpModeEX {
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
+
+                collection.queueCommand(delivery.transfer);
+
+                collection.queueCommand(collection.transferDrop);
+
+                collection.queueCommand(delivery.closeGripper);
+
+                collection.queueCommand(collection.openGripper);
+
                 collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
