@@ -45,7 +45,7 @@ public class sprint2TeleopSingle extends OpModeEX {
     public void loopEX() {
 
         // drive base code
-        driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.65, (gamepad1.left_trigger - gamepad1.right_trigger)*0.7, -gamepad1.right_stick_x*0.7));
+        driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.9, (gamepad1.left_trigger - gamepad1.right_trigger)*0.65, -gamepad1.right_stick_x*0.9));
 
         /**
          * Overwrites

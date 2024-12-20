@@ -67,7 +67,7 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 254;
+    double mainPivotTransfer = 252;
     double secondTransfer = 141;
 
     /**
