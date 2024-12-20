@@ -48,7 +48,7 @@ public class sprint2Teleop extends OpModeEX {
         /**
          * Overwrites
          * */
-        if (currentGamepad2.back && !lastGamepad1.back){
+        if (currentGamepad2.back && !lastGamepad2.back){
             collection.sampleSorterContour.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);

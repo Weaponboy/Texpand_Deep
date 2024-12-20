@@ -50,18 +50,18 @@ public class sprint2TeleopSingle extends OpModeEX {
         /**
          * Overwrites
          * */
-        if (gamepad1.back){
+        if (currentGamepad1.back && !lastGamepad1.back){
             collection.sampleSorterContour.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
+            delivery.setGripperState(Delivery.gripper.drop);
         }
-
         /**
          * Collection code
          * */
         if (gamepad1.x && (collection.getFourBarState() == Collection.fourBar.transferUp || collection.getFourBarState() == Collection.fourBar.preCollect)){
-            collection.setSlideTarget(30);
+            collection.setSlideTarget(45);
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){
@@ -122,7 +122,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         }
 
-        if (busyDetecting && detectionTimer.milliseconds() > 1000 && !collection.sampleSorterContour.detections.isEmpty()){
+        if (busyDetecting && detectionTimer.milliseconds() > 500 && !collection.sampleSorterContour.detections.isEmpty()){
             busyDetecting = false;
             collection.sampleSorterContour.setScanning(false);
             collection.portal.stopStreaming();
@@ -134,13 +134,6 @@ public class sprint2TeleopSingle extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
         }
-
-//        if (!collection.sampleSorterContour.isScanning()){
-//            collection.portal.stopStreaming();
-//        }else {
-//            collection.portal.resumeStreaming();
-//        }
-
         /**
          * Delivery code
          * */
@@ -152,46 +145,20 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer){
 
-//            delivery.queueCommand(delivery.transfer);
-//
-//            transferring = true;
-//
-//            transferringWait.reset();
+            collection.queueCommand(collection.transferDrop);
 
-            delivery.queueCommand(delivery.transfer);
+            collection.queueCommand(delivery.closeGripper);
 
-            delivery.queueCommand(collection.transferDrop);
-
-            delivery.queueCommand(delivery.transfer);
+            collection.queueCommand(collection.openGripper);
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700){
 
-            delivery.slideSetPoint(68);
+            delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){
             delivery.queueCommand(delivery.deposit);
         }
-
-        if (collection.clawSensor.isPressed() && collection.getFourBarState() == Collection.fourBar.transferUp && !transferring && collection.slidesReset.isPressed()){
-
-            delivery.queueCommand(delivery.transfer);
-
-            delivery.queueCommand(collection.transferDrop);
-
-            delivery.queueCommand(delivery.transfer);
-
-            transferring = true;
-
-        } else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
-            transferring = false;
-        }
-
-//        if (transferring && delivery.fourBarTargetState == Delivery.fourBarState.grabNest && delivery.getGripperState() == Delivery.gripper.grab && transferringWait.milliseconds() > 500){
-//            collection.setClawsState(Collection.clawState.drop);
-//            collection.Stowed.execute();
-//            transferring = false;
-//        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("rail position ", collection.getRailPosition());
