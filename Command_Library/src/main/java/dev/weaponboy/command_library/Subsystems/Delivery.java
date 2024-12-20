@@ -36,7 +36,7 @@ public class Delivery extends SubSystem {
 
     public TouchSensor slidesReset;
 
-    public motionProfile profile = new motionProfile(1200, 210, 71, 1080, 0.2);
+    public motionProfile profile = new motionProfile(1200, 210, 71, 900, 0.2);
 
     public TouchSensor clawSensor;
 
@@ -512,13 +512,13 @@ public class Delivery extends SubSystem {
         executeEX();
         griperRotateSev.setPosition(90);
 
-        double ticksPerCM = (double) 1080 / 71;
+        double ticksPerCM = (double) 900 / 71;
         double error;
 
-        if ((slideTarget*ticksPerCM) < 1080){
+        if ((slideTarget*ticksPerCM) < 900){
             error = Math.abs((slideTarget*ticksPerCM) - (double) slideMotor.getCurrentPosition());
         }else {
-            error = Math.abs((1080) - (double) slideMotor.getCurrentPosition());
+            error = Math.abs((90) - (double) slideMotor.getCurrentPosition());
         }
 
         if(slides == slideState.moving && !resettingSlides){
