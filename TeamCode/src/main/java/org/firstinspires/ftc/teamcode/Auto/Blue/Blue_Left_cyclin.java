@@ -328,9 +328,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
                 }
 
-                Vector2D armPosition = collection.extendoPoint();
-
-                if (Math.abs(armPosition.getX() - 250) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                     autoQueued = true;
 

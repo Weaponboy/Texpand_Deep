@@ -206,9 +206,9 @@ public class Collection extends SubSystem {
 
     private clawState clawsState = clawState.drop;
 
-    PIDController adjustment = new PIDController(0.015, 0, 0.04);
+    PIDController adjustment = new PIDController(0.015, 0, 0.05);
 
-    PIDController adjustmentClose = new PIDController(0.01, 0, 0.009);
+    PIDController adjustmentClose = new PIDController(0.009, 0, 0.009);
 
     double slideTarget;
     double slideI = 0;
@@ -353,7 +353,7 @@ public class Collection extends SubSystem {
 
         if (slidesReset.isPressed() && slideTarget == 0){
             extendoPower = 0;
-        }else if (error > 5 && !resettingSlides){
+        }else if (error > 2 && !resettingSlides){
 
             if (longTarget){
                 extendoPower = Range.clip(adjustment.calculate((slideTarget * ticksPerCM), horizontalMotor.getCurrentPosition()), -1, 1);
@@ -623,7 +623,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1 && Math.abs(railTargetPosition - getRailPosition()) < 1 && horizontalMotor.getVelocity() < 5 && extendoPower < 0.2
+            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.1 && Math.abs(railTargetPosition - getRailPosition()) < 1 && horizontalMotor.getVelocity() < 5 && extendoPower < 0.2
     );
 
     public void updateRobotPosition(RobotPower robotPosition){
