@@ -126,7 +126,7 @@ public class sprint2Teleop extends OpModeEX {
 
         if (currentGamepad2.y && !lastGamepad2.y){
 
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
             collection.sampleSorterContour.setScanning(true);
             collection.portal.resumeStreaming();

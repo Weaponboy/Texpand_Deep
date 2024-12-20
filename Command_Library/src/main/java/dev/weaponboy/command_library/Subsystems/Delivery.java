@@ -51,7 +51,7 @@ public class Delivery extends SubSystem {
 
     public final double chamberCollectScanPosition = 19.5;
 
-    PIDController adjustment = new PIDController(0.015, 0, 0.00005);
+    PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
     double gripperDrop = 130;
     double gripperGrab = 82;
