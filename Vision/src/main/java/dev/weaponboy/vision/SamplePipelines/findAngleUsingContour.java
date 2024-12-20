@@ -376,7 +376,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         }
 
 //        Imgproc.circle(frameSub, new Point(75, 20), 4, new Scalar(255, 0, 0), -1);
-        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
+//        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
 
         redContoursSingle.clear();
         redRectsSingle.clear();
@@ -672,14 +672,14 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
 
-            relXPosition = realWorldPosition + 17.5;
+            relXPosition = realWorldPosition + 22.5;
 
 //            relXPosition = sideN;
 
             double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
             double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
 
-            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 17.5 - 10) < 55){
+            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 22.5 - 10) < 55){
                 fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
             }
 
