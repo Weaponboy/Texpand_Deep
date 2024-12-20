@@ -16,18 +16,15 @@ import dev.weaponboy.vision.detectionData;
 @TeleOp
 public class sprint2Teleop extends OpModeEX {
 
-    boolean transferring = false;
-    ElapsedTime transferringWait = new ElapsedTime();
-
     double rotateTarget = 90;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
-
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
+
+    boolean queueCollection = false;
 
     @Override
     public void initEX() {
@@ -84,7 +81,6 @@ public class sprint2Teleop extends OpModeEX {
             collection.queueCommand(delivery.closeGripper);
 
             collection.queueCommand(collection.openGripper);
-
         }
 
         if (currentGamepad2.right_stick_y < -0.5){
@@ -136,6 +132,7 @@ public class sprint2Teleop extends OpModeEX {
             counter = 0;
 
         }
+
         if (currentGamepad2.dpad_up && lastGamepad2.dpad_up && collection.getClawsState() == Collection.clawState.drop ){
             collection.setClawsState(Collection.clawState.grab);
         }
@@ -145,20 +142,15 @@ public class sprint2Teleop extends OpModeEX {
             counter++;
 
             if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
+
+
                 busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
-
-                collection.queueCommand(delivery.transfer);
-
-                collection.queueCommand(collection.transferDrop);
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
+                queueCollection = true;
 
                 collection.setChamberCollect(false);
 
@@ -174,6 +166,18 @@ public class sprint2Teleop extends OpModeEX {
             delivery.runReset();
 
             busyDetecting = false;
+        }
+
+        if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
+            collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            queueCollection = false;
         }
 
         /**
