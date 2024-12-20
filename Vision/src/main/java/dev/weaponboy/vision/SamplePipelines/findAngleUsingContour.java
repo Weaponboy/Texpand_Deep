@@ -679,7 +679,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
             double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
 
-            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 22.5 - 10) < 55 && (realWorldPosition - 22.5 - 10) > 15){
+            if (relYPosition < 13 && relYPosition > -13 && (relXPosition - 22.5 - 10) < 55 && (relXPosition - 22.5 - 10) > 10){
                 fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
             }
 
