@@ -143,7 +143,7 @@ public class sprint2Teleop extends OpModeEX {
 
             if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
 
-
+                gamepad2.rumble(5);
                 busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();
