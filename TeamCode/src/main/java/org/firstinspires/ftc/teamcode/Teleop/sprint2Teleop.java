@@ -63,6 +63,7 @@ public class sprint2Teleop extends OpModeEX {
         if (currentGamepad2.right_bumper && !lastGamepad2.right_bumper){
             if (!delivery.clawSensor.isPressed()){
                 delivery.setGripperState(Delivery.gripper.drop);
+                delivery.overrideCurrent(true, delivery.stow);
             }
 
             collection.queueCommand(collection.collect);
@@ -143,7 +144,6 @@ public class sprint2Teleop extends OpModeEX {
 
             if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
 
-                gamepad2.rumble(5);
                 busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();
@@ -161,11 +161,15 @@ public class sprint2Teleop extends OpModeEX {
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
 
             collection.sampleSorterContour.setScanning(false);
-            delivery.overrideCurrent(true, delivery.stow);
+//            delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
             busyDetecting = false;
+        }
+
+        if (collection.sampleSorterContour.isScanning() && !collection.sampleSorterContour.detections.isEmpty() && delivery.getSlidePositionCM() > 10 && odometry.getXVelocity() < 10){
+            gamepad2.rumble(5);
         }
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
