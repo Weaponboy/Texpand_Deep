@@ -375,13 +375,13 @@ public class Collection extends SubSystem {
         }
 
         if (clawsState == clawState.grab){
-            gripServo.setPosition(35);
+            gripServo.setPosition(47);
         } else if (clawsState == clawState.drop){
-            gripServo.setPosition(110);
+            gripServo.setPosition(108);
         } else if (clawsState == clawState.slightRelease){
-            gripServo.setPosition(48);
+            gripServo.setPosition(58);
         }else if (clawsState == clawState.openFull){
-            gripServo.setPosition(125);
+            gripServo.setPosition(108);
         }
 
         if (!braking){
@@ -1094,7 +1094,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*5, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*5, Math.abs(getRailPosition() - railTargetTransInt)*40));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*4, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*2, Math.abs(getRailPosition() - railTargetTransInt)*40));
                     fourBarTargetState = fourBar.transferUp;
 
                     setSlideTarget(0);
