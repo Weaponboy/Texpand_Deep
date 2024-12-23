@@ -349,6 +349,13 @@ public class Collection extends SubSystem {
 
             horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }else if (resettingSlides && !slidesReset.isPressed() && horizontalMotor.getCurrentDraw() > 1500){
+            slideTarget = 0;
+            extendoPower = 0;
+            resettingSlides = false;
+
+            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         if (slidesReset.isPressed() && slideTarget == 0){
