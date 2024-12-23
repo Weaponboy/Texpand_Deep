@@ -676,7 +676,7 @@ public class Collection extends SubSystem {
                         if (rotateAngle > 80 || rotateAngle < -80){
                             griperRotate.setPosition(0);
                         }else{
-                            griperRotate.setPosition(90 - ((sampleMap.get(0).getAngle())));
+                            griperRotate.setPosition(90 - ((sampleMap.get(0).getAngle())*0.5));
                         }
 
                         queueCommand(extendoTargetPoint(targetPointGlobal));
