@@ -1102,6 +1102,7 @@ public class Collection extends SubSystem {
                     fourBarSecondPivot.setPosition(secondPivotPreCollect);
 //                    setClawsState(clawState.grab);
 
+                    griperRotate.setPosition(rotateTransfer);
                     setRailTargetPosition(railTargetTransInt);
 
                 } else if (fourBarState == fourBar.collect && clawsState == clawState.grab) {
