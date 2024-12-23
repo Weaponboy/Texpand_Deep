@@ -203,10 +203,10 @@ public class findAngleUsingContour_SIM implements VisionProcessor{
                         }
 
                         if (before.x > lowestPoint.x) {
-                            if (index > 42) {
-                                angleArray = contourPoints.subList(index - 20, index - 40);
+                            if (index < 42) {
+                                angleArray = contourPoints.subList(index + 30, index - 60);
                             } else {
-                                angleArray = contourPoints.subList(contourPoints.size() - 40, contourPoints.size() - 21);
+                                angleArray = contourPoints.subList(contourPoints.size() - 50, contourPoints.size() - 31);
                             }
 
                         } else {

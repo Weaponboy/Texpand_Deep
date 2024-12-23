@@ -215,6 +215,11 @@ public class Collection extends SubSystem {
     boolean longTarget = false;
 
     public void setSlideTarget(double slideTarget) {
+
+        if (this.slideTarget == 0 && slideTarget > 0){
+            resetUsingCurrent = false;
+        }
+
         if (slideTarget < 0){
             this.slideTarget = 0;
         }else {
@@ -253,6 +258,7 @@ public class Collection extends SubSystem {
     }
 
     public boolean resettingSlides = false;
+    public boolean resetUsingCurrent = false;
 
     RobotPower RobotPosition = new RobotPower();
     public Point targetPointGlobal;
@@ -338,7 +344,7 @@ public class Collection extends SubSystem {
             error = Math.abs((600) - (double) horizontalMotor.getCurrentPosition());
         }
 
-        if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
+        if (!resetUsingCurrent && !resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
             slideTarget = 0;
             extendoPower = -0.55;
             resettingSlides = true;
@@ -349,10 +355,12 @@ public class Collection extends SubSystem {
 
             horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }else if (resettingSlides && !slidesReset.isPressed() && horizontalMotor.getCurrentDraw() > 1500){
+        }else if (resettingSlides && !slidesReset.isPressed() && horizontalMotor.getCurrentDraw() > 2500){
             slideTarget = 0;
             extendoPower = 0;
             resettingSlides = false;
+
+            resetUsingCurrent = true;
 
             horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
