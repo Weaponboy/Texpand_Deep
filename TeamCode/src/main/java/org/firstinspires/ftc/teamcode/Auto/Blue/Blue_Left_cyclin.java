@@ -97,7 +97,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(328, 328)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(331, 331)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -246,7 +246,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     collection.queueCommand(collection.openGripper);
 
-
                 }
 
                 if (collection.getClawsState() == Collection.clawState.grab && collection.fourBarMainPivot.getPositionDegrees() > 140){
@@ -273,7 +272,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 655 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -329,7 +328,9 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
                 }
 
-                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+                Vector2D armPosition = collection.extendoPoint();
+
+                if (Math.abs(armPosition.getX() - 250) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                     autoQueued = true;
 
@@ -372,7 +373,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 655 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -446,6 +447,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.queueCommand(delivery.closeGripper);
 
                     collection.queueCommand(collection.openGripper);
+
                 }
 
                 if (collection.getClawsState() == Collection.clawState.grab && collection.fourBarMainPivot.getPositionDegrees() > 140){
@@ -471,7 +473,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 655 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.deposit);
                 }
 
@@ -549,7 +551,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 autoQueued = false;
                 pathing = false;
-                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+                delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
 
                 collection.sampleSorterContour.setScanning(true);
                 collection.portal.resumeStreaming();
@@ -584,6 +586,8 @@ public class Blue_Left_cyclin extends OpModeEX {
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
                 collection.queueCommand(collection.transfer);
+
+                collection.queueCommand(delivery.transfer);
 
                 collection.queueCommand(collection.transferDrop);
 
@@ -620,7 +624,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 delivery.slides = Delivery.slideState.moving;
             }
 
-            if (delivery.slideMotor.getCurrentPosition() > 655 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
+            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
                 delivery.queueCommand(delivery.deposit);
             }
 
