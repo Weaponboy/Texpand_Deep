@@ -70,7 +70,7 @@ public class Collection extends SubSystem {
      * */
     double axonMaxTime = (double) 600 / 360;
     double microRoboticTime = (double) 500 / 360;
-    double gripperOpenTime = 250;
+    double gripperOpenTime = 300;
 
     boolean secondPivot = false;
 
@@ -401,14 +401,16 @@ public class Collection extends SubSystem {
             gripServo.setPosition(108);
         }
 
-        if (!braking){
-            horizontalMotor.update(extendoPower);
-        }else{
-            if (brakingTimer.milliseconds() > 100){
-                braking = false;
-            }
-            horizontalMotor.update(-(horizontalMotor.getVelocity()/ticksPerCM));
-        }
+        horizontalMotor.update(Range.clip(extendoPower, -0.8, 0.8));
+
+//        if (!braking){
+//
+//        }else{
+//            if (brakingTimer.milliseconds() > 100){
+//                braking = false;
+//            }
+//            horizontalMotor.update(-(horizontalMotor.getVelocity()/ticksPerCM));
+//        }
 
     }
 
@@ -522,7 +524,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*5);
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*4, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*6);
 
                     Collect.execute();
 
@@ -1118,11 +1120,12 @@ public class Collection extends SubSystem {
                     setSlideTarget(0);
                     setClawsState(clawState.grab);
 
-                    if (horizontalMotor.getCurrentPosition() < 400){
+                    if (horizontalMotor.getCurrentPosition() < 350){
                         Transfer.execute();
                         commandTimer.reset();
                     }else{
 //                        preCollect.execute();
+                        fourBarMainPivot.setPosition(mainPivotCollect+20);
                         transferToFar = true;
                     }
 
@@ -1132,7 +1135,7 @@ public class Collection extends SubSystem {
 
                 }
 
-                if (horizontalMotor.getCurrentPosition() < 400 && transferToFar){
+                if (horizontalMotor.getCurrentPosition() < 350 && transferToFar){
                     Transfer.execute();
                     transferToFar = false;
                 }
