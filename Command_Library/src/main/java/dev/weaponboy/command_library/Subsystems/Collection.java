@@ -401,7 +401,7 @@ public class Collection extends SubSystem {
             gripServo.setPosition(108);
         }
 
-        horizontalMotor.update(Range.clip(extendoPower, -0.8, 0.8));
+        horizontalMotor.update(Range.clip(extendoPower, -0.9, 0.8));
 
 //        if (!braking){
 //
@@ -678,7 +678,7 @@ public class Collection extends SubSystem {
                         double rotateAngle = sampleMap.get(0).getAngle();
 
                         if (rotateAngle > 60 || rotateAngle < -60){
-                            griperRotate.setPosition(0);
+                            griperRotate.setPosition(rotateTransfer);
                         }else{
                             griperRotate.setPosition(90 - ((sampleMap.get(0).getAngle())*0.5));
                         }

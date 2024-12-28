@@ -96,7 +96,7 @@ public class findAngleUsingContour_SIM implements VisionProcessor{
 
             for (int i = 0; i < contours.size(); i++){
                 Rect rect = boundingRect(contours.get(i));
-                if (rect.area() > 12000 && rect.area() < 1500000){
+                if (rect.area() > 2000 && rect.area() < 15000){
                     redContoursSingle.add(contours.get(i));
                     redRectsSingle.add(rect);
                 }
@@ -110,9 +110,9 @@ public class findAngleUsingContour_SIM implements VisionProcessor{
 
             ArrayList<MatOfPoint> sortedContoursSingle = sortContoursByYAndCenter(redContoursSingle, centerPointsSingle, ROI.height, ROI.width);
 
-//            for (MatOfPoint contour : sortedContoursSingle) {
-//                Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
-//            }
+            for (MatOfPoint contour : sortedContoursSingle) {
+                Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
+            }
 
             MatOfPoint Contour = sortedContoursSingle.get(0);
 
