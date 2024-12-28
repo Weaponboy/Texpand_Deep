@@ -142,6 +142,12 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     @Override
     public void loopEX() {
+        if (targetState == state && follow.isFinished() && !drop){
+            follow.setPath(paths.returnPath("spikeOne"));
+
+
+        }
+
 
         if (state == autoState.preload) {
 
@@ -223,7 +229,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(250,306));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(248,306));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -234,7 +240,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(250, 306)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(248, 306)));
 
                     collection.queueCommand(collection.collect);
 
@@ -325,7 +331,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247,332));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -336,7 +342,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 328.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 332)));
 
                     collection.queueCommand(collection.collect);
 
@@ -407,7 +413,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 162;
+                    targetHeading = 164;
 
                     cycleBuilt = building.built;
 
@@ -425,7 +431,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(247,354));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247,358));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -436,7 +442,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 354)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 356)));
 
                     collection.queueCommand(collection.collect);
 
@@ -644,13 +650,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (state == targetState){
 
-                if (!pathing && !drop && dropTimerDriving.milliseconds() > 500 && dropTimerDriving.milliseconds() < 600){
-                    delivery.queueCommand(delivery.deposit);
-                    vertical = 0;
-                    stop = true;
-                } else if (stop && delivery.getSlidePositionCM() < 10) {
-                    state = autoState.finished;
-                }
+
 
             }else{
 
