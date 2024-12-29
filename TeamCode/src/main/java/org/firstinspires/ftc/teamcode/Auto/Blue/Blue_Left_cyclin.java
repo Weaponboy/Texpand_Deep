@@ -18,11 +18,13 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 @Autonomous
 public class Blue_Left_cyclin extends OpModeEX {
+
     pathsManager paths = new pathsManager();
 
-
     follower follow = new follower();
+
     double targetHeading;
+
     boolean drop;
     ElapsedTime dropTimer=new ElapsedTime();
     boolean collect = false;
