@@ -118,7 +118,7 @@ public class Blue_Just_One extends OpModeEX {
 
                 targetHeading = 203;
 
-                built = building.notBuilt;
+                built = building.built;
 
                 collection.queueCommand(collection.collect);
 
@@ -172,7 +172,7 @@ public class Blue_Just_One extends OpModeEX {
 
                 targetHeading = 225;
 
-                built = building.notBuilt;
+                built = building.built;
                 pathing = true;
                 drop = true;
                 follow.setExtendoHeading(true);
