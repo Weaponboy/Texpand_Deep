@@ -57,6 +57,8 @@ public class Blue_Just_One extends OpModeEX {
 
     @Override
     public void initEX() {
+        odometry.startPosition(344, 282, 270);
+
         paths.addNewPath("preloadPath");
         paths.buildPath(preloadPath);
 
