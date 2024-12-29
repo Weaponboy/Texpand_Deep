@@ -223,7 +223,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
                 }
 
-                if (odometry.X() < 320 && !pullDownSlides){
+                if (odometry.X() < 315 && !pullDownSlides){
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.deposit);
                 }
@@ -243,6 +243,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.queueCommand(collection.extendoTargetPoint(new Point(248, 306)));
 
                     collection.queueCommand(collection.collect);
+
+                    collection.setSlideTarget(0);
 
                     collection.queueCommand(collection.transfer);
 
@@ -325,7 +327,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
                 }
 
-                if (odometry.X() < 320 && !pullDownSlides){
+                if (odometry.X() < 315 && !pullDownSlides){
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.deposit);
                 }
@@ -347,6 +349,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer);
+
+                    collection.setSlideTarget(0);
 
                     collection.queueCommand(collection.transferDrop);
 
@@ -425,7 +429,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
                 }
 
-                if (odometry.X() < 320 && !pullDownSlides){
+                if (odometry.X() < 315 && !pullDownSlides){
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.deposit);
                 }
@@ -447,6 +451,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer);
+
+                    collection.setSlideTarget(0);
 
                     collection.queueCommand(collection.transferDrop);
 
