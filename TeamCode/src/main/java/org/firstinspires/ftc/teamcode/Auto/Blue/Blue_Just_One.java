@@ -75,6 +75,7 @@ public class Blue_Just_One extends OpModeEX {
 
     @Override
     public void loopEX() {
+
         if (state == AutoState.preload) {
 
             if (built == building.notBuilt) {
@@ -137,9 +138,7 @@ public class Blue_Just_One extends OpModeEX {
                 collection.targetPointWithExtendoNoArm(new Vector2D(250,306));
             }
 
-            Vector2D armPosition = collection.extendoPoint();
-
-            if (Math.abs(armPosition.getX() - 249) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+            if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                 autoQueued = true;
 
@@ -167,29 +166,29 @@ public class Blue_Just_One extends OpModeEX {
         } else if (state == AutoState.spikeDepo) {
 
             if (built == building.notBuilt){
-
-                follow.setPath(paths.returnPath("dropBasket"));
-
-                targetHeading = 225;
-
-                built = building.built;
-                pathing = true;
-                drop = true;
-                follow.setExtendoHeading(true);
+//
+//                follow.setPath(paths.returnPath("dropBasket"));
+//
+//                targetHeading = 225;
+//
+//                built = building.built;
+//                pathing = true;
+//                drop = true;
+//                follow.setExtendoHeading(true);
             }
 
-            if (collection.getCurrentCommand() == collection.defaultCommand){
-                delivery.slideSetPoint(delivery.autoHighBasket);
-                delivery.slides = Delivery.slideState.moving;
-            }
-
-            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
-                delivery.queueCommand(delivery.deposit);
-            }
-
-            if (follow.isFinished(8,8) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
-                state = AutoState.finished;
-            }
+//            if (collection.getCurrentCommand() == collection.defaultCommand){
+//                delivery.slideSetPoint(delivery.autoHighBasket);
+//                delivery.slides = Delivery.slideState.moving;
+//            }
+//
+//            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
+//                delivery.queueCommand(delivery.deposit);
+//            }
+//
+//            if (follow.isFinished(8,8) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab){
+//                state = AutoState.finished;
+//            }
 
         }
 

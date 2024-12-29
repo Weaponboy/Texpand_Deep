@@ -387,7 +387,9 @@ public class Collection extends SubSystem {
             slideI = 0;
         }
 
-        if (error < 20 && longTarget){
+        if (error < 10 && longTarget && slideTarget != 0){
+            longTarget = false;
+        }else if (slideTarget == 0 && horizontalMotor.getVelocity() < 10 && longTarget){
             longTarget = false;
         }
 
