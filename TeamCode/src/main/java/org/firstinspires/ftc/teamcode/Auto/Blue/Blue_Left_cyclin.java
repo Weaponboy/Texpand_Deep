@@ -553,7 +553,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 autoQueued = false;
                 pathing = false;
-                delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
                 collection.sampleSorterContour.setScanning(true);
                 collection.portal.resumeStreaming();
