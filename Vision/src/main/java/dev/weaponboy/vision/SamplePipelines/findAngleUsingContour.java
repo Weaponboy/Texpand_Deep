@@ -629,7 +629,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double centerPoint = 190;
 
-            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.709);
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.64);
 
 //            yExtra = 1;
 
