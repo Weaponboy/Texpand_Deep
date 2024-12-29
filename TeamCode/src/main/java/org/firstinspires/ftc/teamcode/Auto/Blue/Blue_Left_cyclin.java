@@ -593,6 +593,8 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 collection.queueCommand(collection.transfer);
 
+                collection.queueCommand(delivery.transfer);
+
                 collection.queueCommand(collection.transferDrop);
 
                 collection.queueCommand(delivery.closeGripper);
