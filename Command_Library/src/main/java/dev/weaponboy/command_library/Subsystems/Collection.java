@@ -186,6 +186,14 @@ public class Collection extends SubSystem {
     double mainPivotChamberCollect = 140;
     double secondPivotChamberCollect = 310;
 
+    /**
+     * stow position values
+     * */
+    double mainPivotWallCollect = 160;
+    double secondPivotWallCollect = 180;;
+
+
+
     ElapsedTime fourBarTimer = new ElapsedTime();
     double transferWaitTime;
 
@@ -195,6 +203,8 @@ public class Collection extends SubSystem {
     private fourBar fourBarState = fourBar.stowed;
     private fourBar fourBarTargetState = fourBar.stowed;
     private slideState slidesState = slideState.manuel;
+
+    boolean exit = false;
 
     public clawState getClawsState() {
         return clawsState;
@@ -436,6 +446,23 @@ public class Collection extends SubSystem {
                 fourBarMainPivot.setPosition(mainPivotCollect);
                 fourBarSecondPivot.setPosition(secondPivotCollect);
             }
+    );
+
+    public Command Wallcollect = new LambdaCommand(
+            () -> {
+                exit = false;
+            },
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotWallCollect);
+                fourBarSecondPivot.setPosition(secondPivotWallCollect);
+                exit = true;
+
+
+
+            },
+            () ->(exit)
+
+
     );
 
     private final Command SpikePushing = new Execute(
