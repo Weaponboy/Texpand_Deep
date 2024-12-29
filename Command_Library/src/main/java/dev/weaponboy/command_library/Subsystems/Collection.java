@@ -401,7 +401,7 @@ public class Collection extends SubSystem {
             gripServo.setPosition(108);
         }
 
-        horizontalMotor.update(Range.clip(extendoPower, -0.9, 0.8));
+        horizontalMotor.update(Range.clip(extendoPower, -1, 0.8));
 
 //        if (!braking){
 //

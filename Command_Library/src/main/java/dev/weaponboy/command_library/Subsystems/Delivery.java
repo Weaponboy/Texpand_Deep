@@ -576,8 +576,8 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(gripperSlightRelease);
         }
 
-        slideMotor.update(slidePower);
-        slideMotor2.update(slidePower);
+        slideMotor.update(Range.clip(slidePower, -0.7, 1));
+        slideMotor2.update(Range.clip(slidePower, -0.7, 1));
     }
 
     public double findCameraScanPosition(){
