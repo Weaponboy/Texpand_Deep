@@ -63,7 +63,7 @@ public class Blue_Just_One extends OpModeEX {
         paths.addNewPath("spikeOne");
         paths.buildPath(spikeOne);
 
-        follow.setPath(paths.returnPath("dropBasket"));
+        paths.addNewPath("dropBasket");
         paths.buildPath(subDeposit);
 
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
@@ -106,8 +106,8 @@ public class Blue_Just_One extends OpModeEX {
                 state = AutoState.spikeCollect;
                 collection.setSlideTarget(20);
                 built = building.notBuilt;
-
             }
+
         }else if (state == AutoState.spikeCollect){
 
             if (built == building.notBuilt){
