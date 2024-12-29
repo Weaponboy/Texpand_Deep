@@ -387,7 +387,7 @@ public class Collection extends SubSystem {
             slideI = 0;
         }
 
-        if (error < 60 && longTarget){
+        if (error < 20 && longTarget){
             longTarget = false;
         }
 
