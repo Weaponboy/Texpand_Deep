@@ -151,8 +151,8 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotWallCollect = 180;
-    double secondPivotWallCollect = 215;
+    double mainPivotWallCollect = 158;
+    double secondPivotWallCollect = 230;
 
     /**
      * stowed position values
@@ -541,7 +541,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    fourBarTargetState = fourBar.collect;
+                    fourBarTargetState = fourBar.wallCollect;
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotWallCollect)*4, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotWallCollect)*6);
 
                     WallCollect.execute();
