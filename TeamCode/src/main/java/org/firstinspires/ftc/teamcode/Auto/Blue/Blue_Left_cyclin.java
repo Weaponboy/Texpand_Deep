@@ -314,7 +314,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 175;
+                    targetHeading = 170;
 
                     cycleBuilt = building.built;
 
@@ -341,7 +341,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 //                    pathing = false;
 //                }
 
-                if (pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
