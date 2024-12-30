@@ -152,7 +152,7 @@ public class Collection extends SubSystem {
      * preCollect position values
      * */
     double mainPivotWallCollect = 150;
-    double secondPivotWallCollect = 230;
+    double secondPivotWallCollect = 240;
 
     /**
      * stowed position values
