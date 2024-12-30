@@ -151,8 +151,8 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotWallCollect = 150;
-    double secondPivotWallCollect = 240;
+    double mainPivotWallCollect = 130;
+    double secondPivotWallCollect = 254;
 
     /**
      * stowed position values
@@ -1213,8 +1213,8 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotWallCollect+20)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotWallCollect-30)*microRoboticTime);
                     fourBarTargetState = fourBar.transferInt;
 
-                    fourBarMainPivot.setPosition(mainPivotWallCollect+20);
-                    fourBarSecondPivot.setPosition(secondPivotWallCollect-30);
+                    fourBarMainPivot.setPosition(mainPivotWallCollect+6);
+                    fourBarSecondPivot.setPosition(secondPivotWallCollect-40);
 
                 } else if (fourBarState == fourBar.transferInt) {
 
@@ -1230,7 +1230,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*20, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*2, Math.abs(getRailPosition() - railTargetTransInt)*40));
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotTransfer)*(microRoboticTime+10), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*10);
                     fourBarTargetState = fourBar.transferUp;
 
                     Transfer.execute();
