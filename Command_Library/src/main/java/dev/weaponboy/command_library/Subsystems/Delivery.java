@@ -45,7 +45,7 @@ public class Delivery extends SubSystem {
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
-    public final double highChamberBack = 13;
+    public final double highChamberBack = 13.5;
 
     public final double visionTarget = 19.5;
 
@@ -323,7 +323,7 @@ public class Delivery extends SubSystem {
             },
             () -> {
 
-                if (fourbarState != fourBarState.transferringStates && getSlidePositionCM() > highChamberBack-2) {
+                if (fourbarState != fourBarState.transferringStates && getSlidePositionCM() > highChamberBack-1) {
 
                     fourBarTimer.reset();
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipBack)*axonMaxTime, Math.max(Math.abs(secondPivot.getPositionDegrees()- secondPreClipBack)*axonMaxTime, Math.abs(getSlidePositionCM() - slideTarget)*20));
@@ -437,7 +437,7 @@ public class Delivery extends SubSystem {
 
                     gripperState = gripper.drop;
 
-                }else if(fourbarState == fourBarState.clip && slideMotor.getCurrentPosition() > 50 && gripperState == gripper.drop){
+                }else if(fourbarState == fourBarState.clip && slideMotor.getCurrentPosition() > 60 && gripperState == gripper.drop){
 
                     fourBarTimer.reset();
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
