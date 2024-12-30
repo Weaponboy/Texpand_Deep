@@ -1233,9 +1233,20 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotTransfer)*(microRoboticTime+10), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*10);
                     fourBarTargetState = fourBar.transferUp;
 
-                    Transfer.execute();
                     setSlideTarget(0);
 
+                    if (horizontalMotor.getCurrentPosition() < 200){
+                        Transfer.execute();
+                        commandTimer.reset();
+                    }else{
+                        transferToFar = true;
+                    }
+
+                }
+
+                if (horizontalMotor.getCurrentPosition() < 200 && transferToFar){
+                    Transfer.execute();
+                    transferToFar = false;
                 }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
