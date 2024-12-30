@@ -376,7 +376,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         }
 
 //        Imgproc.circle(frameSub, new Point(75, 20), 4, new Scalar(255, 0, 0), -1);
-        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
+//        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
 
         redContoursSingle.clear();
         redRectsSingle.clear();
@@ -588,7 +588,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         double angleC = 90;
 
         //second triangle
-        double angleD = pivotAngle - angleA;
+        double angleD = 80;
         double angleE = Math.toDegrees(Math.atan(8 / firstHypot));
         double angleF = 180 - angleE - angleD;
 
@@ -629,7 +629,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double centerPoint = 190;
 
-            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.709);
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.64);
 
 //            yExtra = 1;
 
@@ -643,6 +643,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             double pixelsToCMRelY = viewSizeCMYAxis/ROI.width;
 
             double relYPosition = 0;
+
             if (detection.getTargetPoint().x > centerPoint){
 
                 double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
@@ -671,14 +672,14 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
 
-            relXPosition = realWorldPosition + 19.8;
+            relXPosition = realWorldPosition + 22.5;
 
 //            relXPosition = sideN;
 
             double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
             double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
 
-            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 17.5 - 10) < 55){
+            if (relYPosition < 13 && relYPosition > -13 && (relXPosition - 22.5 - 10) < 55 && (relXPosition - 22.5 - 10) > 15){
                 fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
             }
 

@@ -36,12 +36,12 @@ public class Delivery extends SubSystem {
 
     public TouchSensor slidesReset;
 
-    public motionProfile profile = new motionProfile(1200, 210, 71, 1080, 0.2);
+    public motionProfile profile = new motionProfile(1200, 210, 71, 900, 0.2);
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 60;
-    public final double autoHighBasket = 56;
+    public final double highBasket = 67;
+    public final double autoHighBasket = 66;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
@@ -51,11 +51,11 @@ public class Delivery extends SubSystem {
 
     public final double chamberCollectScanPosition = 19.5;
 
-    PIDController adjustment = new PIDController(0.015, 0, 0.00005);
+    PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
     double gripperDrop = 130;
-    double gripperGrab = 68;
-    double gripperSlightRelease = 78;
+    double gripperGrab = 82;
+    double gripperSlightRelease = 87;
 
     /**
      * servo time per degrees
@@ -67,14 +67,14 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 254;
-    double secondTransfer = 137;
+    double mainPivotTransfer = 252;
+    double secondTransfer = 141;
 
     /**
      * Bucket deposit position values
      * */
     double mainPivotDepo = 100;
-    double secondDepo = 240;
+    double secondDepo = 230;
     double gripperDepo = gripperGrab;
 
     /**
@@ -510,14 +510,15 @@ public class Delivery extends SubSystem {
     public void execute() {
 
         executeEX();
+        griperRotateSev.setPosition(90);
 
-        double ticksPerCM = (double) 1080 / 71;
+        double ticksPerCM = (double) 900 / 71;
         double error;
 
-        if ((slideTarget*ticksPerCM) < 1080){
+        if ((slideTarget*ticksPerCM) < 900){
             error = Math.abs((slideTarget*ticksPerCM) - (double) slideMotor.getCurrentPosition());
         }else {
-            error = Math.abs((1080) - (double) slideMotor.getCurrentPosition());
+            error = Math.abs((90) - (double) slideMotor.getCurrentPosition());
         }
 
         if(slides == slideState.moving && !resettingSlides){
@@ -575,8 +576,8 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(gripperSlightRelease);
         }
 
-        slideMotor.update(slidePower);
-        slideMotor2.update(slidePower);
+        slideMotor.update(Range.clip(slidePower, -0.7, 1));
+        slideMotor2.update(Range.clip(slidePower, -0.7, 1));
     }
 
     public double findCameraScanPosition(){
@@ -588,7 +589,7 @@ public class Delivery extends SubSystem {
         double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
         double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
 
-        return 189.5 - ((firstAngle + secondAngle)-90 * 0.794);
+        return 194 - (((firstAngle + secondAngle)-90) * 0.794);
 
     }
 

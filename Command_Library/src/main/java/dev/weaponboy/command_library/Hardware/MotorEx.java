@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,8 +49,8 @@ public class MotorEx {
         return motor.getCurrentPosition();
     }
 
-    public double getCurrentVelocity() {
-        return velocity;
+    public double getCurrentDraw() {
+        return motor.getCurrent(CurrentUnit.MILLIAMPS);
     }
 
     public void setDirection(DcMotorSimple.Direction direction){

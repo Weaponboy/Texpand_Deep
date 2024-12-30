@@ -16,18 +16,25 @@ import dev.weaponboy.vision.detectionData;
 @TeleOp
 public class sprint2Teleop extends OpModeEX {
 
-    boolean transferring = false;
-    ElapsedTime transferringWait = new ElapsedTime();
-
     double rotateTarget = 90;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
-
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
+
+    public enum wallCollect {
+        wallTransfer,
+        WallColelct,
+
+
+
+    }
+
+    public sprint2Teleop.wallCollect wallcollect = wallCollect.wallTransfer;
+
+    boolean queueCollection = false;
 
     @Override
     public void initEX() {
@@ -48,7 +55,7 @@ public class sprint2Teleop extends OpModeEX {
         /**
          * Overwrites
          * */
-        if (currentGamepad2.back && !lastGamepad1.back){
+        if (currentGamepad2.back && !lastGamepad2.back){
             collection.sampleSorterContour.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
@@ -62,10 +69,31 @@ public class sprint2Teleop extends OpModeEX {
         if (gamepad2.x && (collection.getFourBarState() == Collection.fourBar.transferUp || collection.getFourBarState() == Collection.fourBar.preCollect)){
             collection.setSlideTarget(50);
         }
+        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && wallcollect == wallCollect.wallTransfer ){
+            collection.queueCommand(collection.Wallcollect);
+            wallcollect = wallCollect.WallColelct;
+            collection.queueCommand(collection.openGripper);
+
+        }
+        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && wallcollect == wallCollect.WallColelct ){
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+            wallcollect = wallCollect.wallTransfer;
+        }
+
 
         if (currentGamepad2.right_bumper && !lastGamepad2.right_bumper){
             if (!delivery.clawSensor.isPressed()){
                 delivery.setGripperState(Delivery.gripper.drop);
+                delivery.overrideCurrent(true, delivery.stow);
             }
 
             collection.queueCommand(collection.collect);
@@ -79,14 +107,11 @@ public class sprint2Teleop extends OpModeEX {
 
             collection.queueCommand(collection.transfer);
 
-//            collection.queueCommand(delivery.transfer);
-
             collection.queueCommand(collection.transferDrop);
 
             collection.queueCommand(delivery.closeGripper);
 
             collection.queueCommand(collection.openGripper);
-
         }
 
         if (currentGamepad2.right_stick_y < -0.5){
@@ -111,14 +136,6 @@ public class sprint2Teleop extends OpModeEX {
             collection.griperRotate.setPosition(rotateTarget);
         }
 
-//        if (gamepad2.dpad_left){
-//            collection.setChamberCollect(false);
-//        }
-//
-//        if (gamepad2.dpad_right){
-//            collection.setChamberCollect(true);
-//        }
-
         if (gamepad2.start){
             hang.hang1.setPosition(1);
             hang.hang2.setPosition(1);
@@ -136,7 +153,7 @@ public class sprint2Teleop extends OpModeEX {
 
         if (currentGamepad2.y && !lastGamepad2.y){
 
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
             collection.sampleSorterContour.setScanning(true);
             collection.portal.resumeStreaming();
@@ -147,17 +164,24 @@ public class sprint2Teleop extends OpModeEX {
 
         }
 
+        if (currentGamepad2.dpad_up && lastGamepad2.dpad_up && collection.getClawsState() == Collection.clawState.drop ){
+            collection.setClawsState(Collection.clawState.grab);
+        }
+
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
 
             counter++;
 
             if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
+
                 busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
+                queueCollection = true;
+
                 collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
@@ -167,11 +191,27 @@ public class sprint2Teleop extends OpModeEX {
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
 
             collection.sampleSorterContour.setScanning(false);
-            delivery.overrideCurrent(true, delivery.stow);
+//            delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
             busyDetecting = false;
+        }
+
+        if (collection.sampleSorterContour.isScanning() && !collection.sampleSorterContour.detections.isEmpty() && delivery.getSlidePositionCM() > 10 && odometry.getXVelocity() < 10){
+            gamepad2.rumble(5);
+        }
+
+        if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
+            collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            queueCollection = false;
         }
 
         /**
