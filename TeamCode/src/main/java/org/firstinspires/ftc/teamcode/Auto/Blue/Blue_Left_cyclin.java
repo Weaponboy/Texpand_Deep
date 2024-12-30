@@ -99,7 +99,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(331, 331)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(329, 329)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -219,7 +219,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
                 }
 
-                if (odometry.X() < 320 && !pullDownSlides){
+                if (odometry.X() < 310 && !pullDownSlides){
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.deposit);
                 }
@@ -327,7 +327,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (!autoQueued){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,330));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247.5,330));
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
@@ -338,7 +338,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 330)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247.5, 330)));
 
                     collection.queueCommand(collection.collect);
 
@@ -421,7 +421,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
                 }
 
-                if (odometry.X() < 320 && !pullDownSlides){
+                if (odometry.X() < 310 && !pullDownSlides){
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.deposit);
                 }
@@ -648,6 +648,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (!pathing && !drop && dropTimerDriving.milliseconds() > 500 && dropTimerDriving.milliseconds() < 600){
                     delivery.queueCommand(delivery.deposit);
+                    follow.setPath(paths.returnPath("spikeOne"));
                     vertical = 0;
                     stop = true;
                 } else if (stop && delivery.getSlidePositionCM() < 10) {
