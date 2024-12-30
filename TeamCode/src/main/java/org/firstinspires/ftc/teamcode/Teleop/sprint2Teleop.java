@@ -69,26 +69,6 @@ public class sprint2Teleop extends OpModeEX {
         if (gamepad2.x && (collection.getFourBarState() == Collection.fourBar.transferUp || collection.getFourBarState() == Collection.fourBar.preCollect)){
             collection.setSlideTarget(50);
         }
-        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && wallcollect == wallCollect.wallTransfer ){
-            collection.queueCommand(collection.Wallcollect);
-            wallcollect = wallCollect.WallColelct;
-            collection.queueCommand(collection.openGripper);
-
-        }
-        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && wallcollect == wallCollect.WallColelct ){
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.transfer);
-
-            collection.queueCommand(collection.transferDrop);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
-            wallcollect = wallCollect.wallTransfer;
-        }
-
 
         if (currentGamepad2.right_bumper && !lastGamepad2.right_bumper){
             if (!delivery.clawSensor.isPressed()){
