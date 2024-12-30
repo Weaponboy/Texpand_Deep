@@ -127,7 +127,7 @@ public class Collection extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 75;
+    double mainPivotCollect = 72;
     double secondPivotCollect = 320;
 
     /**
