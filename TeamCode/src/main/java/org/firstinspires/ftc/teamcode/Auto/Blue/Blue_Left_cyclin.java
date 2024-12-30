@@ -611,7 +611,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 190;
+                targetHeading = 212;
 
                 follow.usePathHeadings(false);
 
