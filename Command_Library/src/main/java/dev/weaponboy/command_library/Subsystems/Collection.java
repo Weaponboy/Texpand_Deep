@@ -151,7 +151,7 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotWallCollect = 158;
+    double mainPivotWallCollect = 150;
     double secondPivotWallCollect = 230;
 
     /**
@@ -537,7 +537,7 @@ public class Collection extends SubSystem {
             () -> {},
             () -> {
 
-                if (fourBarState != fourBar.preCollect && fourBarState != fourBar.wallCollect){
+                if (fourBarState != fourBar.transferringStates && fourBarState != fourBar.wallCollect){
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
