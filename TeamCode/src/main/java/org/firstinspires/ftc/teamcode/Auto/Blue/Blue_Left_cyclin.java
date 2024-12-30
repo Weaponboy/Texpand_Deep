@@ -224,12 +224,18 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,306));
+                if (follow.isFinished(3,3)){
+
                     pathing = false;
+
                 }
 
-                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+//                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
+//                    collection.targetPointWithExtendoNoArm(new Vector2D(246,306));
+//                    pathing = false;
+//                }
+
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
@@ -325,12 +331,17 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(245.5,330));
-                    pathing = false;
-                }
+                if (follow.isFinished(3,3)){
 
-                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+                    pathing = false;
+
+                }
+//                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
+//                    collection.targetPointWithExtendoNoArm(new Vector2D(245.5,330));
+//                    pathing = false;
+//                }
+
+                if (pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
@@ -424,14 +435,16 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
+                if (follow.isFinished(3,3)){
                     pathing = false;
                 }
 
-                Vector2D armPosition = collection.extendoPoint();
+//                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6 && pathi){
+//                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
+//
+//                }
 
-                if (Math.abs(armPosition.getX() - 250) < 10 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5){
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
