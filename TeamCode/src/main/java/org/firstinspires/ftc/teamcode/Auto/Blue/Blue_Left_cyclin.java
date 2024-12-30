@@ -549,7 +549,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 collection.queueCommand(collection.collect);
             }
 
-            if (follow.isFinished(6,6) && !busyDetecting){
+            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 10){
 
                 autoQueued = false;
                 pathing = false;
