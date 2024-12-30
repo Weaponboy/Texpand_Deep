@@ -224,13 +224,12 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued){
+                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
                     collection.targetPointWithExtendoNoArm(new Vector2D(246,306));
+                    pathing = false;
                 }
 
-                Vector2D armPosition = collection.extendoPoint();
-
-                if (Math.abs(armPosition.getX() - 249) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                     autoQueued = true;
 
@@ -326,13 +325,12 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued){
+                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
                     collection.targetPointWithExtendoNoArm(new Vector2D(245.5,330));
+                    pathing = false;
                 }
 
-                Vector2D armPosition = collection.extendoPoint();
-
-                if (Math.abs(armPosition.getX() - 250) < 20 && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
+                if (collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5){
 
                     autoQueued = true;
 
@@ -426,8 +424,9 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued){
+                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
                     collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
+                    pathing = false;
                 }
 
                 Vector2D armPosition = collection.extendoPoint();
