@@ -171,7 +171,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double railTargetChamberStowed = 18;
+    double railTargetChamberStowed = 10;
     double mainPivotChamberStowed = 160;
     double secondPivotChamberStowed = 240;
 

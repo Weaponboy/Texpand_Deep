@@ -83,6 +83,8 @@ public class sprint2TeleopSingle extends OpModeEX {
 
                 if (collection.getChamberCollect()){
                     collection.queueCommand(collection.chamberCollect);
+                }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
+                    collection.setClawsState(Collection.clawState.drop);
                 }else {
                     collection.queueCommand(collection.transfer);
 
