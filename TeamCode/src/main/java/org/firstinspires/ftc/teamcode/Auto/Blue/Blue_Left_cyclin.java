@@ -567,7 +567,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 counter++;
 
-                if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
+                if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 
                     collection.sampleSorterContour.setScanning(false);
                     collection.portal.stopStreaming();
