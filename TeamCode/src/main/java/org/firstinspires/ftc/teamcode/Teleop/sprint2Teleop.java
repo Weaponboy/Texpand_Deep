@@ -79,13 +79,21 @@ public class sprint2Teleop extends OpModeEX {
             collection.queueCommand(collection.collect);
         }
 
-        if (collection.clawSensor.isPressed() && collection.getCurrentCommand() == collection.transfer){
+        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up){
             collection.setChamberCollect(false);
+            gamepad2.rumble(5);
+        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down){
+            collection.setChamberCollect(true);
+            gamepad2.rumble(5);
         }
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(collection.transfer);
+            if (collection.getChamberCollect()){
+                collection.queueCommand(collection.chamberCollect);
+            }else {
+                collection.queueCommand(collection.transfer);
+            }
 
             collection.queueCommand(collection.transferDrop);
 
@@ -142,10 +150,6 @@ public class sprint2Teleop extends OpModeEX {
             detectionTimer.reset();
             counter = 0;
 
-        }
-
-        if (currentGamepad2.dpad_up && lastGamepad2.dpad_up && collection.getClawsState() == Collection.clawState.drop ){
-            collection.setClawsState(Collection.clawState.grab);
         }
 
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
