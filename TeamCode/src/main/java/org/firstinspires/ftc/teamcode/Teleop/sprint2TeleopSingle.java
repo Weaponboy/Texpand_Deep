@@ -85,13 +85,13 @@ public class sprint2TeleopSingle extends OpModeEX {
                     collection.queueCommand(collection.chamberCollect);
                 }else {
                     collection.queueCommand(collection.transfer);
+
+                    collection.queueCommand(collection.transferDrop);
+
+                    collection.queueCommand(delivery.closeGripper);
+
+                    collection.queueCommand(collection.openGripper);
                 }
-
-                collection.queueCommand(collection.transferDrop);
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
 
                 firstDrop = true;
 

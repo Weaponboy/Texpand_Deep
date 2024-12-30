@@ -93,13 +93,13 @@ public class sprint2Teleop extends OpModeEX {
                 collection.queueCommand(collection.chamberCollect);
             }else {
                 collection.queueCommand(collection.transfer);
+
+                collection.queueCommand(collection.transferDrop);
+
+                collection.queueCommand(delivery.closeGripper);
+
+                collection.queueCommand(collection.openGripper);
             }
-
-            collection.queueCommand(collection.transferDrop);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
         }
 
         if (currentGamepad2.right_stick_y < -0.5){
