@@ -235,11 +235,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 //                    pathing = false;
 //                }
 
-                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 8 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
                     pathing = false;
+
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246,306));
 
                     collection.queueCommand(collection.extendoTargetPoint(new Point(246, 306)));
 
@@ -341,11 +343,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 //                    pathing = false;
 //                }
 
-                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 8 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
                     pathing = false;
+
+                    collection.targetPointWithExtendoNoArm(new Vector2D(245.5,330));
 
                     collection.queueCommand(collection.extendoTargetPoint(new Point(245.5, 330)));
 
@@ -444,11 +448,13 @@ public class Blue_Left_cyclin extends OpModeEX {
 //
 //                }
 
-                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
+                if (!pathing && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 8 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
                     pathing = false;
+
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
 
                     collection.queueCommand(collection.extendoTargetPoint(new Point(246.4, 356.6)));
 
