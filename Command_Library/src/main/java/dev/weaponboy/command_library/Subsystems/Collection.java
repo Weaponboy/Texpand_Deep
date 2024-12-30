@@ -1210,7 +1210,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotWallCollect+20)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotWallCollect-30)*microRoboticTime);
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotWallCollect+6)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotWallCollect-40)*microRoboticTime);
                     fourBarTargetState = fourBar.transferInt;
 
                     fourBarMainPivot.setPosition(mainPivotWallCollect+6);
@@ -1235,7 +1235,7 @@ public class Collection extends SubSystem {
 
                     setSlideTarget(0);
 
-                    if (horizontalMotor.getCurrentPosition() < 200){
+                    if (horizontalMotor.getCurrentPosition() < 300){
                         Transfer.execute();
                         commandTimer.reset();
                     }else{
@@ -1244,7 +1244,7 @@ public class Collection extends SubSystem {
 
                 }
 
-                if (horizontalMotor.getCurrentPosition() < 200 && transferToFar){
+                if (horizontalMotor.getCurrentPosition() < 300 && transferToFar){
                     Transfer.execute();
                     transferToFar = false;
                 }

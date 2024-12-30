@@ -113,9 +113,19 @@ public class sprint2TeleopSingle extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-0.5);
         }
 
+        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getChamberCollect()){
+            collection.setChamberCollect(false);
+            gamepad1.rumble(5);
+        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && !collection.getChamberCollect()){
+            collection.setChamberCollect(true);
+            gamepad1.rumble(5);
+        }
+
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() != Collection.fourBar.wallCollect){
+
             collection.queueCommand(collection.wallCollect);
             delivery.setGripperState(Delivery.gripper.drop);
+
         } else if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() == Collection.fourBar.wallCollect) {
             collection.queueCommand(collection.wallTransfer);
 
@@ -185,7 +195,12 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
-            collection.queueCommand(collection.transfer);
+
+            if (collection.getChamberCollect()){
+                collection.queueCommand(collection.chamberCollect);
+            }else {
+                collection.queueCommand(collection.transfer);
+            }
 
             collection.queueCommand(collection.transferDrop);
 
