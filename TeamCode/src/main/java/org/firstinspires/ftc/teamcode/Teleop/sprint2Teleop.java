@@ -156,20 +156,19 @@ public class sprint2Teleop extends OpModeEX {
 
             counter++;
 
-            if (!collection.sampleSorterContour.detections.isEmpty() && counter > 10){
+            if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 
-                busyDetecting = false;
                 collection.sampleSorterContour.setScanning(false);
                 collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
-                queueCollection = true;
-
                 collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
+
+                counter = 40;
             }
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
