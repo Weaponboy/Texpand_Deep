@@ -186,7 +186,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 196;
+    double mainPivotTransfer = 198;
     double secondPivotTransfer = 139.7;
     double rotateTransfer = 180;
 
