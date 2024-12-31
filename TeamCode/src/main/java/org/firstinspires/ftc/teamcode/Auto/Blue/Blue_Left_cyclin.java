@@ -97,11 +97,11 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(204, 288), new Vector2D(210, 238)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(204, 288), new Vector2D(200, 238)),
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(326, 324)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 325)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
