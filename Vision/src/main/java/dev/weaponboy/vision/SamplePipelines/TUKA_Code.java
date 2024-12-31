@@ -1,4 +1,4 @@
-package dev.weaponboy.vision.Testing_SIM;
+package dev.weaponboy.vision.SamplePipelines;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
