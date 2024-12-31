@@ -387,6 +387,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             if (loopCounter == 2) {
 
                 detections = currentDetections;
+                scanning = false;
 //                if ((currentDetections.size() != detectionsLastLoop.size())) {
 //                    detections.clear();
 //                    loopCounter = 0;
