@@ -352,7 +352,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 //                    pathing = false;
 //                }
 
-                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 9 && odometry.getXVelocity() < 10){
+                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 10 && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
