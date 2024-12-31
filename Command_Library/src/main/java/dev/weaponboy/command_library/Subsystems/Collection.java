@@ -671,7 +671,7 @@ public class Collection extends SubSystem {
                 double targetRailPosition;
                 double slideTarget;
 
-                targetRailPosition = 10 + errors.getY();
+                targetRailPosition = 11 + errors.getY();
                 slideTarget = (errors.getX() - robotLength)-clawOffsetFromSlides;
 
                 railTarget = (targetRailPosition);
