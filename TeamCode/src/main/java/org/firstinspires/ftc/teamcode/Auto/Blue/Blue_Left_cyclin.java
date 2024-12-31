@@ -34,6 +34,8 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     double vertical = 0;
 
+    boolean headingOverride = false;
+
     public enum autoState{
         preload,
         spikeOne,
@@ -541,8 +543,12 @@ public class Blue_Left_cyclin extends OpModeEX {
             driveBase.queueCommand(driveBase.drivePowers(currentPower));
         }else{
 
-            if (Math.abs(targetHeading - odometry.Heading()) > 5){
-                headingAdjustment = true;
+            if (!headingOverride){
+                if (Math.abs(targetHeading - odometry.Heading()) > 5){
+                    headingAdjustment = true;
+                }else {
+                    headingAdjustment = false;
+                }
             }else {
                 headingAdjustment = false;
             }
@@ -570,6 +576,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 pathing = true;
                 pullDownSlides = false;
                 collect = false;
+                headingOverride = true;
             }
 
             if (odometry.X() < 300 && !pullDownSlides){
