@@ -100,10 +100,8 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if ((currentGamepad1.a && !lastGamepad1.a)|| (currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
-            if (!delivery.clawSensor.isPressed()){
-                delivery.setGripperState(Delivery.gripper.drop);
-            }
-            collection.queueCommand(collection.collect);
+
+            collection.setClawsState(Collection.clawState.drop);
         }
 
         if (currentGamepad1.left_stick_y < -0.5){
