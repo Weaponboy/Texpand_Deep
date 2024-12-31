@@ -100,8 +100,12 @@ public class Blue_Left_cyclin extends OpModeEX {
             () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(204, 288), new Vector2D(200, 238)),
     };
 
+    private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(325, 325)),
+    };
+
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 325)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 329)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -128,6 +132,10 @@ public class Blue_Left_cyclin extends OpModeEX {
         paths.addNewPath("dropBasket");
 
         paths.buildPath(subDeposit);
+
+        paths.addNewPath("dropBasketSpike");
+
+        paths.buildPath(spikeDeposit);
 
         follow.setPath(paths.returnPath("dropBasket"));
 
@@ -269,7 +277,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("dropBasket"));
+                    follow.setPath(paths.returnPath("dropBasketSpike"));
 
                     targetHeading = 225;
 
@@ -378,7 +386,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("dropBasket"));
+                    follow.setPath(paths.returnPath("dropBasketSpike"));
 
                     targetHeading = 225;
 
@@ -483,7 +491,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("dropBasket"));
+                    follow.setPath(paths.returnPath("dropBasketSpike"));
 
                     targetHeading = 225;
 
