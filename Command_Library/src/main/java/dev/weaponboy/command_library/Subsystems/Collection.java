@@ -708,17 +708,49 @@ public class Collection extends SubSystem {
 
                     sampleSorterContour.setScanning(false);
 
-                    if (!sampleMap.isEmpty()){
+                    boolean runCollection = false;
+                    double rotateAngle = 0;
+
+                    while (!sampleMap.isEmpty() && !runCollection){
 
                         angle = sampleMap.get(0).getAngle();
 
                         targetPointGlobal = sampleMap.get(0).getTargetPoint();
 
+                        rotateAngle = sampleMap.get(0).getAngle();
+
+                        sampleMap.remove(0);
+
+                        Vector2D errors = rotatePosition(RobotPosition.getPivot(), new Vector2D(targetPointGlobal.x -RobotPosition.getVertical(), targetPointGlobal.y-RobotPosition.getHorizontal()));
+                        double targetRailPosition;
+                        double slideTarget;
+
+                        targetRailPosition = 11 + errors.getY();
+                        slideTarget = (errors.getX() - robotLength)-clawOffsetFromSlides;
+
+                        railTarget = (targetRailPosition);
+                        slideTargetPosition = slideTarget;
+
+                        if (slideTarget > 60 || targetRailPosition > 26 || targetRailPosition < 0){
+
+                        }else {
+                            runCollection = true;
+                        }
+
+                    }
+
+                    if (!runCollection){
+
+                        Stowed.execute();
+
+                        fourBarTimer.reset();
+                        fourBarState = fourBar.transferringStates;
+                        fourBarTargetState = fourBar.stowed;
+                        transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
+
+                    }else {
                         preCollect.execute();
-
                         fourBarState = fourBar.preCollect;
-
-                        double rotateAngle = sampleMap.get(0).getAngle();
 
                         if (rotateAngle > 80 || rotateAngle < -80){
                             griperRotate.setPosition(rotateTransfer);
@@ -728,18 +760,6 @@ public class Collection extends SubSystem {
 
                         queueCommand(extendoTargetPoint(targetPointGlobal));
                         queueCommand(collect);
-
-                        sampleMap.remove(0);
-
-                    }else {
-
-                        Stowed.execute();
-
-                        fourBarTimer.reset();
-                        fourBarState = fourBar.transferringStates;
-                        fourBarTargetState = fourBar.stowed;
-                        transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*(microRoboticTime), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*microRoboticTime);
-
                     }
 
                 } else if (fourBarState == fourBar.transferringStates) {
