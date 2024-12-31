@@ -101,7 +101,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(326, 326)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(326, 324)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -162,6 +162,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 pathing = true;
                 follow.setExtendoHeading(true);
+                headingOverride = false;
             }
 
             if (delivery.slideMotor.getCurrentPosition() > 200 && delivery.fourbarState == Delivery.fourBarState.transfer){
@@ -276,6 +277,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     pathing = true;
                     drop = true;
                     follow.setExtendoHeading(true);
+                    headingOverride = false;
                 }
 
                 if (collection.getCurrentCommand() == collection.defaultCommand){
@@ -318,7 +320,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 172;
+                    targetHeading = 170;
 
                     cycleBuilt = building.built;
 
