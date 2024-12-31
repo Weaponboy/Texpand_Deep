@@ -439,8 +439,9 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (follow.isFinished(2,2)){
+                if (follow.isFinished(2,2) && !autoQueued){
                     pathing = false;
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
                 }
 
 //                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6 && pathi){
@@ -453,8 +454,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                     autoQueued = true;
 
                     pathing = false;
-
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,356.6));
 
                     collection.queueCommand(collection.extendoTargetPoint(new Point(246.4, 356.6)));
 

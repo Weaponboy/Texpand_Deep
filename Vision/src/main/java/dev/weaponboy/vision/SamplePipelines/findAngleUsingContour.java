@@ -385,26 +385,28 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             contours.clear();
 
             if (loopCounter == 2) {
-                if ((currentDetections.size() != detectionsLastLoop.size())) {
-                    detections.clear();
-                    loopCounter = 0;
-                    scanning = true;
-                } else {
-                    detections.clear();
 
-                    detections = currentDetections;
-
-//                    for (int i = 0; i < currentDetections.size(); i++) {
-//                        detections.add(new detectionData(System.nanoTime(), new Point((currentDetections.get(i).getTargetPoint().x + detectionsLastLoop.get(i).getTargetPoint().x) / 2, (currentDetections.get(i).getTargetPoint().y + detectionsLastLoop.get(i).getTargetPoint().y) / 2), (currentDetections.get(i).getAngle() + detectionsLastLoop.get(i).getAngle()) / 2));
-//                    }
-
-                    scanning = false;
-                }
+                detections = currentDetections;
+//                if ((currentDetections.size() != detectionsLastLoop.size())) {
+//                    detections.clear();
+//                    loopCounter = 0;
+//                    scanning = true;
+//                } else {
+//                    detections.clear();
+//
+//
+//
+////                    for (int i = 0; i < currentDetections.size(); i++) {
+////                        detections.add(new detectionData(System.nanoTime(), new Point((currentDetections.get(i).getTargetPoint().x + detectionsLastLoop.get(i).getTargetPoint().x) / 2, (currentDetections.get(i).getTargetPoint().y + detectionsLastLoop.get(i).getTargetPoint().y) / 2), (currentDetections.get(i).getAngle() + detectionsLastLoop.get(i).getAngle()) / 2));
+////                    }
+//
+//                    scanning = false;
+//                }
             }
 
         }
 
-        if (loopCounter == 4){
+        if (loopCounter >= 4){
             scanning = true;
             loopCounter = 0;
         }
