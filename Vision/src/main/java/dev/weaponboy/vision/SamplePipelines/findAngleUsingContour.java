@@ -622,7 +622,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             }
 
-            relYPosition -= 1;
+//            relYPosition -= 1;
 
             double relXPosition = ((((ROI.height - detection.getTargetPoint().y))*pixelsToCMRelX));
 
