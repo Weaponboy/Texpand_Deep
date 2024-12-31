@@ -168,6 +168,8 @@ public class sprint2Teleop extends OpModeEX {
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
 
+                queueCollection = true;
+
                 counter = 40;
             }
 
@@ -186,6 +188,7 @@ public class sprint2Teleop extends OpModeEX {
         }
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
+
             collection.queueCommand(collection.transfer);
 
             collection.queueCommand(collection.transferDrop);
