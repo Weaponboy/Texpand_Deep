@@ -250,9 +250,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(247,306));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(247,304));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 306)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(247, 304)));
 
                     collection.queueCommand(collection.collect);
 
@@ -358,9 +358,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,331));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 331)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 329)));
 
                     collection.queueCommand(collection.collect);
 
@@ -463,9 +463,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246.4,357));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(245.4,356));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246.4, 357)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(245.4, 356)));
 
                     collection.queueCommand(collection.collect);
 
