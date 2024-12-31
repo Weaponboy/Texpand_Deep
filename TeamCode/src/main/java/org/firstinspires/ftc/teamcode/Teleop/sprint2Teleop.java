@@ -169,6 +169,7 @@ public class sprint2Teleop extends OpModeEX {
                 delivery.runReset();
 
                 queueCollection = true;
+                busyDetecting = false;
 
                 counter = 40;
             }
