@@ -236,9 +236,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (follow.isFinished(3,3)){
-
                     pathing = false;
-
                 }
 
 //                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
@@ -346,16 +344,15 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (follow.isFinished(3,3)){
-
                     pathing = false;
-
                 }
+
 //                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
 //                    collection.targetPointWithExtendoNoArm(new Vector2D(245.5,330));
 //                    pathing = false;
 //                }
 
-                if (!pathing  && !headingAdjustment  &&  collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 8 && odometry.getXVelocity() < 10){
+                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && odometry.getXVelocity() < 10){
 
                     autoQueued = true;
 
