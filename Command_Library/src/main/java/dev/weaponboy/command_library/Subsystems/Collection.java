@@ -1325,7 +1325,7 @@ public class Collection extends SubSystem {
 
     public void setRailTargetPosition(double targetPosition) {
         if(Math.abs(getRailPosition() - railTargetPosition) > 1){
-            railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*60;
+            railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*70;
             railWait.reset();
         }
 
