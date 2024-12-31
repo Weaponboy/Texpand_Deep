@@ -392,9 +392,11 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
                 } else {
                     detections.clear();
 
-                    for (int i = 0; i < currentDetections.size(); i++) {
-                        detections.add(new detectionData(System.nanoTime(), new Point((currentDetections.get(i).getTargetPoint().x + detectionsLastLoop.get(i).getTargetPoint().x) / 2, (currentDetections.get(i).getTargetPoint().y + detectionsLastLoop.get(i).getTargetPoint().y) / 2), (currentDetections.get(i).getAngle() + detectionsLastLoop.get(i).getAngle()) / 2));
-                    }
+                    detections = currentDetections;
+
+//                    for (int i = 0; i < currentDetections.size(); i++) {
+//                        detections.add(new detectionData(System.nanoTime(), new Point((currentDetections.get(i).getTargetPoint().x + detectionsLastLoop.get(i).getTargetPoint().x) / 2, (currentDetections.get(i).getTargetPoint().y + detectionsLastLoop.get(i).getTargetPoint().y) / 2), (currentDetections.get(i).getAngle() + detectionsLastLoop.get(i).getAngle()) / 2));
+//                    }
 
                     scanning = false;
                 }

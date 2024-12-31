@@ -64,6 +64,8 @@ public class Collection extends SubSystem {
      * linear rail constants
      * */
     double railTargetPosition;
+    double railWaitTime;
+    ElapsedTime railWait = new ElapsedTime();
 
     /**
      * servo time per degrees
@@ -683,7 +685,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.1 && Math.abs(railTargetPosition - getRailPosition()) < 1 && horizontalMotor.getVelocity() < 5 && extendoPower < 0.2
+            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.1 && !isRailMoving() && Math.abs(horizontalMotor.getVelocity()) < 5 && Math.abs(extendoPower) < 0.2
     );
 
     public void updateRobotPosition(RobotPower robotPosition){
@@ -1322,6 +1324,11 @@ public class Collection extends SubSystem {
     }
 
     public void setRailTargetPosition(double targetPosition) {
+        if(Math.abs(getRailPosition() - railTargetPosition) > 1){
+            railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*60;
+            railWait.reset();
+        }
+
         this.railTargetPosition = targetPosition;
         double degreesPerCM = (double) 900 / 26;
 
@@ -1335,6 +1342,10 @@ public class Collection extends SubSystem {
             linerRailServo.setPosition(servoTarget);
         }
 
+    }
+
+    public boolean isRailMoving(){
+        return railWaitTime > railWait.milliseconds();
     }
 
     public fourBar getFourBarState() {
