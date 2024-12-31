@@ -233,6 +233,9 @@ public class sprint2TeleopSingle extends OpModeEX {
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
 
+                queueCollection = true;
+                busyDetecting = false;
+
                 counter = 40;
             }
 
@@ -258,6 +261,19 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
+        }
+
+        if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
+
+            collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            queueCollection = false;
         }
 
         /**
