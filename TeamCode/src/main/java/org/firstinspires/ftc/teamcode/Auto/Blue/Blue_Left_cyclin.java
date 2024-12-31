@@ -97,7 +97,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(204, 288), new Vector2D(200, 238)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(204, 288), new Vector2D(200, 244)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
