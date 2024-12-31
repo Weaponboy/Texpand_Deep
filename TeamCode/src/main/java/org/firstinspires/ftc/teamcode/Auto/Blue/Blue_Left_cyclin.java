@@ -561,6 +561,7 @@ public class Blue_Left_cyclin extends OpModeEX {
             }
 
             if (headingAdjustment){
+                follow.setExtendoHeading(true);
                 driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading()))));
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, 0)));

@@ -720,7 +720,7 @@ public class Collection extends SubSystem {
 
                         double rotateAngle = sampleMap.get(0).getAngle();
 
-                        if (rotateAngle > 60 || rotateAngle < -60){
+                        if (rotateAngle > 80 || rotateAngle < -80){
                             griperRotate.setPosition(rotateTransfer);
                         }else{
                             griperRotate.setPosition(90 - ((sampleMap.get(0).getAngle())*0.5));
