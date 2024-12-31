@@ -237,7 +237,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (follow.isFinished(3,3)){
                     pathing = false;
-                    collection.targetPointWithExtendoNoArm(new Vector2D(247,306));
                 }
 
 //                if (!autoQueued && Math.abs(odometry.Heading() - targetHeading) < 6){
