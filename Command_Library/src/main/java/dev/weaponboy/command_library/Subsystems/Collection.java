@@ -677,7 +677,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.1 && !isRailMoving() && Math.abs(horizontalMotor.getVelocity()) < 5 && Math.abs(extendoPower) < 0.2
+            () -> Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.1 && !isRailMoving() && Math.abs(horizontalMotor.getVelocity()) < 5 && Math.abs(extendoPower) < 0.1
     );
 
     public void updateRobotPosition(RobotPower robotPosition){
