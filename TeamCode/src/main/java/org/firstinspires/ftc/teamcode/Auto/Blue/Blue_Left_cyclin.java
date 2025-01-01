@@ -155,6 +155,16 @@ public class Blue_Left_cyclin extends OpModeEX {
     @Override
     public void loopEX() {
 
+        if (collection.getFourBarState() == Collection.fourBar.collect && !collection.clawSensor.isPressed() && collection.horizontalMotor.getVelocity() < 10){
+            collection.queueCommand(collection.transfer);
+
+            collection.queueCommand(collection.transferDrop);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+        }
+
         if (state == autoState.preload) {
 
             if (built == building.notBuilt) {
