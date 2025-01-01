@@ -263,6 +263,10 @@ public class sprint2TeleopSingle extends OpModeEX {
             delivery.runReset();
         }
 
+        if(collection.getFourBarState() == Collection.fourBar.collect && collection.clawSensor.isPressed() && collection.getClawsState() == Collection.clawState.drop && !queueCollection){
+            queueCollection = true;
+        }
+
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
             collection.queueCommand(collection.transfer);

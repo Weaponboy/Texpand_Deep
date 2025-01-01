@@ -90,7 +90,7 @@ public class servopoztest extends OpMode {
         mainPivot.initServo("mainPivot",hardwareMap);
         secondPivot.initServo("secondPivot",hardwareMap);
 
-        ClawSensor = hardwareMap.get(TouchSensor.class, "CollectionReset");
+        ClawSensor = hardwareMap.get(TouchSensor.class, "clawsensor");
         clawIR = hardwareMap.get(TouchSensor.class, "DeliveryReset");
         linerRailServo.initServo("linearRailServo", hardwareMap);
 

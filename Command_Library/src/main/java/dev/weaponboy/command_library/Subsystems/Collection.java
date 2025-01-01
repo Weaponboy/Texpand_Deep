@@ -329,16 +329,8 @@ public class Collection extends SubSystem {
     public void execute() {
 
         executeEX();
-
-
-
-//        if (fourBarState == fourBar.collect && clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
 //
-//            if (getChamberCollect()){
-//                queueCommand(chamberCollect);
-//            }else {
-//                queueCommand(transfer);
-//            }
+//        if (fourBarState == fourBar.collect && clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
 //
 //            autoCollected = true;
 //        } else if (autoCollected && fourBarState == fourBar.preCollect) {
