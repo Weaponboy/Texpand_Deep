@@ -150,6 +150,8 @@ public class Blue_Left_cyclin extends OpModeEX {
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
 
         collection.sampleSorterContour.closestFirst = true;
+
+        collection.setCancelTransfer(false);
     }
 
     @Override
