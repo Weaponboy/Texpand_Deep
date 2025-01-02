@@ -74,8 +74,6 @@ public class Collection extends SubSystem {
     double microRoboticTime = (double) 500 / 360;
     double gripperOpenTime = 300;
 
-    boolean secondPivot = false;
-
     ElapsedTime secondPivotTime = new ElapsedTime();
 
     double robotLength = 35 * 0.5;
@@ -242,6 +240,16 @@ public class Collection extends SubSystem {
         }
 
         slideI = 0;
+    }
+
+    boolean cancelTransferActive = true;
+
+    public boolean isCancelTransferActive() {
+        return cancelTransferActive;
+    }
+
+    public void setCancelTransfer(boolean cancelTransfer) {
+        this.cancelTransferActive = cancelTransfer;
     }
 
     boolean cancelTransfer = false;
@@ -1147,8 +1155,6 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
-                    autoCollecting = false;
-
                 }else if (fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10)){
 
                     fourBarTimer.reset();
@@ -1195,11 +1201,16 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
+                if(isCancelTransferActive() && clawSensor.isPressed()){
+                    Stowed.execute();
+                    cancelTransfer = true;
+                }
+
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
                 }
             },
-            () -> (fourBarState == fourBar.transferUp || cancelTransfer) && slidesReset.isPressed()
+            () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()  ) || cancelTransfer
     );
 
     public Command wallTransfer = new LambdaCommand(
