@@ -1202,7 +1202,7 @@ public class Collection extends SubSystem {
                 }
 
                 if(isCancelTransferActive() && clawSensor.isPressed()){
-                    Stowed.execute();
+                    preCollect.execute();
                     cancelTransfer = true;
                 }
 
@@ -1348,7 +1348,7 @@ public class Collection extends SubSystem {
 
     public void setRailTargetPosition(double targetPosition) {
         if(Math.abs(getRailPosition() - railTargetPosition) > 1){
-            railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*60;
+            railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*50;
             railWait.reset();
         }
 
