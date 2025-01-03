@@ -544,11 +544,9 @@ public class Delivery extends SubSystem {
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
-        griperRotateSev.setPosition(0);
 
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setOffset(18);
 
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
