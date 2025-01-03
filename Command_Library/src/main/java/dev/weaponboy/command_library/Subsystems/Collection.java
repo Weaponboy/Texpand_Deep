@@ -1205,6 +1205,7 @@ public class Collection extends SubSystem {
                 if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
                     preCollect.execute();
                     cancelTransfer = true;
+                    clearQueue();
                 }
 
                 transferCounter++;
