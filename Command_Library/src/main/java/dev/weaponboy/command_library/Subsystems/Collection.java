@@ -1201,7 +1201,7 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-                if(isCancelTransferActive() && clawSensor.isPressed()){
+                if(isCancelTransferActive() && clawSensor.isPressed() && clawsState == clawState.grab){
                     preCollect.execute();
                     cancelTransfer = true;
                 }
