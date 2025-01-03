@@ -72,7 +72,7 @@ public class Collection extends SubSystem {
      * */
     double axonMaxTime = (double) 600 / 360;
     double microRoboticTime = (double) 500 / 360;
-    double gripperOpenTime = 300;
+    double gripperOpenTime = 340;
 
     ElapsedTime secondPivotTime = new ElapsedTime();
 
@@ -1190,14 +1190,12 @@ public class Collection extends SubSystem {
                             Transfer.execute();
                             commandTimer.reset();
                         }else{
-//                        preCollect.execute();
                             fourBarMainPivot.setPosition(mainPivotCollect+20);
                             transferToFar = true;
                         }
                     }
 
                     griperRotate.setPosition(rotateTransfer);
-
                     setRailTargetPosition(railTargetTransInt);
 
                 }
@@ -1209,6 +1207,8 @@ public class Collection extends SubSystem {
 
                 if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
                     preCollect.execute();
+                    clawsState = clawState.drop;
+                    fourBarState = fourBar.preCollect;
                     cancelTransfer = true;
                     clearQueue();
                 }
