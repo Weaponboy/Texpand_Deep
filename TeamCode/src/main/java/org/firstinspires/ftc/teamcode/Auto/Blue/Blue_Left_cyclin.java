@@ -242,8 +242,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     autoQueued = false;
                     follow.setExtendoHeading(false);
 
-                    collection.sampleSorterContour.setScanning(false);
-                    collection.portal.stopStreaming();
+//                    collection.sampleSorterContour.setScanning(false);
+//                    collection.portal.stopStreaming();
                 }
 
                 if (odometry.X() < 310 && !pullDownSlides){
@@ -353,8 +353,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     autoQueued = false;
                     follow.setExtendoHeading(false);
 
-                    collection.sampleSorterContour.setScanning(false);
-                    collection.portal.stopStreaming();
+//                    collection.sampleSorterContour.setScanning(false);
+//                    collection.portal.stopStreaming();
                 }
 
                 if (odometry.X() < 320 && !pullDownSlides){
@@ -461,8 +461,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     autoQueued = false;
                     follow.setExtendoHeading(false);
 
-                    collection.sampleSorterContour.setScanning(false);
-                    collection.portal.stopStreaming();
+//                    collection.sampleSorterContour.setScanning(false);
+//                    collection.portal.stopStreaming();
                 }
 
                 if (odometry.X() < 310 && !pullDownSlides){
