@@ -54,7 +54,7 @@ public class Delivery extends SubSystem {
     PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
     double gripperDrop = 130;
-    double gripperGrab = 87;
+    double gripperGrab = 93;
     double gripperSlightRelease = 87;
 
     /**
