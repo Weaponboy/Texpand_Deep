@@ -253,6 +253,7 @@ public class Collection extends SubSystem {
     }
 
     boolean cancelTransfer = false;
+    int transferCounter = 0;
 
     boolean braking = false;
     ElapsedTime brakingTimer = new ElapsedTime();
@@ -1147,7 +1148,7 @@ public class Collection extends SubSystem {
             },
             () -> {
 
-                if (fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 5) {
+                if (!cancelTransfer && fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 5) {
 
                     clawsState = clawState.grab;
 
@@ -1156,7 +1157,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
-                }else if (fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10 || griperRotate.getPositionDegrees() < 100)){
+                }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10 || griperRotate.getPositionDegrees() < 100)){
 
                     fourBarTimer.reset();
 
@@ -1171,7 +1172,7 @@ public class Collection extends SubSystem {
                     griperRotate.setPosition(rotateTransfer);
                     setRailTargetPosition(railTargetTransInt);
 
-                } else if (fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
@@ -1201,10 +1202,12 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
                     preCollect.execute();
                     cancelTransfer = true;
                 }
+
+                transferCounter++;
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
