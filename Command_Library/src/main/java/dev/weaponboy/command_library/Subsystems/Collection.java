@@ -1145,6 +1145,7 @@ public class Collection extends SubSystem {
     public Command transfer = new LambdaCommand(
             () -> {
                 cancelTransfer = false;
+                transferCounter = 0;
             },
             () -> {
 
@@ -1179,16 +1180,20 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*4, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
-                    setSlideTarget(0);
-                    setClawsState(clawState.grab);
+                    if(isCancelTransferActive() && !clawSensor.isPressed()){
 
-                    if (horizontalMotor.getCurrentPosition() < 320){
-                        Transfer.execute();
-                        commandTimer.reset();
-                    }else{
+                    }else {
+                        setSlideTarget(0);
+                        setClawsState(clawState.grab);
+
+                        if (horizontalMotor.getCurrentPosition() < 320){
+                            Transfer.execute();
+                            commandTimer.reset();
+                        }else{
 //                        preCollect.execute();
-                        fourBarMainPivot.setPosition(mainPivotCollect+20);
-                        transferToFar = true;
+                            fourBarMainPivot.setPosition(mainPivotCollect+20);
+                            transferToFar = true;
+                        }
                     }
 
                     griperRotate.setPosition(rotateTransfer);
