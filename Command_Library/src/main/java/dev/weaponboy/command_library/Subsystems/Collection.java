@@ -1208,7 +1208,9 @@ public class Collection extends SubSystem {
                     clearQueue();
                 }
 
-                transferCounter++;
+                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+                    transferCounter++;
+                }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
