@@ -76,6 +76,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         if (gamepad1.x && (collection.getFourBarState() == Collection.fourBar.transferUp || collection.getFourBarState() == Collection.fourBar.preCollect)){
             collection.setSlideTarget(45);
         }
+
         if ((currentGamepad1.left_stick_button && !(lastGamepad1.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
 
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {

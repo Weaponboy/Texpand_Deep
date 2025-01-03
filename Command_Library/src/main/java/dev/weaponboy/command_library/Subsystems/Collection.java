@@ -184,7 +184,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 190;
+    double mainPivotTransfer = 186;
     double secondPivotTransfer = 142;
     double rotateTransfer = 180;
 
@@ -1175,7 +1175,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*12, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*4, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
                     setSlideTarget(0);
