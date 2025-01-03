@@ -1175,7 +1175,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*4, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*2, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransfer)*3, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
                     setSlideTarget(0);
