@@ -44,7 +44,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
         collection.sampleSorterContour.closestFirst = true;
 
-        collection.setCancelTransfer(false);
+//        collection.setCancelTransfer(false);
     }
 
     @Override
