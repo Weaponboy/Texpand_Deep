@@ -1205,14 +1205,6 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
-                    preCollect.execute();
-                    clawsState = clawState.drop;
-                    fourBarState = fourBar.preCollect;
-                    cancelTransfer = true;
-                    clearQueue();
-                }
-
                 if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
                     transferCounter++;
                 }
@@ -1220,6 +1212,15 @@ public class Collection extends SubSystem {
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
                 }
+
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
+                    preCollect.execute();
+                    setClawsState(clawState.drop);
+                    fourBarState = fourBar.preCollect;
+                    cancelTransfer = true;
+                    clearQueue();
+                }
+
             },
             () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
     );
