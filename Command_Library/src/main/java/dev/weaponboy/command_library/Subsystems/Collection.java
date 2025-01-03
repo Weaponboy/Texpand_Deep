@@ -522,10 +522,11 @@ public class Collection extends SubSystem {
             () -> {
                 setClawsState(clawState.drop);
                 Stowed.execute();
+                fourBarTimer.reset();
             },
             () -> {
             },
-            () -> true
+            () -> fourBarTimer.milliseconds() > 100
 
     );
 
