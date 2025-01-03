@@ -152,6 +152,9 @@ public class Blue_Left_cyclin extends OpModeEX {
         collection.sampleSorterContour.closestFirst = true;
 
         collection.setCancelTransfer(false);
+
+        collection.sampleSorterContour.setScanning(false);
+        collection.portal.stopStreaming();
     }
 
     @Override
