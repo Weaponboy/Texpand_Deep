@@ -547,13 +547,14 @@ public class Delivery extends SubSystem {
 
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 
         mainPivot.setOffset(-2.1);
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
+
+        griperRotateSev.setPosition(90);
 
         Deposit.execute();
 
@@ -567,7 +568,6 @@ public class Delivery extends SubSystem {
     public void execute() {
 
         executeEX();
-        griperRotateSev.setPosition(90);
 
         double ticksPerCM = (double) 900 / 71;
         double error;
