@@ -320,7 +320,7 @@ public class Delivery extends SubSystem {
    public Command closeGripper = new LambdaCommand(
            () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 150;
+                transferWaitTime = 120;
            },
            () -> {
                 gripperState = gripper.grab;

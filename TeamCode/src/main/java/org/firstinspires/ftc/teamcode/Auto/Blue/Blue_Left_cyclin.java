@@ -606,6 +606,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                 pullDownSlides = false;
                 collect = false;
                 headingOverride = true;
+
+//                collection.setCancelTransfer(true);
             }
 
             if (odometry.X() < 300 && !pullDownSlides){
@@ -669,6 +671,9 @@ public class Blue_Left_cyclin extends OpModeEX {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
+
+//            else if (collect && collection.){
+//            }
 
         } else if (CycleState == cycleState.basketDrob){
 

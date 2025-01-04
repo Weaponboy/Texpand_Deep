@@ -511,7 +511,7 @@ public class Collection extends SubSystem {
                 fourBarState = fourBar.stowed;
             },
             () -> {
-                if (WaitForTranferDrop.milliseconds() > 100){
+                if (WaitForTranferDrop.milliseconds() > 50){
                     TransferDrop = true;
                 }
             },
@@ -527,7 +527,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 100
+            () -> fourBarTimer.milliseconds() > 80
 
     );
 
