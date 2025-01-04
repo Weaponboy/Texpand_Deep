@@ -342,7 +342,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 172;
+                    targetHeading = 176;
 
                     cycleBuilt = building.built;
 
