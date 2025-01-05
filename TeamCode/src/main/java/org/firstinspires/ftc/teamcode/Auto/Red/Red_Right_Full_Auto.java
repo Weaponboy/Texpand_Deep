@@ -548,7 +548,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 cycleBuilt = building.notBuilt;
             }
 
-            if (!following && collection.getFourBarState() == Collection.fourBar.preCollect && collection.getCurrentCommand() == collection.defaultCommand){
+            if (!following && collection.getFourBarState() == Collection.fourBar.preCollect && collection.getCurrentCommand() == collection.defaultCommand && collectSample){
 
                 collection.queueCommand(collection.extendoTargetPoint(new Point(325, 84)));
 
