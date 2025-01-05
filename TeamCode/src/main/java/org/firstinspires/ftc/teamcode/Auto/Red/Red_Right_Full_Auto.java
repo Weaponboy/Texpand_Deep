@@ -547,26 +547,26 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 cycleState = CycleState.clip_and_collect;
                 cycleBuilt = building.notBuilt;
             }
-
-            if (!following && collection.getFourBarState() == Collection.fourBar.preCollect && collection.getCurrentCommand() == collection.defaultCommand && collectSample){
-
-                collection.queueCommand(collection.extendoTargetPoint(new Point(325, 84)));
-
-                collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
-
-                collection.queueCommand(collection.collect);
-
-                collection.queueCommand(collection.transfer);
-
-                collection.queueCommand(delivery.transfer);
-
-                collection.queueCommand(collection.transferDrop);
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
-
-            }
+//
+//            if (!following && collection.getFourBarState() == Collection.fourBar.preCollect && collection.getCurrentCommand() == collection.defaultCommand && collectSample){
+//
+//                collection.queueCommand(collection.extendoTargetPoint(new Point(325, 84)));
+//
+//                collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
+//
+//                collection.queueCommand(collection.collect);
+//
+//                collection.queueCommand(collection.transfer);
+//
+//                collection.queueCommand(delivery.transfer);
+//
+//                collection.queueCommand(collection.transferDrop);
+//
+//                collection.queueCommand(delivery.closeGripper);
+//
+//                collection.queueCommand(collection.openGripper);
+//
+//            }
 
         }else if (cycleState == CycleState.clip_and_collect) {
 
