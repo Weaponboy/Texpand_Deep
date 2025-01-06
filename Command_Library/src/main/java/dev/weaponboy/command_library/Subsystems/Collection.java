@@ -124,6 +124,9 @@ public class Collection extends SubSystem {
 
     fullCommands.Obs_Collect obsCollect = fullCommands.Obs_Collect.waiting;
 
+    ElapsedTime gripperReleaseTimer = new ElapsedTime();
+    boolean releasingABit = false;
+
     /**
      * collect position values
      * */
@@ -1188,6 +1191,9 @@ public class Collection extends SubSystem {
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             Transfer.execute();
+                            setClawsState(clawState.slightRelease);
+                            gripperReleaseTimer.reset();
+
                             commandTimer.reset();
                         }else{
                             fourBarMainPivot.setPosition(mainPivotCollect+20);
@@ -1198,6 +1204,10 @@ public class Collection extends SubSystem {
                     griperRotate.setPosition(rotateTransfer);
                     setRailTargetPosition(railTargetTransInt);
 
+                }
+
+                if (releasingABit && gripperReleaseTimer.milliseconds() > 100){
+                    setClawsState(clawState.grab);
                 }
 
                 if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){

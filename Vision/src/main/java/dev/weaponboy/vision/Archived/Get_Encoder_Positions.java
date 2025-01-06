@@ -29,6 +29,11 @@ public class Get_Encoder_Positions extends OpMode {
 
     @Override
     public void loop() {
+
+        if (gamepad1.a){
+            arm_Motor.setPower(0.6);
+        }
+
         telemetry.addData("Arm position", arm_Motor.getCurrentPosition());
         telemetry.addData("Wrist position", wrist_Motor.getCurrentPosition());
         telemetry.update();
