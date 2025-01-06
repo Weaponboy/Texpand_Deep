@@ -355,7 +355,6 @@ public class Delivery extends SubSystem {
             () -> {
                 slideSetPoint(highChamberFront);
                 slides = slideState.moving;
-                griperRotateSev.setPosition(90);
             },
             () -> {
 

@@ -214,6 +214,7 @@ public class sprint2Teleop extends OpModeEX {
          * */
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
             delivery.queueCommand(delivery.preClipFront);
+            delivery.griperRotateSev.setPosition(90);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
             delivery.queueCommand(delivery.clipFront);
         }
