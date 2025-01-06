@@ -53,8 +53,8 @@ public class Delivery extends SubSystem {
 
     PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
-    double gripperDrop = 130;
-    double gripperGrab = 95;
+    double gripperDrop = 145;
+    double gripperGrab = 99;
     double gripperSlightRelease = 87;
 
     /**
@@ -68,7 +68,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 269;
-    double secondTransfer = 143;
+    double secondTransfer = 136;
 
     /**
      * Bucket deposit position values
