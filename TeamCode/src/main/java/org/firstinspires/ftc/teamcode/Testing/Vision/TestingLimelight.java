@@ -28,6 +28,7 @@ public class TestingLimelight extends OpMode {
 
         if (result != null && result.isValid()) {
             double[] pythonOutput = result.getPythonOutput();
+            telemetry.addData("got he", "got him!!!");
             if (pythonOutput != null && pythonOutput.length > 0) {
                 int numPoints = (int) pythonOutput[0];
                 telemetry.addData("Number of points", numPoints);
