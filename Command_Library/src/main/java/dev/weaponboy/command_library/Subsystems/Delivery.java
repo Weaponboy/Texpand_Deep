@@ -67,8 +67,8 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 249;
-    double secondTransfer = 133;
+    double mainPivotTransfer = 269;
+    double secondTransfer = 143;
 
     /**
      * Bucket deposit position values
