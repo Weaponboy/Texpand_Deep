@@ -1324,13 +1324,15 @@ public class Collection extends SubSystem {
 
                         setSlideTarget(0);
 
-                        if (horizontalMotor.getCurrentPosition() < 320){
-                            TransferSlam.execute();
-                        }else{
-                            fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
-                            transferToFar = true;
-                        }
+                        TransferSlam.execute();
+
+//                        if (horizontalMotor.getCurrentPosition() < 320){
+//
+//                        }else{
+//                            fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+//                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
+//                            transferToFar = true;
+//                        }
 
                     }
 
@@ -1341,10 +1343,10 @@ public class Collection extends SubSystem {
 //                    setClawsState(clawState.grab);
 //                }
 //
-                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
-                    TransferSlam.execute();
-                    transferToFar = false;
-                }
+//                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
+//                    TransferSlam.execute();
+//                    transferToFar = false;
+//                }
 
                 if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
                     transferCounter++;
