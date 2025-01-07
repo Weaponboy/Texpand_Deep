@@ -110,7 +110,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         if (currentGamepad1.left_stick_y < -0.5){
             collection.setSlideTarget(collection.getSlideTarget()+0.5);
 
-            if(collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && (collection.getFourBarState() != Collection.fourBar.collect || collection.getFourBarState() != Collection.fourBar.preCollect || collection.getFourBarState() != Collection.fourBar.collectChamber || collection.getFourBarState() != Collection.fourBar.preCollectFlipOut) && collection.getFourBarState() != Collection.fourBar.wallCollect){
+            if(collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
                 firstDrop = false;
