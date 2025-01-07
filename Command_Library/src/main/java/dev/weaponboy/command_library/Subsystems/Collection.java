@@ -479,8 +479,8 @@ public class Collection extends SubSystem {
 
     private final Command TransferSlam = new Execute(
             () -> {
-                fourBarSecondPivot.setPosition(mainPivotTransferSlam);
-                fourBarMainPivot.setPosition(secondPivotTransferSlam);
+                fourBarSecondPivot.setPosition(secondPivotTransferSlam);
+                fourBarMainPivot.setPosition(mainPivotTransferSlam);
 
                 clawsState = clawState.grab;
             }
