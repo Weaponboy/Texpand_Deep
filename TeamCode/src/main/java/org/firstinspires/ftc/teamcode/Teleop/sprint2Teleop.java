@@ -108,9 +108,9 @@ public class sprint2Teleop extends OpModeEX {
             collection.setSlideTarget(collection.getSlideTarget()-0.5);
         }
 
-        if (currentGamepad2.left_stick_x < 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        if (currentGamepad2.left_stick_x < -0.5 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.setRailTargetPosition(collection.getRailPosition()-0.2);
-        }else if (currentGamepad2.left_stick_x > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        }else if (currentGamepad2.left_stick_x > 0.5 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.setRailTargetPosition(collection.getRailPosition()+0.2);
         }
 
