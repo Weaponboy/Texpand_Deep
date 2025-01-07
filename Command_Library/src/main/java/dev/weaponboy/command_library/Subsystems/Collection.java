@@ -480,7 +480,7 @@ public class Collection extends SubSystem {
     private final Command TransferSlam = new Execute(
             () -> {
                 fourBarSecondPivot.setPosition(mainPivotTransferSlam);
-                fourBarMainPivot.setPosition(mainPivotTransferSlam);
+                fourBarMainPivot.setPosition(secondPivotTransferSlam);
 
                 clawsState = clawState.grab;
             }
@@ -1299,8 +1299,8 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-(secondPivotPreCollect - 80))*microRoboticTime);
                     fourBarTargetState = fourBar.collect;
 
-                    fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                    fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
+                    fourBarMainPivot.setPosition(mainPivotPreCollect+10);
+                    fourBarSecondPivot.setPosition(secondPivotPreCollect - 80);
 //                    setClawsState(clawState.grab);
 
                     griperRotate.setPosition(rotateTransfer);
