@@ -578,10 +578,18 @@ public class Delivery extends SubSystem {
             error = Math.abs((90) - (double) slideMotor.getCurrentPosition());
         }
 
+        double currentPosition = 0;
+
         if(slides == slideState.moving && !resettingSlides){
 
+            if (slideMotor.getCurrentPosition() == 0){
+                currentPosition = slideMotor2.getCurrentPosition();
+            }else {
+                currentPosition = slideMotor.getCurrentPosition();
+            }
+
             if (error > 5 && !resettingSlides){
-                slidePower = Range.clip(adjustment.calculate(((slideTarget+1) * ticksPerCM), slideMotor.getCurrentPosition()), -1, 1);
+                slidePower = Range.clip(adjustment.calculate(((slideTarget+1) * ticksPerCM), currentPosition), -1, 1);
             }else if (slidesReset.isPressed()){
                 slidePower = 0;
                 if(slideTarget == 0){
