@@ -1290,7 +1290,7 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.collect;
 
                     fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                    fourBarSecondPivot.setPosition(secondPivotPreCollect);
+                    fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
 //                    setClawsState(clawState.grab);
 
                     griperRotate.setPosition(rotateTransfer);
@@ -1317,7 +1317,8 @@ public class Collection extends SubSystem {
                         if (horizontalMotor.getCurrentPosition() < 320){
                             Transfer.execute();
                         }else{
-                            fourBarMainPivot.setPosition(mainPivotCollect+20);
+                            fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
                             transferToFar = true;
                         }
 
