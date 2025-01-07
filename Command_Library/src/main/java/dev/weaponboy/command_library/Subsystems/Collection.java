@@ -524,6 +524,26 @@ public class Collection extends SubSystem {
 
     );
 
+
+    public final Command transferDropSlam = new LambdaCommand(
+            () -> {
+                Transfer.execute();
+                setClawsState(clawState.slightRelease);
+                WaitForTranferDrop.reset();
+
+                TransferDrop = false;
+                fourBarState = fourBar.stowed;
+            },
+            () -> {
+                setClawsState(clawState.slightRelease);
+                if (WaitForTranferDrop.milliseconds() > 60){
+                    TransferDrop = true;
+                }
+            },
+            () -> TransferDrop
+
+    );
+
     public final Command openGripper = new LambdaCommand(
             () -> {
                 setClawsState(clawState.drop);
