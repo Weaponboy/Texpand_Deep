@@ -1294,7 +1294,7 @@ public class Collection extends SubSystem {
                         setSlideTarget(0);
 
                         if (horizontalMotor.getCurrentPosition() < 320){
-                            midTransfer.execute();
+                            Transfer.execute();
                         }else{
                             fourBarMainPivot.setPosition(mainPivotCollect+20);
                             transferToFar = true;
