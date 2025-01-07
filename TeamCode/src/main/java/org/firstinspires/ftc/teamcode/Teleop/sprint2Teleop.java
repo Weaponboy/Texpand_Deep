@@ -50,8 +50,11 @@ public class sprint2Teleop extends OpModeEX {
     public void loopEX() {
 
         // drive base code
-        driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.65, (-gamepad1.left_stick_x)*0.55, -gamepad1.right_stick_x*0.7));
-
+        if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
+        }else {
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x * 0.9));
+        }
         /**
          * Overwrites
          * */
