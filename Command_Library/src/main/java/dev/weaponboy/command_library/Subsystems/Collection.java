@@ -188,7 +188,7 @@ public class Collection extends SubSystem {
      * stowed position values
      * */
     double mainPivotTransfer = 219;
-    double secondPivotTransfer = 129;
+    double secondPivotTransfer = 120;
     double rotateTransfer = 180;
 
     /**
@@ -412,7 +412,7 @@ public class Collection extends SubSystem {
         } else if (clawsState == clawState.drop){
             gripServo.setPosition(118);
         } else if (clawsState == clawState.slightRelease){
-            gripServo.setPosition(59);
+            gripServo.setPosition(43);
         }else if (clawsState == clawState.openFull){
             gripServo.setPosition(118);
         }
