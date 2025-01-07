@@ -188,7 +188,7 @@ public class Collection extends SubSystem {
      * stowed position values
      * */
     double mainPivotTransfer = 195;
-    double secondPivotTransfer = 155;
+    double secondPivotTransfer = 150;
     double rotateTransfer = 180;
 
     /**
@@ -412,7 +412,7 @@ public class Collection extends SubSystem {
         } else if (clawsState == clawState.drop){
             gripServo.setPosition(118);
         } else if (clawsState == clawState.slightRelease){
-            gripServo.setPosition(65);
+            gripServo.setPosition(80);
         }else if (clawsState == clawState.openFull){
             gripServo.setPosition(118);
         }
@@ -515,6 +515,7 @@ public class Collection extends SubSystem {
                 fourBarState = fourBar.stowed;
             },
             () -> {
+                setClawsState(clawState.slightRelease);
                 if (WaitForTranferDrop.milliseconds() > 300){
                     TransferDrop = true;
                 }
