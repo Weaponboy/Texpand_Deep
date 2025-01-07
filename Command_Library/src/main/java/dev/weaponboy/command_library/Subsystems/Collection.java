@@ -1278,6 +1278,7 @@ public class Collection extends SubSystem {
             () -> {
                 cancelTransfer = false;
                 transferCounter = 0;
+                transferToFar = false;
             },
             () -> {
 
@@ -1299,7 +1300,7 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.collect;
 
                     fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                    fourBarSecondPivot.setPosition(secondPivotPreCollect - 80);
+                    fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
 //                    setClawsState(clawState.grab);
 
                     griperRotate.setPosition(rotateTransfer);
@@ -1353,7 +1354,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBarTargetState;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 5){
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 15){
                     preCollect.execute();
                     setClawsState(clawState.drop);
                     fourBarState = fourBar.preCollect;
