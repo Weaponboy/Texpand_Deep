@@ -148,8 +148,8 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotMidTransfer = 170;
-    double secondPivotMidTransfer = 165;
+    double mainPivotMidTransfer = 180;
+    double secondPivotMidTransfer = 160;
 
     /**
      * preCollect position values
@@ -1176,7 +1176,7 @@ public class Collection extends SubSystem {
                         setSlideTarget(0);
                         setClawsState(clawState.grab);
 
-                        Transfer.execute();
+                        midTransfer.execute();
 
 //                        if (horizontalMotor.getCurrentPosition() < 320){
 //
@@ -1188,6 +1188,7 @@ public class Collection extends SubSystem {
 //                            fourBarMainPivot.setPosition(mainPivotCollect+20);
 //                            transferToFar = true;
 //                        }
+
                     }
 
                     griperRotate.setPosition(rotateTransfer);
