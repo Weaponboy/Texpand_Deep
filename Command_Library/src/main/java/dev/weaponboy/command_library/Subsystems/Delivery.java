@@ -101,7 +101,7 @@ public class Delivery extends SubSystem {
     /**
      * PRE clipping position values
      * */
-    double mainPivotPreClipFront = 165;
+    double mainPivotPreClipFront = 190;
     double secondPreClipFront = 140;
     double gripperPreClipFront = gripperGrab;
 
