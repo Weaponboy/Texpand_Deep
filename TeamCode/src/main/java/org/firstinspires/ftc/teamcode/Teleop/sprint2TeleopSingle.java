@@ -285,9 +285,9 @@ public class sprint2TeleopSingle extends OpModeEX {
          * Delivery code
          * */
         if (currentGamepad1.start && !lastGamepad1.start && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
-            delivery.queueCommand(delivery.preClipBack);
+            delivery.queueCommand(delivery.preClipFront);
         }else if (currentGamepad1.start && !lastGamepad1.start && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.clipBack);
+            delivery.queueCommand(delivery.clipFront);
         }
 
 //        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer){
