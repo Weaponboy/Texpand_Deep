@@ -255,7 +255,7 @@ public class Collection extends SubSystem {
         this.cancelTransferActive = cancelTransfer;
     }
 
-    boolean cancelTransfer = false;
+    boolean cancelTransfer = true;
     int transferCounter = 0;
 
     boolean braking = false;
