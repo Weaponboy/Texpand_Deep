@@ -1176,6 +1176,9 @@ public class Collection extends SubSystem {
                         setSlideTarget(0);
                         setClawsState(clawState.grab);
 
+                        griperRotate.setPosition(rotateTransfer);
+                        setRailTargetPosition(railTargetTransInt);
+
                         midTransfer.execute();
 
 //                        if (horizontalMotor.getCurrentPosition() < 320){
@@ -1191,11 +1194,8 @@ public class Collection extends SubSystem {
 
                     }
 
-                    griperRotate.setPosition(rotateTransfer);
-                    setRailTargetPosition(railTargetTransInt);
 
                 }
-
 
 //                else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10 || griperRotate.getPositionDegrees() < 100)){
 //
@@ -1213,7 +1213,6 @@ public class Collection extends SubSystem {
 //                    setRailTargetPosition(railTargetTransInt);
 //
 //                }
-
 
 
 //                if (releasingABit && gripperReleaseTimer.milliseconds() > 100){
