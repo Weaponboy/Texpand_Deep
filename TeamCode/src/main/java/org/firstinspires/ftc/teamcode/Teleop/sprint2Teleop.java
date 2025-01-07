@@ -55,6 +55,7 @@ public class sprint2Teleop extends OpModeEX {
         }else {
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x * 0.9));
         }
+
         /**
          * Overwrites
          * */
@@ -220,6 +221,29 @@ public class sprint2Teleop extends OpModeEX {
             delivery.griperRotateSev.setPosition(90);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
             delivery.queueCommand(delivery.clipFront);
+        }
+
+        if ((currentGamepad2.left_stick_button && !(lastGamepad2.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
+
+            if(collection.getFourBarState() == Collection.fourBar.preCollect) {
+                collection.queueCommand(collection.collect);
+                delivery.setGripperState(Delivery.gripper.drop);
+            }
+
+            if (collection.getChamberCollect()){
+                collection.queueCommand(collection.chamberCollect);
+            }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
+                collection.setClawsState(Collection.clawState.drop);
+            }else {
+                collection.queueCommand(collection.transfer);
+
+                collection.queueCommand(collection.transferDrop);
+
+                collection.queueCommand(delivery.closeGripper);
+
+                collection.queueCommand(collection.openGripper);
+            }
+
         }
 
         if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.drop){
