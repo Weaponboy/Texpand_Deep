@@ -187,8 +187,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 195;
-    double secondPivotTransfer = 148;
+    double mainPivotTransfer = 198;
+    double secondPivotTransfer = 145;
     double rotateTransfer = 180;
 
     /**
@@ -516,7 +516,7 @@ public class Collection extends SubSystem {
             },
             () -> {
                 setClawsState(clawState.slightRelease);
-                if (WaitForTranferDrop.milliseconds() > 350){
+                if (WaitForTranferDrop.milliseconds() > 400){
                     TransferDrop = true;
                 }
             },
