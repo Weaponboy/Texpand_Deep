@@ -149,7 +149,7 @@ public class Collection extends SubSystem {
      * preCollect position values
      * */
     double mainPivotMidTransfer = 180;
-    double secondPivotMidTransfer = 160;
+    double secondPivotMidTransfer = 165;
 
     /**
      * preCollect position values
@@ -187,8 +187,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransfer = 190;
-    double secondPivotTransfer = 155;
+    double mainPivotTransfer = 195;
+    double secondPivotTransfer = 152;
     double rotateTransfer = 180;
 
     /**
