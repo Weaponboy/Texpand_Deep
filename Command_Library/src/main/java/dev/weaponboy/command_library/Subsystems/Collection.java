@@ -486,6 +486,15 @@ public class Collection extends SubSystem {
             }
     );
 
+    private final Command TransferSlamMid = new Execute(
+            () -> {
+                fourBarSecondPivot.setPosition(secondPivotTransferSlam+10);
+                fourBarMainPivot.setPosition(mainPivotTransferSlam);
+
+                clawsState = clawState.grab;
+            }
+    );
+
 
     public final Command ChamberStowed = new Execute(
             () -> {
@@ -1324,7 +1333,7 @@ public class Collection extends SubSystem {
 
                         setSlideTarget(0);
 
-                        TransferSlam.execute();
+                        TransferSlamMid.execute();
 
 //                        if (horizontalMotor.getCurrentPosition() < 320){
 //
