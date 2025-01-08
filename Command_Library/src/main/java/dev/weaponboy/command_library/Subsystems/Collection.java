@@ -1289,7 +1289,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
                     transferWaitTime = gripperOpenTime;
                     fourBarState = fourBar.transferringStates;
-                    fourBarTargetState = fourBar.transferInt;
+                    fourBarTargetState = fourBar.collect;
 
                 } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10 || griperRotate.getPositionDegrees() < 100)){
 
