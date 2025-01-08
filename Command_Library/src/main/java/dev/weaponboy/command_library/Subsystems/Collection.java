@@ -181,8 +181,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 197;
-    double secondPivotTransferSlam = 136;
+    double mainPivotTransferSlam = 194;
+    double secondPivotTransferSlam = 139;
 
     /**
      * stowed position values
@@ -1310,7 +1310,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*8, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*4, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !clawSensor.isPressed()){
@@ -1353,7 +1353,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBarTargetState;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 15){
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 7){
                     preCollect.execute();
                     setClawsState(clawState.drop);
                     fourBarState = fourBar.preCollect;
