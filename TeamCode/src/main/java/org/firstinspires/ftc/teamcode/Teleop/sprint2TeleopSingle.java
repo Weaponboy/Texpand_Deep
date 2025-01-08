@@ -90,9 +90,9 @@ public class sprint2TeleopSingle extends OpModeEX {
                 }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
                     collection.setClawsState(Collection.clawState.drop);
                 }else {
-                    collection.queueCommand(collection.transfer);
+                    collection.queueCommand(collection.transferSlam);
 
-                    collection.queueCommand(collection.transferDrop);
+                    collection.queueCommand(collection.transferDropSlam);
 
                     collection.queueCommand(delivery.closeGripper);
 
@@ -207,9 +207,10 @@ public class sprint2TeleopSingle extends OpModeEX {
             if (collection.getChamberCollect()){
                 collection.queueCommand(collection.chamberCollect);
             }else {
-                collection.queueCommand(collection.transfer);
+                collection.queueCommand(collection.transferSlam);
 
-                collection.queueCommand(collection.transferDrop);
+                collection.queueCommand(collection.transferDropSlam);
+
 
                 collection.queueCommand(delivery.closeGripper);
 
@@ -270,9 +271,9 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transferSlam);
 
-            collection.queueCommand(collection.transferDrop);
+            collection.queueCommand(collection.transferDropSlam);
 
             collection.queueCommand(delivery.closeGripper);
 

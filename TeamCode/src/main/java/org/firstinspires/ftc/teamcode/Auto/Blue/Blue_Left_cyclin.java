@@ -272,9 +272,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transferSlam);
+                    collection.queueCommand(collection.transferAuto);
 
-                    collection.queueCommand(collection.transferDropSlam);
+                    collection.queueCommand(collection.transferDropAuto);
 
                     collection.queueCommand(delivery.closeGripper);
 
@@ -383,9 +383,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transferSlam);
+                    collection.queueCommand(collection.transferAuto);
 
-                    collection.queueCommand(collection.transferDropSlam);
+                    collection.queueCommand(collection.transferDropAuto);
 
                     collection.queueCommand(delivery.closeGripper);
 
@@ -491,9 +491,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transferSlam);
+                    collection.queueCommand(collection.transferAuto);
 
-                    collection.queueCommand(collection.transferDropSlam);
+                    collection.queueCommand(collection.transferDropAuto);
 
                     collection.queueCommand(delivery.closeGripper);
 

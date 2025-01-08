@@ -187,6 +187,12 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
+    double mainPivotTransferAuto = 184;
+    double secondPivotTransferAuto = 142;
+
+    /**
+     * stowed position values
+     * */
     double mainPivotTransfer = 198;
     double secondPivotTransfer = 148;
     double rotateTransfer = 180;
@@ -486,6 +492,14 @@ public class Collection extends SubSystem {
             }
     );
 
+    private final Command TransferAuto = new Execute(
+            () -> {
+                fourBarSecondPivot.setPosition(secondPivotTransferSlam);
+                fourBarMainPivot.setPosition(mainPivotTransferSlam);
+
+                clawsState = clawState.grab;
+            }
+    );
 
     public final Command ChamberStowed = new Execute(
             () -> {
@@ -538,6 +552,25 @@ public class Collection extends SubSystem {
     public final Command transferDropSlam = new LambdaCommand(
             () -> {
                 TransferSlam.execute();
+                setClawsState(clawState.slightRelease);
+                WaitForTranferDrop.reset();
+
+                TransferDrop = false;
+                fourBarState = fourBar.stowed;
+            },
+            () -> {
+                setClawsState(clawState.slightRelease);
+                if (WaitForTranferDrop.milliseconds() > 60){
+                    TransferDrop = true;
+                }
+            },
+            () -> TransferDrop
+
+    );
+
+    public final Command transferDropAuto = new LambdaCommand(
+            () -> {
+                TransferAuto.execute();
                 setClawsState(clawState.slightRelease);
                 WaitForTranferDrop.reset();
 
@@ -1342,6 +1375,97 @@ public class Collection extends SubSystem {
 
                 if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
                     TransferSlam.execute();
+                    transferToFar = false;
+                }
+
+                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+                    transferCounter++;
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 7){
+                    preCollect.execute();
+                    setClawsState(clawState.drop);
+                    fourBarState = fourBar.preCollect;
+                    cancelTransfer = true;
+                    clearQueue();
+                }
+
+            },
+            () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
+    );
+
+    public Command transferAuto = new LambdaCommand(
+            () -> {
+                cancelTransfer = false;
+                transferCounter = 0;
+                transferToFar = false;
+            },
+            () -> {
+
+                if (!cancelTransfer && fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 5) {
+
+                    clawsState = clawState.grab;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (getRailPosition() > 16 || getRailPosition() < 10 || griperRotate.getPositionDegrees() < 100)){
+
+                    fourBarTimer.reset();
+
+                    fourBarState = fourBar.transferringStates;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*5, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*microRoboticTime, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    fourBarTargetState = fourBar.collect;
+
+                    fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+                    fourBarSecondPivot.setPosition(secondPivotPreCollect);
+//                    setClawsState(clawState.grab);
+
+                    griperRotate.setPosition(rotateTransfer);
+                    setRailTargetPosition(railTargetTransInt);
+
+                }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*4, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    fourBarTargetState = fourBar.transferUp;
+
+                    if(isCancelTransferActive() && !clawSensor.isPressed()){
+
+                    }else {
+
+                        setClawsState(clawState.grab);
+
+                        griperRotate.setPosition(rotateTransfer);
+                        setRailTargetPosition(railTargetTransInt);
+
+                        setSlideTarget(0);
+
+                        if (horizontalMotor.getCurrentPosition() < 320){
+                            TransferAuto.execute();
+                        }else{
+                            fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
+                            transferToFar = true;
+                        }
+
+                    }
+
+                }
+
+//                if (releasingABit && gripperReleaseTimer.milliseconds() > 100){
+//                    setClawsState(clawState.grab);
+//                }
+
+                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
+                    TransferAuto.execute();
                     transferToFar = false;
                 }
 
