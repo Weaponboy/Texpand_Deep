@@ -614,7 +614,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 collection.queueCommand(collection.collect);
             }
 
-            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 10){
+            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 10 && !headingAdjustment){
 
                 autoQueued = false;
                 pathing = false;
@@ -628,7 +628,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 counter = 0;
             }
 
-            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30){
+            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
 
                 counter++;
 
@@ -648,6 +648,13 @@ public class Blue_Left_cyclin extends OpModeEX {
                     counter = 40;
                 }
 
+            }
+
+            if (!collect && busyDetecting && counter > 30 && targetHeading > 255){
+                targetHeading = odometry.Heading() - 6;
+
+                busyDetecting = false;
+                headingOverride = false;
             }
 
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
