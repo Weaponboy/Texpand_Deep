@@ -628,7 +628,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 counter = 0;
             }
 
-            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
+            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30){
 
                 counter++;
 
@@ -643,6 +643,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     delivery.overrideCurrent(true, delivery.stow);
                     delivery.runReset();
+
                     collect = true;
 
                     counter = 40;
