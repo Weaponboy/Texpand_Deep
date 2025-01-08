@@ -24,16 +24,7 @@ public class sprint2Teleop extends OpModeEX {
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
 
-    public enum wallCollect {
-        wallTransfer,
-        WallColelct,
-
-
-
-    }
-
-    public sprint2Teleop.wallCollect wallcollect = wallCollect.wallTransfer;
-
+    boolean fastTransfer = true;
     boolean queueCollection = false;
 
     @Override
@@ -83,10 +74,16 @@ public class sprint2Teleop extends OpModeEX {
             collection.queueCommand(collection.collect);
         }
 
-        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up){
+        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && fastTransfer){
+            fastTransfer = false;
+        }else if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && !fastTransfer){
+            fastTransfer = true;
+        }
+
+        if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getChamberCollect()){
             collection.setChamberCollect(false);
             gamepad2.rumble(5);
-        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down){
+        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !collection.getChamberCollect()){
             collection.setChamberCollect(true);
             gamepad2.rumble(5);
         }
@@ -96,9 +93,15 @@ public class sprint2Teleop extends OpModeEX {
             if (collection.getChamberCollect()){
                 collection.queueCommand(collection.chamberCollect);
             }else {
-                collection.queueCommand(collection.transfer);
+                if (fastTransfer){
+                    collection.queueCommand(collection.transferSlam);
 
-                collection.queueCommand(collection.transferDrop);
+                    collection.queueCommand(collection.transferDropSlam);
+                }else {
+                    collection.queueCommand(collection.transfer);
+
+                    collection.queueCommand(collection.transferDrop);
+                }
 
                 collection.queueCommand(delivery.closeGripper);
 
@@ -201,9 +204,15 @@ public class sprint2Teleop extends OpModeEX {
             if (collection.getChamberCollect()){
                 collection.queueCommand(collection.chamberCollect);
             }else {
-                collection.queueCommand(collection.transfer);
+                if (fastTransfer){
+                    collection.queueCommand(collection.transferSlam);
 
-                collection.queueCommand(collection.transferDrop);
+                    collection.queueCommand(collection.transferDropSlam);
+                }else {
+                    collection.queueCommand(collection.transfer);
+
+                    collection.queueCommand(collection.transferDrop);
+                }
 
                 collection.queueCommand(delivery.closeGripper);
 
@@ -235,9 +244,15 @@ public class sprint2Teleop extends OpModeEX {
             }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
                 collection.setClawsState(Collection.clawState.drop);
             }else {
-                collection.queueCommand(collection.transfer);
+                if (fastTransfer){
+                    collection.queueCommand(collection.transferSlam);
 
-                collection.queueCommand(collection.transferDrop);
+                    collection.queueCommand(collection.transferDropSlam);
+                }else {
+                    collection.queueCommand(collection.transfer);
+
+                    collection.queueCommand(collection.transferDrop);
+                }
 
                 collection.queueCommand(delivery.closeGripper);
 
@@ -251,9 +266,15 @@ public class sprint2Teleop extends OpModeEX {
             if (collection.getChamberCollect()){
                 collection.queueCommand(collection.chamberCollect);
             }else {
-                collection.queueCommand(collection.transfer);
+                if (fastTransfer){
+                    collection.queueCommand(collection.transferSlam);
 
-                collection.queueCommand(collection.transferDrop);
+                    collection.queueCommand(collection.transferDropSlam);
+                }else {
+                    collection.queueCommand(collection.transfer);
+
+                    collection.queueCommand(collection.transferDrop);
+                }
 
                 collection.queueCommand(delivery.closeGripper);
 
@@ -279,7 +300,7 @@ public class sprint2Teleop extends OpModeEX {
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
-        telemetry.addData("collection current command ", collection.getCurrentCommand().toString());
+        telemetry.addData("fastTransfer ", fastTransfer);
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.clawSensor.isPressed());
