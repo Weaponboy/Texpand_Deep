@@ -101,7 +101,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 329)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(330, 330)),
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
@@ -450,7 +450,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     follow.setPath(paths.returnPath("spikeOne"));
 
-                    targetHeading = 156;
+                    targetHeading = 158;
 
                     cycleBuilt = building.built;
 
@@ -479,15 +479,15 @@ public class Blue_Left_cyclin extends OpModeEX {
 //
 //                }
 
-                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 4 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 3 && odometry.getXVelocity() < 7){
+                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 4 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 7){
 
                     autoQueued = true;
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(244,357));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(245,358));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(244, 357)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(245, 358)));
 
                     collection.queueCommand(collection.collect);
 
@@ -672,7 +672,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued){
+            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -15) {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
