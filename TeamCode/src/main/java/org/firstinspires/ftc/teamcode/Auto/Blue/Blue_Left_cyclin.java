@@ -614,7 +614,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 collection.queueCommand(collection.collect);
             }
 
-            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 10){
+            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 10 && !headingAdjustment){
 
                 autoQueued = false;
                 pathing = false;
@@ -651,12 +651,12 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             }
 
-//            if (!collect && busyDetecting && counter > 30 && targetHeading > 255){
-//                targetHeading = odometry.Heading() - 6;
-//
-//                busyDetecting = false;
-//                headingOverride = false;
-//            }
+            if (!collect && busyDetecting && counter > 30 && targetHeading > 255){
+                targetHeading = odometry.Heading() - 6;
+
+                busyDetecting = false;
+                headingOverride = false;
+            }
 
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
@@ -672,7 +672,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -15) {
+            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -30 && collection.getSlidePositionCM() < 25) {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
