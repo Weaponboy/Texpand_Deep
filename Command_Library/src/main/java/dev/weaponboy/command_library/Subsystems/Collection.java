@@ -416,11 +416,11 @@ public class Collection extends SubSystem {
         if (clawsState == clawState.grab){
             gripServo.setPosition(43);
         } else if (clawsState == clawState.drop){
-            gripServo.setPosition(118);
+            gripServo.setPosition(122);
         } else if (clawsState == clawState.slightRelease){
             gripServo.setPosition(70);
         }else if (clawsState == clawState.openFull){
-            gripServo.setPosition(118);
+            gripServo.setPosition(122);
         }
 
         horizontalMotor.update(Range.clip(extendoPower, -1, 0.8));

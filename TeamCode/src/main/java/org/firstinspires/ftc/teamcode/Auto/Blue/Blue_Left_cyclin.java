@@ -377,9 +377,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(246,329));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(246,330));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 329)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(246, 330)));
 
                     collection.queueCommand(collection.collect);
 
