@@ -101,7 +101,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 324)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 329)),
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
@@ -479,15 +479,15 @@ public class Blue_Left_cyclin extends OpModeEX {
 //
 //                }
 
-                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10){
+                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 4 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect  && Math.abs(odometry.Heading() - targetHeading) < 3 && odometry.getXVelocity() < 7){
 
                     autoQueued = true;
 
                     pathing = false;
 
-                    collection.targetPointWithExtendoNoArm(new Vector2D(245.4,356));
+                    collection.targetPointWithExtendoNoArm(new Vector2D(244,357));
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Point(245.4, 356)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Point(244, 357)));
 
                     collection.queueCommand(collection.collect);
 
@@ -660,7 +660,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                collection.queueCommand(collection.transfer);
 
                 collection.queueCommand(collection.transferAuto);
 
@@ -673,7 +672,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && collection.getSlidePositionCM() < 15 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 5 && collect && autoQueued){
+            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued){
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
@@ -694,7 +693,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 drop = true;
             }
 
-            if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 280 && drop){
+            if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 240 && drop){
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
             }
