@@ -651,12 +651,12 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             }
 
-//            if (!collect && busyDetecting && counter > 30 && targetHeading > 255){
-//                targetHeading = odometry.Heading() - 6;
-//
-//                busyDetecting = false;
-//                headingOverride = false;
-//            }
+            if (!collect && busyDetecting && counter > 30 && targetHeading > 255){
+                targetHeading = odometry.Heading() - 6;
+
+                busyDetecting = false;
+                headingOverride = false;
+            }
 
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
