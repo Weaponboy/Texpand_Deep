@@ -550,7 +550,7 @@ public class Delivery extends SubSystem {
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 
-        mainPivot.setOffset(-2.1);
+        mainPivot.setOffset(4.9);
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
 
@@ -654,7 +654,7 @@ public class Delivery extends SubSystem {
         double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
         double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
 
-        return 201 - (((firstAngle + secondAngle)-90) * 0.794);
+        return 194 - (((firstAngle + secondAngle)-90) * 0.794);
 
     }
 
