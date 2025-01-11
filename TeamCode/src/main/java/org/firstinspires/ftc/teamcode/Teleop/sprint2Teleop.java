@@ -47,6 +47,7 @@ public class sprint2Teleop extends OpModeEX {
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.7, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.5, -gamepad1.right_stick_x * 0.7));
         }
 
+
         /**
          * Overwrites
          * */
@@ -113,26 +114,26 @@ public class sprint2Teleop extends OpModeEX {
             }
         }
 
-        if (currentGamepad2.left_stick_y < -0.5){
-            collection.setSlideTarget(collection.getSlideTarget()+0.5);
-        }else if (currentGamepad2.left_stick_y > 0.5){
-            collection.setSlideTarget(collection.getSlideTarget()-0.5);
+        if (currentGamepad2.left_stick_y < -0.4){
+            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad2.left_stick_y*1.2));
         }
 
-        if (currentGamepad2.left_stick_x < -0.5 && collection.getFourBarState() == Collection.fourBar.preCollect){
-            collection.setRailTargetPosition(collection.getRailPosition()-0.2);
-        }else if (currentGamepad2.left_stick_x > 0.5 && collection.getFourBarState() == Collection.fourBar.preCollect){
-            collection.setRailTargetPosition(collection.getRailPosition()+0.2);
+        if (currentGamepad2.left_stick_y > 0.4){
+            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad2.left_stick_y*1.2));
         }
 
-        if (currentGamepad2.left_trigger > 0.6 && !(lastGamepad2.left_trigger > 0.6) && collection.griperRotate.getPositionDegrees() > 110){
-            rotateTarget = 90;
-            collection.griperRotate.setPosition(rotateTarget);
+        if (currentGamepad2.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
+            collection.setRailTargetPosition(collection.getRailPosition()-Math.abs(currentGamepad2.left_stick_x*0.5));
+        }else if (currentGamepad2.left_stick_x > 0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
+            collection.setRailTargetPosition(collection.getRailPosition()+Math.abs(currentGamepad2.left_stick_x*0.5));
         }
 
-        if (currentGamepad2.left_trigger > 0.6 && !(lastGamepad2.left_trigger > 0.6) && collection.griperRotate.getPositionDegrees() < 110){
-            rotateTarget = 180;
-            collection.griperRotate.setPosition(rotateTarget);
+        if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() > 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.griperRotate.setPosition(90);
+        }
+
+        if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() < 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.griperRotate.setPosition(180);
         }
 
         if (gamepad2.start){
@@ -313,8 +314,9 @@ public class sprint2Teleop extends OpModeEX {
         }
 
         telemetry.addData("loop time ", loopTime);
+        telemetry.addData("Four bar state ", collection.getFourBarState());
         telemetry.addData("rail position ", collection.getRailPosition());
-        telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition());
+        telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
         telemetry.addData("fastTransfer ", fastTransfer);
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());

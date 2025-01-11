@@ -248,6 +248,10 @@ public class Collection extends SubSystem {
            this.slideTarget = slideTarget;
         }
 
+        if (slideTarget > 52){
+            this.slideTarget = 52;
+        }
+
         slideI = 0;
     }
 
@@ -347,7 +351,7 @@ public class Collection extends SubSystem {
     public void execute() {
 
         executeEX();
-//
+
 //        if (fourBarState == fourBar.collect && clawSensor.isPressed() && !autoCollected && getCurrentCommand() != transfer){
 //
 //            autoCollected = true;
@@ -358,10 +362,10 @@ public class Collection extends SubSystem {
         double ticksPerCM = (double) 205 / 18;
         double error;
 
-        if ((slideTarget*ticksPerCM) < 600){
+        if ((slideTarget*ticksPerCM) < 570){
             error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
         }else {
-            error = Math.abs((600) - (double) horizontalMotor.getCurrentPosition());
+            error = Math.abs((570) - (double) horizontalMotor.getCurrentPosition());
         }
 
         if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
@@ -1469,21 +1473,21 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
-                    transferCounter++;
-                }
+//                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+//                    transferCounter++;
+//                }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 7){
-                    preCollect.execute();
-                    setClawsState(clawState.drop);
-                    fourBarState = fourBar.preCollect;
-                    cancelTransfer = true;
-                    clearQueue();
-                }
+//                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 7){
+//                    preCollect.execute();
+//                    setClawsState(clawState.drop);
+//                    fourBarState = fourBar.preCollect;
+//                    cancelTransfer = true;
+//                    clearQueue();
+//                }
 
             },
             () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
@@ -1607,6 +1611,7 @@ public class Collection extends SubSystem {
 
                     clawsState = clawState.drop;
                     Stowed.execute();
+                    setRailTargetPosition(railTargetTransInt);
                 }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){

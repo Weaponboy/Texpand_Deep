@@ -216,12 +216,9 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 built = building.built;
                 cycleBuilt = building.notBuilt;
-
                 CycleState = cycleState.spikeCollect;
-
                 pathing = true;
             }
-
 
             if (CycleState == cycleState.spikeCollect){
 
@@ -241,7 +238,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                     pullDownSlides = false;
                     autoQueued = false;
                     follow.setExtendoHeading(false);
-
                 }
 
                 if (odometry.X() < 310 && !pullDownSlides){
