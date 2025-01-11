@@ -4,8 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -14,7 +12,7 @@ import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 import dev.weaponboy.vision.detectionData;
 
 @TeleOp
-public class sprint2Teleop extends OpModeEX {
+public class sprint2TeleopJoyStick extends OpModeEX {
 
     double rotateTarget = 90;
 
@@ -42,9 +40,9 @@ public class sprint2Teleop extends OpModeEX {
 
         // drive base code
         if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, -gamepad1.left_stick_x*0.4, -gamepad1.right_stick_x*0.5));
         }else {
-            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.7, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.5, -gamepad1.right_stick_x * 0.7));
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.7, -gamepad1.left_stick_x * 0.5, -gamepad1.right_stick_x * 0.7));
         }
 
         /**

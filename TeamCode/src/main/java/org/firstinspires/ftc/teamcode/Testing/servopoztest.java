@@ -73,9 +73,9 @@ public class servopoztest extends OpMode {
 //        fourBarSecondPivot.initServo("fourBarSecondPivot",hardwareMap);
 //        gripServo.initServo("gripServo", hardwareMap);
 //        griperRotate.initServo("gripperRotate", hardwareMap);
-//        deliveryGrip.initServo("devClaw", hardwareMap);
+        deliveryGrip.initServo("devClaw", hardwareMap);
 //
-//        deliveryGrip.setRange(new PwmControl.PwmRange(500, 2500),180);
+        deliveryGrip.setRange(180);
 //
 //        PTO.initServo("hangPTO", hardwareMap);
 //        PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
@@ -102,7 +102,7 @@ public class servopoztest extends OpMode {
 //        griperRotate.setOffset(10);
 ////        griperRotate.setPosition(0);
 //
-//        deliveryGrip.setOffset(18);
+        deliveryGrip.setOffset(0);
 //
 //        fourBarMainPivot.setRange(335);
 //        fourBarSecondPivot.setRange(335);
@@ -123,6 +123,8 @@ public class servopoztest extends OpMode {
         //188
         //210
         //120
+
+        deliveryGrip.setPosition(120);
 
 
     }
@@ -159,13 +161,13 @@ public class servopoztest extends OpMode {
 //            fourBarMainPivot.setPosition(200);
 //        }
 //
-//        if (gamepad1.dpad_up){
-//            deliveryGrip.setPosition(68);
-//        }
-//
-//        if (gamepad1.dpad_down){
-//            deliveryGrip.setPosition(130);
-//        }
+        if (gamepad1.dpad_up){
+            deliveryGrip.setPosition(102);
+        }
+
+        if (gamepad1.dpad_down){
+            deliveryGrip.setPosition(145);
+        }
 
 //        double power = 0;
 //

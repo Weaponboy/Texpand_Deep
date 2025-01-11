@@ -72,7 +72,7 @@ public class Collection extends SubSystem {
      * */
     double axonMaxTime = (double) 600 / 360;
     double microRoboticTime = (double) 500 / 360;
-    double gripperOpenTime = 340;
+    double gripperOpenTime = 200;
 
     ElapsedTime secondPivotTime = new ElapsedTime();
 
@@ -181,14 +181,14 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 196;
+    double mainPivotTransferSlam = 197;
     double secondPivotTransferSlam = 137;
 
     /**
      * stowed position values
      * */
-    double mainPivotTransferAuto = 194;
-    double secondPivotTransferAuto = 138;
+    double mainPivotTransferAuto = 198;
+    double secondPivotTransferAuto = 136;
 
     /**
      * stowed position values
@@ -1420,7 +1420,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*5, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*microRoboticTime, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*microRoboticTime, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.collect;
 
                     fourBarMainPivot.setPosition(mainPivotPreCollect+20);
@@ -1434,7 +1434,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*6, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !clawSensor.isPressed()){
@@ -1451,8 +1451,8 @@ public class Collection extends SubSystem {
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferAuto.execute();
                         }else{
-                            fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 60);
+                            fourBarMainPivot.setPosition(mainPivotPreCollect+5);
+                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
                             transferToFar = true;
                         }
 
@@ -1623,7 +1623,7 @@ public class Collection extends SubSystem {
     }
 
     public void setRailTargetPosition(double targetPosition) {
-        if(Math.abs(getRailPosition() - railTargetPosition) > 1){
+        if(Math.abs(getRailPosition() - railTargetPosition) > 0.5){
             railWaitTime = Math.abs(getRailPosition() - railTargetPosition)*50;
             railWait.reset();
         }
