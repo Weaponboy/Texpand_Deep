@@ -49,13 +49,13 @@ public class Delivery extends SubSystem {
 
     public final double visionTarget = 19.5;
 
-    public final double chamberCollectScanPosition = 19.5;
+    public final double chamberCollectScanPosition = 18.5;
 
     PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
     double gripperDrop = 145;
-    double gripperGrab = 99;
-    double gripperSlightRelease = 87;
+    double gripperGrab = 101;
+    double gripperSlightRelease = 110;
 
     /**
      * servo time per degrees
@@ -409,7 +409,7 @@ public class Delivery extends SubSystem {
                 if (getSlidePositionCM() > 15 && fourbarState != fourBarState.transferringStates) {
 
                     fourBarTimer.reset();
-                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipFront)*5, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*5);
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipFront)*8, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*8);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClip;
                     gripperState = gripper.slightRelease;
@@ -680,13 +680,10 @@ public class Delivery extends SubSystem {
 
         double X = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
 
-        double angleInRadians = Math.acos(8 * Math.sin(80) / X);
+        double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
+        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
 
-        if (chamberCollect){
-            return 187.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
-        }else {
-            return 191.5 - ((Math.toDegrees(angleInRadians) + Math.toDegrees(Math.atan(29/pivotHeight))-90)*0.794);
-        }
+        return 194 - (((firstAngle + secondAngle)-90) * 0.794);
 
     }
 

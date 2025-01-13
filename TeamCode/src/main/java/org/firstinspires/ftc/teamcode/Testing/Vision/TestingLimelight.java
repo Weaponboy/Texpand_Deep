@@ -20,11 +20,11 @@ public class TestingLimelight extends LinearOpMode {
 
         limelight.setPollRateHz(100);
 
-        limelight.start();
+        limelight.pipelineSwitch(0);
 
         waitForStart();
 
-        limelight.pipelineSwitch(3);
+        limelight.start();
 
         while (opModeIsActive()){
 
@@ -32,7 +32,6 @@ public class TestingLimelight extends LinearOpMode {
 
             if (result != null && result.isValid()) {
                 telemetry.addData("result", result.getPythonOutput()[0]);
-
             }
 
             telemetry.addData("result", result);
@@ -45,7 +44,7 @@ public class TestingLimelight extends LinearOpMode {
 //            if(counter > 1500){
 //                counter = 0;
 //                limelight.start();
-//            }else if (counter > 1000){
+//            }else if (counter > 1000){4
 //                limelight.stop();
 //            }
 

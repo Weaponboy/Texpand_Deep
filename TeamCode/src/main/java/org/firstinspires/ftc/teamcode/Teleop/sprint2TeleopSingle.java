@@ -32,7 +32,7 @@ public class sprint2TeleopSingle extends OpModeEX {
     double Heading;
     pathsManager paths = new pathsManager();
     follower follow = new follower();
-    ElapsedTime transferringWait = new ElapsedTime();
+    boolean flipOutDepo = false;
     double rotateTarget = 90;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -53,6 +53,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
 
 //        collection.setCancelTransfer(false);
+
     }
 
     @Override
@@ -126,17 +127,18 @@ public class sprint2TeleopSingle extends OpModeEX {
             collection.setClawsState(Collection.clawState.drop);
         }
 
-        if (currentGamepad1.left_stick_y < -0.5 && collection.getCurrentCommand() != collection.transfer){
-            collection.setSlideTarget(collection.getSlideTarget()+0.5);
+        if (currentGamepad1.left_stick_y < -0.4){
+            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad1.left_stick_y));
 
-            if(collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
+            if(collection.getCurrentCommand() == collection.defaultCommand && collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
                 firstDrop = false;
             }
+        }
 
-        }else if (currentGamepad1.left_stick_y > 0.5){
-            collection.setSlideTarget(collection.getSlideTarget()-0.5);
+        if (currentGamepad1.left_stick_y > 0.4){
+            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad1.left_stick_y));
         }
 
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getChamberCollect()){
@@ -207,7 +209,6 @@ public class sprint2TeleopSingle extends OpModeEX {
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
             collection.sampleSorterContour.setScanning(true);
-            collection.portal.resumeStreaming();
 
             busyDetecting = true;
             detectionTimer.reset();
@@ -270,7 +271,6 @@ public class sprint2TeleopSingle extends OpModeEX {
             if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 
                 collection.sampleSorterContour.setScanning(false);
-                collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
@@ -299,7 +299,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         if (busyDetecting && detectionTimer.milliseconds() > 500 && !collection.sampleSorterContour.detections.isEmpty()){
             busyDetecting = false;
             collection.sampleSorterContour.setScanning(false);
-            collection.portal.stopStreaming();
+//            collection.portal.stopStreaming();
             collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
             collection.queueCommand(collection.autoCollectGlobal);
@@ -348,9 +348,15 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;
+            flipOutDepo = true;
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
+        }
+
+        if (flipOutDepo && delivery.getSlidePositionCM() > 15){
+            delivery.queueCommand(delivery.deposit);
+            flipOutDepo = false;
         }
 
         telemetry.addData("loop time ", loopTime);

@@ -44,7 +44,7 @@ public class sprint2Teleop extends OpModeEX {
         if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
         }else {
-            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.7, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.5, -gamepad1.right_stick_x * 0.7));
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.6, -gamepad1.right_stick_x * 0.9));
         }
 
 
@@ -83,10 +83,10 @@ public class sprint2Teleop extends OpModeEX {
 
         if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getChamberCollect()){
             collection.setChamberCollect(false);
-            gamepad2.rumble(5);
+            gamepad2.rumble(100);
         }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !collection.getChamberCollect()){
             collection.setChamberCollect(true);
-            gamepad2.rumble(5);
+            gamepad2.rumble(100);
         }
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
@@ -115,11 +115,11 @@ public class sprint2Teleop extends OpModeEX {
         }
 
         if (currentGamepad2.left_stick_y < -0.4){
-            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad2.left_stick_y*1.2));
+            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad2.left_stick_y));
         }
 
         if (currentGamepad2.left_stick_y > 0.4){
-            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad2.left_stick_y*1.2));
+            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad2.left_stick_y));
         }
 
         if (currentGamepad2.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -130,9 +130,7 @@ public class sprint2Teleop extends OpModeEX {
 
         if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() > 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.griperRotate.setPosition(90);
-        }
-
-        if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() < 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        }else if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() < 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.griperRotate.setPosition(180);
         }
 
@@ -160,7 +158,7 @@ public class sprint2Teleop extends OpModeEX {
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
             collection.sampleSorterContour.setScanning(true);
-            collection.portal.resumeStreaming();
+//            collection.portal.resumeStreaming();
 
             busyDetecting = true;
             detectionTimer.reset();
@@ -175,7 +173,7 @@ public class sprint2Teleop extends OpModeEX {
             if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 
                 collection.sampleSorterContour.setScanning(false);
-                collection.portal.stopStreaming();
+//                collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);

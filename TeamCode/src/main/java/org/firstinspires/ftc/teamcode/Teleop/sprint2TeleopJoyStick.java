@@ -112,11 +112,11 @@ public class sprint2TeleopJoyStick extends OpModeEX {
         }
 
         if (currentGamepad2.left_stick_y < -0.4){
-            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad2.left_stick_y*1.2));
+            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad2.left_stick_y));
         }
 
         if (currentGamepad2.left_stick_y > 0.4){
-            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad2.left_stick_y*1.2));
+            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad2.left_stick_y));
         }
 
         if (currentGamepad2.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -127,9 +127,7 @@ public class sprint2TeleopJoyStick extends OpModeEX {
 
         if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() > 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.griperRotate.setPosition(90);
-        }
-
-        if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() < 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        }else if (currentGamepad2.left_trigger > 0.1 && lastGamepad2.left_trigger < 0.1 && collection.griperRotate.getPositionDegrees() < 110 && collection.getFourBarState() == Collection.fourBar.preCollect){
             collection.griperRotate.setPosition(180);
         }
 
@@ -157,7 +155,6 @@ public class sprint2TeleopJoyStick extends OpModeEX {
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
             collection.sampleSorterContour.setScanning(true);
-            collection.portal.resumeStreaming();
 
             busyDetecting = true;
             detectionTimer.reset();
@@ -172,7 +169,6 @@ public class sprint2TeleopJoyStick extends OpModeEX {
             if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 
                 collection.sampleSorterContour.setScanning(false);
-                collection.portal.stopStreaming();
                 collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                 collection.queueCommand(collection.autoCollectGlobal);
