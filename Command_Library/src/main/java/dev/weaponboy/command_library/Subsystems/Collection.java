@@ -158,6 +158,18 @@ public class Collection extends SubSystem {
     double secondPivotWallCollect = 245;
 
     /**
+     * low chamber position values
+     * */
+    double mainPivotLowChamberPreClip = 135;
+    double secondPivotLowChamberPreClip = 220;
+
+    /**
+     * low chamber position values
+     * */
+    double mainPivotLowChamberClip = 105;
+    double secondPivotLowChamberClip = 240;
+
+    /**
      * stowed position values
      * */
     double mainPivotStow = 180;
@@ -268,6 +280,10 @@ public class Collection extends SubSystem {
         return transferCanceled;
     }
 
+    public void resetTransferCanceled() {
+        transferCanceled = false;
+    }
+
     boolean transferCanceled = false;
     boolean cancelTransfer = true;
     int transferCounter = 0;
@@ -304,6 +320,9 @@ public class Collection extends SubSystem {
     @Override
     public void init() {
         horizontalMotor.initMotor("horizontalMotor", getOpModeEX().hardwareMap);
+
+        horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         fourBarMainPivot.initServo("fourBarMainPivot", getOpModeEX().hardwareMap);
         fourBarSecondPivot.initServo("fourBarSecondPivot", getOpModeEX().hardwareMap);
@@ -434,6 +453,10 @@ public class Collection extends SubSystem {
         if (isTransferCanceled() && fourBarState != fourBar.preCollect){
             transferCanceled = false;
         }
+
+        System.out.println("Position: " + horizontalMotor.getCurrentPosition());
+        System.out.println("Target: " + getSlideTarget());
+        System.out.println("Slide reset: " + getSlideTarget());
 
         horizontalMotor.update(Range.clip(extendoPower, -1, 0.8));
 
@@ -649,7 +672,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*4, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*6);
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*4);
 
                     Collect.execute();
 
@@ -817,7 +840,7 @@ public class Collection extends SubSystem {
                         railTarget = (targetRailPosition);
                         slideTargetPosition = slideTarget;
 
-                        if (slideTarget > 52 || targetRailPosition > 26 || targetRailPosition < 0){
+                        if (slideTarget > 52 || targetRailPosition > 28 || targetRailPosition < 0){
 
                         }else {
                             runCollection = true;
@@ -838,7 +861,7 @@ public class Collection extends SubSystem {
                         preCollect.execute();
                         fourBarState = fourBar.preCollect;
 
-                        if (rotateAngle > 55 || rotateAngle < -55){
+                        if (rotateAngle > 75 || rotateAngle < -75){
                             griperRotate.setPosition(rotateTransfer);
                         }else{
                             griperRotate.setPosition(70 - ((rotateAngle)));
@@ -1438,7 +1461,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*microRoboticTime, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*microRoboticTime, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.collect;
 
                     fourBarMainPivot.setPosition(mainPivotPreCollect+20);
@@ -1452,7 +1475,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3, Math.abs(getRailPosition() - railTargetTransInt)*8));
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.max(Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3, Math.abs(getRailPosition() - railTargetTransInt)*8));
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !clawSensor.isPressed()){
@@ -1495,7 +1518,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBarTargetState;
                 }
 
-                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 7){
+                if(isCancelTransferActive() && !clawSensor.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 6){
                     preCollect.execute();
                     setClawsState(clawState.drop);
                     fourBarState = fourBar.preCollect;
@@ -1503,6 +1526,8 @@ public class Collection extends SubSystem {
                     transferCanceled = true;
                     clearQueue();
                 }
+
+                System.out.println("cancel transfer: " + cancelTransfer);
 
             },
             () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer

@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-
 @Autonomous
 public class SpecAuto extends LinearOpMode {
 
@@ -31,8 +29,8 @@ public class SpecAuto extends LinearOpMode {
     private static final int WRIST_POSITION_SAMPLE = 270;
     private static final int WRIST_POSITION_SPEC = 10;
 
-    private static final double CLAW_OPEN_POSITION = 0.55;
-    private static final double CLAW_CLOSED_POSITION = 0.7;
+    private static final double CLAW_OPEN_POSITION = 0.6;
+    private static final double CLAW_CLOSED_POSITION = 0.72;
 
     enum ArmState {
         init,
@@ -74,17 +72,17 @@ public class SpecAuto extends LinearOpMode {
         wrist_Motor = hardwareMap.get(DcMotor.class, "wrist_Motor");
 
         intakeservo = hardwareMap.get(Servo.class, "intake_Servo");
-        clippingGripper = hardwareMap.get(Servo.class, "clip_Servo");
+        clippingGripper = hardwareMap.get(Servo.class, "clipping_Gripper");
 
         left_Drive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         arm_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         arm_Motor.setTargetPosition(ARM_POSITION_INIT);
 
         wrist_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wrist_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         wrist_Motor.setTargetPosition(WRIST_POSITION_INIT);
 
@@ -94,7 +92,7 @@ public class SpecAuto extends LinearOpMode {
 
         setArmState(ArmState.preClip, 1500);
 
-        driveDistance(100);
+        driveDistance(-0.6, 1000);
 
         setArmState(ArmState.clip, 1500);
 
@@ -103,7 +101,7 @@ public class SpecAuto extends LinearOpMode {
 
         while (armTimer.milliseconds() < 500) {}
 
-        driveDistance(-40);
+        driveDistance(0.6, 300);
 
         setArmState(ArmState.init, 1000);
     }
@@ -112,8 +110,10 @@ public class SpecAuto extends LinearOpMode {
         armState = state;
         armTimer.reset();
 
-        while (armTimer.milliseconds() > 1000) {
-            updateArm();
+        updateArm();
+
+        while (armTimer.milliseconds() < waitTime) {
+
         }
     }
 
@@ -128,7 +128,7 @@ public class SpecAuto extends LinearOpMode {
                 arm_Motor.setPower(0.5);
                 break;
             case preClip:
-                wrist_Motor.setTargetPosition(WRIST_POSITION_SAMPLE);
+                wrist_Motor.setTargetPosition(WRIST_POSITION_SPEC);
                 arm_Motor.setTargetPosition(ARM_POSITION_HOVER_HIGH);
                 wrist_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 arm_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -198,6 +198,22 @@ public class SpecAuto extends LinearOpMode {
 
         }
 
+
+    }
+
+    public void driveDistance (double power, double waitTime){
+
+        left_Drive.setPower(power);
+        right_Drive.setPower(power);
+
+        armTimer.reset();
+
+        while (armTimer.milliseconds() < waitTime) {
+
+        }
+
+        left_Drive.setPower(0);
+        right_Drive.setPower(0);
 
     }
 

@@ -26,16 +26,20 @@ public class Blue_Left_cyclin extends OpModeEX {
 
     boolean drop;
     ElapsedTime dropTimer=new ElapsedTime();
+    ElapsedTime targetingTimer=new ElapsedTime();
     boolean collect = false;
     boolean autoQueued = false;
     boolean pullDownSlides = false;
     ElapsedTime dropTimerDriving = new ElapsedTime();
     boolean stop = false;
 
-    double vertical = 0;
+    boolean subRetry = false;
+
+    int turnCounter = 0;
 
     boolean headingOverride = false;
     boolean collectRetry = false;
+    boolean failedDepo = false;
 
     public enum autoState{
         preload,
@@ -92,23 +96,27 @@ public class Blue_Left_cyclin extends OpModeEX {
     };
 
     private final sectionBuilder[] spikeOne = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(334, 334), new Vector2D(311, 326)),
+            () -> paths.addPoints(new Vector2D(334, 334), new Vector2D(311, 326))
     };
 
     private final sectionBuilder[] spikeTwo = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(334, 334), new Vector2D(323, 311), new Vector2D(292, 326)),
+            () -> paths.addPoints(new Vector2D(334, 334), new Vector2D(305, 324))
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(200, 295), new Vector2D(200, 240)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(234, 285), new Vector2D(205, 240)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(330, 330)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(328, 328)),
+    };
+
+    private final sectionBuilder[] spikeDepositSafe = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(322, 322)),
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(327, 329)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(204, 288), new Vector2D(332, 334)),
     };
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -139,6 +147,10 @@ public class Blue_Left_cyclin extends OpModeEX {
         paths.addNewPath("dropBasketSpike");
 
         paths.buildPath(spikeDeposit);
+
+        paths.addNewPath("dropBasketSpikeSafe");
+
+        paths.buildPath(spikeDepositSafe);
 
         follow.setPath(paths.returnPath("dropBasket"));
 
@@ -253,11 +265,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                     pathing = false;
                 }
 
-//                if (autoQueued && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.preCollect){
-//                    state = autoState.spikeTwo;
-//                    built = building.notBuilt;
-//                }
-
                 if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10 && !runningSpikeVision){
 
                     autoQueued = true;
@@ -279,7 +286,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (collection.isTransferCanceled() && !runningSpikeVision){
-                    collection.setSlideTarget(5);
+                    collection.setSlideTarget(0);
 
                     delivery.queueCommand(delivery.cameraScan);
 
@@ -301,13 +308,13 @@ public class Blue_Left_cyclin extends OpModeEX {
                     counter = 0;
                 }
 
-                if (busyDetecting && !collect && detectionTimer.milliseconds() > (50*counter) && counter < 20){
+                if (busyDetecting && !collect && detectionTimer.milliseconds() > (50*counter) && counter < 40){
                     counter++;
                 }
 
                 if (busyDetecting && !collect){
 
-                    if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 6){
+                    if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 16){
 
                         collection.sampleSorterContour.setScanning(false);
                         collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
@@ -322,6 +329,25 @@ public class Blue_Left_cyclin extends OpModeEX {
                         busyDetecting = false;
                     }
 
+                }
+
+                if (busyDetecting && runningSpikeVision && counter >= 39){
+                    collection.setSlideTarget(15);
+
+                    delivery.overrideCurrent(true, delivery.stow);
+                    delivery.runReset();
+
+                    state = autoState.spikeTwo;
+                    built = building.notBuilt;
+
+                    failedDepo = true;
+                }
+
+                if ((collect && collection.getCurrentCommand() == collection.returnDefaultCommand() && collection.getFourBarState() == Collection.fourBar.stowed) || (autoQueued && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.preCollect && counter > 16)){
+                    state = autoState.spikeTwo;
+                    built = building.notBuilt;
+
+                    failedDepo = true;
                 }
 
                 if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
@@ -362,7 +388,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
@@ -388,20 +414,26 @@ public class Blue_Left_cyclin extends OpModeEX {
                 pathing = true;
             }
 
-
             if (CycleState == cycleState.spikeCollect){
-
-                counter++;
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("spikeOne"));
+                    if (failedDepo){
+                        follow.setPath(paths.returnPath("spikeTwo"));
+                        failedDepo = false;
+                    }else {
+                        follow.setPath(paths.returnPath("spikeOne"));
+                    }
 
                     targetHeading = 178;
 
                     cycleBuilt = building.built;
 
-                    collection.queueCommand(collection.collect);
+                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                        collection.queueCommand(collection.collect);
+                    }
+
+                    collection.resetTransferCanceled();
 
                     pathing = true;
                     pullDownSlides = false;
@@ -409,8 +441,8 @@ public class Blue_Left_cyclin extends OpModeEX {
                     collect = false;
                     runningSpikeVision = false;
                     busyDetecting = false;
+                    counter = 0;
                     follow.setExtendoHeading(false);
-
                 }
 
                 if (odometry.X() < 320 && !pullDownSlides){
@@ -428,6 +460,8 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                     pathing = false;
 
+                    headingOverride = true;
+
                     collection.queueCommand(collection.extendoTargetPoint(new Point(246, 329)));
 
                     collection.queueCommand(collection.collect);
@@ -443,7 +477,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
 
                 if (collection.isTransferCanceled() && !runningSpikeVision){
-                    collection.setSlideTarget(5);
+                    collection.setSlideTarget(0);
 
                     delivery.queueCommand(delivery.cameraScan);
 
@@ -465,13 +499,25 @@ public class Blue_Left_cyclin extends OpModeEX {
                     counter = 0;
                 }
 
-                if (busyDetecting && !collect && detectionTimer.milliseconds() > (50*counter) && counter < 20){
+                if (busyDetecting && !collect && detectionTimer.milliseconds() > (50*counter) && counter < 40){
                     counter++;
+                }
+
+                if ((autoQueued && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.preCollect && counter > 16)){
+                    state = autoState.spikeThree;
+                    built = building.notBuilt;
+
+                    failedDepo = true;
+                } else if (collect && collection.getCurrentCommand() == collection.returnDefaultCommand() && collection.getFourBarState() == Collection.fourBar.stowed) {
+                    state = autoState.spikeThree;
+                    built = building.notBuilt;
+
+                    failedDepo = true;
                 }
 
                 if (busyDetecting && !collect){
 
-                    if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 6){
+                    if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 14){
 
                         collection.sampleSorterContour.setScanning(false);
                         collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
@@ -485,6 +531,19 @@ public class Blue_Left_cyclin extends OpModeEX {
                         collect = true;
                         busyDetecting = false;
                     }
+
+                }
+
+                if (busyDetecting && runningSpikeVision && counter >= 39){
+                    collection.setSlideTarget(15);
+
+                    delivery.overrideCurrent(true, delivery.stow);
+                    delivery.runReset();
+
+                    state = autoState.spikeThree;
+                    built = building.notBuilt;
+
+                    failedDepo = true;
                 }
 
                 if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
@@ -500,8 +559,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     autoQueued = true;
                 }
 
-
-                if (collection.getClawsState() == Collection.clawState.grab && collection.fourBarMainPivot.getPositionDegrees() > 140){
+                if (collection.getClawsState() == Collection.clawState.grab && collection.fourBarMainPivot.getPositionDegrees() > 140  && collection.getSlideTarget() == 0){
                     CycleState = cycleState.basketDrob;
                     cycleBuilt = building.notBuilt;
                 }
@@ -510,7 +568,12 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("dropBasketSpike"));
+                    if (failedDepo){
+                        follow.setPath(paths.returnPath("dropBasketSpikeSafe"));
+                        failedDepo = false;
+                    }else {
+                        follow.setPath(paths.returnPath("dropBasketSpike"));
+                    }
 
                     targetHeading = 225;
 
@@ -524,7 +587,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
@@ -552,17 +615,23 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (CycleState == cycleState.spikeCollect){
 
-                counter++;
-
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("spikeOne"));
-
-                    targetHeading = 160;
+                    if (failedDepo){
+                        follow.setPath(paths.returnPath("spikeTwo"));
+                        targetHeading = 158;
+                    }else {
+                        follow.setPath(paths.returnPath("spikeOne"));
+                        targetHeading = 159;
+                    }
 
                     cycleBuilt = building.built;
 
-                    collection.queueCommand(collection.collect);
+                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                        collection.queueCommand(collection.collect);
+                    }
+
+                    collection.resetTransferCanceled();
 
                     pathing = true;
                     pullDownSlides = false;
@@ -570,8 +639,11 @@ public class Blue_Left_cyclin extends OpModeEX {
                     follow.setExtendoHeading(false);
 
                     runningSpikeVision = false;
+                    headingOverride = false;
 
                     collection.griperRotate.setPosition(135);
+
+                    turnCounter = 0;
                 }
 
                 if (odometry.X() < 310 && !pullDownSlides){
@@ -583,11 +655,27 @@ public class Blue_Left_cyclin extends OpModeEX {
                     pathing = false;
                 }
 
-                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && Math.abs(odometry.Heading() - targetHeading) < 5 && collection.getFourBarState() == Collection.fourBar.preCollect && odometry.getXVelocity() < 10){
+                if (autoQueued && collection.horizontalMotor.getVelocity() < 10 && targetingTimer.milliseconds() > 200 && !headingAdjustment && turnCounter <= 2 && collection.getSlidePositionCM() < 25){
+                    headingOverride = false;
+
+                    targetHeading = odometry.Heading() - 3;
+
+                    collection.clearQueue();
+
+                    autoQueued = false;
+
+                    turnCounter++;
+                }
+
+                if (!pathing && !headingAdjustment && collection.horizontalMotor.getVelocity() < 5 && !autoQueued && Math.abs(odometry.Heading() - targetHeading) < 5 && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3){
 
                     autoQueued = true;
 
                     pathing = false;
+
+                    headingOverride = true;
+
+                    targetingTimer.reset();
 
                     collection.griperRotate.setPosition(135);
 
@@ -625,7 +713,12 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt){
 
-                    follow.setPath(paths.returnPath("dropBasketSpike"));
+                    if (failedDepo){
+                        follow.setPath(paths.returnPath("dropBasketSpikeSafe"));
+                        failedDepo = false;
+                    }else {
+                        follow.setPath(paths.returnPath("dropBasketSpike"));
+                    }
 
                     targetHeading = 225;
 
@@ -639,7 +732,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer){
+                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
@@ -667,28 +760,29 @@ public class Blue_Left_cyclin extends OpModeEX {
             requestOpModeStop();
         }
 
-        dashboardTelemetry.addData("Position", collection.getSlidePositionCM());
-        dashboardTelemetry.addData("Target", collection.getSlideTarget());
-        dashboardTelemetry.update();
+//        dashboardTelemetry.addData("Position", collection.getSlidePositionCM());
+//        dashboardTelemetry.addData("Target", collection.getSlideTarget());
+//        dashboardTelemetry.update();
 
-        telemetry.addData("busy detecting", busyDetecting);
-        telemetry.addData("collect collect", collect);
-        telemetry.addData("counter ", counter);
-        telemetry.update();
+//        telemetry.addData("busy detecting", busyDetecting);
+//        telemetry.addData("collect collect", collect);
+//        telemetry.addData("counter ", counter);
+//        telemetry.update();
 
         if (pathing){
 
             odometry.queueCommand(odometry.updateLineBased);
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
-            telemetry.addData("Loop time", loopTime);
-            telemetry.addData("Y", odometry.Y());
-            telemetry.addData("Heading", odometry.Heading());
-            telemetry.addData("X", odometry.X());
-            telemetry.addData("getVertical", currentPower.getVertical());
-            telemetry.addData("getHorizontal", currentPower.getHorizontal());
-            telemetry.addData("getPivot", currentPower.getPivot());
-            telemetry.addData("busy detecting", collection.sampleSorterContour.isScanning());
-            telemetry.update();
+
+//            telemetry.addData("Loop time", loopTime);
+//            telemetry.addData("Y", odometry.Y());
+//            telemetry.addData("Heading", odometry.Heading());
+//            telemetry.addData("X", odometry.X());
+//            telemetry.addData("getVertical", currentPower.getVertical());
+//            telemetry.addData("getHorizontal", currentPower.getHorizontal());
+//            telemetry.addData("getPivot", currentPower.getPivot());
+//            telemetry.addData("busy detecting", collection.sampleSorterContour.isScanning());
+//            telemetry.update();
 
             driveBase.queueCommand(driveBase.drivePowers(currentPower));
         }else{
@@ -704,12 +798,26 @@ public class Blue_Left_cyclin extends OpModeEX {
             }
 
             if (headingAdjustment){
-                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading()))));
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
+
+                telemetry.addData("power", follow.getTurnPower(targetHeading, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()));
+
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, 0)));
             }
 
         }
+
+        System.out.println("headingI += 0.00006: " + headingAdjustment);
+        System.out.println("heading error " + Math.abs(targetHeading - odometry.Heading()));
+
+        telemetry.addData("Auto queued ", autoQueued);
+        telemetry.addData("turnCounter ", turnCounter);
+        telemetry.addData("headingOverride", headingOverride);
+        telemetry.addData("odometry heading", odometry.Heading());
+        telemetry.addData("headingAdjustment", headingAdjustment);
+        telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
+        telemetry.update();
     }
 
     public void subCycle () {
@@ -726,9 +834,12 @@ public class Blue_Left_cyclin extends OpModeEX {
                 pathing = true;
                 pullDownSlides = false;
                 collect = false;
-                headingOverride = true;
+                headingOverride = false;
+                collectRetry = false;
 
-                collection.setCancelTransfer(false);
+                collection.setCancelTransfer(true);
+                collection.resetTransferCanceled();
+                counter = 0;
             }
 
             if (odometry.X() < 300 && !pullDownSlides){
@@ -740,30 +851,73 @@ public class Blue_Left_cyclin extends OpModeEX {
                 }
             }
 
-            if (follow.isFinished(6,6) && !busyDetecting && odometry.getXVelocity() < 5 && odometry.getYVelocity() < 5){
+            if (follow.isFinished(6,6) && !busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3){
 
                 autoQueued = false;
                 pathing = false;
+                headingOverride = true;
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
-                collection.sampleSorterContour.setScanning(true);
+                collection.sampleSorterContour.setScanning(true, 5);
 
                 busyDetecting = true;
                 detectionTimer.reset();
                 counter = 0;
             }
 
-            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30){
+            if (collect && collection.getSlideTarget() != 0 && delivery.slideTarget > 15){
+                delivery.overrideCurrent(true, delivery.stow);
+                delivery.runReset();
+            }
+
+            if (collectRetry && !headingAdjustment){
+
+                collect = false;
+                autoQueued = false;
+                pathing = false;
+                collectRetry = false;
+                headingOverride = true;
+
+                busyDetecting = false;
+
+                counter = 0;
+            }
+
+            if (collect && !collectRetry && collection.getCurrentCommand() == collection.getCurrentCommand() && collection.getFourBarState() == Collection.fourBar.stowed && targetHeading < 275 && !autoQueued) {
+
+                targetHeading = odometry.Heading() + 15;
+
+                headingOverride = false;
+
+                follow.setExtendoHeading(true);
+
+                collectRetry = true;
+
+            } else if (!collect && counter >= 29 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.stowed) && !collectRetry && targetHeading < 275 && !autoQueued) {
+
+                targetHeading = odometry.Heading() + 15;
+
+                headingOverride = false;
+
+                follow.setExtendoHeading(true);
+
+                collectRetry = true;
+
+            }
+
+            if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30 && collection.getCurrentCommand() == collection.defaultCommand){
 
                 counter++;
 
-                if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
+                if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 16){
 
-                    collection.sampleSorterContour.setScanning(false);
+                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                        collection.queueCommand(collection.collect);
+                    }
+
                     collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
 
                     collection.queueCommand(collection.autoCollectGlobal);
-                    collection.setChamberCollect(false);
 
                     collect = true;
 
@@ -772,34 +926,35 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             }
 
-            if (collect && collection.getSlideTarget() != 0 && delivery.slideTarget > 15){
-                delivery.overrideCurrent(true, delivery.stow);
-                delivery.runReset();
+            if (!subRetry && collection.isTransferCanceled() && collection.getSlidePositionCM() > 0 && collection.getSlideTarget() > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+
+                collection.setSlideTarget(0);
+
+                delivery.queueCommand(delivery.cameraScan);
+
+                collect = false;
+                autoQueued = false;
+                pathing = false;
+                headingOverride = true;
+                subRetry = true;
+
+            } else if (delivery.getSlidePositionCM() > 15 && collection.isTransferCanceled() && Math.abs(delivery.slideMotor.getVelocity()) < 10) {
+                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+
+                collection.sampleSorterContour.setScanning(true, 5);
+
+                busyDetecting = false;
+
+                collection.resetTransferCanceled();
             }
 
-//            else if (collect && collection.getCurrentCommand() == collection.defaultCommand && !collectRetry && collection.getSlideTarget() == 0 && collection.getFourBarState() == Collection.fourBar.stowed) {
-//                targetHeading = odometry.Heading() - 8;
-//
-//                headingOverride = false;
-//
-//                follow.setExtendoHeading(true);
-//
-//                collectRetry = true;
-//
-////                collection.queueCommand(collection.collect);
-//            }
+            if (collection.isTransferCanceled() && subRetry && collection.getSlideTarget() != 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+                CycleState = Blue_Left_cyclin.cycleState.basketDrob;
+                cycleBuilt = Blue_Left_cyclin.building.notBuilt;
 
-//            if (collectRetry && !headingAdjustment){
-//                autoQueued = false;
-//                pathing = false;
-//                delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-//
-//                collection.sampleSorterContour.setScanning(true);
-//
-//                busyDetecting = true;
-//                detectionTimer.reset();
-//                counter = 0;
-//            }
+                collection.setSlideTarget(0);
+                collection.overrideCurrent(true, collection.stow);
+            }
 
             if (follow.isFinished(10,10) && collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
@@ -816,7 +971,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -20 && collection.getSlidePositionCM() < 25) {
+            if (follow.isFinished(10,10) && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -10 && collection.getSlidePositionCM() < 25) {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
@@ -827,7 +982,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 218;
+                targetHeading = 216;
 
                 follow.usePathHeadings(false);
 
@@ -850,8 +1005,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 delivery.queueCommand(delivery.depositAuto);
 
-                vertical = 1;
-
                 pathing = false;
 
                 drop = false;
@@ -865,7 +1018,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (!pathing && !drop && dropTimerDriving.milliseconds() > 500 && dropTimerDriving.milliseconds() < 600){
                     delivery.queueCommand(delivery.depositAuto);
                     follow.setPath(paths.returnPath("spikeOne"));
-                    vertical = 0;
+                    pathing = true;
                     stop = true;
                 } else if (stop && delivery.getSlidePositionCM() < 10) {
                     state = autoState.finished;
@@ -876,7 +1029,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (follow.isFinished(9, 9) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.next(state);
                     built = building.notBuilt;
-//                    collection.queueCommand(collection.collect);
                 }
 
             }

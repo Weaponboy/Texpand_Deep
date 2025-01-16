@@ -126,14 +126,13 @@ public class globalVisionTesting extends OpModeEX {
 //            delivery.runReset();
 //        }
 
-//        if (currentGamepad1.x && !lastGamepad1.x && collection.sampleSorterContour.isScanning()){
-//            collection.sampleSorterContour.setScanning(false);
-////            collection.portal.stopStreaming();
-//            collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-//        }else if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
-//            collection.sampleSorterContour.setScanning(true);
-////            collection.portal.resumeStreaming();
-//        }
+        if (!collection.sampleSorterContour.detections.isEmpty() && collection.sampleSorterContour.isScanning()){
+            collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+        }
+
+        if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
+            collection.sampleSorterContour.setScanning(true);
+        }
 
         if (currentGamepad1.y && !lastGamepad1.y && delivery.getSlidePositionCM() > 15){
 
@@ -168,6 +167,10 @@ public class globalVisionTesting extends OpModeEX {
 
 //        if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
 //        }
+//
+        if (delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+        }
 
 
 

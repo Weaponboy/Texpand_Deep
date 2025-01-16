@@ -41,7 +41,7 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public final double highBasket = 67;
-    public final double autoHighBasket = 67;
+    public final double autoHighBasket = 67.5;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
@@ -55,7 +55,7 @@ public class Delivery extends SubSystem {
 
     double gripperDrop = 145;
     double gripperGrab = 101;
-    double gripperSlightRelease = 110;
+    double gripperSlightRelease = 105;
 
     /**
      * servo time per degrees
@@ -647,14 +647,14 @@ public class Delivery extends SubSystem {
 
     public double findCameraScanPosition(){
 
-        double pivotHeight = getSlidePositionCM() + 43;
+        double pivotHeight = getSlidePositionCM() + 42.5;
 
-        double X = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
+        double X = Math.sqrt((pivotHeight*pivotHeight)+(30 * 30));
 
         double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
-        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
+        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(87.6) / X)) - 87.6;
 
-        return 194 - (((firstAngle + secondAngle)-90) * 0.794);
+        return 188 - (((firstAngle  + secondAngle)-90) * 0.794);
 
     }
 
@@ -676,14 +676,14 @@ public class Delivery extends SubSystem {
 
     public double findCameraScanPosition(boolean chamberCollect, double fakeSlideHeight){
 
-        double pivotHeight = fakeSlideHeight + 43;
+        double pivotHeight = fakeSlideHeight + 42.5;
 
-        double X = Math.sqrt((pivotHeight*pivotHeight)+(29 * 29));
+        double X = Math.sqrt((pivotHeight*pivotHeight)+(30 * 30));
 
         double firstAngle = Math.toDegrees(Math.acos(pivotHeight / X));
-        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(80) / X)) - 80;
+        double secondAngle = 180 - Math.toDegrees(Math.asin(8 * Math.sin(87.6) / X)) - 87.6;
 
-        return 194 - (((firstAngle + secondAngle)-90) * 0.794);
+        return 188 - (((firstAngle + secondAngle)-90) * 0.794);
 
     }
 

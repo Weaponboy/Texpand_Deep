@@ -16,7 +16,7 @@ import dev.weaponboy.vision.detectionData;
 @TeleOp
 public class sprint2Teleop extends OpModeEX {
 
-    double rotateTarget = 90;
+    boolean cameraScan = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -26,6 +26,9 @@ public class sprint2Teleop extends OpModeEX {
 
     boolean fastTransfer = true;
     boolean queueCollection = false;
+
+    boolean autoPreClip = false;
+    boolean ranPreClip = false;
 
     @Override
     public void initEX() {
@@ -46,7 +49,6 @@ public class sprint2Teleop extends OpModeEX {
         }else {
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.6, -gamepad1.right_stick_x * 0.9));
         }
-
 
         /**
          * Overwrites
@@ -147,6 +149,11 @@ public class sprint2Teleop extends OpModeEX {
 
         if(currentGamepad2.b && !lastGamepad2.b){
             delivery.queueCommand(delivery.cameraScan);
+            cameraScan = true;
+        }
+
+        if (cameraScan && delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
         }
 
         if (currentGamepad2.a && !lastGamepad2.a){
@@ -160,6 +167,7 @@ public class sprint2Teleop extends OpModeEX {
             collection.sampleSorterContour.setScanning(true);
 //            collection.portal.resumeStreaming();
 
+            cameraScan = false;
             busyDetecting = true;
             detectionTimer.reset();
             counter = 0;
@@ -229,14 +237,30 @@ public class sprint2Teleop extends OpModeEX {
             queueCollection = false;
         }
 
+        if (currentGamepad1.start && lastGamepad1.start && autoPreClip){
+            autoPreClip = false;
+            gamepad1.rumble(300);
+        }else if (currentGamepad1.start && lastGamepad1.start && !autoPreClip){
+            autoPreClip = true;
+            gamepad1.rumble(300);
+        }
+
         /**
          * Delivery code
          * */
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
+        if (!ranPreClip && autoPreClip && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
+            delivery.queueCommand(delivery.preClipFront);
+            delivery.griperRotateSev.setPosition(90);
+
+            ranPreClip = true;
+        }
+
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
             delivery.queueCommand(delivery.preClipFront);
             delivery.griperRotateSev.setPosition(90);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
             delivery.queueCommand(delivery.clipFront);
+            ranPreClip = false;
         }
 
         if ((currentGamepad2.left_stick_button && !(lastGamepad2.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -296,7 +320,7 @@ public class sprint2Teleop extends OpModeEX {
                 collection.queueCommand(collection.openGripper);
             }
 
-        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.getSlidePositionCM() < 50 && delivery.slideTarget != delivery.highBasket){
+        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.getSlidePositionCM() < 50 && delivery.slideTarget != delivery.highBasket && collection.getCurrentCommand() == collection.defaultCommand){
 
             delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;

@@ -18,7 +18,6 @@ public class servopoztest extends OpMode {
     public ServoDegrees griperRotate= new ServoDegrees();
 
     public ServoDegrees PTO = new ServoDegrees();
-
     MotorEx hangPower = new MotorEx();
 
     public ServoDegrees mainPivot=new ServoDegrees();
@@ -77,15 +76,15 @@ public class servopoztest extends OpMode {
 //
         deliveryGrip.setRange(180);
 //
-//        PTO.initServo("hangPTO", hardwareMap);
-//        PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
+        PTO.initServo("hangPTO", hardwareMap);
+        PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
 //        gripServo.setRange(180);
 //        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
 //
-//        hangPower.initMotor("hangPower", hardwareMap);
-//        hangPower.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//        PTO.setDirection(Servo.Direction.REVERSE);
+        hangPower.initMotor("hangPower", hardwareMap);
+        hangPower.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        PTO.setDirection(Servo.Direction.REVERSE);
 //
 //        mainPivot.initServo("mainPivot",hardwareMap);
 //        secondPivot.initServo("secondPivot",hardwareMap);
@@ -132,13 +131,7 @@ public class servopoztest extends OpMode {
     @Override
     public void loop() {
 
-//        if (gamepad1.start){
-//            gripServo.setPosition(45);
-//        }
-//
-//        if (gamepad1.a){
-//            gripServo.setPosition(55);
-//        }
+
 //
 //        if (gamepad1.back){
 //            gripServo.setPosition(100);
@@ -169,15 +162,15 @@ public class servopoztest extends OpMode {
             deliveryGrip.setPosition(145);
         }
 
-//        double power = 0;
-//
-//        if (gamepad1.right_bumper){
-//            power = -1;
-//        } else if (gamepad1.left_bumper) {
-//            power = 1;
-//        }else {
-//            power = 0;
-//        }
+        double power = 0;
+
+        if (gamepad1.right_bumper){
+            power = -1;
+        } else if (gamepad1.left_bumper) {
+            power = 1;
+        }else {
+            power = 0;
+        }
 //
 //        if (gamepad1.dpad_up){
 //            setRailTargetPosition(13);
@@ -187,7 +180,7 @@ public class servopoztest extends OpMode {
 //            setRailTargetPosition(26);
 //        }
 //
-//        hangPower.update(power);
+        hangPower.update(power);
 
 //        fourBarMainPivot.setPosition(transferIntMainPivot);
 //
@@ -199,7 +192,6 @@ public class servopoztest extends OpMode {
 //
 //        fourBarSecondPivot.setPosition(transferIntSecondPivot);
 //
-
 
         telemetry.addData("intakeClaw", ClawSensor.isPressed());
         telemetry.addData("depoIR",clawIR.isPressed());
