@@ -34,6 +34,7 @@ public class Blue_Left_cyclin extends OpModeEX {
     boolean stop = false;
 
     boolean subRetry = false;
+    double adjustedTarget = 0;
 
     int turnCounter = 0;
 
@@ -622,7 +623,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                         targetHeading = 158;
                     }else {
                         follow.setPath(paths.returnPath("spikeOne"));
-                        targetHeading = 159;
+                        targetHeading = 158;
                     }
 
                     cycleBuilt = building.built;
@@ -655,10 +656,10 @@ public class Blue_Left_cyclin extends OpModeEX {
                     pathing = false;
                 }
 
-                if (autoQueued && collection.horizontalMotor.getVelocity() < 10 && targetingTimer.milliseconds() > 200 && !headingAdjustment && turnCounter <= 2 && collection.getSlidePositionCM() < 25){
+                if (autoQueued && collection.horizontalMotor.getVelocity() < 10 && targetingTimer.milliseconds() > 200 && !headingAdjustment && turnCounter < 2 && collection.getSlidePositionCM() < 25){
                     headingOverride = false;
 
-                    targetHeading = odometry.Heading() - 3;
+                    targetHeading = odometry.Heading() - 5;
 
                     collection.clearQueue();
 
@@ -798,7 +799,19 @@ public class Blue_Left_cyclin extends OpModeEX {
             }
 
             if (headingAdjustment){
-                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
+                double error = targetHeading - odometry.Heading();
+
+                if (Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3){
+                    if (error > 0){
+                        adjustedTarget += 0.4;
+                    }else {
+                        adjustedTarget -= 0.4;
+                    }
+                }else {
+                    adjustedTarget = 0;
+                }
+
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(0,0, follow.getTurnPower(targetHeading+adjustedTarget, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
 
                 telemetry.addData("power", follow.getTurnPower(targetHeading, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()));
 
@@ -951,6 +964,8 @@ public class Blue_Left_cyclin extends OpModeEX {
             if (collection.isTransferCanceled() && subRetry && collection.getSlideTarget() != 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
                 CycleState = Blue_Left_cyclin.cycleState.basketDrob;
                 cycleBuilt = Blue_Left_cyclin.building.notBuilt;
+
+                delivery.setGripperState(Delivery.gripper.grab);
 
                 collection.setSlideTarget(0);
                 collection.overrideCurrent(true, collection.stow);
