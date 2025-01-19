@@ -20,6 +20,10 @@ public class globalVisionTesting extends OpModeEX {
     boolean detectingInSub = true;
     ElapsedTime detectingTimer = new ElapsedTime();
 
+    boolean busyDetecting = false;
+    ElapsedTime detectionTimer = new ElapsedTime();
+    int counter = 0;
+
     boolean raisingSlides = false;
 
     enum Obs_Collect{
@@ -48,7 +52,7 @@ public class globalVisionTesting extends OpModeEX {
 
         collection.sampleSorterContour.closestFirst = true;
 
-//        collection.sampleSorterContour.setScanning(false);
+
 
         collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
     }
@@ -114,38 +118,77 @@ public class globalVisionTesting extends OpModeEX {
 //            detectingInSub = true;
 //        }
 
-        if (gamepad1.a && !lastGamepad1.a){
-            collection.queueCommand(collection.autoCollectGlobal);
-            collection.setChamberCollect(false);
+//        if (gamepad1.a && !lastGamepad1.a){
+//            collection.queueCommand(collection.autoCollectGlobal);
+//            collection.setChamberCollect(false);
+//
+//            delivery.overrideCurrent(true, delivery.stow);
+//            delivery.runReset();
+//        }
 
-            delivery.overrideCurrent(true, delivery.stow);
-            delivery.runReset();
-        }
-
-        if (currentGamepad1.x && !lastGamepad1.x && collection.sampleSorterContour.isScanning() && !collection.sampleSorterContour.detections.isEmpty()){
-            collection.sampleSorterContour.setScanning(false);
-            collection.portal.stopStreaming();
+        if (!collection.sampleSorterContour.detections.isEmpty() && collection.sampleSorterContour.isScanning()){
             collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-        }else if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
+        }
+
+        if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
             collection.sampleSorterContour.setScanning(true);
-            collection.portal.resumeStreaming();
         }
 
-        if (!collection.sampleSorterContour.isScanning() || delivery.getSlidePositionCM() < 15){
+        if (currentGamepad1.y && !lastGamepad1.y && delivery.getSlidePositionCM() > 15){
 
-        }else {
-//            collection.portal.resumeStreaming();
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition(true));
-//            delivery.secondPivot.setPosition(80);
-//            delivery.fourbarState = Delivery.fourBarState.basketDeposit;
-//            delivery.mainPivot.setPosition(190.5);
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+            collection.sampleSorterContour.setScanning(true);
 
-            //0.794
-            //1.2587
-
-            //190.5
+            busyDetecting = true;
+            detectionTimer.reset();
+            counter = 0;
 
         }
+
+        if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
+
+            counter++;
+
+            if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
+
+//                collection.sampleSorterContour.setScanning(false);
+//                collection.portal.stopStreaming();
+                collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+
+                collection.queueCommand(collection.autoCollectGlobal);
+                collection.setChamberCollect(false);
+
+                busyDetecting = false;
+
+                counter = 40;
+            }
+
+        }
+
+//        if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
+//        }
+//
+        if (delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+        }
+
+
+
+//        if (!collection.sampleSorterContour.isScanning() || delivery.getSlidePositionCM() < 15){
+//
+//        }else {
+////            collection.portal.resumeStreaming();
+//            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+////            delivery.secondPivot.setPosition(80);
+////            delivery.fourbarState = Delivery.fourBarState.basketDeposit;
+////            delivery.mainPivot.setPosition(190.5);
+//
+//            //0.794
+//            //1.2587
+//
+//            //190.5
+//
+//        }
 
 //        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
 //            FileWriter fWriter = null;
@@ -202,15 +245,14 @@ public class globalVisionTesting extends OpModeEX {
         telemetry.addData("X", odometry.X());
         telemetry.addData("Y", odometry.Y());
         telemetry.addData("Heading", odometry.Heading());
-        telemetry.addData("slides target ", collection.slideTargetPosition);
+        telemetry.addData("slides target ", collection.getSlideTarget());
         telemetry.addData("rail target", collection.railTarget);
         telemetry.addData("Target point", collection.sampleMap.size());
-        telemetry.addData("Arm angle", 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
         for (detectionData detection: collection.sampleMap){
             telemetry.addData("Target point", detection.getTargetPoint());
         }
         telemetry.addData("collection.sampleSorterContour.isScanning()", collection.sampleSorterContour.isScanning());
-        telemetry.addData("Rotate Angle", collection.angle);
+//        telemetry.addData("Rotate Angle", collection.angle);
         telemetry.update();
     }
 

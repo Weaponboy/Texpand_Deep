@@ -44,7 +44,7 @@ public class MatImagePipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
 
 //        Imgproc.cvtColor(input, redMat2, COLOR_RGB2HSV);
-        Imgproc.cvtColor(input, redMat2, COLOR_RGB2BGR);
+        Imgproc.cvtColor(input, redMat2, COLOR_RGB2HSV);
 
 //        inRange(redMat, redLower, redHigher, redMat);
         inRange(redMat2, redLower, redHigher, redMat2);

@@ -18,7 +18,6 @@ public class servopoztest extends OpMode {
     public ServoDegrees griperRotate= new ServoDegrees();
 
     public ServoDegrees PTO = new ServoDegrees();
-
     MotorEx hangPower = new MotorEx();
 
     public ServoDegrees mainPivot=new ServoDegrees();
@@ -69,54 +68,54 @@ public class servopoztest extends OpMode {
     @Override
     public void init() {
 
-        fourBarMainPivot.initServo("fourBarMainPivot",hardwareMap);
-        fourBarSecondPivot.initServo("fourBarSecondPivot",hardwareMap);
-        gripServo.initServo("gripServo", hardwareMap);
-        griperRotate.initServo("gripperRotate", hardwareMap);
+//        fourBarMainPivot.initServo("fourBarMainPivot",hardwareMap);
+//        fourBarSecondPivot.initServo("fourBarSecondPivot",hardwareMap);
+//        gripServo.initServo("gripServo", hardwareMap);
+//        griperRotate.initServo("gripperRotate", hardwareMap);
         deliveryGrip.initServo("devClaw", hardwareMap);
-
-        deliveryGrip.setRange(new PwmControl.PwmRange(500, 2500),180);
-
+//
+        deliveryGrip.setRange(180);
+//
         PTO.initServo("hangPTO", hardwareMap);
         PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
-        gripServo.setRange(180);
-        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
-
+//        gripServo.setRange(180);
+//        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
+//
         hangPower.initMotor("hangPower", hardwareMap);
         hangPower.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         PTO.setDirection(Servo.Direction.REVERSE);
-
-        mainPivot.initServo("mainPivot",hardwareMap);
-        secondPivot.initServo("secondPivot",hardwareMap);
-
-        ClawSensor = hardwareMap.get(TouchSensor.class, "CollectionReset");
+//
+//        mainPivot.initServo("mainPivot",hardwareMap);
+//        secondPivot.initServo("secondPivot",hardwareMap);
+//
+        ClawSensor = hardwareMap.get(TouchSensor.class, "clawsensor");
         clawIR = hardwareMap.get(TouchSensor.class, "DeliveryReset");
-        linerRailServo.initServo("linearRailServo", hardwareMap);
-
-        mainPivot.setRange(335);
-        secondPivot.setRange(335);
-        linerRailServo.setRange(1800);
-
-        griperRotate.setDirection(Servo.Direction.REVERSE);
-        griperRotate.setOffset(10);
-//        griperRotate.setPosition(0);
-
-        deliveryGrip.setOffset(18);
-
-        fourBarMainPivot.setRange(335);
-        fourBarSecondPivot.setRange(335);
-        fourBarSecondPivot.setOffset(-20);
-        fourBarMainPivot.setOffset(10);
-
-        fourBarSecondPivot.setPosition(175);
-        fourBarMainPivot.setPosition(158);
-
-//        secondPivot.setPosition(preSecondClip);
-//        mainPivot.setPosition(120);
-
-        mainPivot.setPosition(mainPivotTransfer);
-        secondPivot.setPosition(secondPivotTransfer);
+//        linerRailServo.initServo("linearRailServo", hardwareMap);
+//
+//        mainPivot.setRange(335);
+//        secondPivot.setRange(335);
+//        linerRailServo.setRange(1800);
+//
+//        griperRotate.setDirection(Servo.Direction.REVERSE);
+//        griperRotate.setOffset(10);
+////        griperRotate.setPosition(0);
+//
+        deliveryGrip.setOffset(0);
+//
+//        fourBarMainPivot.setRange(335);
+//        fourBarSecondPivot.setRange(335);
+//        fourBarSecondPivot.setOffset(-20);
+//        fourBarMainPivot.setOffset(10);
+//
+//        fourBarSecondPivot.setPosition(175);
+//        fourBarMainPivot.setPosition(158);
+//
+////        secondPivot.setPosition(preSecondClip);
+////        mainPivot.setPosition(120);
+//
+//        mainPivot.setPosition(mainPivotTransfer);
+//        secondPivot.setPosition(secondPivotTransfer);
 
         //straight down = 271
         //parallel to hte ground = 190.5
@@ -124,58 +123,54 @@ public class servopoztest extends OpMode {
         //210
         //120
 
+        deliveryGrip.setPosition(120);
+
 
     }
 
     @Override
     public void loop() {
 
-        if (gamepad1.start){
-            gripServo.setPosition(45);
-        }
 
-        if (gamepad1.a){
-            gripServo.setPosition(55);
-        }
-
-        if (gamepad1.back){
-            gripServo.setPosition(100);
-        }
-
-        if (gamepad1.left_bumper){
 //
-            mainPivot.setPosition(mainClip);
-            secondPivot.setPosition(secondClip);
-//            deliveryGrip.disableServo();
-        }
-
-        if (gamepad1.dpad_left){
-            fourBarSecondPivot.setPosition(150);
-            fourBarMainPivot.setPosition(190);
-        }
-
-        if (gamepad1.dpad_right){
-            fourBarSecondPivot.setPosition(138);
-            fourBarMainPivot.setPosition(200);
-        }
-
+//        if (gamepad1.back){
+//            gripServo.setPosition(100);
+//        }
+//
+//        if (gamepad1.left_bumper){
+////
+//            mainPivot.setPosition(mainClip);
+//            secondPivot.setPosition(secondClip);
+////            deliveryGrip.disableServo();
+//        }
+//
+//        if (gamepad1.dpad_left){
+//            fourBarSecondPivot.setPosition(150);
+//            fourBarMainPivot.setPosition(190);
+//        }
+//
+//        if (gamepad1.dpad_right){
+//            fourBarSecondPivot.setPosition(138);
+//            fourBarMainPivot.setPosition(200);
+//        }
+//
         if (gamepad1.dpad_up){
-            deliveryGrip.setPosition(68);
+            deliveryGrip.setPosition(102);
         }
 
         if (gamepad1.dpad_down){
-            deliveryGrip.setPosition(130);
+            deliveryGrip.setPosition(145);
         }
 
-//        double power = 0;
-//
-//        if (gamepad1.right_bumper){
-//            power = -1;
-//        } else if (gamepad1.left_bumper) {
-//            power = 1;
-//        }else {
-//            power = 0;
-//        }
+        double power = 0;
+
+        if (gamepad1.right_bumper){
+            power = -1;
+        } else if (gamepad1.left_bumper) {
+            power = 1;
+        }else {
+            power = 0;
+        }
 //
 //        if (gamepad1.dpad_up){
 //            setRailTargetPosition(13);
@@ -185,7 +180,7 @@ public class servopoztest extends OpMode {
 //            setRailTargetPosition(26);
 //        }
 //
-//        hangPower.update(power);
+        hangPower.update(power);
 
 //        fourBarMainPivot.setPosition(transferIntMainPivot);
 //
@@ -197,7 +192,6 @@ public class servopoztest extends OpMode {
 //
 //        fourBarSecondPivot.setPosition(transferIntSecondPivot);
 //
-
 
         telemetry.addData("intakeClaw", ClawSensor.isPressed());
         telemetry.addData("depoIR",clawIR.isPressed());
