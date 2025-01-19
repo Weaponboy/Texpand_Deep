@@ -1,9 +1,7 @@
 package dev.weaponboy.vision.SamplePipelines;
 
 import static org.opencv.core.Core.inRange;
-import static org.opencv.core.Core.mean;
 import static org.opencv.core.CvType.CV_8U;
-import static org.opencv.imgproc.Imgproc.COLOR_RGB2BGR;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
@@ -36,10 +34,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import dev.weaponboy.vision.detectionData;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
+import dev.weaponboy.vision.detectionData;
 
-public class findAngleUsingContour implements VisionProcessor, CameraStreamSource {
+public class testingCamera implements VisionProcessor {
 
     private final AtomicReference<Bitmap> lastFrame =
             new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
@@ -49,11 +47,8 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
     Mat redMat = new Mat();
     Mat redMat2 = new Mat();
 
-//    public Scalar redLower = new Scalar(0, 148, 36);
-//    public Scalar redHigher = new Scalar(9,255,255);
-
-    public Scalar redLower = new Scalar(0, 0, 164);
-    public Scalar redHigher = new Scalar(222,160,255);
+    public Scalar redLower = new Scalar(0, 148, 36);
+    public Scalar redHigher = new Scalar(9,255,255);
 
     public Scalar redLower2 = new Scalar(160, 25, 123);
     public Scalar redHigher2 = new Scalar(220,255,255);
@@ -107,287 +102,14 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-        lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
-    }
-
-    @Override
-    public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
-        continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
     }
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos){
 
-        frameSub = frame.submat(ROI);
-
-        if (scanning){
-
-            ArrayList<MatOfPoint> contours = new ArrayList<>();
-            Mat hierarchy = new Mat();
-
-            if (targetColor == TargetColor.red){
-                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2BGR);
-
-                inRange(redMat, redLower, redHigher, redMat);
-
-                erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-
-            } else if (targetColor == TargetColor.blue) {
-                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
-
-                inRange(redMat, blueLower, blueHigher, redMat);
-
-                erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-
-            } else if (targetColor == TargetColor.yellow) {
-                Imgproc.cvtColor(frameSub, redMat, COLOR_RGB2HSV);
-
-                inRange(redMat, yellowLower, yellowHigher, redMat);
-
-                erode(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                dilate(redMat, redMat, new Mat(5, 5, CV_8U));
-
-                Imgproc.findContours(redMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-
-            }
-
-            for (int i = 0; i < contours.size(); i++){
-                Rect rect = boundingRect(contours.get(i));
-                if (rect.area() > 1000 && rect.area() < 5000){
-                    redContoursSingle.add(contours.get(i));
-                    redRectsSingle.add(rect);
-                }
-            }
-
-            ArrayList<Point> centerPointsSingle = new ArrayList<>();
-
-            for (int i = 0; i < redContoursSingle.size(); i++){
-                centerPointsSingle.add(getContourCenter(redContoursSingle.get(i)));
-            }
-
-            ArrayList<MatOfPoint> sortedContoursSingle;
-
-            if (closestFirst){
-                sortedContoursSingle = sortContoursByYClosest(redContoursSingle, centerPointsSingle);
-            }else{
-                sortedContoursSingle = sortContoursByY(redContoursSingle, centerPointsSingle);
-            }
-
-            for (MatOfPoint contour : sortedContoursSingle) {
-                Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
-            }
-
-            if (!sortedContoursSingle.isEmpty()) {
-
-                detections.clear();
-
-//                MatOfPoint Contour = sortedContoursSingle.get(sortedContoursSingle.size() - 1);
-
-                for (MatOfPoint Contour: sortedContoursSingle){
-                    Rect rect = boundingRect(Contour);
-
-                    if (rect.area() > 1000 && rect.area() < 5000) {
-
-                        MatOfPoint2f contour2f = new MatOfPoint2f(Contour.toArray());
-
-                        RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-
-                        boolean isWidthLonger = rotatedRect.size.width > rotatedRect.size.height;
-                        angle = rotatedRect.angle;
-
-                        if (!isWidthLonger) {
-                            angle = angle + 90;
-                        }
-
-                        if (angle > 90) {
-                            angle -= 180;
-                        }
-
-                        Point contourCenter = getContourCenter(Contour);
-
-                        double angleMultiplier = (0.9) * (Math.abs(angle)) / 100;
-
-                        if (angleMultiplier > 0) {
-                            angleMultiplier = 1 - angleMultiplier;
-                        } else if (angleMultiplier < 0) {
-                            angleMultiplier = -(1 - Math.abs(angleMultiplier));
-                        }
-
-                        double x = calculateAdjustment(contourCenter.y, 496, 0, 0, 10);
-
-                        TargetPoint = new Point(contourCenter.x, contourCenter.y - x);
-
-                        detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
-
-                        Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
-                        Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-                    } else if (rect.area() > 5000 && rect.area() < 150000) {
-
-                        MatOfPoint closestContour = Contour;
-
-                        Point lowestPoint = getLowestYPoint(closestContour);
-                        Point contourCenter = getContourCenter(closestContour);
-
-                        List<Point> contourPoints = closestContour.toList();
-
-                        List<Point> angleArray = null;
-
-                        if (lowestPoint.x > contourCenter.x) {
-                            int index = contourPoints.indexOf(lowestPoint);
-                            Point before;
-
-                            before = contourPoints.get(index + 5);
-
-                            if (before.x > lowestPoint.x) {
-                                if (index > 22) {
-                                    angleArray = contourPoints.subList(index, index - 20);
-                                } else {
-                                    angleArray = contourPoints.subList(contourPoints.size() - 20, contourPoints.size() - 1);
-                                }
-
-                            } else {
-                                if (index + 22 < contourPoints.size()) {
-                                    angleArray = contourPoints.subList(index, index + 20);
-                                } else {
-                                    angleArray = contourPoints.subList(0, 20);
-                                }
-                            }
-
-                        } else if (lowestPoint.x < contourCenter.x) {
-                            int index = contourPoints.indexOf(lowestPoint);
-                            Point before, after;
-
-                            if (index > 5) {
-                                before = contourPoints.get(index - 5);
-                            } else {
-                                before = contourPoints.get(contourPoints.size() - 6);
-                            }
-
-                            if (before.x > lowestPoint.x) {
-                                if (index > 42) {
-                                    angleArray = contourPoints.subList(index - 20, index - 40);
-                                } else {
-                                    angleArray = contourPoints.subList(contourPoints.size() - 40, contourPoints.size() - 21);
-                                }
-
-                            } else {
-                                if (index + 22 < contourPoints.size()) {
-                                    angleArray = contourPoints.subList(index, index + 20);
-                                } else {
-                                    angleArray = contourPoints.subList(0, 20);
-                                }
-                            }
-                        }
-
-                        double slope;
-
-                        if (angleArray != null) {
-                            slope = calculateLineOfBestFit(angleArray);
-                            double angle = Math.toDegrees(Math.atan(slope));
-
-//                for (Point point: angleArray){
-//                    Imgproc.circle(frameSub, point, 5, new Scalar(0, 0, 255), -1);
-//                }
-
-                            Point anyPoint = angleArray.get(17);
-                            double yIntercept = anyPoint.y - (slope * anyPoint.x);
-
-                            Point intercept = findLowestYPointOnLine(slope, yIntercept, contourPoints, 10);
-
-                            double relativeXCorrective;
-                            double relativeYCorrective;
-
-                            double angleRadians = 0;
-                            double xError = 0;
-                            double yError = -4;
-
-                            if (angle < 0) {
-                                angle = 135 + (-angle);
-                                angleRadians = Math.toRadians(angle);
-                            } else {
-                                angle = 230 + (-angle);
-                                angleRadians = Math.toRadians(angle);
-                            }
-
-                            angle = Math.toDegrees(Math.atan(slope));
-
-                            this.angle = angle;
-
-                            double angleMultiplier = ((0.9) * (angle) / 100);
-                            double angleMultiplierY = (0.9) * (Math.abs(angle)) / 100;
-
-                            if (angleMultiplier > 0) {
-                                angleMultiplier = 1 - angleMultiplier;
-                            } else if (angleMultiplier < 0) {
-                                angleMultiplier = -(1 - Math.abs(angleMultiplier));
-                            }
-
-                            relativeXCorrective = (yError) * Math.sin(angleRadians) + (xError) * Math.cos(angleRadians);
-                            relativeYCorrective = (yError) * Math.cos(angleRadians) - (xError) * Math.sin(angleRadians);
-
-                            Point centerPoint = new Point();
-
-                            if (intercept != null){
-                                centerPoint = new Point(intercept.x + relativeXCorrective, intercept.y + relativeYCorrective);
-                            }
-
-                            double x = calculateAdjustment(centerPoint.y, 496, 0, 0, 20);
-                            double y = calculateAdjustment(centerPoint.y, 496, 0, 0, 300);
-
-                            if (angle < 60 && angle > -60) {
-                                xError = x * angleMultiplier;
-                                yError = y * angleMultiplierY;
-                            } else {
-                                yError = 0;
-                            }
-
-                            if (intercept != null){
-                                TargetPoint = new Point(intercept.x + relativeXCorrective + xError, intercept.y + relativeYCorrective + yError);
-
-                                detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
-
-                                Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
-                                Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-                            }
-
-                        } else {
-                            Imgproc.putText(frameSub, "Bad", new Point(20, 600), 2, 4, new Scalar(0, 255, 0), 4, 2, false);
-                        }
-
-                    }
-
-
-                }
-
-            }
-
-            contours.clear();
-        }
-
-//        Imgproc.circle(frameSub, new Point(75, 20), 4, new Scalar(255, 0, 0), -1);
-//        Imgproc.circle(frameSub, new Point(190, 100), 4, new Scalar(255, 0, 0), -1);
-
-        redContoursSingle.clear();
-        redRectsSingle.clear();
-//        frameSub.copyTo(frame);
-
-        Bitmap b = Bitmap.createBitmap(frameSub.width(), frameSub.height(), Bitmap.Config.RGB_565);
-        Utils.matToBitmap(frameSub, b);
-        lastFrame.set(b);
-
-        redMat.release();
-        frameSub.release();
+//        Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
+//        Utils.matToBitmap(frame, b);
+//        lastFrame.set(b);
 
         return null;
     }
@@ -588,7 +310,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
         double angleC = 90;
 
         //second triangle
-        double angleD = 80;
+        double angleD = pivotAngle - angleA;
         double angleE = Math.toDegrees(Math.atan(8 / firstHypot));
         double angleF = 180 - angleE - angleD;
 
@@ -629,7 +351,7 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double centerPoint = 190;
 
-            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.64);
+            double yExtra = calculateAdjustment(detection.getTargetPoint().y, 300, 1, 0, 1.609);
 
 //            yExtra = 1;
 
@@ -643,7 +365,6 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
             double pixelsToCMRelY = viewSizeCMYAxis/ROI.width;
 
             double relYPosition = 0;
-
             if (detection.getTargetPoint().x > centerPoint){
 
                 double updatedPosition = detection.getTargetPoint().x - centerPoint * yExtra;
@@ -672,15 +393,16 @@ public class findAngleUsingContour implements VisionProcessor, CameraStreamSourc
 
             double realWorldPosition = targetPoint * (Math.sin(Math.toRadians(invertedOtherAngle)) / Math.sin(Math.toRadians(otherInsideAngle)));
 
-            relXPosition = realWorldPosition + 22.5;
+            relXPosition = realWorldPosition + 22;
 
 //            relXPosition = sideN;
 
             double globalX = relXPosition * Math.cos(Math.toRadians(power.getPivot())) - relYPosition * Math.sin(Math.toRadians(power.getPivot()));
             double globalY = relXPosition * Math.sin(Math.toRadians(power.getPivot())) + relYPosition * Math.cos(Math.toRadians(power.getPivot()));
 
-            if (relYPosition < 13 && relYPosition > -13 && (relXPosition - 22.5 - 10) < 55 && (relXPosition - 22.5 - 10) > 15){
+            if (relYPosition < 13 && relYPosition > -13 && (realWorldPosition - 17.5 - 10) < 45){
                 fieldDetections.add(new detectionData(detection.getReadTime(), new Point(power.getVertical()+globalX, power.getHorizontal()+globalY), detection.getAngle()));
+
             }
 
         }

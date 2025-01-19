@@ -1,16 +1,12 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Auto.Red;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
-import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
@@ -18,7 +14,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@Autonomous(name = "Red Right", group = "Red Autos")
+@Autonomous(name = "Red Right 1+1", group = "Red Autos")
 public class Red_Right extends OpModeEX {
 
     double targetHeading;
@@ -81,7 +77,7 @@ public class Red_Right extends OpModeEX {
 
         follow.setPath(paths.returnPath("preloadPath"));
 
-        delivery.queueCommand(delivery.preClip);
+        delivery.queueCommand(delivery.preClipFront);
 
         FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
 
@@ -115,11 +111,11 @@ public class Red_Right extends OpModeEX {
                 following = false;
             }
 
-            if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip){
-                delivery.queueCommand(delivery.Clip);
+            if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClipFront){
+                delivery.queueCommand(delivery.clipFront);
             }
 
-            if (follow.isFinished() && delivery.getSlidePositionCM() < 15 && delivery.getCurrentCommand() != delivery.preClip) {
+            if (follow.isFinished() && delivery.getSlidePositionCM() < 10 && delivery.getCurrentCommand() != delivery.preClipFront) {
                 state = autoState.obs_collect;
                 built = building.notBuilt;
             }
@@ -157,19 +153,25 @@ public class Red_Right extends OpModeEX {
                 targetHeading = 180;
             }
 
-            if (collection.clawSensor.isPressed() && !transferring && collection.slidesReset.isPressed()){
-                delivery.queueCommand(delivery.transfer);
-                transferring = true;
-                transferringWait.reset();
-            } else if (transferring && transferringWait.milliseconds() > 500 && transferringWait.milliseconds() < 600) {
-                collection.setClawsState(Collection.clawState.drop);
-            } else if (transferring && transferringWait.milliseconds() > 800) {
-                transferring = false;
-                delivery.queueCommand(delivery.preClip);
+            if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 2 && follow.getXError() < 5){
+                following = false;
+                follow.finishPath();
             }
 
-            if (follow.isFinished() && delivery.getCurrentCommand() != delivery.preClip && !transferring){
-                delivery.queueCommand(delivery.Clip);
+            if (collection.clawSensor.isPressed() && !transferring && collection.slidesReset.isPressed()){
+                delivery.queueCommand(delivery.transfer);
+
+                delivery.queueCommand(collection.transferDrop);
+
+                delivery.queueCommand(delivery.transfer);
+
+                transferring = true;
+            }else if (!collection.clawSensor.isPressed() && transferring && delivery.getCurrentCommand() != delivery.transfer) {
+                delivery.queueCommand(delivery.preClipFront);
+            }
+
+            if (follow.isFinished(2,2) && delivery.getCurrentCommand() != delivery.preClipFront && !transferring && !clipped){
+                delivery.queueCommand(delivery.clipFront);
                 clipped = true;
             }
 
@@ -181,8 +183,9 @@ public class Red_Right extends OpModeEX {
 //                state = autoState.finished;
 //            }
 
-            if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClip && delivery.getSlidePositionCM() < 4) {
+            if (follow.isFinished(2, 2) && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.getSlidePositionCM() < 4) {
                 state = autoState.finished;
+                delivery.setGripperState(Delivery.gripper.drop);
             }
         }
 
