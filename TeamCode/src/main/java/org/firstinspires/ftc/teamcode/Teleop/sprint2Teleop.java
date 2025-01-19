@@ -27,6 +27,8 @@ public class sprint2Teleop extends OpModeEX {
     boolean fastTransfer = true;
     boolean queueCollection = false;
 
+    boolean ranTransfer = false;
+
     boolean autoPreClip = false;
     boolean ranPreClip = false;
 
@@ -59,6 +61,8 @@ public class sprint2Teleop extends OpModeEX {
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
+
+            ranTransfer = false;
         }
 
         /**
@@ -75,6 +79,8 @@ public class sprint2Teleop extends OpModeEX {
             delivery.griperRotateSev.setPosition(0);
 
             collection.queueCommand(collection.collect);
+
+            ranTransfer = false;
         }
 
         if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && fastTransfer){
@@ -113,6 +119,8 @@ public class sprint2Teleop extends OpModeEX {
                 collection.queueCommand(delivery.closeGripper);
 
                 collection.queueCommand(collection.openGripper);
+
+                ranTransfer = true;
             }
         }
 
@@ -136,10 +144,10 @@ public class sprint2Teleop extends OpModeEX {
             collection.griperRotate.setPosition(180);
         }
 
-        if (gamepad2.start){
+        if (gamepad2.dpad_left){
             hang.hang1.setPosition(1);
             hang.hang2.setPosition(1);
-        }else if (gamepad1.dpad_right){
+        }else if (gamepad2.dpad_right){
             hang.hang1.setPosition(0);
             hang.hang2.setPosition(0);
         }else{
@@ -235,24 +243,28 @@ public class sprint2Teleop extends OpModeEX {
             }
 
             queueCollection = false;
+            ranTransfer = true;
         }
 
         if (currentGamepad1.start && lastGamepad1.start && autoPreClip){
             autoPreClip = false;
+            ranPreClip = false;
             gamepad1.rumble(300);
         }else if (currentGamepad1.start && lastGamepad1.start && !autoPreClip){
             autoPreClip = true;
+            ranPreClip = false;
             gamepad1.rumble(300);
         }
 
         /**
          * Delivery code
          * */
-        if (!ranPreClip && autoPreClip && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
+        if (ranTransfer && !ranPreClip && autoPreClip && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
             delivery.queueCommand(delivery.preClipFront);
             delivery.griperRotateSev.setPosition(90);
 
             ranPreClip = true;
+            ranTransfer = false;
         }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
@@ -292,6 +304,8 @@ public class sprint2Teleop extends OpModeEX {
                 collection.queueCommand(delivery.closeGripper);
 
                 collection.queueCommand(collection.openGripper);
+
+                ranTransfer = true;
             }
 
         }
@@ -336,6 +350,9 @@ public class sprint2Teleop extends OpModeEX {
         }
 
         telemetry.addData("loop time ", loopTime);
+        telemetry.addData("pre clip thing ", autoPreClip);
+        telemetry.addData("ran pre clip thing ", ranPreClip);
+        telemetry.addData("ranTransfer ", ranTransfer);
         telemetry.addData("Four bar state ", collection.getFourBarState());
         telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
