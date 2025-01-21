@@ -13,9 +13,10 @@ import dev.weaponboy.command_library.Hardware.ServoDegrees;
 
 @TeleOp
 public class servopoztest extends OpMode {
+
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
-    public ServoDegrees griperRotate= new ServoDegrees();
+    public ServoDegrees griperRotate = new ServoDegrees();
 
     public ServoDegrees PTO = new ServoDegrees();
     MotorEx hangPower = new MotorEx();
@@ -47,8 +48,8 @@ public class servopoztest extends OpMode {
     double secondPivotBehindTransfer = 70;
     double mainPivotBehindTransfer =278;
 
-    double secondPivotTransfer = 115;
-    double mainPivotTransfer = 205;
+    double mainPivotTransfer = 260;
+    double secondTransfer = 134;
 
     double secondPivotBucket =240;
     double mainPivotBucket =100;
@@ -72,8 +73,8 @@ public class servopoztest extends OpMode {
 //        fourBarSecondPivot.initServo("fourBarSecondPivot",hardwareMap);
 //        gripServo.initServo("gripServo", hardwareMap);
 //        griperRotate.initServo("gripperRotate", hardwareMap);
+
         deliveryGrip.initServo("devClaw", hardwareMap);
-//
         deliveryGrip.setRange(180);
 //
         PTO.initServo("hangPTO", hardwareMap);
@@ -85,16 +86,16 @@ public class servopoztest extends OpMode {
         hangPower.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         PTO.setDirection(Servo.Direction.REVERSE);
-//
-//        mainPivot.initServo("mainPivot",hardwareMap);
-//        secondPivot.initServo("secondPivot",hardwareMap);
+
+        mainPivot.initServo("mainPivot",hardwareMap);
+        secondPivot.initServo("secondPivot",hardwareMap);
 //
         ClawSensor = hardwareMap.get(TouchSensor.class, "clawsensor");
         clawIR = hardwareMap.get(TouchSensor.class, "DeliveryReset");
 //        linerRailServo.initServo("linearRailServo", hardwareMap);
 //
-//        mainPivot.setRange(335);
-//        secondPivot.setRange(335);
+        mainPivot.setRange(335);
+        secondPivot.setRange(335);
 //        linerRailServo.setRange(1800);
 //
 //        griperRotate.setDirection(Servo.Direction.REVERSE);
@@ -111,11 +112,12 @@ public class servopoztest extends OpMode {
 //        fourBarSecondPivot.setPosition(175);
 //        fourBarMainPivot.setPosition(158);
 //
-////        secondPivot.setPosition(preSecondClip);
-////        mainPivot.setPosition(120);
-//
-//        mainPivot.setPosition(mainPivotTransfer);
-//        secondPivot.setPosition(secondPivotTransfer);
+//        secondPivot.setPosition(preSecondClip);
+//        mainPivot.setPosition(120);
+
+        mainPivot.setOffset(4.9);
+        mainPivot.setPosition(mainPivotTransfer);
+        secondPivot.setPosition(secondTransfer);
 
         //straight down = 271
         //parallel to hte ground = 190.5
