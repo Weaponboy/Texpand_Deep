@@ -204,6 +204,8 @@ public class Blue_Left_cyclin extends OpModeEX {
             if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(12, 12)) {
                 delivery.queueCommand(delivery.depositAuto);
 
+                collection.setSlideTarget(30);
+
                 pathing = false;
 
                 drop = false;
@@ -263,7 +265,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
-                if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10) {
+                if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 5) {
 
                     autoQueued = true;
 
@@ -376,7 +378,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
-                if (delivery.getSlidePositionCM() < 30 && !autoQueued) {
+                if (delivery.getSlidePositionCM() < 25 && !autoQueued) {
                     collection.queueCommand(collection.transferAuto);
 
                     collection.queueCommand(collection.transferDropAuto);
@@ -475,7 +477,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
-                if (delivery.getSlidePositionCM() < 30 && !autoQueued) {
+                if (delivery.getSlidePositionCM() < 25 && !autoQueued) {
 
                     autoQueued = true;
 
@@ -740,7 +742,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -10 && collection.getSlidePositionCM() < 25) {
+            if (follow.isFinished(10,10) && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 10 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 25) {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
