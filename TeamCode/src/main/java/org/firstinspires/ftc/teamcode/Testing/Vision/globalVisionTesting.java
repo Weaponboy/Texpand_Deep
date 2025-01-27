@@ -102,6 +102,7 @@ public class globalVisionTesting extends OpModeEX {
 //            collection.queueCommand(collection.collect);
 //        }
 //
+
 //        if (gamepad1.left_bumper){
 //            delivery.slideSetPoint(delivery.highChamberFront);
 //            delivery.slides = Delivery.slideState.moving;
@@ -122,11 +123,16 @@ public class globalVisionTesting extends OpModeEX {
             delivery.runReset();
         }
 
-        if (currentGamepad1.x && !lastGamepad1.x && collection.sampleSorterContour.isScanning() && !collection.sampleSorterContour.detections.isEmpty()){
+        if (currentGamepad1.x && !lastGamepad1.x && collection.sampleSorterContour.isScanning()){
             collection.sampleSorterContour.setScanning(false);
             collection.portal.stopStreaming();
+        }
+
+        if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
             collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-        }else if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
+        }
+
+        if (currentGamepad1.x && !lastGamepad1.x && !collection.sampleSorterContour.isScanning()){
             collection.sampleSorterContour.setScanning(true);
             collection.portal.resumeStreaming();
         }
