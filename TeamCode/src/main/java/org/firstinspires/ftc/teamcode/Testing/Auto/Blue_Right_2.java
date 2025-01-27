@@ -110,11 +110,11 @@ public class Blue_Right_2 extends OpModeEX {
         delivery.slideSetPoint(delivery.highChamberFront);
         delivery.slides = Delivery.slideState.moving;
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
 
-        collection.sampleSorterContour.setScanning(true);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.red);
-        collection.sampleSorterContour.closestFirst = true;
+        collection.sampleDetector.setScanning(true);
+        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.red);
+        collection.sampleDetector.closestFirst = true;
     }
 
 
@@ -169,7 +169,7 @@ public class Blue_Right_2 extends OpModeEX {
             if (follow.isFinished(1, 4) && detectingInSub){
                 detectingInSub = false;
                 busyDetecting = true;
-                collection.sampleSorterContour.setScanning(true);
+                collection.sampleDetector.setScanning(true);
                 detectingTimer.reset();
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
             }
@@ -187,11 +187,11 @@ public class Blue_Right_2 extends OpModeEX {
                 collection.setSlideTarget(30);
             }
 
-            if (collection.horizontalMotor.getCurrentPosition()/(492/50)>29 && follow.isFinished(2, 2) && collection.sampleSorterContour.isScanning()){
+            if (collection.horizontalMotor.getCurrentPosition()/(492/50)>29 && follow.isFinished(2, 2) && collection.sampleDetector.isScanning()){
                 collection.setClawsState(Collection.clawState.drop);
-                collection.sampleSorterContour.setScanning(false);
-                collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(RobotPosition, delivery.getSlidePositionCM());
-                collection.queueCommand(collection.autoCollectGlobal);
+                collection.sampleDetector.setScanning(false);
+                collection.sampleMap = collection.sampleDetector.convertPositionsToFieldPositions(RobotPosition, delivery.getSlidePositionCM());
+                collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                 collection.setChamberCollect(false);
             }
 

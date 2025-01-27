@@ -51,8 +51,8 @@ public class Odometry extends SubSystem {
     @Override
     public void init() {
         leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
-        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
-        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
+        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
+        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
 
     }
     public double headingError(double targetHeading){
@@ -86,8 +86,8 @@ public class Odometry extends SubSystem {
     }
 
     public void updateVelocity(){
-        double RRXError = ticksPerCM * ((rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
-        double RRYError = ticksPerCM * backPod.getVelocity();
+        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
+        double RRYError = ticksPerCM * -backPod.getVelocity();
 
 //        currentXVelocity = RRXError;
 //        currentYVelocity = RRYError;
@@ -116,15 +116,15 @@ public class Odometry extends SubSystem {
                 lastLeftPod = currentLeftPod;
                 lastRightPod = currentRightPod;
 
-                currentBackPod = backPod.getCurrentPosition();
+                currentBackPod = -backPod.getCurrentPosition();
                 currentLeftPod = -leftPod.getCurrentPosition();
-                currentRightPod = rightPod.getCurrentPosition();
+                currentRightPod = -rightPod.getCurrentPosition();
 
                 double deltaRight = currentRightPod - lastRightPod;
                 double deltaLeft = currentLeftPod - lastLeftPod;
                 double deltaBack = currentBackPod - lastBackPod;
 
-                double deltaHeading = (ticksPerCM * (deltaLeft - deltaRight)) / (trackWidth+0.22);
+                double deltaHeading = (ticksPerCM * (deltaRight - deltaLeft)) / (trackWidth+0.22);
                 Heading += deltaHeading;
 
                 if (Math.toDegrees(Heading) < 0){

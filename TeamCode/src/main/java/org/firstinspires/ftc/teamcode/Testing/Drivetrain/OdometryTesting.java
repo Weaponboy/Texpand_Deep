@@ -10,9 +10,9 @@ public class OdometryTesting extends OpModeEX {
     @Override
     public void initEX() {
 
-        odometry.startPosition(342.5, 164, 180);
+//        odometry.startPosition(342.5, 164, 180);
 
-//        odometry.startPosition(0, 0, 0);
+        odometry.startPosition(0, 0, 0);
     }
 
     @Override

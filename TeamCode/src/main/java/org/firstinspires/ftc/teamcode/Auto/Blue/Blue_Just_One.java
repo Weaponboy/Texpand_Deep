@@ -68,9 +68,9 @@ public class Blue_Just_One extends OpModeEX {
         paths.addNewPath("dropBasket");
         paths.buildPath(subDeposit);
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
 
-        collection.sampleSorterContour.closestFirst = true;
+        collection.sampleDetector.closestFirst = true;
     }
 
     @Override
@@ -144,7 +144,7 @@ public class Blue_Just_One extends OpModeEX {
 
                 pathing = false;
 
-                collection.queueCommand(collection.extendoTargetPoint(new Point(250, 306)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(250, 306)));
 
                 collection.queueCommand(collection.collect);
 
