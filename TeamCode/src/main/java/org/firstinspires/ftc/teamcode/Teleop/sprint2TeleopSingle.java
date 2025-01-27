@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import android.companion.WifiDeviceFilter;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -45,10 +41,10 @@ public class sprint2TeleopSingle extends OpModeEX {
     int counter = 0;
     @Override
     public void initEX() {
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
-        odometry.startPosition(1000,1000,0);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleSorterContour.closestFirst = true;
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
+        odometry.startPosition(82.5,100,0);
+        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
+        collection.sampleDetector.closestFirst = true;
         paths.addNewPath("DepositPath");
 
 
@@ -80,7 +76,7 @@ public class sprint2TeleopSingle extends OpModeEX {
          * Overwrites
          * */
         if (currentGamepad1.back && !lastGamepad1.back){
-            collection.sampleSorterContour.setScanning(false);
+            collection.sampleDetector.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
@@ -128,8 +124,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
-            collection.setSlideTarget(collection.getSlideTarget()+Math.abs(currentGamepad1.left_stick_y));
-
+            collection.armEndPointIncrement(0, 0.5, false);
             if(collection.getCurrentCommand() == collection.defaultCommand && collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
@@ -138,7 +133,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if (currentGamepad1.left_stick_y > 0.4){
-            collection.setSlideTarget(collection.getSlideTarget()-Math.abs(currentGamepad1.left_stick_y));
+            collection.armEndPointIncrement(0, -0.5, false);
         }
 
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getChamberCollect()){
@@ -166,10 +161,10 @@ public class sprint2TeleopSingle extends OpModeEX {
             collection.queueCommand(collection.openGripper);
         }
 
-        if (currentGamepad1.left_stick_x < -0.3 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.wallCollect)){
-            collection.setRailTargetPosition(collection.getRailPosition()-0.2);
-        }else if (currentGamepad1.left_stick_x > 0.3 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.wallCollect)){
-            collection.setRailTargetPosition(collection.getRailPosition()+0.2);
+        if (currentGamepad1.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
+            collection.armEndPointIncrement(-Math.abs(currentGamepad1.left_stick_x*0.5), 0, false);
+        }else if (currentGamepad1.left_stick_x > 0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
+            collection.armEndPointIncrement(Math.abs(currentGamepad1.left_stick_x*0.5), 0, false);
         }
 
         if (((gamepad1.dpad_left || (currentGamepad1.left_bumper && !lastGamepad1.left_bumper)) && !rotated) && collection.getFourBarState() == Collection.fourBar.preCollect){
@@ -180,6 +175,14 @@ public class sprint2TeleopSingle extends OpModeEX {
             rotateTarget = 180;
             collection.griperRotate.setPosition(rotateTarget);
             rotated = false;
+        }
+
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle < 75 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.manualAngle = 90;
+            collection.armEndPointIncrement(0, 0, false);
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle > 75 && collection.getFourBarState() == Collection.fourBar.preCollect){
+            collection.manualAngle = 0;
+            collection.armEndPointIncrement(0, 0, false);
         }
 
 
@@ -200,7 +203,6 @@ public class sprint2TeleopSingle extends OpModeEX {
             folowing = true;
         }
 
-
         if(((currentGamepad1.right_stick_button && !lastGamepad1.right_stick_button)) && !scanpos){
             delivery.queueCommand(delivery.cameraScan);
             scanpos = true;
@@ -208,12 +210,14 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
-            collection.sampleSorterContour.setScanning(true);
-
             busyDetecting = true;
             detectionTimer.reset();
             counter = 0;
             scanpos = false;
+        }
+
+        if (scanpos && delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
         }
 
 //        if (currentGamepad1.y && !lastGamepad1.y) {
@@ -258,8 +262,6 @@ public class sprint2TeleopSingle extends OpModeEX {
                 collection.queueCommand(collection.openGripper);
             }
 
-
-
             firstDrop = true;
             queueCollection = false;
         }
@@ -268,12 +270,9 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             counter++;
 
-            if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning()){
+            if (limelight.getTargetPoint() != null){
 
-                collection.sampleSorterContour.setScanning(false);
-                collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-
-                collection.queueCommand(collection.autoCollectGlobal);
+                collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                 collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
@@ -285,28 +284,14 @@ public class sprint2TeleopSingle extends OpModeEX {
                 counter = 40;
             }
 
-
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
 
-            collection.sampleSorterContour.setScanning(false);
-            delivery.overrideCurrent(true, delivery.stow);
+            collection.sampleDetector.setScanning(false);
+//            delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
             busyDetecting = false;
-        }
-
-        if (busyDetecting && detectionTimer.milliseconds() > 500 && !collection.sampleSorterContour.detections.isEmpty()){
-            busyDetecting = false;
-            collection.sampleSorterContour.setScanning(false);
-//            collection.portal.stopStreaming();
-            collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-
-            collection.queueCommand(collection.autoCollectGlobal);
-            collection.setChamberCollect(false);
-
-            delivery.overrideCurrent(true, delivery.stow);
-            delivery.runReset();
         }
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
@@ -323,7 +308,6 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             queueCollection = false;
         }
-
         /**
          * Delivery code
          * */
@@ -332,17 +316,6 @@ public class sprint2TeleopSingle extends OpModeEX {
         }else if (currentGamepad1.start && !lastGamepad1.start && delivery.slideMotor.getCurrentPosition() > 100){
             delivery.queueCommand(delivery.clipFront);
         }
-
-//        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer){
-//
-//            collection.queueCommand(collection.transferDrop);
-//
-//            collection.queueCommand(delivery.closeGripper);
-//
-//            collection.queueCommand(collection.openGripper);
-//
-//        }
-
 
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
 
@@ -360,13 +333,12 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         telemetry.addData("loop time ", loopTime);
-        telemetry.addData("rail position ", collection.getRailPosition());
         telemetry.addData("horizontal slides ", collection.horizontalMotor.getCurrentPosition());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
         telemetry.addData("collection current command ", collection.getCurrentCommand());
         telemetry.addData("delivery slides", delivery.slidesReset.isPressed());
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
-        telemetry.addData("claw sensor collection", collection.clawSensor.isPressed());
+        telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
         telemetry.addData("slide target", collection.getSlideTarget());
         telemetry.addData("Target point", collection.sampleMap.size());

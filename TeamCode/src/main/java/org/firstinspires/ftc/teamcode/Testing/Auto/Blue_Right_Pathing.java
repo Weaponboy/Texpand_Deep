@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
@@ -109,11 +108,11 @@ public class Blue_Right_Pathing extends OpModeEX {
 //        delivery.slideSetPonts(delivery.highChamber);
 //        delivery.slides = Delivery.slideState.moving;
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
 
-        collection.sampleSorterContour.setScanning(true);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleSorterContour.closestFirst = true;
+        collection.sampleDetector.setScanning(true);
+        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
+        collection.sampleDetector.closestFirst = true;
     }
 
 

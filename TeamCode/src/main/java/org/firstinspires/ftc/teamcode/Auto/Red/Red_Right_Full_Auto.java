@@ -169,11 +169,11 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
         follow.setPath(paths.returnPath("preloadPath"));
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
 
-        collection.sampleSorterContour.setScanning(false);
-        collection.sampleSorterContour.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleSorterContour.closestFirst = true;
+        collection.sampleDetector.setScanning(false);
+        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
+        collection.sampleDetector.closestFirst = true;
     }
 
     @Override
@@ -297,7 +297,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
                 following = false;
 
-                collection.queueCommand(collection.extendoTargetPoint(new Point(247,59)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(247,59)));
                 TargetExtendo = targetExtendo.one;
 
             }
@@ -351,7 +351,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 collection.queueCommand(collection.preCollectNoRotate(45));
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
-                collection.queueCommand(collection.extendoTargetPoint(new Point(245,33.5)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(245,33.5)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -403,7 +403,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
                 collection.queueCommand(collection.preCollectNoRotate(45));
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
-                collection.queueCommand(collection.extendoTargetPoint(new Point(246,6.5)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246,6.5)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -488,7 +488,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
     public void fullCycle(){
 
-        Point targetExtendoPoint = new Point(333.5, 70.5);
+        Vector2D targetExtendoPoint = new Vector2D(333.5, 70.5);
 
         if (cycleState == CycleState.obs_collect) {
 

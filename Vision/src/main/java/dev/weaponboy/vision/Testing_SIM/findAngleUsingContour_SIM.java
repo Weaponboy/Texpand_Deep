@@ -96,200 +96,200 @@ public class findAngleUsingContour_SIM implements VisionProcessor{
 
             for (int i = 0; i < contours.size(); i++){
                 Rect rect = boundingRect(contours.get(i));
-                if (rect.area() > 2000 && rect.area() < 15000){
+                if (rect.area() > 200 && rect.area() < 150000){
                     redContoursSingle.add(contours.get(i));
                     redRectsSingle.add(rect);
                 }
             }
 
-            ArrayList<Point> centerPointsSingle = new ArrayList<>();
+//            ArrayList<Point> centerPointsSingle = new ArrayList<>();
+//
+//            for (int i = 0; i < redContoursSingle.size(); i++){
+//                centerPointsSingle.add(getContourCenter(redContoursSingle.get(i)));
+//            }
+//
+//            ArrayList<MatOfPoint> sortedContoursSingle = sortContoursByYAndCenter(redContoursSingle, centerPointsSingle, ROI.height, ROI.width);
 
-            for (int i = 0; i < redContoursSingle.size(); i++){
-                centerPointsSingle.add(getContourCenter(redContoursSingle.get(i)));
-            }
-
-            ArrayList<MatOfPoint> sortedContoursSingle = sortContoursByYAndCenter(redContoursSingle, centerPointsSingle, ROI.height, ROI.width);
-
-            for (MatOfPoint contour : sortedContoursSingle) {
+            for (MatOfPoint contour : redContoursSingle) {
                 Imgproc.drawContours(frameSub, Arrays.asList(contour), -1, new Scalar(0, 255, 0), 2);
             }
 
-            MatOfPoint Contour = sortedContoursSingle.get(0);
+//            MatOfPoint Contour = sortedContoursSingle.get(0);
 
-            if (!sortedContoursSingle.isEmpty()) {
-
-//                MatOfPoint Contour = sortedContoursSingle.get(0);
-                Rect rect = boundingRect(Contour);
-
-                if (rect.area() > 4000 && rect.area() < 15000) {
-
-                    MatOfPoint2f contour2f = new MatOfPoint2f(Contour.toArray());
-
-                    RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-
-                    boolean isWidthLonger = rotatedRect.size.width > rotatedRect.size.height;
-                    angle = rotatedRect.angle;
-
-                    if (!isWidthLonger) {
-                        angle = angle + 90;
-                    }
-
-                    if (angle > 90) {
-                        angle -= 180;
-                    }
-
-                    Point contourCenter = getContourCenter(Contour);
-
-                    double angleMultiplier = (0.9) * (Math.abs(angle)) / 100;
-
-                    if (angleMultiplier > 0) {
-                        angleMultiplier = 1 - angleMultiplier;
-                    } else if (angleMultiplier < 0) {
-                        angleMultiplier = -(1 - Math.abs(angleMultiplier));
-                    }
-
-                    double x = calculateAdjustment(contourCenter.y, 496, 0, 0, 20);
-
-                    TargetPoint = new Point(contourCenter.x, contourCenter.y - x);
-                    Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
-                    Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
-
-//                        detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
-
-                } else if (rect.area() > 1000 && rect.area() < 280000) {
-
-                    MatOfPoint closestContour = Contour;
-
-                    Imgproc.drawContours(frameSub, Arrays.asList(closestContour), -1, new Scalar(0, 255, 0), 2);
-
-                    Point lowestPoint = getLowestYHighestXPoint(closestContour);
-                    Point contourCenter = getContourCenter(closestContour);
-
-                    Imgproc.circle(frameSub, lowestPoint, 5, new Scalar(0, 0, 0), -1);
-
-                    List<Point> contourPoints = closestContour.toList();
-
-                    List<Point> angleArray = null;
-
-                    if (lowestPoint.x > contourCenter.x) {
-                        int index = contourPoints.indexOf(lowestPoint);
-                        Point before;
-
-                        before = contourPoints.get(index + 5);
-
-                        if (before.x > lowestPoint.x) {
-                            if (index > 22) {
-                                angleArray = contourPoints.subList(index, index - 20);
-                            } else {
-                                angleArray = contourPoints.subList(contourPoints.size() - 20, contourPoints.size() - 1);
-                            }
-
-                        } else {
-                            if (index + 22 < contourPoints.size()) {
-                                angleArray = contourPoints.subList(index, index + 20);
-                            } else {
-                                angleArray = contourPoints.subList(0, 20);
-                            }
-                        }
-
-                    } else if (lowestPoint.x < contourCenter.x) {
-                        int index = contourPoints.indexOf(lowestPoint);
-                        Point before, after;
-
-                        if (index > 5) {
-                            before = contourPoints.get(index - 5);
-                        } else {
-                            before = contourPoints.get(contourPoints.size() - 6);
-                        }
-
-                        if (before.x > lowestPoint.x) {
-                            if (index < 42) {
-                                angleArray = contourPoints.subList(index + 30, index - 60);
-                            } else {
-                                angleArray = contourPoints.subList(contourPoints.size() - 50, contourPoints.size() - 31);
-                            }
-
-                        } else {
-                            if (index + 22 < contourPoints.size()) {
-                                angleArray = contourPoints.subList(index, index + 20);
-                            } else {
-                                angleArray = contourPoints.subList(0, 20);
-                            }
-                        }
-                    }
-
-                    double slope;
-
-                    if (angleArray != null) {
-                        slope = calculateLineOfBestFit(angleArray);
-                        double angle = Math.toDegrees(Math.atan(slope));
-
-                        for (Point point: angleArray){
-                            Imgproc.circle(frameSub, point, 2, new Scalar(0, 0, 255), -1);
-                        }
-
-                        Point anyPoint = angleArray.get(17);
-                        double yIntercept = anyPoint.y - (slope * anyPoint.x);
-
-                        Point intercept = findLowestYPointOnLine(slope, yIntercept, contourPoints, 10);
-
-//                            Imgproc.circle(frameSub, intercept, 5, new Scalar(0, 0, 0), -1);
-
-                        double relativeXCorrective;
-                        double relativeYCorrective;
-
-                        double angleRadians = 0;
-                        double xError = 0;
-                        double yError = -35;
-
-                        if (angle < 0) {
-                            angle = 110 + (-angle);
-                            angleRadians = Math.toRadians(angle);
-                        } else {
-                            angle = 265 + (-angle);
-                            angleRadians = Math.toRadians(angle);
-                        }
-
-                        angle = Math.toDegrees(Math.atan(slope));
-
-                        this.angle = angle;
-
-                        double angleMultiplier = ((0.9) * (angle) / 100);
-                        double angleMultiplierY = (0.9) * (Math.abs(angle)) / 100;
-
-                        if (angleMultiplier > 0) {
-                            angleMultiplier = 1 - angleMultiplier;
-                        } else if (angleMultiplier < 0) {
-                            angleMultiplier = -(1 - Math.abs(angleMultiplier));
-                        }
-
-                        relativeXCorrective = (yError) * Math.sin(angleRadians) + (xError) * Math.cos(angleRadians);
-                        relativeYCorrective = (yError) * Math.cos(angleRadians) - (xError) * Math.sin(angleRadians);
-
-                        Point centerPoint = new Point(intercept.x + relativeXCorrective, intercept.y + relativeYCorrective);
-
-                        double x = calculateAdjustment(centerPoint.y, 496, 0, 0, 20);
-                        double y = calculateAdjustment(centerPoint.y, 496, 0, 0, 300);
-
-                        if (angle < 30 && angle > -30) {
-                            xError = x * angleMultiplier;
-                            yError = y * angleMultiplierY;
-                        } else {
-                            yError = 0;
-                        }
-
-                        TargetPoint = new Point(intercept.x + relativeXCorrective + xError, intercept.y + relativeYCorrective + yError);
-                        Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
-                        Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 0, 0), 4, 2, false);
-
-                    } else {
-                        Imgproc.putText(frameSub, "Bad", new Point(20, 600), 2, 4, new Scalar(0, 255, 0), 4, 2, false);
-                    }
-
-                }
-
-
-            }
+//            if (!sortedContoursSingle.isEmpty()) {
+//
+////                MatOfPoint Contour = sortedContoursSingle.get(0);
+//                Rect rect = boundingRect(Contour);
+//
+//                if (rect.area() > 4000 && rect.area() < 15000) {
+//
+//                    MatOfPoint2f contour2f = new MatOfPoint2f(Contour.toArray());
+//
+//                    RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
+//
+//                    boolean isWidthLonger = rotatedRect.size.width > rotatedRect.size.height;
+//                    angle = rotatedRect.angle;
+//
+//                    if (!isWidthLonger) {
+//                        angle = angle + 90;
+//                    }
+//
+//                    if (angle > 90) {
+//                        angle -= 180;
+//                    }
+//
+//                    Point contourCenter = getContourCenter(Contour);
+//
+//                    double angleMultiplier = (0.9) * (Math.abs(angle)) / 100;
+//
+//                    if (angleMultiplier > 0) {
+//                        angleMultiplier = 1 - angleMultiplier;
+//                    } else if (angleMultiplier < 0) {
+//                        angleMultiplier = -(1 - Math.abs(angleMultiplier));
+//                    }
+//
+//                    double x = calculateAdjustment(contourCenter.y, 496, 0, 0, 20);
+//
+//                    TargetPoint = new Point(contourCenter.x, contourCenter.y - x);
+//                    Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
+//                    Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 255, 0), 4, 2, false);
+//
+////                        detections.add(new detectionData(System.nanoTime(), TargetPoint, angle));
+//
+//                } else if (rect.area() > 1000 && rect.area() < 280000) {
+//
+//                    MatOfPoint closestContour = Contour;
+//
+//                    Imgproc.drawContours(frameSub, Arrays.asList(closestContour), -1, new Scalar(0, 255, 0), 2);
+//
+//                    Point lowestPoint = getLowestYHighestXPoint(closestContour);
+//                    Point contourCenter = getContourCenter(closestContour);
+//
+//                    Imgproc.circle(frameSub, lowestPoint, 5, new Scalar(0, 0, 0), -1);
+//
+//                    List<Point> contourPoints = closestContour.toList();
+//
+//                    List<Point> angleArray = null;
+//
+//                    if (lowestPoint.x > contourCenter.x) {
+//                        int index = contourPoints.indexOf(lowestPoint);
+//                        Point before;
+//
+//                        before = contourPoints.get(index + 5);
+//
+//                        if (before.x > lowestPoint.x) {
+//                            if (index > 22) {
+//                                angleArray = contourPoints.subList(index, index - 20);
+//                            } else {
+//                                angleArray = contourPoints.subList(contourPoints.size() - 20, contourPoints.size() - 1);
+//                            }
+//
+//                        } else {
+//                            if (index + 22 < contourPoints.size()) {
+//                                angleArray = contourPoints.subList(index, index + 20);
+//                            } else {
+//                                angleArray = contourPoints.subList(0, 20);
+//                            }
+//                        }
+//
+//                    } else if (lowestPoint.x < contourCenter.x) {
+//                        int index = contourPoints.indexOf(lowestPoint);
+//                        Point before, after;
+//
+//                        if (index > 5) {
+//                            before = contourPoints.get(index - 5);
+//                        } else {
+//                            before = contourPoints.get(contourPoints.size() - 6);
+//                        }
+//
+//                        if (before.x > lowestPoint.x) {
+//                            if (index < 42) {
+//                                angleArray = contourPoints.subList(index + 30, index - 60);
+//                            } else {
+//                                angleArray = contourPoints.subList(contourPoints.size() - 50, contourPoints.size() - 31);
+//                            }
+//
+//                        } else {
+//                            if (index + 22 < contourPoints.size()) {
+//                                angleArray = contourPoints.subList(index, index + 20);
+//                            } else {
+//                                angleArray = contourPoints.subList(0, 20);
+//                            }
+//                        }
+//                    }
+//
+//                    double slope;
+//
+//                    if (angleArray != null) {
+//                        slope = calculateLineOfBestFit(angleArray);
+//                        double angle = Math.toDegrees(Math.atan(slope));
+//
+//                        for (Point point: angleArray){
+//                            Imgproc.circle(frameSub, point, 2, new Scalar(0, 0, 255), -1);
+//                        }
+//
+//                        Point anyPoint = angleArray.get(17);
+//                        double yIntercept = anyPoint.y - (slope * anyPoint.x);
+//
+//                        Point intercept = findLowestYPointOnLine(slope, yIntercept, contourPoints, 10);
+//
+////                            Imgproc.circle(frameSub, intercept, 5, new Scalar(0, 0, 0), -1);
+//
+//                        double relativeXCorrective;
+//                        double relativeYCorrective;
+//
+//                        double angleRadians = 0;
+//                        double xError = 0;
+//                        double yError = -35;
+//
+//                        if (angle < 0) {
+//                            angle = 110 + (-angle);
+//                            angleRadians = Math.toRadians(angle);
+//                        } else {
+//                            angle = 265 + (-angle);
+//                            angleRadians = Math.toRadians(angle);
+//                        }
+//
+//                        angle = Math.toDegrees(Math.atan(slope));
+//
+//                        this.angle = angle;
+//
+//                        double angleMultiplier = ((0.9) * (angle) / 100);
+//                        double angleMultiplierY = (0.9) * (Math.abs(angle)) / 100;
+//
+//                        if (angleMultiplier > 0) {
+//                            angleMultiplier = 1 - angleMultiplier;
+//                        } else if (angleMultiplier < 0) {
+//                            angleMultiplier = -(1 - Math.abs(angleMultiplier));
+//                        }
+//
+//                        relativeXCorrective = (yError) * Math.sin(angleRadians) + (xError) * Math.cos(angleRadians);
+//                        relativeYCorrective = (yError) * Math.cos(angleRadians) - (xError) * Math.sin(angleRadians);
+//
+//                        Point centerPoint = new Point(intercept.x + relativeXCorrective, intercept.y + relativeYCorrective);
+//
+//                        double x = calculateAdjustment(centerPoint.y, 496, 0, 0, 20);
+//                        double y = calculateAdjustment(centerPoint.y, 496, 0, 0, 300);
+//
+//                        if (angle < 30 && angle > -30) {
+//                            xError = x * angleMultiplier;
+//                            yError = y * angleMultiplierY;
+//                        } else {
+//                            yError = 0;
+//                        }
+//
+//                        TargetPoint = new Point(intercept.x + relativeXCorrective + xError, intercept.y + relativeYCorrective + yError);
+//                        Imgproc.circle(frameSub, TargetPoint, 5, new Scalar(255, 0, 0), -1);
+//                        Imgproc.putText(frameSub, String.valueOf((int) angle), TargetPoint, 2, 1, new Scalar(0, 0, 0), 4, 2, false);
+//
+//                    } else {
+//                        Imgproc.putText(frameSub, "Bad", new Point(20, 600), 2, 4, new Scalar(0, 255, 0), 4, 2, false);
+//                    }
+//
+//                }
+//
+//
+//            }
 
         }
 

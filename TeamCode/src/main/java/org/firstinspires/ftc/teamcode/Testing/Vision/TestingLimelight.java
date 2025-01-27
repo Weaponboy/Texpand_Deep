@@ -6,50 +6,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
+
 @TeleOp
-public class TestingLimelight extends LinearOpMode {
-
-    private Limelight3A limelight;
-
-    int counter = 0;
+public class TestingLimelight extends OpModeEX {
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void initEX() {
 
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+    }
 
-        limelight.setPollRateHz(100);
-
-        limelight.pipelineSwitch(0);
-
-        waitForStart();
-
-        limelight.start();
-
-        while (opModeIsActive()){
-
-            LLResult result = limelight.getLatestResult();
-
-            if (result != null && result.isValid()) {
-                telemetry.addData("result", result.getPythonOutput()[0]);
-            }
-
-            telemetry.addData("result", result);
-            telemetry.addData("limelight.isRunning();", limelight.isConnected());
-            telemetry.addData("counter", counter);
-            telemetry.update();
-
-//            telemetry.addData("result", result.getPythonOutput()[0]);
-
-//            if(counter > 1500){
-//                counter = 0;
-//                limelight.start();
-//            }else if (counter > 1000){4
-//                limelight.stop();
-//            }
-
-        }
-
+    @Override
+    public void loopEX() {
+        telemetry.addData("limelight results", limelight.getTargetPoint());
+        telemetry.update();
     }
 
 //    @Override

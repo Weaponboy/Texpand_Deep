@@ -13,6 +13,7 @@ import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 import dev.weaponboy.command_library.Subsystems.Hang;
+import dev.weaponboy.command_library.Subsystems.Limelight;
 import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
@@ -26,9 +27,11 @@ public abstract class OpModeEX extends OpMode {
 
     public Odometry odometry = new Odometry(this);
 
+    public Limelight limelight = new Limelight(this);
+
     public Hang hang = new Hang(this);
-//collection, delivery, driveBase, odometry
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry, hang});
+
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {limelight, collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
 
@@ -65,6 +68,7 @@ public abstract class OpModeEX extends OpMode {
     @Override
     public void start() {
         autoTime.reset();
+        limelight.onStart();
         super.start();
     }
 
@@ -84,6 +88,7 @@ public abstract class OpModeEX extends OpMode {
 
         RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
         collection.updateRobotPosition(RobotPosition);
+        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM());
 
         scheduler.execute();
         loopEX();

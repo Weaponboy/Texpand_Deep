@@ -8,12 +8,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Point;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
-import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
-import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @Autonomous
@@ -148,9 +145,9 @@ public class TestingTransferBug extends OpModeEX {
 
         paths.buildPath(spikeTwo);
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
+        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
 
-        collection.sampleSorterContour.closestFirst = true;
+        collection.sampleDetector.closestFirst = true;
 
         collection.setCancelTransfer(false);
 
@@ -168,7 +165,7 @@ public class TestingTransferBug extends OpModeEX {
                 collection.queueCommand(collection.collect);
 
                 //place sample 30cm in front of the robot
-                collection.queueCommand(collection.extendoTargetPoint(new Point(47.5, 0)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(47.5, 0)));
 
                 collection.queueCommand(collection.collect);
 

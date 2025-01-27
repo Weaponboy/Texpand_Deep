@@ -34,7 +34,7 @@ public class hangTest extends OpMode {
         hangPower3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         PTO.initServo("hangPTO", hardwareMap);
-        PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
+        PTO.setRange(new PwmControl.PwmRange(500, 2500), 270);
 //        gripServo.setRange(180);
 //        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
 //
@@ -66,11 +66,11 @@ public class hangTest extends OpMode {
         }
 
         if (gamepad1.start){
-            PTO.setPosition(162);
+            PTO.setPosition(135);
         }
 
         if (gamepad1.a){
-            PTO.setPosition(125);
+            PTO.setPosition(100);
         }
 
         double power = 0;
@@ -84,8 +84,8 @@ public class hangTest extends OpMode {
         }
 
         hangPower.update(power);
-        hangPower2.update(power*0.4);
-        hangPower3.update(power*0.4);
+        hangPower2.update(power*0.3);
+        hangPower3.update(power*0.3);
 
     }
 }
