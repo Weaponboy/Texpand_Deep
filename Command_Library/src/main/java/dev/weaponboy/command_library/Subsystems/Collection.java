@@ -128,6 +128,14 @@ public class Collection extends SubSystem {
     double mainPivotCollect = 75;
     double secondPivotCollect = 320;
 
+
+    /**
+     * wall collect position values
+     * */
+    double mainPivotWallCollect = 165;
+    double secondPivotWallCollect = 230;
+
+
     /**
      * preCollect position values
      * */
