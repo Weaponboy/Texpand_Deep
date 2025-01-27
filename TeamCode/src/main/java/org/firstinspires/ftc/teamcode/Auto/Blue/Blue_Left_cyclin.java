@@ -376,7 +376,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
-                if (delivery.getSlidePositionCM() < 30 && !autoQueued) {
+                if (delivery.getSlidePositionCM() < 35 && !autoQueued) {
                     collection.queueCommand(collection.transferAuto);
 
                     collection.queueCommand(collection.transferDropAuto);
@@ -475,7 +475,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
-                if (delivery.getSlidePositionCM() < 30 && !autoQueued) {
+                if (delivery.getSlidePositionCM() < 35 && !autoQueued) {
 
                     autoQueued = true;
 
@@ -740,7 +740,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 autoQueued = true;
             }
 
-            if (follow.isFinished(10,10) && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -10 && collection.getSlidePositionCM() < 30) {
+            if (follow.isFinished(10,10) && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
                 CycleState = cycleState.basketDrob;
                 cycleBuilt = building.notBuilt;
             }
