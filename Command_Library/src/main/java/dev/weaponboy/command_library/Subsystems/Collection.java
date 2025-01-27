@@ -63,7 +63,7 @@ public class Collection extends SubSystem {
      * */
     double axonMaxTime = (double) 600 / 360;
     double microRoboticTime = (double) 500 / 360;
-    double gripperOpenTime = 200;
+    double gripperOpenTime = 100;
 
     //robot and arm size
     double robotLength = 35 * 0.5;
@@ -564,7 +564,7 @@ public class Collection extends SubSystem {
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*2, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*2);
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotCollect)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotCollect)*1);
 
                     Collect.execute();
 
@@ -1043,7 +1043,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*4);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*2.5);
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
