@@ -65,15 +65,15 @@ public class DriveBase extends SubSystem {
     }
 
     public Command drivePowers (double vertical, double turn, double strafe){
-        this.vertikal =vertical;
-        this.strafe =strafe;
+        this.vertikal = -vertical;
+        this.strafe = strafe;
         this.turn = turn;
 
         return driveCommand;
     }
 
     public Command drivePowers (RobotPower power){
-        this.vertikal =-power.getVertical();
+        this.vertikal = power.getVertical();
         this.strafe = -power.getHorizontal();
         this.turn = power.getPivot();
 
