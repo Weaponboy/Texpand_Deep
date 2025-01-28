@@ -209,7 +209,6 @@ public class Blue_Left_cyclin extends OpModeEX {
                 drop = false;
             }
 
-
             if (follow.isFinished(13, 13) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
                 if (state == targetState) {
                     state = autoState.finished;
@@ -233,9 +232,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
                 PIDToPoint = true;
                 pathing = false;
-            }
-            if (!drop && follow.isFinished(12, 12) && odometry.Heading() > 197){
-                collection.setSlideTarget(25);
             }
 
             if (PIDToPoint && collection.getSlidePositionCM() < 20 && odometry.X() > 318) {
@@ -264,6 +260,10 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (odometry.X() < 320 && !pullDownSlides) {
                     pullDownSlides = true;
                     delivery.queueCommand(delivery.depositAuto);
+                }
+
+                if (!autoQueued && odometry.Heading() < 186){
+                    collection.setSlideTarget(25);
                 }
 
                 if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10) {
@@ -322,7 +322,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(243.5, 328.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328.5)));
 
                     collection.queueCommand(collection.collect);
 
