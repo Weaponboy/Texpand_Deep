@@ -108,22 +108,26 @@ public class natsTeleop extends OpModeEX {
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
-            collection.targetPosition = new Vector2D(20, 20);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
             if (collection.getChamberCollect()){
                 collection.queueCommand(collection.chamberCollect);
             }else {
                 if (fastTransfer){
-                    collection.queueCommand(collection.transferSlam);
 
-                    collection.queueCommand(collection.transferDropSlam);
+                    collection.queueCommand(delivery.transferSample);
+
+                    collection.queueCommand(collection.transferSampleTeleop);
+
+//                    collection.queueCommand(collection.transferDropSampleTeleop);
+
                 }else {
                     collection.queueCommand(collection.transfer);
 
                     collection.queueCommand(collection.transferDrop);
                 }
 
-                collection.queueCommand(delivery.closeGripper);
+                collection.queueCommand(delivery.closeGripperSample);
 
                 collection.queueCommand(collection.openGripper);
 
@@ -374,6 +378,7 @@ public class natsTeleop extends OpModeEX {
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
         telemetry.addData("Resetting slides", collection.manualAngle);
         telemetry.addData("Target point", collection.getSlideTarget());
+        telemetry.addData("current command ", collection.getCurrentCommand() == collection.defaultCommand);
         if (limelight.getTargetPoint() != null){
             telemetry.addData("limelight results X", limelight.getTargetPoint().getTargetPoint().getX());
             telemetry.addData("limelight results Y", limelight.getTargetPoint().getTargetPoint().getY());

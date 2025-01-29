@@ -322,7 +322,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328)));
 
                     collection.queueCommand(collection.collect);
 
@@ -425,7 +425,7 @@ public class Blue_Left_cyclin extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 303)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 302.5)));
 
                     collection.queueCommand(collection.collect);
 
@@ -787,7 +787,7 @@ public class Blue_Left_cyclin extends OpModeEX {
 
             if (state == targetState){
 
-                if (!pathing && !drop && dropTimerDriving.milliseconds() > 500 && dropTimerDriving.milliseconds() < 600){
+                if (!pathing && !drop){
                     delivery.queueCommand(delivery.depositAuto);
                     follow.setPath(paths.returnPath("spikeTwo"));
                     pathing = true;

@@ -21,6 +21,9 @@ public class collectionPosTest extends OpMode {
     public ServoDegrees turret = new ServoDegrees();
     public ServoDegrees hang1 = new ServoDegrees();
 
+    public ServoDegrees mainPivot = new ServoDegrees();
+    public ServoDegrees secondPivot = new ServoDegrees();
+
     public TouchSensor ClawSensor;
     public TouchSensor clawIR;
 
@@ -33,11 +36,21 @@ public class collectionPosTest extends OpMode {
         gripServo.initServo("gripServo", hardwareMap);
         griperRotate.initServo("gripperRotate", hardwareMap);
 
+        mainPivot.initServo("mainPivot",hardwareMap);
+        secondPivot.initServo("secondPivot",hardwareMap);
+
+        mainPivot.setRange(335);
+        secondPivot.setRange(335);
+
         turret.initServo("linearRailServo", hardwareMap);
 
         turret.setRange(335);
         fourBarMainPivot.setRange(335);
         fourBarSecondPivot.setRange(335);
+
+        mainPivot.setOffset(4.9);
+        mainPivot.setPosition(250);
+        secondPivot.setPosition(107);
 
         ClawSensor = hardwareMap.get(TouchSensor.class, "CollectionReset");
         clawIR = hardwareMap.get(TouchSensor.class, "DeliveryReset");
@@ -47,8 +60,9 @@ public class collectionPosTest extends OpMode {
         fourBarSecondPivot.setOffset(-5);
 
         turret.setPosition(167.5);
-        fourBarSecondPivot.setPosition(180);
-        fourBarMainPivot.setPosition(180);
+
+        fourBarSecondPivot.setPosition(128);
+        fourBarMainPivot.setPosition(182);
 
         griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
         gripServo.setRange(180);
