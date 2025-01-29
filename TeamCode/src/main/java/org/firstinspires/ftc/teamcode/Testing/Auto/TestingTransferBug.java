@@ -145,10 +145,6 @@ public class TestingTransferBug extends OpModeEX {
 
         paths.buildPath(spikeTwo);
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.closestFirst = true;
-
         collection.setCancelTransfer(false);
 
     }

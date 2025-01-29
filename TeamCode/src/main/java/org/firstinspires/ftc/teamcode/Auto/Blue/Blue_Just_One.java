@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Auto.Blue;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.opencv.core.Point;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -67,10 +65,6 @@ public class Blue_Just_One extends OpModeEX {
 
         paths.addNewPath("dropBasket");
         paths.buildPath(subDeposit);
-
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.closestFirst = true;
     }
 
     @Override
@@ -148,7 +142,7 @@ public class Blue_Just_One extends OpModeEX {
 
                 collection.queueCommand(collection.collect);
 
-                collection.queueCommand(collection.transfer);
+                collection.queueCommand(collection.transferSlowBackup);
 
                 collection.queueCommand(collection.transferDrop);
 

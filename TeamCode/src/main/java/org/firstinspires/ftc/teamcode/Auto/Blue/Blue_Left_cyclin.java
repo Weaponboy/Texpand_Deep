@@ -167,10 +167,6 @@ public class Blue_Left_cyclin extends OpModeEX {
 
         paths.buildPath(spikeTwo);
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.closestFirst = true;
-
         collection.setCancelTransfer(true);
 
     }

@@ -71,7 +71,7 @@ public class servopoztest extends OpMode {
 
 //        fourBarMainPivot.initServo("fourBarMainPivot",hardwareMap);
 //        fourBarSecondPivot.initServo("fourBarSecondPivot",hardwareMap);
-//        gripServo.initServo("gripServo", hardwareMap);
+        gripServo.initServo("gripServo", hardwareMap);
 //        griperRotate.initServo("gripperRotate", hardwareMap);
 
         deliveryGrip.initServo("devClaw", hardwareMap);
@@ -79,7 +79,7 @@ public class servopoztest extends OpMode {
 //
         PTO.initServo("hangPTO", hardwareMap);
         PTO.setRange(new PwmControl.PwmRange(600, 2500), 270);
-//        gripServo.setRange(180);
+        gripServo.setRange(180);
 //        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
 //
         hangPower.initMotor("hangPower", hardwareMap);
@@ -158,10 +158,12 @@ public class servopoztest extends OpMode {
 //
         if (gamepad1.dpad_up){
             deliveryGrip.setPosition(102);
+            gripServo.setPosition(43);
         }
 
         if (gamepad1.dpad_down){
             deliveryGrip.setPosition(145);
+            gripServo.setPosition(122);
         }
 
         double power = 0;

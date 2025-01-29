@@ -39,6 +39,34 @@ public class Limelight extends SubSystem {
         isScanningInt = isScanning ? 1 : 0;
     }
 
+    public enum color {
+        red,
+        yellow,
+        blue
+    }
+
+    public color getTargetColor() {
+        return targetColor;
+    }
+
+    public void setTargetColor(color targetColor) {
+        this.targetColor = targetColor;
+        switch (targetColor){
+            case red:
+                limelight.pipelineSwitch(0);
+                break;
+            case yellow:
+                limelight.pipelineSwitch(2);
+                break;
+            case blue:
+                limelight.pipelineSwitch(3);
+                break;
+            default:
+        }
+    }
+
+    private color targetColor = color.yellow;
+
     public boolean isScanning = false;
     public boolean closeFirst = true;
 
