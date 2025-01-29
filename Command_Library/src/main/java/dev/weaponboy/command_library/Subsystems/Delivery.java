@@ -74,6 +74,12 @@ public class Delivery extends SubSystem {
     double secondTransfer = 145;
 
     /**
+     * transfer position values
+     * */
+    double mainPivotSampleTransfer = 250;
+    double secondSampleTransfer = 107;
+
+    /**
      * Bucket deposit position values
      * */
     double mainPivotDepo = 100;
@@ -177,6 +183,13 @@ public class Delivery extends SubSystem {
             }
     );
 
+    private Command TransferSample = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotSampleTransfer);
+                secondPivot.setPosition(secondSampleTransfer);
+            }
+    );
+
     public Command Deposit = new Execute(
             () -> {
                 mainPivot.setPosition(mainPivotDepo);
@@ -203,6 +216,18 @@ public class Delivery extends SubSystem {
             () -> {
                 runResetHold();
                 Transfer.execute();
+                fourbarState = fourBarState.transfer;
+            },
+            () -> {
+
+            },
+            () -> !resettingSlides
+    );
+
+    public LambdaCommand transferSample = new LambdaCommand(
+            () -> {
+                runResetHold();
+                TransferSample.execute();
                 fourbarState = fourBarState.transfer;
             },
             () -> {
@@ -341,6 +366,17 @@ public class Delivery extends SubSystem {
            },
            () -> fourBarTimer.milliseconds() > transferWaitTime
    );
+
+    public Command closeGripperSample = new LambdaCommand(
+            () -> {
+                fourBarTimer.reset();
+                transferWaitTime = 200;
+            },
+            () -> {
+                gripperState = gripper.grab;
+            },
+            () -> fourBarTimer.milliseconds() > transferWaitTime
+    );
 
     public Command stow = new LambdaCommand(
             () -> {
