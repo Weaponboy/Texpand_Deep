@@ -45,7 +45,7 @@ public class Limelight extends SubSystem {
     public boolean resultIsValid = false;
 
     int isScanningInt = 1;
-    int closeFirstInt = 1;
+    int closeFirstInt = 0;
 
     public LLResult result;
 
