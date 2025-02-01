@@ -26,13 +26,14 @@
             <Servo name="secondPivot" port="0"/>
             <Servo name="hangPTO" port="4"/>
             <Servo name="devClawRotate" port="3"/>
-            <AnalogInput name="hdt" port="0"/>
-            <AnalogInput name="turretFeedback" port="1"/>
-            <AnalogInput name="axon3" port="2"/>
+            <AnalogInput name="axon3" port="1"/>
             <RevTouchSensor name="CollectionReset" port="5"/>
             <RevTouchSensor name="DeliveryReset" port="4"/>
             <RevTouchSensor name="clawsensor" port="0"/>
-            <RevTouchSensor name="clawIR" port="3"/>
+            <RevTouchSensor name="clawIR" port="2"/>
+            <AnalogInput name="backRight" port="2"/>
+            <AnalogInput name="backLeft" port="3"/>
+            <AnalogInput name="right" port="0"/>
             <ControlHubImuBHI260AP name="imu" port="0" bus="0"/>
         </LynxModule>
     </LynxUsbDevice>

@@ -12,7 +12,7 @@ public class DistanceSensor {
     }
 
     public double getPosition(){
-        return (sensor.getVoltage() / (3.3 / 1024) * 6) - 300;
+        return (sensor.getVoltage() / (3.3 / 1024) * 6) - 220;
     }
 
 }
