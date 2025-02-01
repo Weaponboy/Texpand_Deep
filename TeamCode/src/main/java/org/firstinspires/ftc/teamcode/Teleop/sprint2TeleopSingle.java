@@ -41,10 +41,7 @@ public class sprint2TeleopSingle extends OpModeEX {
     int counter = 0;
     @Override
     public void initEX() {
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
         odometry.startPosition(82.5,100,0);
-        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleDetector.closestFirst = true;
         paths.addNewPath("DepositPath");
 
 
@@ -76,7 +73,6 @@ public class sprint2TeleopSingle extends OpModeEX {
          * Overwrites
          * */
         if (currentGamepad1.back && !lastGamepad1.back){
-            collection.sampleDetector.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
@@ -93,28 +89,14 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if ((currentGamepad1.left_stick_button && !(lastGamepad1.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
 
-                if(collection.getFourBarState() == Collection.fourBar.preCollect) {
-                    collection.queueCommand(collection.collect);
-                    delivery.setGripperState(Delivery.gripper.drop);
-                }
+            if(collection.getFourBarState() == Collection.fourBar.preCollect) {
+                collection.queueCommand(collection.collect);
+                delivery.setGripperState(Delivery.gripper.drop);
+            }
 
-                if (collection.getChamberCollect()){
-                    collection.queueCommand(collection.chamberCollect);
-                }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
-                    collection.setClawsState(Collection.clawState.drop);
-                }else {
-                    collection.queueCommand(delivery.transferSample);
+            collection.queueCommand(collection.transfer);
 
-                    collection.queueCommand(collection.transferSampleTeleop);
-
-//                    collection.queueCommand(collection.transferDropSampleTeleop);
-
-                    collection.queueCommand(delivery.closeGripper);
-
-                    collection.queueCommand(collection.openGripper);
-                }
-
-                firstDrop = true;
+            firstDrop = true;
 
         }
 
@@ -131,18 +113,18 @@ public class sprint2TeleopSingle extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
                 firstDrop = false;
             }
-        }
-
-        if (currentGamepad1.left_stick_y > 0.4){
+        }else if (currentGamepad1.left_stick_y > 0.4){
             collection.armEndPointIncrement(0, -0.5, false);
+        }else if (collection.slidesReset.isPressed()){
+            collection.targetPositionManuel = new Vector2D(20, 20);
         }
 
-        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getChamberCollect()){
-            collection.setChamberCollect(false);
-            gamepad1.rumble(5);
-        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && !collection.getChamberCollect()){
-            collection.setChamberCollect(true);
-            gamepad1.rumble(5);
+        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.normalSlam){
+            collection.setTransferType(Collection.tranfer.normalSlam);
+            gamepad1.rumble(300);
+        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.sample){
+            collection.setTransferType(Collection.tranfer.sample);
+            gamepad1.rumble(300);
         }
 
         if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() != Collection.fourBar.wallCollect){
@@ -250,19 +232,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            if (collection.getChamberCollect()){
-                collection.queueCommand(collection.chamberCollect);
-            }else {
-                collection.queueCommand(delivery.transferSample);
-
-                collection.queueCommand(collection.transferSampleTeleop);
-
-//                    collection.queueCommand(collection.transferDropSampleTeleop);
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
-            }
+            collection.queueCommand(collection.transfer);
 
             firstDrop = true;
             queueCollection = false;
@@ -272,10 +242,9 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             counter++;
 
-            if (limelight.getTargetPoint() != null){
+            if (limelight.getTargetPoint() != null && counter > 2){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
-                collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
@@ -288,8 +257,6 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
 
-            collection.sampleDetector.setScanning(false);
-//            delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
@@ -298,15 +265,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(delivery.transferSample);
-
-            collection.queueCommand(collection.transferSampleTeleop);
-
-//                    collection.queueCommand(collection.transferDropSampleTeleop);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
+            collection.queueCommand(collection.transfer);
 
             queueCollection = false;
         }
@@ -344,10 +303,6 @@ public class sprint2TeleopSingle extends OpModeEX {
         telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
         telemetry.addData("slide target", collection.getSlideTarget());
-        telemetry.addData("Target point", collection.sampleMap.size());
-        for (detectionData detection: collection.sampleMap){
-            telemetry.addData("Target point", detection.getTargetPoint());
-        }
         telemetry.update();
     }
 }

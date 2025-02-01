@@ -5,8 +5,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.opencv.core.Point;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -169,11 +167,6 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
         follow.setPath(paths.returnPath("preloadPath"));
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.setScanning(false);
-        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleDetector.closestFirst = true;
     }
 
     @Override
@@ -531,7 +524,7 @@ public class Red_Right_Full_Auto extends OpModeEX {
 
                 collection.queueCommand(collection.collect);
 
-                collection.queueCommand(collection.transfer);
+                collection.queueCommand(collection.transferSlowBackup);
 
                 collection.queueCommand(delivery.transfer);
 

@@ -107,12 +107,6 @@ public class Blue_Right_Pathing extends OpModeEX {
 //
 //        delivery.slideSetPonts(delivery.highChamber);
 //        delivery.slides = Delivery.slideState.moving;
-
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.setScanning(true);
-        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleDetector.closestFirst = true;
     }
 
 

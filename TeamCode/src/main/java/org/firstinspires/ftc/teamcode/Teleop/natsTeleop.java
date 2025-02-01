@@ -4,15 +4,11 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.security.acl.Group;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
-import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
-import dev.weaponboy.vision.detectionData;
 
 @TeleOp(name = "AatsTeleop", group = "AAAAAAt the top")
 public class natsTeleop extends OpModeEX {
@@ -34,12 +30,7 @@ public class natsTeleop extends OpModeEX {
 
     @Override
     public void initEX() {
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
         odometry.startPosition(82.5,100,0);
-
-        collection.sampleDetector.setTargetColor(findAngleUsingContour.TargetColor.yellow);
-        collection.sampleDetector.closestFirst = true;
     }
 
     @Override
@@ -56,12 +47,11 @@ public class natsTeleop extends OpModeEX {
          * Overwrites
          * */
         if (currentGamepad2.back && !lastGamepad2.back){
-            collection.sampleDetector.setScanning(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
-            collection.targetPosition = new Vector2D(20, 20);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
             cameraScan = false;
             ranTransfer = false;
@@ -97,11 +87,11 @@ public class natsTeleop extends OpModeEX {
             fastTransfer = true;
         }
 
-        if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getChamberCollect()){
-            collection.setChamberCollect(false);
+        if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getTransferType() == Collection.tranfer.chamberCollect){
+            collection.setTransferType(Collection.tranfer.normalSlam);
             gamepad2.rumble(100);
-        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !collection.getChamberCollect()){
-            collection.setChamberCollect(true);
+        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getTransferType() != Collection.tranfer.chamberCollect){
+            collection.setTransferType(Collection.tranfer.chamberCollect);
             gamepad2.rumble(100);
         }
 
@@ -110,29 +100,10 @@ public class natsTeleop extends OpModeEX {
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
             collection.targetPositionManuel = new Vector2D(20, 20);
 
-            if (collection.getChamberCollect()){
-                collection.queueCommand(collection.chamberCollect);
-            }else {
-                if (fastTransfer){
+            collection.queueCommand(collection.transfer);
 
-                    collection.queueCommand(delivery.transferSample);
+            ranTransfer = true;
 
-                    collection.queueCommand(collection.transferSampleTeleop);
-
-//                    collection.queueCommand(collection.transferDropSampleTeleop);
-
-                }else {
-                    collection.queueCommand(collection.transfer);
-
-                    collection.queueCommand(collection.transferDrop);
-                }
-
-                collection.queueCommand(delivery.closeGripperSample);
-
-                collection.queueCommand(collection.openGripper);
-
-                ranTransfer = true;
-            }
         }
 
         if (currentGamepad2.left_stick_y < -0.4){
@@ -179,6 +150,7 @@ public class natsTeleop extends OpModeEX {
 
         if (currentGamepad2.a && !lastGamepad2.a){
             collection.setClawsState(Collection.clawState.drop);
+            collection.queueCommand(collection.collect);
         }
 
         if (currentGamepad2.y && !lastGamepad2.y && delivery.getSlidePositionCM() > 15){
@@ -199,7 +171,6 @@ public class natsTeleop extends OpModeEX {
             if (limelight.getTargetPoint() != null){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
-                collection.setChamberCollect(false);
 
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
@@ -211,46 +182,19 @@ public class natsTeleop extends OpModeEX {
             }
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
-
-            collection.sampleDetector.setScanning(false);
-//            delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
             busyDetecting = false;
         }
 
-        if (collection.sampleDetector.isScanning() && !collection.sampleDetector.detections.isEmpty() && delivery.getSlidePositionCM() > 10 && odometry.getXVelocity() < 10){
-            gamepad2.rumble(5);
-        }
-
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.targetPosition = new Vector2D(20, 20);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
-            if (collection.getChamberCollect()){
-                collection.queueCommand(collection.chamberCollect);
-            }else {
-                if (fastTransfer){
-                    collection.queueCommand(collection.transferSlam);
-
-//                    collection.queueCommand(delivery.transfer);
-
-                    collection.queueCommand(collection.transferDropSlam);
-                }else {
-                    collection.queueCommand(collection.transfer);
-
-//                    collection.queueCommand(delivery.transfer);
-
-                    collection.queueCommand(collection.transferDrop);
-                }
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
-            }
+            collection.queueCommand(collection.transfer);
 
             queueCollection = false;
             ranTransfer = true;
@@ -285,6 +229,22 @@ public class natsTeleop extends OpModeEX {
             ranPreClip = false;
         }
 
+        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
+            delivery.queueCommand(delivery.preClipFront);
+            delivery.griperRotateSev.setPosition(90);
+        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
+            delivery.queueCommand(delivery.clipFront);
+            ranPreClip = false;
+        }
+
+        if (currentGamepad1.x && !lastGamepad1.x && collection.getFourBarState() == Collection.fourBar.preClipLow){
+            collection.queueCommand(collection.clip);
+        }
+
+        if (currentGamepad1.a && !lastGamepad1.a){
+            collection.setTransferType(Collection.tranfer.preClip);
+        }
+
         if ((currentGamepad2.left_stick_button && !(lastGamepad2.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
 
             if(collection.getFourBarState() == Collection.fourBar.preCollect) {
@@ -294,33 +254,11 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.targetPosition = new Vector2D(20, 20);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
-            if (collection.getChamberCollect()){
-                collection.queueCommand(collection.chamberCollect);
-            }else if(collection.getFourBarState() == Collection.fourBar.stowedChamber){
-                collection.setClawsState(Collection.clawState.drop);
-            }else {
-                if (fastTransfer){
-                    collection.queueCommand(collection.transferSlam);
+            collection.queueCommand(collection.transfer);
 
-//                    collection.queueCommand(delivery.transfer);
-
-                    collection.queueCommand(collection.transferDropSlam);
-                }else {
-                    collection.queueCommand(collection.transfer);
-
-//                    collection.queueCommand(delivery.transfer);
-
-                    collection.queueCommand(collection.transferDrop);
-                }
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
-
-                ranTransfer = true;
-            }
+            ranTransfer = true;
 
         }
 
@@ -328,25 +266,9 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.targetPosition = new Vector2D(20, 20);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
-            if (collection.getChamberCollect()){
-                collection.queueCommand(collection.chamberCollect);
-            }else {
-                if (fastTransfer){
-                    collection.queueCommand(collection.transferSlam);
-
-                    collection.queueCommand(collection.transferDropSlam);
-                }else {
-                    collection.queueCommand(collection.transfer);
-
-                    collection.queueCommand(collection.transferDrop);
-                }
-
-                collection.queueCommand(delivery.closeGripper);
-
-                collection.queueCommand(collection.openGripper);
-            }
+            collection.queueCommand(collection.transfer);
 
         }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.getSlidePositionCM() < 50 && delivery.slideTarget != delivery.highBasket && collection.getCurrentCommand() == collection.defaultCommand){
 

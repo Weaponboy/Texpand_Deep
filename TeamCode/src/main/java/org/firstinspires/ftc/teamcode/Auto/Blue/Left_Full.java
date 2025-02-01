@@ -121,10 +121,6 @@ public class Left_Full extends OpModeEX {
 
         follow.setPath(paths.returnPath("dropBasket"));
 
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.closestFirst = true;
-
         follow.setPath(paths.returnPath("collectSub"));
 
         paths.addNewPath("spikeOne");
@@ -235,7 +231,7 @@ public class Left_Full extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transfer);
+                    collection.queueCommand(collection.transferSlowBackup);
 
                     collection.queueCommand(delivery.transfer);
 
@@ -336,7 +332,7 @@ public class Left_Full extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transfer);
+                    collection.queueCommand(collection.transferSlowBackup);
 
                     collection.queueCommand(delivery.transfer);
 
@@ -436,7 +432,7 @@ public class Left_Full extends OpModeEX {
 
                     collection.queueCommand(collection.collect);
 
-                    collection.queueCommand(collection.transfer);
+                    collection.queueCommand(collection.transferSlowBackup);
 
                     collection.queueCommand(delivery.transfer);
 

@@ -88,12 +88,6 @@ public class Testing_Sub_Failsafe extends OpModeEX {
     @Override
     public void initEX() {
         odometry.startPosition(200, 200, 235);
-
-        FtcDashboard.getInstance().startCameraStream(collection.sampleDetector, 30);
-
-        collection.sampleDetector.closestFirst = true;
-
-        collection.setCancelTransfer(true);
     }
 
     @Override
@@ -158,8 +152,6 @@ public class Testing_Sub_Failsafe extends OpModeEX {
                 headingOverride = true;
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
-                collection.sampleDetector.setScanning(true, 5);
-
                 busyDetecting = true;
                 detectionTimer.reset();
                 counter = 0;
@@ -209,20 +201,20 @@ public class Testing_Sub_Failsafe extends OpModeEX {
 
                 counter++;
 
-                if (!collection.sampleDetector.detections.isEmpty() && !collection.sampleDetector.isScanning() && counter > 12){
-
-                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
-                        collection.queueCommand(collection.collect);
-                    }
-
-                    collection.sampleMap = collection.sampleDetector.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-
-                    collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
-
-                    collect = true;
-
-                    counter = 40;
-                }
+//                if (!collection.sampleDetector.detections.isEmpty() && !collection.sampleDetector.isScanning() && counter > 12){
+//
+//                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
+//                        collection.queueCommand(collection.collect);
+//                    }
+//
+//                    collection.sampleMap = collection.sampleDetector.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+//
+//                    collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
+//
+//                    collect = true;
+//
+//                    counter = 40;
+//                }
 
             }
 
@@ -240,8 +232,6 @@ public class Testing_Sub_Failsafe extends OpModeEX {
 
             } else if (delivery.getSlidePositionCM() > 15 && collection.isTransferCanceled() && Math.abs(delivery.slideMotor.getVelocity()) < 10) {
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-
-                collection.sampleDetector.setScanning(true, 5);
 
                 busyDetecting = false;
 
