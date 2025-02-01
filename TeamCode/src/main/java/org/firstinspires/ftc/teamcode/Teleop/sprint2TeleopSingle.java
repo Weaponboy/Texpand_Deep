@@ -94,8 +94,6 @@ public class sprint2TeleopSingle extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
             }
 
-            collection.targetPositionManuel = new Vector2D(20, 20);
-
             collection.queueCommand(collection.transfer);
 
             firstDrop = true;
@@ -115,10 +113,10 @@ public class sprint2TeleopSingle extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
                 firstDrop = false;
             }
-        }
-
-        if (currentGamepad1.left_stick_y > 0.4){
+        }else if (currentGamepad1.left_stick_y > 0.4){
             collection.armEndPointIncrement(0, -0.5, false);
+        }else if (collection.slidesReset.isPressed()){
+            collection.targetPositionManuel = new Vector2D(20, 20);
         }
 
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.normalSlam){
@@ -234,8 +232,6 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.targetPositionManuel = new Vector2D(20, 20);
-
             collection.queueCommand(collection.transfer);
 
             firstDrop = true;
@@ -246,7 +242,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
             counter++;
 
-            if (limelight.getTargetPoint() != null){
+            if (limelight.getTargetPoint() != null && counter > 2){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
 
@@ -268,8 +264,6 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
-
-            collection.targetPositionManuel = new Vector2D(20, 20);
 
             collection.queueCommand(collection.transfer);
 

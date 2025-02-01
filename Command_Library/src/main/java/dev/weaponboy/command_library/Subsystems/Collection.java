@@ -942,13 +942,13 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
-                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (griperRotate.getPositionDegrees() < 100)){
+                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (griperRotate.getPositionDegrees() < 100 || (turret.getPositionDegrees() - turretTransferPosition) > 20)  || (turret.getPositionDegrees() - turretTransferPosition) < -20){
 
                     fourBarTimer.reset();
 
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*1);
-                    fourBarTargetState = fourBar.collect;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(turret.getPositionDegrees()-turretTransferPosition)*3);
+                    fourBarTargetState = fourBar.transferInt;
 
                     fourBarMainPivot.setPosition(mainPivotPreCollect+20);
                     fourBarSecondPivot.setPosition(secondPivotPreCollect);
@@ -956,11 +956,11 @@ public class Collection extends SubSystem {
                     griperRotate.setPosition(rotateTransfer);
                     turret.setPosition(turretTransferPosition);
 
-                }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                }else if (!cancelTransfer && fourBarState == fourBar.transferInt && clawsState == clawState.grab) {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*2.8);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*4);
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
@@ -991,9 +991,9 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-//                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
-//                    transferCounter++;
-//                }
+                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+                    transferCounter++;
+                }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
@@ -1008,6 +1008,8 @@ public class Collection extends SubSystem {
                     clearQueue();
                 }
 
+                System.out.println("counter: " + transferCounter);
+                System.out.println("fourBarMainPivot.getPositionDegrees(): " + fourBarMainPivot.getPositionDegrees());
                 System.out.println("cancel transfer: " + cancelTransfer);
 
             },
@@ -1126,11 +1128,15 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-(secondPivotPreCollect - 120))*2);
                     fourBarTargetState = fourBar.transferInt;
 
-                    fourBarMainPivot.setPosition(mainPivotPreCollect+20);
-                    fourBarSecondPivot.setPosition(secondPivotPreCollect-120);
+                    if(isCancelTransferActive() && !breakBeam.isPressed()){
 
-                    griperRotate.setPosition(rotateTransfer);
-                    turret.setPosition(turretTransferPosition);
+                    }else {
+                        fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+                        fourBarSecondPivot.setPosition(secondPivotPreCollect-120);
+
+                        griperRotate.setPosition(rotateTransfer);
+                        turret.setPosition(turretTransferPosition);
+                    }
 
                 }else if (!cancelTransfer && fourBarState == fourBar.transferInt && clawsState == clawState.grab) {
 
@@ -1161,9 +1167,9 @@ public class Collection extends SubSystem {
                     transferToFar = false;
                 }
 
-//                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
-//                    transferCounter++;
-//                }
+                if (clawsState == clawState.grab && fourBarTargetState != fourBar.collect){
+                    transferCounter++;
+                }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;

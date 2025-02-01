@@ -53,10 +53,10 @@ public class Limelight extends SubSystem {
         this.targetColor = targetColor;
         switch (targetColor){
             case red:
-                limelight.pipelineSwitch(0);
+                limelight.pipelineSwitch(2);
                 break;
             case yellow:
-                limelight.pipelineSwitch(2);
+                limelight.pipelineSwitch(0);
                 break;
             case blue:
                 limelight.pipelineSwitch(3);
@@ -70,10 +70,22 @@ public class Limelight extends SubSystem {
     public boolean isScanning = false;
     public boolean closeFirst = true;
 
+    public boolean isSortHorizontal() {
+        return sortHorizontal;
+    }
+
+    public void setSortHorizontal(boolean sortHorizontal) {
+        this.sortHorizontal = sortHorizontal;
+        horInt = sortHorizontal ? 1 : 0;
+    }
+
+    public boolean sortHorizontal = true;
+
     public boolean resultIsValid = false;
 
     int isScanningInt = 1;
     int closeFirstInt = 0;
+    int horInt = 0;
 
     public LLResult result;
 
@@ -94,30 +106,34 @@ public class Limelight extends SubSystem {
     public void execute() {
         result = limelight.getLatestResult();
 
-        double[] pythonOutput = result.getPythonOutput();
-        targetPoints.clear();
+        if (result != null){
+            double[] pythonOutput = result.getPythonOutput();
 
-        if (pythonOutput[0] != 0 && pythonOutput[1] != 0){
-            targetPoints.add(new TargetSample(new Vector2D(pythonOutput[0], pythonOutput[1]), pythonOutput[2]));
-        }
+            targetPoints.clear();
 
-        if (pythonOutput[3] != 0 && pythonOutput[4] != 0){
-            targetPoints.add(new TargetSample(new Vector2D(pythonOutput[3], pythonOutput[4]), pythonOutput[5]));
+            if (pythonOutput[0] != 0 && pythonOutput[1] != 0){
+                targetPoints.add(new TargetSample(new Vector2D(pythonOutput[0], pythonOutput[1]), pythonOutput[2]));
+            }
+
+            if (pythonOutput[3] != 0 && pythonOutput[4] != 0){
+                targetPoints.add(new TargetSample(new Vector2D(pythonOutput[3], pythonOutput[4]), pythonOutput[5]));
+            }
         }
 
     }
 
     public void updatePythonInputs(double X, double Y, double Heading, double SlideCM){
-        double[] inputs = {isScanningInt, closeFirstInt, X, Y, Heading, SlideCM};
+        double[] inputs = {isScanningInt, closeFirstInt, X, Y, Heading, SlideCM, horInt, 0};
         limelight.updatePythonInputs(inputs);
     }
 
-    public TargetSample getTargetPoint(){
+    public void switchPipeline(int pipelineIndex){
+        limelight.pipelineSwitch(pipelineIndex);
+    }
 
+    public TargetSample getTargetPoint(){
         if (!targetPoints.isEmpty()){
-            TargetSample targetSample = targetPoints.get(0);
-//            targetPoints.remove(0);
-            return targetSample;
+            return targetPoints.get(0);
         }else {
             return null;
         }

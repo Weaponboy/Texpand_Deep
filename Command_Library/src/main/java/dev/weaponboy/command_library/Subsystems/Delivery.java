@@ -459,7 +459,7 @@ public class Delivery extends SubSystem {
                 if (getSlidePositionCM() > 15 && fourbarState != fourBarState.transferringStates) {
 
                     fourBarTimer.reset();
-                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipFront)*8, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*8);
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipFront)*25, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*25);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClip;
                     gripperState = gripper.slightRelease;
