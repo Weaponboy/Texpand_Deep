@@ -912,8 +912,8 @@ public class Sample_full extends OpModeEX {
             }
 
             if (collection.isTransferCanceled() && subRetry && collection.getSlideTarget() != 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
-                CycleState = Blue_Left_cyclin.cycleState.basketDrob;
-                cycleBuilt = Blue_Left_cyclin.building.notBuilt;
+                CycleState = cycleState.basketDrob;
+                cycleBuilt = building.notBuilt;
 
                 delivery.setGripperState(Delivery.gripper.grab);
 
