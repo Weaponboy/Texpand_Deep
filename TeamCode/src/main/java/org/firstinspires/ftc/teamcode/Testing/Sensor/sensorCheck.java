@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.Testing;
+package org.firstinspires.ftc.teamcode.Testing.Sensor;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import dev.weaponboy.command_library.Hardware.DistanceSensor;
-import dev.weaponboy.command_library.Hardware.MotorEx;
-import dev.weaponboy.command_library.Hardware.ServoDegrees;
 
 @TeleOp
 public class sensorCheck extends OpMode {
