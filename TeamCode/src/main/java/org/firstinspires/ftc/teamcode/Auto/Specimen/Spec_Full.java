@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.Auto.Red;
+package org.firstinspires.ftc.teamcode.Auto.Specimen;
 
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -14,10 +13,9 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@Autonomous(name = "Red Right", group = "Red Autos")
-public class Red_Right_Full_Auto extends OpModeEX {
+@Autonomous(name = "Spec_Full", group = "AA Comp Autos")
+public class Spec_Full extends OpModeEX {
 
     double targetHeading;
 

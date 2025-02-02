@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Testing.Drivetrain;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,7 +11,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Odometry;
 
 @TeleOp
-//@Disabled
+@Disabled
 public class TestMaxVelocity extends OpModeEX {
 
     ElapsedTime elapsedTimeX = new ElapsedTime();

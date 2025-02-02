@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 
-@TeleOp
+@TeleOp(name = "Hang_Test", group = "Testing")
 public class hangTest extends OpMode {
     Servo hang1;
     Servo hang2;
@@ -84,8 +84,11 @@ public class hangTest extends OpMode {
         }
 
         hangPower.update(power);
-        hangPower2.update(power*0.3);
-        hangPower3.update(power*0.3);
+        hangPower2.update(power*0.5);
+        hangPower3.update(power*0.5);
+
+        telemetry.addData("rpm", hangPower.getVelocity());
+        telemetry.update();
 
     }
 }

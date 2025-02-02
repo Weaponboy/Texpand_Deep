@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 
-@TeleOp
+@TeleOp(name = "Odometry_Testing", group = "Testing")
 public class OdometryTesting extends OpModeEX {
 
     @Override

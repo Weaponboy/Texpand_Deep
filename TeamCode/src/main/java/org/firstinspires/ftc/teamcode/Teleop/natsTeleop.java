@@ -10,7 +10,7 @@ import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
-@TeleOp(name = "AatsTeleop", group = "AAAAAAt the top")
+@TeleOp(name = "Nats_Teleop", group = "AAAAAAt the top")
 public class natsTeleop extends OpModeEX {
 
     boolean cameraScan = false;

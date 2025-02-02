@@ -459,7 +459,7 @@ public class Delivery extends SubSystem {
                 if (getSlidePositionCM() > 15 && fourbarState != fourBarState.transferringStates) {
 
                     fourBarTimer.reset();
-                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipFront)*25, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*25);
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- findCameraScanPosition(true, chamberCollectScanPosition))*25, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*25);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClip;
                     gripperState = gripper.slightRelease;
@@ -472,7 +472,7 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarTargetState;
                 }
             },
-            () -> fourbarState == fourBarState.preClip
+            () -> fourbarState == fourBarState.preClip && gripperState == gripper.slightRelease
     );
 
     public Command clipFront = new LambdaCommand(

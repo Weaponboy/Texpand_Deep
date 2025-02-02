@@ -2,16 +2,22 @@ package dev.weaponboy.command_library.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import java.util.ArrayList;
+
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Hardware.DistanceSensor;
+import dev.weaponboy.command_library.Hardware.SensorReadings;
 
 public class Odometry extends SubSystem {
 
-//    MotorEx leftPod = new MotorEx();
-//    MotorEx rightPod = new MotorEx();
-//    MotorEx backPod = new MotorEx();
+    DistanceSensor backLeft = new DistanceSensor();
+    DistanceSensor backRight = new DistanceSensor();
+    DistanceSensor right = new DistanceSensor();
+
+    ArrayList<SensorReadings> sensorReadings = new ArrayList<>();
 
     DcMotorEx leftPod;
     DcMotorEx rightPod;
@@ -37,6 +43,19 @@ public class Odometry extends SubSystem {
     double currentXVelocity = 0;
     double currentYVelocity = 0;
 
+    public boolean isRunningDistanceSensorReset() {
+        return runningDistanceSensorReset;
+    }
+
+    public void runDistanceSensorReset() {
+        runningDistanceSensorReset = true;
+        resetCounter = 0;
+        sensorReadings.clear();
+    }
+
+    boolean runningDistanceSensorReset = false;
+    int resetCounter = 0;
+
     public Odometry(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, updateLineBased);
     }
@@ -54,15 +73,59 @@ public class Odometry extends SubSystem {
         rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
         backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
 
+        backRight.init(getOpModeEX().hardwareMap, "backRight");
+        backLeft.init(getOpModeEX().hardwareMap, "backLeft");
+        right.init(getOpModeEX().hardwareMap, "right");
     }
+
     public double headingError(double targetHeading){
         return Heading-targetHeading;
-
     }
+
     @Override
     public void execute() {
+
         executeEX();
-        updateVelocity();
+
+        if (runningDistanceSensorReset){
+
+            resetCounter++;
+            sensorReadings.add(new SensorReadings(backRight.getPosition(), backLeft.getPosition(), right.getPosition()));
+
+            if (resetCounter > 10){
+
+                runningDistanceSensorReset = false;
+                SensorReadings averaged;
+
+                double backRight = 0;
+                double backLeft = 0;
+                double right = 0;
+
+                for (SensorReadings reading: sensorReadings){
+                    backRight += reading.getSen1();
+                    backLeft += reading.getSen2();
+                    right += reading.getSen3();
+                }
+
+                averaged = new SensorReadings(backRight/resetCounter, backLeft/resetCounter, right/resetCounter);
+
+                final double distanceFromRobotCenterToSensor = 12;
+                final double distanceBetweenSensors = 14.2;
+
+                double readingDifference = averaged.getSen2() - averaged.getSen1();
+
+                double headingError = Math.atan(readingDifference / distanceBetweenSensors);
+
+                double newHeading = 180 + Math.toDegrees(headingError);
+                double newY = 360 - (Math.cos(headingError) * (averaged.getSen3() + distanceFromRobotCenterToSensor));
+                double newX = 360 - (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
+
+                X = newX;
+                Y = newY;
+                Heading = Math.toRadians(newHeading);
+
+            }
+        }
     }
 
     public double X (){
@@ -83,18 +146,6 @@ public class Odometry extends SubSystem {
 
     public double getXVelocity(){
         return currentXVelocity;
-    }
-
-    public void updateVelocity(){
-        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
-        double RRYError = ticksPerCM * -backPod.getVelocity();
-
-//        currentXVelocity = RRXError;
-//        currentYVelocity = RRYError;
-
-        currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
-        currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
-
     }
 
     public LambdaCommand update = new LambdaCommand(

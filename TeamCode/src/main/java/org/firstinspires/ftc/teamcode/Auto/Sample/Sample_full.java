@@ -16,7 +16,7 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-@Autonomous
+@Autonomous(name = "Sample_full", group = "AA Comp Autos")
 public class Sample_full extends OpModeEX {
 
     pathsManager paths = new pathsManager();
@@ -65,15 +65,27 @@ public class Sample_full extends OpModeEX {
         }
     }
 
+    enum subFailsafeStates{
+        visionScanning,
+        collecting,
+        retryCollection,
+        retractingRescan,
+        turningNoneFound,
+        targetLargeBlock,
+        finished
+    }
+
     public enum cycleState{
         spikeCollect,
         subCollect,
         basketDrob
     }
+
     public enum building{
         built,
         notBuilt
     }
+
     public enum targetAuto{
         preload,
         spikes,
@@ -90,6 +102,7 @@ public class Sample_full extends OpModeEX {
     boolean headingAdjustment = false;
 
     public cycleState CycleState = cycleState.basketDrob;
+    subFailsafeStates subCollectState = subFailsafeStates.visionScanning;
 
     public autoState targetState = autoState.three;
     public autoState state = autoState.preload;
@@ -781,8 +794,270 @@ public class Sample_full extends OpModeEX {
             telemetry.addData("Busy detecting", busyDetecting);
             telemetry.addData("target Point", limelight.getTargetPoint());
             telemetry.update();
+    }
+
+    public void subCycleEnum() {
+
+        if (CycleState == cycleState.subCollect){
+
+            if (cycleBuilt == building.notBuilt){
+
+                //set enum states
+                cycleBuilt = building.built;
+                subCollectState = subFailsafeStates.visionScanning;
+
+                //pathing code
+                follow.setPath(paths.returnPath("collectSub"));
+                follow.usePathHeadings(true);
+                pathing = true;
+                headingOverride = false;
+
+                //reset vision and collection variables
+                counter = 0;
+                busyDetecting = false;
+                pullDownSlides = false;
+                collect = false;
+                collectRetry = false;
+
+                // transfer reset
+                collection.setCancelTransfer(true);
+                collection.resetTransferCanceled();
+
+                //limelight pipeline switch
+                limelight.setTargetColor(Limelight.color.yellow);
+                limelight.setSortHorizontal(false);
+            }
+
+            switch (subCollectState){
+                case visionScanning:
+
+                    /**
+                     * Pull slides down after deposit
+                     * */
+                    if (odometry.X() < 310 && !pullDownSlides){
+                        pullDownSlides = true;
+                        delivery.queueCommand(delivery.cameraScan);
+
+                        if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                            collection.queueCommand(collection.collect);
+                            runningSpikeVision = false;
+                        }
+                    }
+
+                    /**
+                     * Run the vision scan when the robot comes to a stop
+                     * */
+                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3){
+
+                        autoQueued = false;
+                        pathing = false;
+                        headingOverride = true;
+
+                        delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+
+                        busyDetecting = true;
+                        detectionTimer.reset();
+                        counter = 0;
+                        limelight.setGettingResults(true);
+
+                        collection.resetTransferCanceled();
+                    }
+
+                    /**
+                     * Running vision scan
+                     * */
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 25 && collection.getCurrentCommand() == collection.defaultCommand){
+
+                        counter++;
+
+                        if (limelight.getTargetPoint() != null && counter > 5){
+
+                            if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                                collection.queueCommand(collection.collect);
+                            }
+
+                            limelight.setGettingResults(false);
+
+                            collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
+                            collect = true;
+                            autoQueued = false;
+
+                            subCollectState = subFailsafeStates.collecting;
+                        }
+
+                    }else if (!collect && busyDetecting && counter >= 24 && collection.getFourBarState() == Collection.fourBar.preCollect && targetHeading < 275) {
+
+                        targetHeading = odometry.Heading() + 15;
+
+                        headingOverride = false;
+                        follow.setExtendoHeading(true);
+                        subCollectState = subFailsafeStates.turningNoneFound;
+
+                    }else if (!collect && busyDetecting && counter >= 24 && collection.getFourBarState() == Collection.fourBar.preCollect && (targetHeading+15) > 275){
+                        CycleState = cycleState.basketDrob;
+                        cycleBuilt = building.notBuilt;
+
+                        delivery.setGripperState(Delivery.gripper.grab);
+
+                        collection.setSlideTarget(0);
+                        collection.overrideCurrent(true, collection.stow);
+                    }
+
+                    break;
+                case collecting:
+
+                    /**
+                     * stow delivery slides for transfer
+                     * */
+                    if (collect && collection.getSlideTarget() != 0 && delivery.slideTarget > 15){
+                        delivery.overrideCurrent(true, delivery.stow);
+                        delivery.runReset();
+                    }
+
+                    /**
+                     * run collect
+                     * */
+                    if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
+
+                        collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+
+                        autoQueued = true;
+                    }
+
+                    /**
+                     * if collect successful move to the depo code
+                     * */
+                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
+                        CycleState = cycleState.basketDrob;
+                        cycleBuilt = building.notBuilt;
+                    }
+
+                    /**
+                     * Check if the collect failed
+                     * */
+                    if (collection.isTransferCanceled() && collection.getSlidePositionCM() > 0 && collection.getSlideTarget() > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+
+                        collection.setSlideTarget(0);
+                        headingOverride = true;
+
+                        if (limelight.getTargetPoint() != null){
+                            collection.resetTransferCanceled();
+                            collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
+                            subCollectState = subFailsafeStates.retryCollection;
+                        }else{
+                            delivery.queueCommand(delivery.cameraScan);
+                            collection.resetTransferCanceled();
+
+                            subCollectState = subFailsafeStates.retractingRescan;
+                        }
+
+                    }
+
+                    break;
+                case retryCollection:
+
+                    if (collection.isTransferCanceled() && collection.getSlidePositionCM() > 0 && collection.getSlideTarget() > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
+
+                        collection.setSlideTarget(0);
+                        subRetry = true;
+                        headingOverride = true;
+
+                        delivery.queueCommand(delivery.cameraScan);
+                        collection.resetTransferCanceled();
+
+                        subCollectState = subFailsafeStates.retractingRescan;
+                    }
+
+                    break;
+                case retractingRescan:
+
+                    if (delivery.getCurrentCommand() == delivery.returnDefaultCommand() && delivery.getSlidePositionCM() > 16 && Math.abs(delivery.slideMotor.getVelocity()) < 5 && collection.getSlidePositionCM() < 4){
+                        subCollectState = subFailsafeStates.visionScanning;
+
+                        busyDetecting = false;
+                        counter = 0;
+                        collect = false;
+                        collection.resetTransferCanceled();
+                    }
+
+                    break;
+                case turningNoneFound:
+
+                    if (!headingAdjustment){
+
+                        collect = false;
+                        headingOverride = true;
+                        busyDetecting = false;
+                        counter = 0;
+                    }
+
+                    break;
+                case targetLargeBlock:
+                    break;
+                case finished:
+                    break;
+                default:
+            }
+
+        } else if (CycleState == cycleState.basketDrob){
+
+            if (cycleBuilt == building.notBuilt){
+
+                follow.setPath(paths.returnPath("dropBasket"));
+
+                targetHeading = 212;
+
+                follow.usePathHeadings(false);
+
+                cycleBuilt = building.built;
+
+                pathing = true;
+                drop = true;
+            }
+
+            if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 240 && drop){
+                delivery.slideSetPoint(delivery.autoHighBasket);
+                delivery.slides = Delivery.slideState.moving;
+            }
+
+            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
+                delivery.queueCommand(delivery.depositAuto);
+            }
+
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(9,9)) {
+
+                delivery.queueCommand(delivery.depositAuto);
+
+                pathing = false;
+
+                drop = false;
+
+                dropTimerDriving.reset();
+            }
+
+            if (state == targetState){
+
+                if (!pathing && !drop){
+                    delivery.queueCommand(delivery.depositAuto);
+                    follow.setPath(paths.returnPath("spikeTwo"));
+                    pathing = true;
+                    stop = true;
+                } else if (stop && delivery.getSlidePositionCM() < 10) {
+                    state = autoState.finished;
+                }
+
+            }else{
+
+                if (follow.isFinished(9, 9) && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
+                    state = autoState.next(state);
+                    built = building.notBuilt;
+                }
+
+            }
+
         }
 
+    }
 
     public void subCycle() {
 

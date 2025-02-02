@@ -17,7 +17,7 @@ import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 import dev.weaponboy.vision.detectionData;
 
-@TeleOp
+@TeleOp(name = "Teleop_Single", group = "AAAAAAt the top")
 public class sprint2TeleopSingle extends OpModeEX {
     boolean firstDrop = true;
     boolean rotated = false;

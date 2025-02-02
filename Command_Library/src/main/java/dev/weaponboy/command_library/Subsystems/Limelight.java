@@ -21,6 +21,16 @@ public class Limelight extends SubSystem {
 
     ArrayList<TargetSample> targetPoints = new ArrayList<>();
 
+    public boolean isGettingResults() {
+        return isGettingResults;
+    }
+
+    public void setGettingResults(boolean gettingResults) {
+        isGettingResults = gettingResults;
+    }
+
+    boolean isGettingResults = true;
+
     public boolean isCloseFirst() {
         return closeFirst;
     }
@@ -106,7 +116,7 @@ public class Limelight extends SubSystem {
     public void execute() {
         result = limelight.getLatestResult();
 
-        if (result != null){
+        if (result != null && isGettingResults){
             double[] pythonOutput = result.getPythonOutput();
 
             targetPoints.clear();
