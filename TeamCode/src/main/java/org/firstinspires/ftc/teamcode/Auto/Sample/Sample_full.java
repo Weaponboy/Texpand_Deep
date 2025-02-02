@@ -104,7 +104,7 @@ public class Sample_full extends OpModeEX {
     public cycleState CycleState = cycleState.basketDrob;
     subFailsafeStates subCollectState = subFailsafeStates.visionScanning;
 
-    public autoState targetState = autoState.three;
+    public autoState targetState = autoState.four;
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public building cycleBuilt = building.notBuilt;
@@ -246,7 +246,7 @@ public class Sample_full extends OpModeEX {
                 PIDToPoint = true;
                 pathing = false;
 
-                collection.setCancelTransfer(true);
+                collection.setCancelTransfer(false);
                 limelight.switchPipeline(1);
             }
 
@@ -630,7 +630,7 @@ public class Sample_full extends OpModeEX {
 
                 if (delivery.getSlidePositionCM() < 35 && !autoQueued) {
                     autoQueued = true;
-                    collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                    collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                 }
 
                 if(autoQueued && collection.isTransferCanceled() && collection.getCurrentCommand() == collection.returnDefaultCommand() && !runningSpikeVision){
@@ -730,70 +730,71 @@ public class Sample_full extends OpModeEX {
 
         }else {
 
-                if (built == building.notBuilt) {
+            if (built == building.notBuilt) {
 
-                    CycleState = cycleState.subCollect;
-                    cycleBuilt = building.notBuilt;
-                    built = building.built;
-                }
-
-                subCycle();
+                CycleState = cycleState.subCollect;
+                cycleBuilt = building.notBuilt;
+                built = building.built;
             }
 
-            if (state == autoState.finished) {
-                requestOpModeStop();
-            }
+            subCycleEnum();
+        }
 
-            if (pathing) {
+        if (state == autoState.finished) {
+            requestOpModeStop();
+        }
 
-                odometry.queueCommand(odometry.updateLineBased);
-                RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
+        if (pathing) {
 
-                driveBase.queueCommand(driveBase.drivePowers(currentPower));
-            } else {
+            odometry.queueCommand(odometry.updateLineBased);
+            RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
 
-                if (!headingOverride) {
-                    if (Math.abs(targetHeading - odometry.Heading()) > 5) {
-                        headingAdjustment = true;
-                    } else {
-                        headingAdjustment = false;
-                    }
+            driveBase.queueCommand(driveBase.drivePowers(currentPower));
+
+        } else {
+
+            if (!headingOverride) {
+                if (Math.abs(targetHeading - odometry.Heading()) > 5) {
+                    headingAdjustment = true;
                 } else {
                     headingAdjustment = false;
                 }
-
-                if (headingAdjustment) {
-                    double error = targetHeading - odometry.Heading();
-
-                    if (Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3) {
-                        if (error > 0) {
-                            adjustedTarget += 0.4;
-                        } else {
-                            adjustedTarget -= 0.4;
-                        }
-                    } else {
-                        adjustedTarget = 0;
-                    }
-
-                    driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), follow.getTurnPower(targetHeading + adjustedTarget, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
-                } else {
-                    driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), 0)));
-                }
-
+            } else {
+                headingAdjustment = false;
             }
 
-            telemetry.addData("Y", odometry.Y());
-            telemetry.addData("Heading", odometry.Heading());
-            telemetry.addData("X", odometry.X());
-            telemetry.addData("Current command default? ", collection.getCurrentCommand() == collection.defaultCommand);
-            telemetry.addData("Auto queued ", autoQueued);
-            telemetry.addData("turnCounter ", turnCounter);
-            telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
-            telemetry.addData("", "");
-            telemetry.addData("collect", collect);
-            telemetry.addData("Busy detecting", busyDetecting);
-            telemetry.addData("target Point", limelight.getTargetPoint());
-            telemetry.update();
+            if (headingAdjustment) {
+                double error = targetHeading - odometry.Heading();
+
+                if (Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3) {
+                    if (error > 0) {
+                        adjustedTarget += 0.4;
+                    } else {
+                        adjustedTarget -= 0.4;
+                    }
+                } else {
+                    adjustedTarget = 0;
+                }
+
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), follow.getTurnPower(targetHeading + adjustedTarget, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
+            } else {
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), 0)));
+            }
+
+        }
+
+        telemetry.addData("Y", odometry.Y());
+        telemetry.addData("Heading", odometry.Heading());
+        telemetry.addData("X", odometry.X());
+        telemetry.addData("Current command default? ", collection.getCurrentCommand() == collection.defaultCommand);
+        telemetry.addData("Auto queued ", autoQueued);
+        telemetry.addData("turnCounter ", turnCounter);
+        telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
+        telemetry.addData("", "");
+        telemetry.addData("collect", collect);
+        telemetry.addData("Busy detecting", busyDetecting);
+        telemetry.addData("target Point", limelight.getTargetPoint());
+        telemetry.update();
     }
 
     public void subCycleEnum() {

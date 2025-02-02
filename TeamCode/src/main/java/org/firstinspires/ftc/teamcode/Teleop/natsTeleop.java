@@ -298,7 +298,7 @@ public class natsTeleop extends OpModeEX {
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
-        telemetry.addData("Resetting slides", collection.manualAngle);
+        telemetry.addData("Resetting slides", collection.turretPosition.getPosition());
         telemetry.addData("Target point", collection.getSlideTarget());
         telemetry.addData("current command ", collection.getCurrentCommand() == collection.defaultCommand);
         if (limelight.getTargetPoint() != null){

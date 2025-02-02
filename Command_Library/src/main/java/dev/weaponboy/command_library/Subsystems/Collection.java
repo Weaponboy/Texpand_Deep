@@ -956,7 +956,7 @@ public class Collection extends SubSystem {
                     griperRotate.setPosition(rotateTransfer);
                     turret.setPosition(turretTransferPosition);
 
-                }else if (!cancelTransfer && fourBarState == fourBar.transferInt && clawsState == clawState.grab) {
+                }else if (!cancelTransfer && (fourBarState == fourBar.transferInt || fourBarState == fourBar.collect) && clawsState == clawState.grab) {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
