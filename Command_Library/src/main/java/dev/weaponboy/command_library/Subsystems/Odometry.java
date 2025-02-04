@@ -86,6 +86,7 @@ public class Odometry extends SubSystem {
     public void execute() {
 
         executeEX();
+        updateVelocity();
 
         if (runningDistanceSensorReset){
 
@@ -146,6 +147,18 @@ public class Odometry extends SubSystem {
 
     public double getXVelocity(){
         return currentXVelocity;
+    }
+
+    public void updateVelocity(){
+        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
+        double RRYError = ticksPerCM * -backPod.getVelocity();
+
+//        currentXVelocity = RRXError;
+//        currentYVelocity = RRYError;
+
+        currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
+        currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
+
     }
 
     public LambdaCommand update = new LambdaCommand(

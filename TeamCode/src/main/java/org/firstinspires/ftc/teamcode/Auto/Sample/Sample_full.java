@@ -122,7 +122,7 @@ public class Sample_full extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(225, 290), new Vector2D(210, 228)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 228)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
@@ -181,7 +181,7 @@ public class Sample_full extends OpModeEX {
 
         collection.setCancelTransfer(true);
 
-        limelight.switchPipeline(1);
+        limelight.switchPipeline(0);
         limelight.setSortHorizontal(true);
 
     }
@@ -226,8 +226,6 @@ public class Sample_full extends OpModeEX {
                 } else {
                     state = autoState.spikeThree;
                     built = building.notBuilt;
-
-//                    collection.setSlideTarget(25);
                 }
 
             }
@@ -247,7 +245,7 @@ public class Sample_full extends OpModeEX {
                 pathing = false;
 
                 collection.setCancelTransfer(false);
-                limelight.switchPipeline(1);
+                limelight.switchPipeline(0);
             }
 
             if (CycleState == cycleState.spikeCollect) {
@@ -284,7 +282,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 90;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(243.5, 354)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 353)));
 
                     collection.queueCommand(collection.transfer(Collection.tranfer.spike, true));
 
@@ -347,7 +345,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 90;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 328)));
                     collection.queueCommand(collection.collect);
                 }
 
@@ -357,9 +355,9 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 90;
 
-                    targetHeading = 195;
+                    targetHeading = 198;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 328)));
                     collection.queueCommand(collection.collect);
                 }
 
@@ -376,7 +374,7 @@ public class Sample_full extends OpModeEX {
             } else if (CycleState == cycleState.basketDrob) {
 
                 if (PIDToPoint) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 338), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 340), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();
@@ -386,7 +384,7 @@ public class Sample_full extends OpModeEX {
                     PIDToPoint = true;
                     cycleBuilt = building.built;
 
-                    targetHeading = 195;
+                    targetHeading = 198;
 
                     drop = true;
                     autoQueued = false;
@@ -404,7 +402,7 @@ public class Sample_full extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 328)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 328)));
 
                     collection.queueCommand(collection.collect);
 
@@ -423,7 +421,7 @@ public class Sample_full extends OpModeEX {
 
             if (built == building.notBuilt) {
 
-                targetHeading = 192;
+                targetHeading = 198;
 
                 built = building.built;
                 cycleBuilt = building.notBuilt;
@@ -431,8 +429,8 @@ public class Sample_full extends OpModeEX {
                 CycleState = cycleState.spikeCollect;
             }
 
-            if (PIDToPoint && collection.getSlidePositionCM() < 20) {
-                PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(317, 340), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+            if (PIDToPoint) {
+                PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 340), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                 powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
             } else {
                 powerPID = new Vector2D();
@@ -520,7 +518,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 90;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 302.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 302.5)));
                     collection.queueCommand(collection.collect);
                 }
 
@@ -530,7 +528,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 90;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 302.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 302.5)));
                     collection.queueCommand(collection.collect);
                 }
 
@@ -547,7 +545,7 @@ public class Sample_full extends OpModeEX {
             } else if (CycleState == cycleState.basketDrob) {
 
                 if (cycleBuilt == building.notBuilt) {
-                    targetHeading = 205;
+                    targetHeading = 209;
 
                     cycleBuilt = building.built;
                     drop = true;
@@ -555,7 +553,7 @@ public class Sample_full extends OpModeEX {
                 }
 
                 if (PIDToPoint && collection.getSlidePositionCM() < 20) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(318, 336), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 336), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();
@@ -573,7 +571,7 @@ public class Sample_full extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244.5, 302.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 302.5)));
 
                     collection.queueCommand(collection.collect);
 
@@ -600,7 +598,7 @@ public class Sample_full extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt) {
 
-                    targetHeading = 205;
+                    targetHeading = 209;
                     follow.setExtendoHeading(false);
 
                     cycleBuilt = building.built;
@@ -617,7 +615,7 @@ public class Sample_full extends OpModeEX {
                 }
 
                 if (PIDToPoint && collection.getSlidePositionCM() < 20) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(318, 334), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 334), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();
@@ -788,7 +786,7 @@ public class Sample_full extends OpModeEX {
         telemetry.addData("X", odometry.X());
         telemetry.addData("Current command default? ", collection.getCurrentCommand() == collection.defaultCommand);
         telemetry.addData("Auto queued ", autoQueued);
-        telemetry.addData("turnCounter ", turnCounter);
+        telemetry.addData("pathing ", pathing);
         telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
         telemetry.addData("", "");
         telemetry.addData("collect", collect);
@@ -848,7 +846,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3){
+                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3 && odometry.X() < 300){
 
                         autoQueued = false;
                         pathing = false;
@@ -871,7 +869,7 @@ public class Sample_full extends OpModeEX {
 
                         counter++;
 
-                        if (limelight.getTargetPoint() != null && counter > 5){
+                        if (limelight.getTargetPoint() != null && counter > 3){
 
                             if (collection.getFourBarState() != Collection.fourBar.preCollect){
                                 collection.queueCommand(collection.collect);
@@ -945,6 +943,7 @@ public class Sample_full extends OpModeEX {
                             collection.resetTransferCanceled();
                             collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                             subCollectState = subFailsafeStates.retryCollection;
+                            autoQueued = false;
                         }else{
                             delivery.queueCommand(delivery.cameraScan);
                             collection.resetTransferCanceled();
@@ -967,6 +966,18 @@ public class Sample_full extends OpModeEX {
                         collection.resetTransferCanceled();
 
                         subCollectState = subFailsafeStates.retractingRescan;
+                    }
+
+                    if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
+
+                        collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+
+                        autoQueued = true;
+                    }
+
+                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
+                        CycleState = cycleState.basketDrob;
+                        cycleBuilt = building.notBuilt;
                     }
 
                     break;
@@ -994,8 +1005,6 @@ public class Sample_full extends OpModeEX {
 
                     break;
                 case targetLargeBlock:
-                    break;
-                case finished:
                     break;
                 default:
             }

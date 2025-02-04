@@ -44,11 +44,11 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public final double highBasket = 62;
-    public final double autoHighBasket = 62;
+    public final double autoHighBasket = 64;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 19.5;
-    public final double highChamberBack = 13.5;
+    public final double highChamberBack = 9;
 
     public final double visionTarget = 19.5;
 
@@ -103,9 +103,9 @@ public class Delivery extends SubSystem {
     /**
      * Clipping position values
      * */
-    double mainPivotClipBack = 155;
-    double secondClipBack = 210;
-    double gripperClipBack = gripperSlightRelease;
+    double mainPivotClipBack = 135;
+    double secondClipBack = 230;
+    double gripperClipBack = gripperGrab;
 
     /**
      * PRE clipping position values
@@ -118,7 +118,7 @@ public class Delivery extends SubSystem {
      * PRE clipping position values for clipping out the back
      * */
     double mainPivotPreClipBack = 100;
-    double secondPreClipBack = 220;
+    double secondPreClipBack = 245;
     double gripperPreClipBack = gripperGrab;
 
 
@@ -522,7 +522,10 @@ public class Delivery extends SubSystem {
     );
 
     public Command clipBack = new LambdaCommand(
-            () -> {},
+            () -> {
+//                slideSetPoint(highChamberBack+5);
+//                slides = slideState.moving;
+            },
             () -> {
 
                 if (fourbarState == fourBarState.preClip) {
@@ -532,12 +535,22 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.clip;
 
-                    slideSetPoint(highChamberBack-3);
-                    slides = Delivery.slideState.moving;
-
                     ClipBack.execute();
 
-                }else if(fourbarState == fourBarState.clip && gripperState == gripper.grab){
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+            },
+            () -> fourbarState == fourBarState.clip
+    );
+
+    public Command releaseClip = new LambdaCommand(
+            () -> {},
+            () -> {
+
+                if(fourbarState == fourBarState.clip && gripperState == gripper.grab){
 
                     fourBarTimer.reset();
                     ClippingWaitTime = 200;

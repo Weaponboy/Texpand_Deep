@@ -8,7 +8,6 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-import dev.weaponboy.vision.SamplePipelines.findAngleUsingContour;
 
 @TeleOp(name = "Nats_Teleop", group = "AAAAAAt the top")
 public class natsTeleop extends OpModeEX {
@@ -26,7 +25,7 @@ public class natsTeleop extends OpModeEX {
     boolean ranTransfer = false;
 
     boolean autoPreClip = false;
-    boolean ranPreClip = false;
+    boolean runClip = false;
 
     @Override
     public void initEX() {
@@ -202,40 +201,46 @@ public class natsTeleop extends OpModeEX {
 
         if (currentGamepad1.start && lastGamepad1.start && autoPreClip){
             autoPreClip = false;
-            ranPreClip = false;
+            runClip = false;
             gamepad1.rumble(300);
         }else if (currentGamepad1.start && lastGamepad1.start && !autoPreClip){
             autoPreClip = true;
-            ranPreClip = false;
+            runClip = false;
             gamepad1.rumble(300);
         }
 
         /**
          * Delivery code
          * */
-        if (ranTransfer && !ranPreClip && autoPreClip && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
-            delivery.queueCommand(delivery.preClipFront);
-            delivery.griperRotateSev.setPosition(90);
-
-            ranPreClip = true;
-            ranTransfer = false;
-        }
-
-        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
-            delivery.queueCommand(delivery.preClipFront);
-            delivery.griperRotateSev.setPosition(90);
-        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.clipFront);
-            ranPreClip = false;
-        }
+//        if (ranTransfer && !ranPreClip && autoPreClip && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
+//            delivery.queueCommand(delivery.preClipFront);
+//            delivery.griperRotateSev.setPosition(90);
+//
+//            ranPreClip = true;
+//            ranTransfer = false;
+//        }
 
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
-            delivery.queueCommand(delivery.preClipFront);
+            delivery.queueCommand(delivery.preClipBack);
             delivery.griperRotateSev.setPosition(90);
-        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.clipFront);
-            ranPreClip = false;
+        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100 && !runClip){
+            delivery.queueCommand(delivery.clipBack);
+            delivery.queueCommand(delivery.releaseClip);
+//            runClip = true;
         }
+
+//        else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
+//            delivery.queueCommand(delivery.releaseClip);
+//            runClip = false;
+//        }
+
+//        if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
+//            delivery.queueCommand(delivery.preClipFront);
+//            delivery.griperRotateSev.setPosition(90);
+//        }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
+//            delivery.queueCommand(delivery.clipFront);
+//            ranPreClip = false;
+//        }
 
         if (currentGamepad1.x && !lastGamepad1.x && collection.getFourBarState() == Collection.fourBar.preClipLow){
             collection.queueCommand(collection.clip);
@@ -287,7 +292,7 @@ public class natsTeleop extends OpModeEX {
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("pre clip thing ", autoPreClip);
-        telemetry.addData("ran pre clip thing ", ranPreClip);
+        telemetry.addData("ran pre clip thing ", runClip);
         telemetry.addData("ranTransfer ", ranTransfer);
         telemetry.addData("Four bar state ", collection.getFourBarState());
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
@@ -298,7 +303,7 @@ public class natsTeleop extends OpModeEX {
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
-        telemetry.addData("Resetting slides", collection.turretPosition.getPosition());
+        telemetry.addData("Resetting slides", Math.abs(collection.turretTargetPosition - collection.turretPosition.getPosition()));
         telemetry.addData("Target point", collection.getSlideTarget());
         telemetry.addData("current command ", collection.getCurrentCommand() == collection.defaultCommand);
         if (limelight.getTargetPoint() != null){
