@@ -64,12 +64,12 @@ public class natsTeleop extends OpModeEX {
     @Override
     public void loopEX() {
 
-        if (!busyDetecting && pathing && gamepad1.right_stick_y == 0 && gamepad1.left_trigger == 0 &&  gamepad1.right_trigger == 0 && gamepad1.right_stick_x == 0){
+        if (!busyDetecting && collection.getCurrentCommand() != collection.extendoTargetPoint && pathing && gamepad1.right_stick_y == 0 && gamepad1.left_trigger == 0 &&  gamepad1.right_trigger == 0 && gamepad1.right_stick_x == 0){
             odometry.queueCommand(odometry.updateLineBased);
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
 
             driveBase.queueCommand(driveBase.drivePowers(currentPower));
-        }else if (!busyDetecting){
+        }else if (!busyDetecting && collection.getCurrentCommand() != collection.extendoTargetPoint){
             pathing = false;
 
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
