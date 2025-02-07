@@ -88,6 +88,7 @@ public class natsTeleop extends OpModeEX {
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
             collection.targetPositionManuel = new Vector2D(20, 20);
+            delivery.griperRotateSev.setPosition(0);
 
             cameraScan = false;
             ranTransfer = false;
@@ -215,6 +216,7 @@ public class natsTeleop extends OpModeEX {
 
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
+                delivery.griperRotateSev.setPosition(0);
 
                 queueCollection = true;
                 busyDetecting = false;
@@ -222,7 +224,7 @@ public class natsTeleop extends OpModeEX {
                 counter = 40;
             }
 
-        } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
+        } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter >= 19) {
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 

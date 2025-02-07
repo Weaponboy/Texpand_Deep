@@ -1001,7 +1001,8 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
-
+                        double oldX = targetPositionManuel.getX();
+                        targetPositionManuel = new Vector2D(oldX, 20);
                     }else {
 
                         setClawsState(clawState.grab);
@@ -1096,7 +1097,8 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
-
+                        double oldX = targetPositionManuel.getX();
+                        targetPositionManuel = new Vector2D(oldX, 20);
                     }else {
 
                         setClawsState(clawState.grab);
@@ -1181,6 +1183,9 @@ public class Collection extends SubSystem {
 
                     griperRotate.setPosition(rotateTransfer);
                     turret.setPosition(turretTransferPosition);
+
+                    double oldX = targetPositionManuel.getX();
+                    targetPositionManuel = new Vector2D(oldX, 20);
 
                 }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
 
@@ -1272,6 +1277,9 @@ public class Collection extends SubSystem {
 
                         griperRotate.setPosition(rotateTransfer);
                         turret.setPosition(turretTransferPosition);
+
+                        double oldX = targetPositionManuel.getX();
+                        targetPositionManuel = new Vector2D(oldX, 20);
                     }
 
                 }else if (!cancelTransfer && fourBarState == fourBar.transferInt && clawsState == clawState.grab) {
@@ -1357,6 +1365,9 @@ public class Collection extends SubSystem {
 
                     griperRotate.setPosition(rotateTransfer);
                     turret.setPosition(turretTransferPosition);
+
+                    double oldX = targetPositionManuel.getX();
+                    targetPositionManuel = new Vector2D(oldX, 20);
 
                 } else if (fourBarState == fourBar.wallRotate) {
 
