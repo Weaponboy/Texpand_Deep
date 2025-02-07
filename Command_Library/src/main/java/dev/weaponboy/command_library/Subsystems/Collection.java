@@ -959,7 +959,7 @@ public class Collection extends SubSystem {
             () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
     );
 
-    public Command  transferAuto = new LambdaCommand(
+    public Command transferAuto = new LambdaCommand(
             () -> {
                 cancelTransfer = false;
                 transferCounter = 0;
@@ -1276,20 +1276,14 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotSampleTransfer)*8);
                     fourBarTargetState = fourBar.transferUp;
 
-                    if(isCancelTransferActive() && !breakBeam.isPressed()){
+                    setClawsState(clawState.grab);
 
-                    }else {
+                    griperRotate.setPosition(rotateTransfer);
+                    turret.setPosition(turretTransferPosition);
 
-                        setClawsState(clawState.grab);
+                    setSlideTarget(0);
 
-                        griperRotate.setPosition(rotateTransfer);
-                        turret.setPosition(turretTransferPosition);
-
-                        setSlideTarget(0);
-
-                        TransferSample.execute();
-
-                    }
+                    TransferSample.execute();
 
                 }
 

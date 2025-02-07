@@ -109,18 +109,26 @@ public class natsTeleop extends OpModeEX {
             ranTransfer = false;
         }
 
-        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && fastTransfer){
-            fastTransfer = false;
-        }else if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && !fastTransfer){
-            fastTransfer = true;
-        }
+//        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && fastTransfer){
+//            fastTransfer = false;
+//        }else if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && !fastTransfer){
+//            fastTransfer = true;
+//        }
 
-        if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getTransferType() == Collection.tranfer.chamberCollect){
+        if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && collection.getTransferType() == Collection.tranfer.chamberCollect){
             collection.setTransferType(Collection.tranfer.normalSlam);
             gamepad2.rumble(100);
-        }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && collection.getTransferType() != Collection.tranfer.chamberCollect){
+        }else if (currentGamepad2.dpad_up && !lastGamepad2.dpad_up && collection.getTransferType() != Collection.tranfer.chamberCollect){
             collection.setTransferType(Collection.tranfer.chamberCollect);
             gamepad2.rumble(100);
+        }
+
+        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.normalSlam){
+            collection.setTransferType(Collection.tranfer.normalSlam);
+            gamepad1.rumble(300);
+        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.sample){
+            collection.setTransferType(Collection.tranfer.sample);
+            gamepad1.rumble(300);
         }
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.collect){
