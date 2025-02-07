@@ -139,7 +139,6 @@ public class natsTeleop extends OpModeEX {
             collection.queueCommand(collection.transfer);
 
             ranTransfer = true;
-
         }
 
         if (currentGamepad2.left_stick_y < -0.4){
@@ -322,6 +321,7 @@ public class natsTeleop extends OpModeEX {
         }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.getSlidePositionCM() > 50 && delivery.fourbarState == Delivery.fourBarState.transfer){
 
             delivery.queueCommand(delivery.deposit);
+            delivery.griperRotateSev.setPosition(90);
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){
 
