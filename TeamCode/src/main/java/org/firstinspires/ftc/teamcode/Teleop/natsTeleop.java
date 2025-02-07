@@ -316,7 +316,7 @@ public class natsTeleop extends OpModeEX {
             delivery.slides = Delivery.slideState.moving;
             flipOutDepo = true;
 
-        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.slideMotor.getCurrentPosition() > 700 && !(collection.getFourBarState() == Collection.fourBar.preCollect)){
+        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState() == Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
         }
 
