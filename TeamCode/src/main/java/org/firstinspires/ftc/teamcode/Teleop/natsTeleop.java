@@ -143,11 +143,11 @@ public class natsTeleop extends OpModeEX {
         }
 
         if (currentGamepad2.left_stick_y < -0.4){
-            collection.armEndPointIncrement(0, 0.5, false);
+            collection.armEndPointIncrement(0, -currentGamepad2.left_stick_y, false);
         }
 
         if (currentGamepad2.left_stick_y > 0.4){
-            collection.armEndPointIncrement(0, -0.5, false);
+            collection.armEndPointIncrement(0, -currentGamepad2.left_stick_y, false);
         }
 
         if (currentGamepad2.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -231,8 +231,6 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.targetPositionManuel = new Vector2D(20, 20);
-
             collection.queueCommand(collection.transfer);
 
             queueCollection = false;
@@ -304,8 +302,6 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.targetPositionManuel = new Vector2D(20, 20);
-
             collection.queueCommand(collection.transfer);
 
             ranTransfer = true;
@@ -315,8 +311,6 @@ public class natsTeleop extends OpModeEX {
         if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.drop){
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
-
-            collection.targetPositionManuel = new Vector2D(20, 20);
 
             collection.queueCommand(collection.transfer);
 

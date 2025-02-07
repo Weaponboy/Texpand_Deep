@@ -842,6 +842,7 @@ public class Collection extends SubSystem {
 
                     }else {
                         setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
                         setClawsState(clawState.grab);
 
                         griperRotate.setPosition(rotateTransfer);
@@ -920,6 +921,7 @@ public class Collection extends SubSystem {
                         turret.setPosition(turretTransferPosition);
 
                         setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferSlam.execute();
@@ -1008,6 +1010,7 @@ public class Collection extends SubSystem {
                         turret.setPosition(turretTransferPosition);
 
                         setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
 
                         TransferAuto.execute();
 
@@ -1102,6 +1105,7 @@ public class Collection extends SubSystem {
                         turret.setPosition(turretTransferPosition);
 
                         setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferAuto.execute();
@@ -1195,6 +1199,7 @@ public class Collection extends SubSystem {
                         turret.setPosition(turretTransferPosition);
 
                         setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferAuto.execute();
@@ -1283,6 +1288,8 @@ public class Collection extends SubSystem {
 
                     setSlideTarget(0);
 
+                    targetPositionManuel = new Vector2D(20, 20);
+
                     TransferSample.execute();
 
                 }
@@ -1359,6 +1366,7 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.transferUp;
 
                     setSlideTarget(0);
+                    targetPositionManuel = new Vector2D(20, 20);
 
                     if (horizontalMotor.getCurrentPosition() < 300){
                         Transfer.execute();
@@ -1404,6 +1412,7 @@ public class Collection extends SubSystem {
                     ChamberStowed.execute();
                     griperRotate.setPosition(90);
                     setSlideTarget(0);
+                    targetPositionManuel = new Vector2D(20, 20);
 
                 }else if (fourBarState == fourBar.transferringStates) {
 
