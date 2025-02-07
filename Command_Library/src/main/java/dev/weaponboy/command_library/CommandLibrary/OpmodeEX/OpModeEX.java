@@ -94,6 +94,18 @@ public abstract class OpModeEX extends OpMode {
         scheduler.execute();
         loopEX();
 
+        if (delivery.transferFailed){
+            collection.clearQueue();
+
+            collection.queueCommand(collection.retryTransfer);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            delivery.transferFailed = false;
+        }
+
         loopTime = timer.milliseconds() - lastTime;
 //        System.out.println("loop time: " +loopTime);
     }

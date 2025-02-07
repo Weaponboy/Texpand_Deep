@@ -7,6 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
+import dev.weaponboy.nexus_pathing.Follower.follower;
+import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
+import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @TeleOp(name = "Nats_Teleop", group = "AAAAAAt the top")
@@ -27,19 +31,50 @@ public class natsTeleop extends OpModeEX {
     boolean autoPreClip = false;
     boolean runClip = false;
 
+    boolean pathing = false;
+    double targetHeading;
+
+    boolean visionRan = false;
+
+    pathsManager paths = new pathsManager();
+    follower follow = new follower();
+
+    private final sectionBuilder[] subCollect = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 248)),
+    };
+
+    private final sectionBuilder[] subDeposit = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(220, 280), new Vector2D(329, 329)),
+    };
+
     @Override
     public void initEX() {
-        odometry.startPosition(82.5,100,0);
+        odometry.startPosition(344, 282, 270);
+
+        paths.addNewPath("collectSub");
+        paths.buildPath(subCollect);
+
+        paths.addNewPath("dropBasket");
+        paths.buildPath(subDeposit);
+
     }
 
     @Override
     public void loopEX() {
 
-        // drive base code
-        if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
-        }else {
-            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.6, -gamepad1.right_stick_x * 0.9));
+        if (!busyDetecting && pathing && gamepad1.right_stick_y == 0 && gamepad1.left_trigger == 0 &&  gamepad1.right_trigger == 0 && gamepad1.right_stick_x == 0){
+            odometry.queueCommand(odometry.updateLineBased);
+            RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
+
+            driveBase.queueCommand(driveBase.drivePowers(currentPower));
+        }else if (!busyDetecting){
+            pathing = false;
+
+            if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
+            }else {
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.6, -gamepad1.right_stick_x * 0.9));
+            }
         }
 
         /**
@@ -54,12 +89,6 @@ public class natsTeleop extends OpModeEX {
 
             cameraScan = false;
             ranTransfer = false;
-        }
-
-        if (gamepad1.dpad_left){
-            collection.angle = 70;
-
-            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(130, 100)));
         }
 
         /**
@@ -153,14 +182,17 @@ public class natsTeleop extends OpModeEX {
         }
 
         if (currentGamepad2.y && !lastGamepad2.y && delivery.getSlidePositionCM() > 15){
-
             delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-
+            visionRan = true;
             cameraScan = false;
+        }
+
+        if (visionRan && Math.abs(odometry.getXVelocity()) < 2 && Math.abs(odometry.getYVelocity()) < 2){
+            visionRan = false;
+
             busyDetecting = true;
             detectionTimer.reset();
             counter = 0;
-
         }
 
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
@@ -242,12 +274,17 @@ public class natsTeleop extends OpModeEX {
 //            ranPreClip = false;
 //        }
 
-        if (currentGamepad1.x && !lastGamepad1.x && collection.getFourBarState() == Collection.fourBar.preClipLow){
-            collection.queueCommand(collection.clip);
+        if (currentGamepad1.x && !lastGamepad1.x){
+            follow.setPath(paths.returnPath("dropBasket"));
+            follow.usePathHeadings(false);
+            targetHeading = 225;
+            pathing = true;
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){
-            collection.setTransferType(Collection.tranfer.preClip);
+            follow.setPath(paths.returnPath("collectSub"));
+            follow.usePathHeadings(true);
+            pathing = true;
         }
 
         if ((currentGamepad2.left_stick_button && !(lastGamepad2.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){

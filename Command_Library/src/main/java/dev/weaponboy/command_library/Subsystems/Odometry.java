@@ -75,7 +75,13 @@ public class Odometry extends SubSystem {
 
         backRight.init(getOpModeEX().hardwareMap, "backRight");
         backLeft.init(getOpModeEX().hardwareMap, "backLeft");
+
+        backRight.setOffset(-210);
+        backLeft.setOffset(-210);
+
         right.init(getOpModeEX().hardwareMap, "right");
+
+        right.setOffset(-240);
     }
 
     public double headingError(double targetHeading){
@@ -93,6 +99,9 @@ public class Odometry extends SubSystem {
             resetCounter++;
             sensorReadings.add(new SensorReadings(backRight.getPosition(), backLeft.getPosition(), right.getPosition()));
 
+            System.out.println(sensorReadings.size());
+            System.out.println(resetCounter);
+
             if (resetCounter > 10){
 
                 runningDistanceSensorReset = false;
@@ -106,19 +115,34 @@ public class Odometry extends SubSystem {
                     backRight += reading.getSen1();
                     backLeft += reading.getSen2();
                     right += reading.getSen3();
+
+//                    System.out.println(reading.getSen1());
+//                    System.out.println(reading.getSen2());
+//                    System.out.println(reading.getSen3());
                 }
 
-                averaged = new SensorReadings(backRight/resetCounter, backLeft/resetCounter, right/resetCounter);
+                averaged = new SensorReadings((backRight/resetCounter)*0.1, (backLeft/resetCounter)*0.1, (right/resetCounter)*0.1);
 
-                final double distanceFromRobotCenterToSensor = 12;
-                final double distanceBetweenSensors = 14.2;
+//                System.out.println("Avg sen 1: " + averaged.getSen1());
+//                System.out.println("Avg sen 2: " + averaged.getSen2());
+//                System.out.println("Avg sen 3: " + averaged.getSen3());
+
+                final double distanceFromRobotCenterToSensor = 11;
+                final double distanceBetweenSensors = 13.2;
 
                 double readingDifference = averaged.getSen2() - averaged.getSen1();
 
                 double headingError = Math.atan(readingDifference / distanceBetweenSensors);
 
-                double newHeading = 180 + Math.toDegrees(headingError);
-                double newY = 360 - (Math.cos(headingError) * (averaged.getSen3() + distanceFromRobotCenterToSensor));
+                double newHeading;
+
+                if (readingDifference < 0){
+                    newHeading = 180 + Math.toDegrees(headingError);
+                }else{
+                    newHeading = 180 + Math.toDegrees(headingError);
+                }
+
+                double newY = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
                 double newX = 360 - (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
 
                 X = newX;
@@ -162,7 +186,7 @@ public class Odometry extends SubSystem {
     }
 
     public LambdaCommand update = new LambdaCommand(
-            () -> System.out.println("init odometry update"),
+            () -> {},
             () -> {
                 //need to code this
                 //prob some constant accel loc code

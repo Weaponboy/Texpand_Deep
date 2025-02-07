@@ -47,7 +47,7 @@ public class Delivery extends SubSystem {
     public final double autoHighBasket = 64;
     public final double lowBasket = 20;
 
-    public final double highChamberFront = 19.5;
+    public final double highChamberFront = 25;
     public final double highChamberBack = 9;
 
     public final double visionTarget = 19.5;
@@ -96,7 +96,7 @@ public class Delivery extends SubSystem {
     /**
      * Clipping position values
      * */
-    double mainPivotClipFront = 235;
+    double mainPivotClipFront = 215;
     double secondClipFront = 120;
     double gripperClipFront = gripperSlightRelease;
 
@@ -111,7 +111,7 @@ public class Delivery extends SubSystem {
      * PRE clipping position values
      * */
     double mainPivotPreClipFront = 190;
-    double secondPreClipFront = 140;
+    double secondPreClipFront = 130;
     double gripperPreClipFront = gripperGrab;
 
     /**
@@ -121,6 +121,7 @@ public class Delivery extends SubSystem {
     double secondPreClipBack = 245;
     double gripperPreClipBack = gripperGrab;
 
+    public boolean transferFailed = false;
 
     public enum fourBarState {
         transfer,
@@ -367,6 +368,23 @@ public class Delivery extends SubSystem {
            () -> fourBarTimer.milliseconds() > transferWaitTime
    );
 
+    public Command closeGripperFailSafe = new LambdaCommand(
+            () -> {
+                fourBarTimer.reset();
+                transferWaitTime = 120;
+                transferFailed = false;
+            },
+            () -> {
+                if (fourBarTimer.milliseconds() > transferWaitTime && !clawSensor.isPressed()){
+                    transferFailed = true;
+                    gripperState = gripper.drop;
+                }else {
+                    gripperState = gripper.grab;
+                }
+            },
+            () -> fourBarTimer.milliseconds() > transferWaitTime && clawSensor.isPressed() || transferFailed
+    );
+
     public Command closeGripperSample = new LambdaCommand(
             () -> {
                 fourBarTimer.reset();
@@ -442,6 +460,8 @@ public class Delivery extends SubSystem {
                     PreClipBack.execute();
                 }
 
+                System.out.println("RUNNING PRECLIP CODE");
+
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
                     fourbarState = fourBarTargetState;
                 }
@@ -485,14 +505,14 @@ public class Delivery extends SubSystem {
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotClipFront)*6, Math.abs(secondPivot.getPositionDegrees()- secondClipFront)*microRoboticTime);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.clip;
-                    gripperState = gripper.slightRelease;
+//                    gripperState = gripper.slightRelease;
 
-                    slideSetPoint(highChamberFront-2);
+                    slideSetPoint(highChamberFront-5);
                     slides = Delivery.slideState.moving;
 
                     ClipFront.execute();
 
-                }else if(fourbarState == fourBarState.clip && gripperState == gripper.slightRelease){
+                }else if(fourbarState == fourBarState.clip && gripperState == gripper.grab){
 
                     fourBarTimer.reset();
                     ClippingWaitTime = 100;
@@ -643,7 +663,7 @@ public class Delivery extends SubSystem {
 
         double currentPosition = 0;
 
-        if(slides == slideState.moving && !resettingSlides && !hold){
+        if(slides == slideState.moving && !resettingSlides){
 
             if (slideMotor.getCurrentPosition() == 0){
                 currentPosition = slideMotor2.getCurrentPosition();
@@ -689,11 +709,7 @@ public class Delivery extends SubSystem {
 
         if (resettingSlides && slidesReset.isPressed()){
 
-            if (hold){
-                slidePower = -0.8;
-            }else {
-                slidePower = 0;
-            }
+            slidePower = 0;
 
             resettingSlides = false;
 
