@@ -34,6 +34,8 @@ public class natsTeleop extends OpModeEX {
     boolean pathing = false;
     double targetHeading;
 
+    boolean flipOutDepo = false;
+
     boolean visionRan = false;
 
     pathsManager paths = new pathsManager();
@@ -308,21 +310,37 @@ public class natsTeleop extends OpModeEX {
 
         }
 
-        if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.getSlidePositionCM() < 50 && delivery.slideTarget != delivery.highBasket && collection.getCurrentCommand() == collection.defaultCommand){
+        if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
 
             delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;
+            flipOutDepo = true;
 
-        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.getSlidePositionCM() > 50 && delivery.fourbarState == Delivery.fourBarState.transfer){
-
-            delivery.griperRotateSev.setPosition(90);
+        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.slideMotor.getCurrentPosition() > 700 && !(collection.getFourBarState() == Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
-
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){
-
-            delivery.queueCommand(delivery.deposit);
-
         }
+
+        if (flipOutDepo && delivery.getSlidePositionCM() > 15){
+            delivery.queueCommand(delivery.deposit);
+            delivery.griperRotateSev.setPosition(90);
+            flipOutDepo = false;
+        }
+
+//        if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.getSlidePositionCM() < 50 && delivery.slideTarget != delivery.highBasket && collection.getCurrentCommand() == collection.defaultCommand){
+//
+//            delivery.slideSetPoint(delivery.highBasket);
+//            delivery.slides = Delivery.slideState.moving;
+//
+//        }else if (currentGamepad2.left_bumper && !lastGamepad2.left_bumper && delivery.getSlidePositionCM() > 50 && delivery.fourbarState == Delivery.fourBarState.transfer){
+//
+//            delivery.griperRotateSev.setPosition(90);
+//            delivery.queueCommand(delivery.deposit);
+//
+//        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700){
+//
+//            delivery.queueCommand(delivery.deposit);
+//
+//        }
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("pre clip thing ", autoPreClip);
