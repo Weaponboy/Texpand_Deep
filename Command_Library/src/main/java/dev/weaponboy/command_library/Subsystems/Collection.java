@@ -225,8 +225,8 @@ public class Collection extends SubSystem {
 
     /**gripper positions*/
     double gripperDrop = 122;
-    double gripperGrab = 49;
-    double gripperSlightRelease = 70;
+    double gripperGrab = 78;
+    double gripperSlightRelease = 86;
     double gripperOpenFull = 122;
 
     boolean braking = false;
@@ -904,6 +904,9 @@ public class Collection extends SubSystem {
                     griperRotate.setPosition(rotateTransfer);
                     turret.setPosition(turretTransferPosition);
 
+                    double oldX = targetPositionManuel.getX();
+                    targetPositionManuel = new Vector2D(oldX, 20);
+
                 }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
 
                     fourBarTimer.reset();
@@ -912,7 +915,8 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
-
+                        double oldX = targetPositionManuel.getX();
+                        targetPositionManuel = new Vector2D(oldX, 20);
                     }else {
 
                         setClawsState(clawState.grab);

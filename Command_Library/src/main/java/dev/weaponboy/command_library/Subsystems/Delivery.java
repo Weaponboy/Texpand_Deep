@@ -283,6 +283,7 @@ public class Delivery extends SubSystem {
                     slideSetPoint(0);
                     slides = Delivery.slideState.moving;
 
+                    griperRotateSev.setPosition(0);
                     Transfer.execute();
 
                 } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 150) {
