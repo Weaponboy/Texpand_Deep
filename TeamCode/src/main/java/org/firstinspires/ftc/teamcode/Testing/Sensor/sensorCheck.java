@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import dev.weaponboy.command_library.Hardware.DistanceSensor;
 
-@TeleOp
+@TeleOp(name = "Sensor_Check", group = "Testing")
 public class sensorCheck extends OpMode {
 
     public TouchSensor collectionBreakbeam;

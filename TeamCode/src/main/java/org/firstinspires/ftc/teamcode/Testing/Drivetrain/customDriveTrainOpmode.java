@@ -8,7 +8,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 
-@TeleOp
+@TeleOp(name = "Drive_Only", group = "Testing")
 public class customDriveTrainOpmode extends OpMode {
 
     MotorEx LF = new MotorEx();

@@ -94,8 +94,29 @@ public abstract class OpModeEX extends OpMode {
         scheduler.execute();
         loopEX();
 
+        if (delivery.transferFailed){
+            collection.clearQueue();
+
+            collection.queueCommand(collection.retryTransfer);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            delivery.transferFailed = false;
+        }
+
+//        System.out.println("collection slides: " + collection.horizontalMotor.getCurrentDraw());
+//        System.out.println("delivery slide 1: " + delivery.slideMotor.getCurrentDraw());
+//        System.out.println("delivery slide 2: " + delivery.slideMotor2.getCurrentDraw());
+//        System.out.println("hang motor: " + hang.hangPower.getCurrentDraw());
+//        System.out.println("Right front: " + driveBase.RF.getCurrentDraw());
+//        System.out.println("Left front: " + driveBase.LF.getCurrentDraw());
+//        System.out.println("Right back: " + driveBase.RB.getCurrentDraw());
+//        System.out.println("Left back: " + driveBase.LB.getCurrentDraw());
+
         loopTime = timer.milliseconds() - lastTime;
-//        System.out.println("loop time: " +loopTime);
+        System.out.println("loop time: " +loopTime);
     }
 
     /**
@@ -103,7 +124,7 @@ public abstract class OpModeEX extends OpMode {
      * */
     @Override
     public void stop() {
-        collection.disableServos();
+//        collection.disableServos();
 //        delivery.disableServos();
 //        super.stop();
     }

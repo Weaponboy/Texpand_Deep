@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Testing.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Auto.Sample.Sample_full;
@@ -12,6 +13,7 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 @Autonomous
+@Disabled
 public class Testing_Sub_Failsafe extends OpModeEX {
 
     pathsManager paths = new pathsManager();

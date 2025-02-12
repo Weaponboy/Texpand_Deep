@@ -21,6 +21,16 @@ public class Limelight extends SubSystem {
 
     ArrayList<TargetSample> targetPoints = new ArrayList<>();
 
+    public boolean isGettingResults() {
+        return isGettingResults;
+    }
+
+    public void setGettingResults(boolean gettingResults) {
+        isGettingResults = gettingResults;
+    }
+
+    boolean isGettingResults = true;
+
     public boolean isCloseFirst() {
         return closeFirst;
     }
@@ -87,15 +97,31 @@ public class Limelight extends SubSystem {
     int closeFirstInt = 0;
     int horInt = 0;
 
+    public void setReturningData(boolean returningData) {
+        this.returningData = returningData;
+
+        if (returningData){
+            limelight.start();
+        }else {
+            limelight.pause();
+        }
+    }
+
+    boolean returningData = false;
+
     public LLResult result;
 
     @Override
     public void init() {
         limelight = getOpModeEX().hardwareMap.get(Limelight3A.class, "limelight");
 
-        limelight.setPollRateHz(100);
+        limelight.setPollRateHz(50);
 
         limelight.pipelineSwitch(0);
+    }
+
+    public void shutDown(){
+        limelight.close();
     }
 
     public void onStart(){
@@ -104,20 +130,31 @@ public class Limelight extends SubSystem {
 
     @Override
     public void execute() {
-        result = limelight.getLatestResult();
 
-        if (result != null){
-            double[] pythonOutput = result.getPythonOutput();
+        if (returningData){
 
-            targetPoints.clear();
+            System.out.println("returning Data");
 
-            if (pythonOutput[0] != 0 && pythonOutput[1] != 0){
-                targetPoints.add(new TargetSample(new Vector2D(pythonOutput[0], pythonOutput[1]), pythonOutput[2]));
+            result = limelight.getLatestResult();
+
+            if (result != null && isGettingResults){
+
+                System.out.println("returning Data in if");
+
+                double[] pythonOutput = result.getPythonOutput();
+
+                targetPoints.clear();
+
+                if (pythonOutput[0] != 0 && pythonOutput[1] != 0){
+                    targetPoints.add(new TargetSample(new Vector2D(pythonOutput[0], pythonOutput[1]), pythonOutput[2]));
+                }
+
+                if (pythonOutput[3] != 0 && pythonOutput[4] != 0){
+                    targetPoints.add(new TargetSample(new Vector2D(pythonOutput[3], pythonOutput[4]), pythonOutput[5]));
+                }
             }
 
-            if (pythonOutput[3] != 0 && pythonOutput[4] != 0){
-                targetPoints.add(new TargetSample(new Vector2D(pythonOutput[3], pythonOutput[4]), pythonOutput[5]));
-            }
+
         }
 
     }
