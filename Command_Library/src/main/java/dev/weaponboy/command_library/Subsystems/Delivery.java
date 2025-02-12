@@ -95,7 +95,7 @@ public class Delivery extends SubSystem {
     /**
      * Bucket deposit position values
      * */
-    double mainPivotDepoAuto = 100;
+    double mainPivotDepoAuto = 92;
     double secondDepoAuto = 245;
     double gripperDepoAuto = gripperGrab;
 
