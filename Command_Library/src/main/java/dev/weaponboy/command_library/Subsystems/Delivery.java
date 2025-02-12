@@ -56,6 +56,12 @@ public class Delivery extends SubSystem {
 
     PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
+    public void setSlideDisabledForHang(boolean slideDisabledForHang) {
+        this.slideDisabledForHang = slideDisabledForHang;
+    }
+
+    boolean slideDisabledForHang = false;
+
     double gripperDrop = 108;
     double gripperGrab = 58;
     double gripperSlightRelease = 80;
@@ -71,7 +77,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 245;
-    double secondTransfer = 145;
+    double secondTransfer = 152;
 
     /**
      * transfer position values
@@ -120,6 +126,12 @@ public class Delivery extends SubSystem {
     double mainPivotPreClipBack = 100;
     double secondPreClipBack = 245;
     double gripperPreClipBack = gripperGrab;
+
+    /**
+     * Hang
+     * */
+    double mainPivotHang = 100;
+    double secondHang = 210;
 
     public boolean transferFailed = false;
 
@@ -181,6 +193,13 @@ public class Delivery extends SubSystem {
             () -> {
                 mainPivot.setPosition(mainPivotTransfer);
                 secondPivot.setPosition(secondTransfer);
+            }
+    );
+
+    public Command Hang = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotHang);
+                secondPivot.setPosition(secondHang);
             }
     );
 
@@ -461,7 +480,7 @@ public class Delivery extends SubSystem {
                     PreClipBack.execute();
                 }
 
-                System.out.println("RUNNING PRECLIP CODE");
+//                System.out.println("RUNNING PRECLIP CODE");
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
                     fourbarState = fourBarTargetState;
@@ -734,8 +753,11 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(gripperSlightRelease);
         }
 
-        slideMotor.update(Range.clip(slidePower, -0.7, 1));
-        slideMotor2.update(Range.clip(slidePower, -0.7, 1));
+        if (!slideDisabledForHang){
+            slideMotor.update(Range.clip(slidePower, -0.7, 1));
+            slideMotor2.update(Range.clip(slidePower, -0.7, 1));
+        }
+
     }
 
     public double findCameraScanPosition(){

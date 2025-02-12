@@ -30,23 +30,11 @@ public class Spec_Full extends OpModeEX {
     ElapsedTime retryTimer = new ElapsedTime();
 
     private final sectionBuilder[] preloadDelivery = {
-            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 175))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 192))
     };
 
     private final sectionBuilder[] obs_collecting = {
             () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(280, 190), new Vector2D(332,122))
-    };
-
-    private final sectionBuilder[] clip_And_Collect_One = {
-            () -> paths.addPoints(new Vector2D(332, 122), new Vector2D(280,190),new Vector2D(250, 182))
-    };
-
-    private final sectionBuilder[] clip_And_Collect_Two = {
-            () -> paths.addPoints(new Vector2D(332, 122), new Vector2D(280,190),new Vector2D(250, 174))
-    };
-
-    private final sectionBuilder[] clip_And_Collect_Three = {
-            () -> paths.addPoints(new Vector2D(332, 122), new Vector2D(280,190),new Vector2D(250, 167))
     };
 
     private final sectionBuilder[] spikeMarks = {
@@ -61,16 +49,20 @@ public class Spec_Full extends OpModeEX {
             () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172),new Vector2D(286, 64))
     };
 
-    private final sectionBuilder[] goToGrabPreload = {
-            () -> paths.addPoints(new Vector2D(290, 68), new Vector2D(290,96),new Vector2D(294, 126))
+    private final sectionBuilder[] goToDrop1 = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(257, 185))
     };
 
-    private final sectionBuilder[] goToGrab = {
-            () -> paths.addPoints(new Vector2D(260, 165), new Vector2D(280,156),new Vector2D(295, 125))
+    private final sectionBuilder[] goToDrop2 = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(257, 175))
     };
 
-    private final sectionBuilder[] goToDrop = {
-            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(260, 170))
+    private final sectionBuilder[] goToDrop3 = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(257, 165))
+    };
+
+    private final sectionBuilder[] goToDrop4 = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(257, 155))
     };
 
     public enum autoState {
@@ -144,18 +136,6 @@ public class Spec_Full extends OpModeEX {
         paths.addNewPath("preloadPath");
         paths.buildPath(preloadDelivery);
 
-        paths.addNewPath("obs_collecting");
-        paths.buildPath(obs_collecting);
-
-        paths.addNewPath("clip_One");
-        paths.buildPath(clip_And_Collect_One);
-
-        paths.addNewPath("clip_Two");
-        paths.buildPath(clip_And_Collect_Two);
-
-        paths.addNewPath("clip_Three");
-        paths.buildPath(clip_And_Collect_Three);
-
         paths.addNewPath("spike");
         paths.buildPath(spikeMarks);
 
@@ -165,14 +145,17 @@ public class Spec_Full extends OpModeEX {
         paths.addNewPath("spike3");
         paths.buildPath(spikeMarks3);
 
-        paths.addNewPath("goToGrabPreload");
-        paths.buildPath(goToGrabPreload);
+        paths.addNewPath("goToDrob_cycle_one");
+        paths.buildPath(goToDrop1);
 
-        paths.addNewPath("goToGrap");
-        paths.buildPath(goToGrab);
+        paths.addNewPath("goToDrob_cycle_two");
+        paths.buildPath(goToDrop2);
 
-        paths.addNewPath("goToDrob");
-        paths.buildPath(goToDrop);
+        paths.addNewPath("goToDrob_cycle_three");
+        paths.buildPath(goToDrop3);
+
+        paths.addNewPath("goToDrob_cycle_four");
+        paths.buildPath(goToDrop4);
 
         follow.setPath(paths.returnPath("preloadPath"));
 
@@ -313,7 +296,7 @@ public class Spec_Full extends OpModeEX {
 
                 collection.queueCommand(collection.collect);
 
-            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 300){
+            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 280){
 
                 collection.gripServo.setPosition(35);
 
@@ -330,12 +313,12 @@ public class Spec_Full extends OpModeEX {
 
                 follow.setExtendoHeading(true);
 
-                targetHeading = 300;
+                targetHeading = 280;
 
                 following = true;
             }
 
-            if (odometry.Heading() > 280 && collection.getClawsState() == Collection.clawState.grab){
+            if (odometry.Heading() > 270 && collection.getClawsState() == Collection.clawState.grab){
                 collection.setClawsState(Collection.clawState.drop);
                 state = autoState.spike_two;
                 built = building.notBuilt;
@@ -358,7 +341,7 @@ public class Spec_Full extends OpModeEX {
 //                collection.griperRotate.setPosition(50);
 
                 collection.angle = 45;
-                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242,30)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242,29)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -368,7 +351,7 @@ public class Spec_Full extends OpModeEX {
 
                 collection.queueCommand(collection.collect);
 
-            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 292){
+            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 280){
 
                 collection.gripServo.setPosition(35);
 
@@ -383,12 +366,14 @@ public class Spec_Full extends OpModeEX {
                 collection.fourBarMainPivot.setPosition(100);
                 collection.fourBarSecondPivot.setPosition(280);
 
+                collection.setSlideTarget(collection.getSlideTarget()-15);
+
                 follow.setExtendoHeading(true);
 
-                targetHeading = 292;
+                targetHeading = 280;
             }
 
-            if (odometry.Heading() > 272 && collection.getClawsState() == Collection.clawState.grab){
+            if (odometry.Heading() > 268 && collection.getClawsState() == Collection.clawState.grab){
                 collection.setClawsState(Collection.clawState.drop);
                 state = autoState.spike_three;
                 built = building.notBuilt;
@@ -411,7 +396,7 @@ public class Spec_Full extends OpModeEX {
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
                 collection.angle = 45;
-                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242,4.5)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(240,4)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -421,7 +406,7 @@ public class Spec_Full extends OpModeEX {
 
                 collection.queueCommand(collection.collect);
 
-            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 292){
+            }else if (collection.getCurrentCommand() == collection.defaultCommand && TargetExtendo == targetExtendo.two && targetHeading != 285){
 
                 collection.gripServo.setPosition(35);
 
@@ -440,10 +425,10 @@ public class Spec_Full extends OpModeEX {
 
                 follow.setExtendoHeading(true);
 
-                targetHeading = 292;
+                targetHeading = 285;
             }
 
-            if (odometry.Heading() > 272 && collection.getClawsState() == Collection.clawState.grab){
+            if (odometry.Heading() > 270 && collection.getClawsState() == Collection.clawState.grab){
                 collection.setClawsState(Collection.clawState.drop);
                 state = autoState.cycle_one;
                 built = building.notBuilt;
@@ -464,7 +449,7 @@ public class Spec_Full extends OpModeEX {
 
                 built = building.built;
 
-                System.out.println("built state: " + state.name());
+//                System.out.println("built state: " + state.name());
 
             }
 
@@ -481,24 +466,24 @@ public class Spec_Full extends OpModeEX {
         if (following) {
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
 
-            telemetry.addData("Loop time", loopTime);
-            telemetry.addData("Y", odometry.Y());
-            telemetry.addData("Heading", odometry.Heading());
-            telemetry.addData("X", odometry.X());
-            telemetry.addData("getVertical", currentPower.getVertical());
-            telemetry.addData("getHorizontal", currentPower.getHorizontal());
-            telemetry.addData("getPivot", currentPower.getPivot());
-            telemetry.update();
+//            telemetry.addData("Loop time", loopTime);
+//            telemetry.addData("Y", odometry.Y());
+//            telemetry.addData("Heading", odometry.Heading());
+//            telemetry.addData("X", odometry.X());
+//            telemetry.addData("getVertical", currentPower.getVertical());
+//            telemetry.addData("getHorizontal", currentPower.getHorizontal());
+//            telemetry.addData("getPivot", currentPower.getPivot());
+//            telemetry.update();
 
-            System.out.println("Running pathing code");
-
-            System.out.println("Running X" + currentPower.getVertical());
-            System.out.println("Running Y" + currentPower.getHorizontal());
-
-            System.out.println("Error: " + follow.getErrorToEnd());
-
-            System.out.println("X" + odometry.X());
-            System.out.println("Y" + odometry.Y());
+//            System.out.println("Running pathing code");
+//
+//            System.out.println("Running X" + currentPower.getVertical());
+//            System.out.println("Running Y" + currentPower.getHorizontal());
+//
+//            System.out.println("Error: " + follow.getErrorToEnd());
+//
+//            System.out.println("X" + odometry.X());
+//            System.out.println("Y" + odometry.Y());
 
             driveBase.queueCommand(driveBase.drivePowers(currentPower));
         }else {
@@ -531,20 +516,20 @@ public class Spec_Full extends OpModeEX {
             }
         }
 
-        telemetry.addData("Y", odometry.Y());
-        telemetry.addData("Heading", odometry.Heading());
-        telemetry.addData("X", odometry.X());
-        telemetry.addData("Current command default? ", collection.getCurrentCommand() == collection.defaultCommand);
-        telemetry.addData("pathing ", following);
-        telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
-        telemetry.addData("", "");
-        telemetry.addData("target Point", limelight.getTargetPoint());
-        telemetry.update();
+//        telemetry.addData("Y", odometry.Y());
+//        telemetry.addData("Heading", odometry.Heading());
+//        telemetry.addData("X", odometry.X());
+//        telemetry.addData("Current command default? ", collection.getCurrentCommand() == collection.defaultCommand);
+//        telemetry.addData("pathing ", following);
+//        telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
+//        telemetry.addData("", "");
+//        telemetry.addData("target Point", limelight.getTargetPoint());
+//        telemetry.update();
     }
 
     public void fullCycle(){
 
-        Vector2D targetExtendoPoint = new Vector2D(353, 91);
+        Vector2D targetExtendoPoint = new Vector2D(344, 82);
 
         if (cycleState == CycleState.obs_collect) {
 
@@ -562,7 +547,7 @@ public class Spec_Full extends OpModeEX {
                 collectSample = false;
                 headingOverride = false;
                 PIDToPoint = true;
-                targetHeading = 325;
+                targetHeading = 319;
                 retryCollection = false;
 
                 collection.resetTransferCanceled();
@@ -577,7 +562,7 @@ public class Spec_Full extends OpModeEX {
 //                targetHeading = 307;
 //            }
 
-            if (odometry.Heading() > 318 && odometry.Heading() < 332 && !collectSample && state != autoState.cycle_one){
+            if (odometry.Heading() > 310 && odometry.Heading() < 325 && !collectSample && state != autoState.cycle_one && !retryCollection){
                 collection.targetPointWithExtendo(targetExtendoPoint);
                 delivery.griperRotateSev.setPosition(0);
             }
@@ -603,6 +588,7 @@ public class Spec_Full extends OpModeEX {
                 cycleBuilt = building.notBuilt;
             } else if (collectSample && retryCollection && collection.isTransferCanceled()){
                 cycleState = CycleState.clip_and_collect;
+
                 cycleBuilt = building.notBuilt;
 
                 collection.setCancelTransfer(false);
@@ -612,7 +598,7 @@ public class Spec_Full extends OpModeEX {
                 collection.queueCommand(collection.transfer(Collection.tranfer.specimen));
             }
 
-            if (retryCollection && collection.getCurrentCommand() == collection.returnDefaultCommand() && retryTimer.milliseconds() > 1500 && !collectSample){
+            if (retryCollection && collection.getCurrentCommand() == collection.returnDefaultCommand() && retryTimer.milliseconds() > 1000 && !collectSample){
                 collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
 
                 collection.queueCommand(collection.collect);
@@ -640,7 +626,7 @@ public class Spec_Full extends OpModeEX {
 
                 cycleBuilt = building.built;
 
-                follow.setPath(paths.returnPath("goToDrob"));
+                follow.setPath(paths.returnPath("goToDrob_" + state.name()));
 
                 following = true;
                 PIDToPoint = false;
@@ -672,16 +658,16 @@ public class Spec_Full extends OpModeEX {
                     state = autoState.finished;
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    System.out.println("finished: " + state.name());
+//                    System.out.println("finished: " + state.name());
                 }
             }else{
                 if (follow.isFinished() && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.clip) {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    collection.setSlideTarget(45);
+                    collection.setSlideTarget(30);
                     follow.setExtendoHeading(false);
-                    System.out.println("incremented state: " + state.name());
+//                    System.out.println("incremented state: " + state.name());
                 }
             }
 

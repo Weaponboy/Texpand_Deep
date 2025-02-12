@@ -20,7 +20,7 @@ public class OdometryTesting extends OpModeEX {
         odometry.queueCommand(odometry.updateLineBased);
 
         if (gamepad1.a){
-            odometry.runDistanceSensorReset();
+            odometry.runDistanceSensorReset(false);
         }
 
         telemetry.addData("x", odometry.X());

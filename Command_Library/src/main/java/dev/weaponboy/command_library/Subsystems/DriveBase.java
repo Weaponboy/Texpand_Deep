@@ -16,10 +16,10 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 public class DriveBase extends SubSystem {
 
-    MotorEx LF = new MotorEx();
-    MotorEx RF = new MotorEx();
-    MotorEx RB = new MotorEx();
-    MotorEx LB = new MotorEx();
+    public MotorEx LF = new MotorEx();
+    public MotorEx RF = new MotorEx();
+    public MotorEx RB = new MotorEx();
+    public MotorEx LB = new MotorEx();
 
     PIDController headingPID =new PIDController(0.025,0,0.0003);
     public IMU imu;
@@ -41,12 +41,13 @@ public class DriveBase extends SubSystem {
 
         imu = getOpModeEX().hardwareMap.get(IMU.class, "imu");
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
+        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoFacingDirection, usbFacingDirection);
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
+        imu.resetYaw();
 
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -94,10 +95,10 @@ public class DriveBase extends SubSystem {
             () -> true
     );
 
-    public Command driveFieldCentric(double vertikal, double turn, double strafe){
-        this.vertikal =vertikal;
-        this.strafe =strafe;
-        this.turn =turn*0.5;
+    public Command driveFieldCentric(double vertical, double turn, double strafe){
+        this.vertikal = -vertical;
+        this.strafe = strafe;
+        this.turn = turn;
 
         return driveField;
     }
@@ -114,8 +115,10 @@ public class DriveBase extends SubSystem {
             },
             () -> {
                 double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
+
                 imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-                double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+                double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
                 double rotX = vertikal * Math.cos(-heading) - strafe * Math.sin(-heading);
                 double rotY = vertikal * Math.sin(-heading) + strafe * Math.cos(-heading);

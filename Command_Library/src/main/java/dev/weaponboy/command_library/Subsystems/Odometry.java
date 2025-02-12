@@ -43,12 +43,15 @@ public class Odometry extends SubSystem {
     double currentXVelocity = 0;
     double currentYVelocity = 0;
 
+    boolean sampleReset = true;
+
     public boolean isRunningDistanceSensorReset() {
         return runningDistanceSensorReset;
     }
 
-    public void runDistanceSensorReset() {
+    public void runDistanceSensorReset(boolean sampleReset) {
         runningDistanceSensorReset = true;
+        this.sampleReset = sampleReset;
         resetCounter = 0;
         sensorReadings.clear();
     }
@@ -76,12 +79,12 @@ public class Odometry extends SubSystem {
         backRight.init(getOpModeEX().hardwareMap, "backRight");
         backLeft.init(getOpModeEX().hardwareMap, "backLeft");
 
-        backRight.setOffset(-210);
-        backLeft.setOffset(-210);
+        backRight.setOffset(-180);
+        backLeft.setOffset(-180);
 
         right.init(getOpModeEX().hardwareMap, "right");
 
-        right.setOffset(-240);
+        right.setOffset(-200);
     }
 
     public double headingError(double targetHeading){
@@ -99,10 +102,10 @@ public class Odometry extends SubSystem {
             resetCounter++;
             sensorReadings.add(new SensorReadings(backRight.getPosition(), backLeft.getPosition(), right.getPosition()));
 
-            System.out.println(sensorReadings.size());
-            System.out.println(resetCounter);
+//            System.out.println(sensorReadings.size());
+//            System.out.println(resetCounter);
 
-            if (resetCounter > 10){
+            if (resetCounter > 20){
 
                 runningDistanceSensorReset = false;
                 SensorReadings averaged;
@@ -135,15 +138,22 @@ public class Odometry extends SubSystem {
                 double headingError = Math.atan(readingDifference / distanceBetweenSensors);
 
                 double newHeading;
+                double newY;
+                double newX;
 
-                if (readingDifference < 0){
+                if (sampleReset){
                     newHeading = 180 + Math.toDegrees(headingError);
+
+                    newY = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
+                    newX = 360 - (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
                 }else{
-                    newHeading = 180 + Math.toDegrees(headingError);
+                    newHeading = 90 + Math.toDegrees(headingError);
+
+                    newX = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
+                    newY = (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
                 }
 
-                double newY = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
-                double newX = 360 - (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
+
 
                 X = newX;
                 Y = newY;
@@ -251,7 +261,7 @@ public class Odometry extends SubSystem {
     }
 
     private final LambdaCommand resetPosition = new LambdaCommand(
-            () -> System.out.println("init odometry update"),
+            () -> {},
             () -> {
 
             },
