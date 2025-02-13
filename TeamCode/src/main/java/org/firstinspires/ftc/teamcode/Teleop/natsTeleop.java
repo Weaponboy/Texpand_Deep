@@ -39,6 +39,7 @@ public class natsTeleop extends OpModeEX {
 
     enum hangStates{
         waiting,
+        deployArm,
         prepare,
         engage,
         attach,
@@ -58,6 +59,8 @@ public class natsTeleop extends OpModeEX {
     double targetHeading;
     int counter = 0;
 
+    boolean disableManuelServos = false;
+
     Vector2D targetExtendoPoint = new Vector2D(344, 82);
 
     pathsManager paths = new pathsManager();
@@ -73,7 +76,7 @@ public class natsTeleop extends OpModeEX {
 
     @Override
     public void initEX() {
-        odometry.startPosition(344, 282, 270);
+        odometry.startPosition(82.5, 100, 0);
 
         paths.addNewPath("collectSub");
         paths.buildPath(subCollect);
@@ -111,15 +114,18 @@ public class natsTeleop extends OpModeEX {
         switch (hangState){
             case waiting:
                 break;
+            case deployArm:
+                hang.queueCommand(hang.deployArms);
+                collection.setHangHold(true);
+
+                disableManuelServos = true;
+                break;
             case prepare:
+                hang.setServoActive(false);
                 delivery.slideSetPoint(62);
                 delivery.slides = Delivery.slideState.moving;
                 delivery.Hang.execute();
-                collection.setHangHold(true);
-
-                collection.fourBarMainPivot.setPosition(collection.mainPivotHang);
-                collection.fourBarSecondPivot.setPosition(collection.secondPivotHang);
-                collection.turret.setPosition(collection.turretTransferPosition);
+                collection.queueCommand(collection.StowForHang);
                 break;
             case engage:
                 if (!hang.getServoActive()){
@@ -134,7 +140,6 @@ public class natsTeleop extends OpModeEX {
                     hang.setServoActive(false);
                 }
                 delivery.setSlideDisabledForHang(true);
-                collection.disableServos();
                 limelight.shutDown();
                 break;
             case pullUp:
@@ -354,7 +359,7 @@ public class natsTeleop extends OpModeEX {
         }else if (gamepad2.dpad_right){
             hang.hang1.setPosition(0);
             hang.hang2.setPosition(0);
-        }else if (!hang.getServoActive()){
+        }else if (!hang.getServoActive() || disableManuelServos){
             hang.hang1.setPosition(0.5);
             hang.hang2.setPosition(0.5);
         }

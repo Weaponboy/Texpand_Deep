@@ -200,10 +200,8 @@ public class Collection extends SubSystem {
     double mainPivotChamberCollect = 140;
     double secondPivotChamberCollect = 310;
 
-    public double mainPivotHang = 220;
-    public double secondPivotHang = 120;
-    double rotateHang = 90;
-
+    public double mainPivotHang = 83;
+    public double secondPivotHang = 210;
 
     ElapsedTime fourBarTimer = new ElapsedTime();
     double transferWaitTime;
@@ -429,6 +427,7 @@ public class Collection extends SubSystem {
                 fourBarSecondPivot.setPosition(secondPivotPreCollect);
             }
     );
+
     private final Command hang = new Execute(
             () -> {
                 fourBarMainPivot.setPosition(mainPivotHang);
@@ -727,6 +726,59 @@ public class Collection extends SubSystem {
 
             },
             () -> !(fourBarState == fourBar.transferringStates) && fourBarTimer.milliseconds() > transferWaitTime
+    );
+
+    public Command StowForHang = new LambdaCommand(
+            () -> {
+                fourBarState = fourBar.preCollect;
+            },
+            () -> {
+
+                if (fourBarState == fourBar.preCollect){
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferInt;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*2, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*3);
+
+                    Stowed.execute();
+                    gripServo.setPosition(gripperGrab);
+
+                } else if (fourBarState == fourBar.transferInt) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.abs(turret.getPositionDegrees()- 46)*4;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.transferUp;
+
+                    turret.setPosition(46);
+
+                }else if (fourBarState == fourBar.transferUp){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()- mainPivotHang)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotHang)*3);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowedChamber;
+
+                    hang.execute();
+
+                }else if (fourBarState == fourBar.stowedChamber) {
+
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.abs(turret.getPositionDegrees()- 56)*4;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+
+                    turret.setPosition(56);
+
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+            },
+            () -> false
     );
 
     public Command preCollectNoWait = new LambdaCommand(
@@ -1044,17 +1096,17 @@ public class Collection extends SubSystem {
                         turret.setPosition(turretTransferPosition);
 
                         setSlideTarget(0);
-                        targetPositionManuel = new Vector2D(20, 20);
 
-                        TransferAuto.execute();
+                        if (horizontalMotor.getCurrentPosition() < 320){
 
-//                        if (horizontalMotor.getCurrentPosition() < 320){
-//
-//                        }else{
-//                            fourBarMainPivot.setPosition(mainPivotPreCollect+5);
-//                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
-//                            transferToFar = true;
-//                        }
+                            targetPositionManuel = new Vector2D(20, 20);
+
+                            TransferAuto.execute();
+                        }else{
+                            fourBarMainPivot.setPosition(mainPivotPreCollect+5);
+                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
+                            transferToFar = true;
+                        }
 
                     }
 

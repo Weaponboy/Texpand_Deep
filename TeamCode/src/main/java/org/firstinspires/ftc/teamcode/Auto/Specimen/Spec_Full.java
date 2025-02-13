@@ -271,7 +271,7 @@ public class Spec_Full extends OpModeEX {
 
             if (odometry.Heading() > 200 && TargetExtendo == targetExtendo.notSet){
                 collection.angle = -45;
-                collection.targetPointWithExtendoNoArm(new Vector2D(246,57.5));
+                collection.targetPointWithExtendoNoArm(new Vector2D(246,55));
             }
 
             if (odometry.Heading() > 200 && TargetExtendo == targetExtendo.notSet && !firstSpike){
@@ -341,7 +341,7 @@ public class Spec_Full extends OpModeEX {
 //                collection.griperRotate.setPosition(50);
 
                 collection.angle = 45;
-                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242,29)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(243,28)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -396,7 +396,7 @@ public class Spec_Full extends OpModeEX {
 //                collection.queueCommand(collection.collect);
 //                collection.griperRotate.setPosition(50);
                 collection.angle = 45;
-                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(240,4)));
+                collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242.5,3)));
                 TargetExtendo = targetExtendo.one;
             }
 
@@ -512,7 +512,7 @@ public class Spec_Full extends OpModeEX {
 
                 driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), follow.getTurnPower(targetHeading + adjustedTarget, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
             } else {
-                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX(), powerPID.getY(), 0)));
+                driveBase.queueCommand(driveBase.drivePowers(new RobotPower(powerPID.getX()*0.6, powerPID.getY()*0.6, 0)));
             }
         }
 
@@ -529,16 +529,9 @@ public class Spec_Full extends OpModeEX {
 
     public void fullCycle(){
 
-        Vector2D targetExtendoPoint = new Vector2D(344, 82);
+        Vector2D targetExtendoPoint = new Vector2D(347, 79);
 
         if (cycleState == CycleState.obs_collect) {
-
-            if (PIDToPoint) {
-                PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(290, 141), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
-                powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
-            } else {
-                powerPID = new Vector2D();
-            }
 
             if (cycleBuilt == building.notBuilt) {
                 cycleBuilt = building.built;
@@ -558,22 +551,31 @@ public class Spec_Full extends OpModeEX {
                 delivery.griperRotateSev.setPosition(0);
             }
 
+            if (PIDToPoint) {
+                PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(290, 141), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
+            } else {
+                powerPID = new Vector2D();
+            }
+
 //            if (odometry.X() > 270){
 //                targetHeading = 307;
 //            }
 
-            if (odometry.Heading() > 310 && odometry.Heading() < 325 && !collectSample && state != autoState.cycle_one && !retryCollection){
-                collection.targetPointWithExtendo(targetExtendoPoint);
-                delivery.griperRotateSev.setPosition(0);
-            }
+//            if (odometry.Heading() > 310 && odometry.Heading() < 325 && !collectSample && state != autoState.cycle_one && !retryCollection){
+//                collection.targetPointWithExtendo(targetExtendoPoint);
+//                delivery.griperRotateSev.setPosition(0);
+//            }
 
-            if (!retryCollection && Math.abs(odometry.getYVelocity()) < 5 && Math.abs(odometry.getXVelocity()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
+            if (!retryCollection && Math.abs(odometry.getYVelocity()) < 2 && Math.abs(odometry.getXVelocity()) < 2 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
 
                 following = false;
 
                 delivery.griperRotateSev.setPosition(0);
 
                 collection.angle = 90;
+
+                PIDToPoint = false;
 
                 collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
 

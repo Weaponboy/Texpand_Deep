@@ -121,6 +121,22 @@ public class Hang extends SubSystem {
             () -> true
     );
 
+    public LambdaCommand deployArms  = new LambdaCommand(
+            () -> {
+                engageTime.reset();
+            },
+            () -> {
+                hang2.setPosition(1);
+                hang1.setPosition(1);
+
+                if (engageTime.milliseconds() > 350){
+                    hang2.setPosition(0.5);
+                    hang1.setPosition(0.5);
+                }
+            },
+            () -> engageTime.milliseconds() > 400
+    );
+
     public LambdaCommand Engage  = new LambdaCommand(
             () -> {
                 engageTime.reset();
