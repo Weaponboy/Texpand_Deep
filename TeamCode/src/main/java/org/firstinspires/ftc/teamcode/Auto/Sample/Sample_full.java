@@ -121,16 +121,16 @@ public class Sample_full extends OpModeEX {
             () -> paths.addPoints(new Vector2D(344.3, 275), new Vector2D(322, 282), new Vector2D(326, 326)),
     };
 
-    private final sectionBuilder[] spikeOne = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(338, 350), new Vector2D(322, 341))
-    };
-
     private final sectionBuilder[] spikeTwo = new sectionBuilder[]{
             () -> paths.addPoints(new Vector2D(334, 334), new Vector2D(305, 324))
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 233)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 236)),
+    };
+
+    private final sectionBuilder[] subCollectCloser = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(220, 295), new Vector2D(205, 236)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
@@ -157,37 +157,25 @@ public class Sample_full extends OpModeEX {
 
         paths.buildPath(preloadPath);
 
-        follow.setPath(paths.returnPath("preloadPath"));
-
         paths.addNewPath("collectSub");
 
         paths.buildPath(subCollect);
 
-        follow.setPath(paths.returnPath("collectSub"));
+        paths.addNewPath("collectSubCloser");
+
+        paths.buildPath(subCollectCloser);
 
         paths.addNewPath("dropBasket");
 
         paths.buildPath(subDeposit);
 
-        paths.addNewPath("dropBasketSpike");
-
-        paths.buildPath(spikeDeposit);
-
-        paths.addNewPath("dropBasketSpikeSafe");
-
-        paths.buildPath(spikeDepositSafe);
-
-        follow.setPath(paths.returnPath("dropBasket"));
-
-        paths.addNewPath("spikeOne");
-
-        paths.buildPath(spikeOne);
-
         paths.addNewPath("spikeTwo");
 
         paths.buildPath(spikeTwo);
 
-        collection.setCancelTransfer(false);
+        follow.setPath(paths.returnPath("dropBasket"));
+
+        collection.setCancelTransfer(true);
 
         limelight.switchPipeline(0);
         limelight.setSortHorizontal(true);
@@ -205,9 +193,11 @@ public class Sample_full extends OpModeEX {
 
     @Override
     public void loopEX() {
+
         if (run8){
             targetState = autoState.four;
         }
+
         if (!run8){
             targetState = autoState.three;
         }
@@ -343,7 +333,7 @@ public class Sample_full extends OpModeEX {
                         break;
                     case retractingRescan:
 
-                            if (rescan.milliseconds() > 500 && collection.getSlidePositionCM() < 2){
+                            if (rescan.milliseconds() > 500 && collection.getSlidePositionCM() < 5){
                                 spikeState = spikeStates.visionScanning;
 
                                 autoQueued = false;
@@ -906,7 +896,12 @@ public class Sample_full extends OpModeEX {
                 subCollectState = subFailsafeStates.visionScanning;
 
                 //pathing code
-                follow.setPath(paths.returnPath("collectSub"));
+                if (state == autoState.three || state == autoState.four){
+                    follow.setPath(paths.returnPath("collectSubCloser"));
+                }else{
+                    follow.setPath(paths.returnPath("collectSub"));
+                }
+
                 follow.usePathHeadings(true);
                 pathing = true;
                 headingOverride = false;
@@ -957,6 +952,7 @@ public class Sample_full extends OpModeEX {
 
                         busyDetecting = true;
                         detectionTimer.reset();
+                        rescan.reset();
                         counter = 0;
                         limelight.setGettingResults(true);
 
@@ -966,7 +962,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
 
                         counter++;
 
@@ -1063,6 +1059,7 @@ public class Sample_full extends OpModeEX {
                     if (collection.isTransferCanceled() && collection.getSlidePositionCM() > 0 && collection.getSlideTarget() > 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
 
                         collection.setSlideTarget(0);
+                        collection.turret.setPosition(collection.turretTransferPosition);
                         subRetry = true;
                         headingOverride = true;
                         run8 = false;
@@ -1071,6 +1068,7 @@ public class Sample_full extends OpModeEX {
                         collection.resetTransferCanceled();
 
                         subCollectState = subFailsafeStates.retractingRescan;
+                        rescan.reset();
                     }
 
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
@@ -1081,7 +1079,7 @@ public class Sample_full extends OpModeEX {
 
                     }
 
-                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
+                    if (rescan.milliseconds() > 500 && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
                         CycleState = cycleState.basketDrob;
                         cycleBuilt = building.notBuilt;
                     }

@@ -98,7 +98,8 @@ public class Collection extends SubSystem {
         slowBackup,
         chamberCollect,
         preClip,
-        specimen
+        specimen,
+        UnderChamberCycle
     }
 
     /**
@@ -197,8 +198,9 @@ public class Collection extends SubSystem {
     /**
      * stow position values
      * */
-    double mainPivotChamberCollect = 140;
-    double secondPivotChamberCollect = 310;
+    double mainPivotObsDrop = 185;
+    double secondPivotObsDrop = 170;
+    double turretSideDrop = 130;
 
     public double mainPivotHang = 83;
     public double secondPivotHang = 210;
@@ -215,8 +217,8 @@ public class Collection extends SubSystem {
     private tranfer transferType = tranfer.normalSlam;
 
     /**PID controllers**/
-    PIDController adjustment = new PIDController(0.015, 0, 0.05);
-    PIDController adjustmentClose = new PIDController(0.01, 0, 0.009);
+    PIDController adjustment = new PIDController(0.018, 0, 0.05);
+    PIDController adjustmentClose = new PIDController(0.012, 0, 0.009);
 
     /**Slide target stuff**/
     double slideTarget;
@@ -516,10 +518,11 @@ public class Collection extends SubSystem {
             }
     );
 
-    public final Command ChamberCollect = new Execute(
+    public final Command ObsDropSide = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(mainPivotChamberCollect);
-                fourBarSecondPivot.setPosition(secondPivotChamberCollect);
+                fourBarMainPivot.setPosition(mainPivotObsDrop);
+                fourBarSecondPivot.setPosition(secondPivotObsDrop);
+                turret.setPosition(turretSideDrop);
             }
     );
 
@@ -743,15 +746,16 @@ public class Collection extends SubSystem {
 
                     Stowed.execute();
                     gripServo.setPosition(gripperGrab);
+                    griperRotate.setPosition(90);
 
                 } else if (fourBarState == fourBar.transferInt) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.abs(turret.getPositionDegrees()- 46)*4;
+                    transferWaitTime = Math.abs(turret.getPositionDegrees()- 35)*4;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.transferUp;
 
-                    turret.setPosition(46);
+                    turret.setPosition(35);
 
                 }else if (fourBarState == fourBar.transferUp){
 
@@ -761,6 +765,7 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.stowedChamber;
 
                     hang.execute();
+//                    fourBarSecondPivot.setPosition(secondPivotHang-40);
 
                 }else if (fourBarState == fourBar.stowedChamber) {
 
@@ -770,6 +775,7 @@ public class Collection extends SubSystem {
                     fourBarTargetState = fourBar.stowed;
 
                     turret.setPosition(56);
+                    hang.execute();
 
                 }
 
@@ -1524,6 +1530,76 @@ public class Collection extends SubSystem {
 
             },
             () -> fourBarState == fourBar.stowedChamber && slideTarget == 0 || cancelTransfer
+    );
+
+    public Command DropSideTransfer = new LambdaCommand(
+            () -> {
+                cancelTransfer = false;
+            },
+            () -> {
+
+                if (fourBarState == fourBar.collect && clawsState == clawState.drop){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    clawsState = clawState.grab;
+
+                    abortTimer.reset();
+
+                }else if (fourBarState == fourBar.collect){
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowed;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotChamberStowed)*(microRoboticTime+10), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotChamberStowed)*10);
+
+                    Stowed.execute();
+
+                    if(isCancelTransferActive() && !breakBeam.isPressed()){
+
+                    }else {
+                        griperRotate.setPosition(rotateTransfer);
+                        setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
+                    }
+
+                }else if (fourBarState == fourBar.stowed){
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowedChamber;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotChamberStowed)*(microRoboticTime+10), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotChamberStowed)*10);
+
+                    Stowed.execute();
+
+                    if(isCancelTransferActive() && !breakBeam.isPressed()){
+
+                    }else {
+                        griperRotate.setPosition(rotateTransfer);
+                        setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
+                    }
+
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+                if(isCancelTransferActive() && !breakBeam.isPressed() && clawsState == clawState.grab && abortTimer.milliseconds() > 200 && abortTimer.milliseconds() < 400){
+                    preCollect.execute();
+                    setClawsState(clawState.drop);
+                    fourBarState = fourBar.preCollect;
+                    cancelTransfer = true;
+                    transferCanceled = true;
+                    clearQueue();
+                }
+
+            },
+            () -> fourBarState == fourBar.stowedChamber && slidesReset.isPressed() || cancelTransfer
     );
 
     public Command clip = new LambdaCommand(

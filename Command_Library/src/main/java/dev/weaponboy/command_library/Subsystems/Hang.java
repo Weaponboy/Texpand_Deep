@@ -27,7 +27,7 @@ public class Hang extends SubSystem {
 
     ElapsedTime engageTime = new ElapsedTime();
 
-    double targetTilt = -17.4;
+    double targetTilt = -18.4;
 
     public ServoDegrees PTO = new ServoDegrees();
 

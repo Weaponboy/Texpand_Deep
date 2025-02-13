@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 
-@TeleOp
+//@TeleOp
 public class pozTest extends OpMode {
 
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
