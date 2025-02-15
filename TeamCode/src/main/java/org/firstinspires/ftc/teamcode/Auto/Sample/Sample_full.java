@@ -175,7 +175,7 @@ public class Sample_full extends OpModeEX {
 
         follow.setPath(paths.returnPath("dropBasket"));
 
-        collection.setCancelTransfer(true);
+        collection.setCancelTransfer(false);
 
         limelight.switchPipeline(0);
         limelight.setSortHorizontal(true);
@@ -194,9 +194,9 @@ public class Sample_full extends OpModeEX {
     @Override
     public void loopEX() {
 
-        if (run8){
-            targetState = autoState.four;
-        }
+//        if (run8){
+//            targetState = autoState.four;
+//        }
 
         if (!run8){
             targetState = autoState.three;
@@ -223,12 +223,11 @@ public class Sample_full extends OpModeEX {
             }
 
             if (delivery.slideMotor.getCurrentPosition() > 200 && delivery.fourbarState == Delivery.fourBarState.transfer) {
-                delivery.queueCommand(delivery.depositAuto);
-
+                delivery.queueCommand(delivery.deposit);
             }
 
             if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(12, 12)) {
-                delivery.queueCommand(delivery.depositAuto);
+                delivery.queueCommand(delivery.deposit);
 
                 pathing = false;
 
@@ -262,6 +261,7 @@ public class Sample_full extends OpModeEX {
 //                collection.setCancelTransfer(true);
                 limelight.switchPipeline(0);
             }
+
             if (odometry.Heading() <210 && !extend){
                 collection.setSlideTarget(35);
                 extend = true;
@@ -296,7 +296,7 @@ public class Sample_full extends OpModeEX {
 
                         if (odometry.X() < 320 && !pullDownSlides) {
                             pullDownSlides = true;
-                            delivery.queueCommand(delivery.depositAuto);
+                            delivery.queueCommand(delivery.deposit);
                         }
 
                         if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10) {
@@ -372,7 +372,7 @@ public class Sample_full extends OpModeEX {
                         }
 
                         if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
-                            collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             autoQueued = true;
                             spikeState = spikeStates.collectingVision;
                         }
@@ -511,7 +511,7 @@ public class Sample_full extends OpModeEX {
                         }
 
                         if (delivery.getSlidePositionCM() < 60 && !autoQueued) {
-                            collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             autoQueued = true;
                         }
 
@@ -776,7 +776,7 @@ public class Sample_full extends OpModeEX {
                         }
 
                         if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
-                            collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             autoQueued = true;
                         }
 

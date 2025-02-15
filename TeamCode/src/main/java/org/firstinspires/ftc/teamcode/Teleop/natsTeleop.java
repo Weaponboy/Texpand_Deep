@@ -263,6 +263,10 @@ public class natsTeleop extends OpModeEX {
             ranTransfer = false;
         }
 
+//        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.stowedChamber){
+//
+//        } else
+
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.preCollect){
 
             collection.queueCommand(collection.collect);
@@ -472,7 +476,7 @@ public class natsTeleop extends OpModeEX {
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-            delivery.griperRotateSev.setPosition(90);
+//            delivery.griperRotateSev.setPosition(90);
             flipOutDepo = false;
         }
 

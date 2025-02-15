@@ -191,6 +191,12 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
+    double mainPivotTransferAutoSpike = 178;
+    double secondPivotTransferAutoSpike = 142;
+
+    /**
+     * stowed position values
+     * */
     double mainPivotTransfer = 198;
     double secondPivotTransfer = 148;
     double rotateTransfer = 180;
@@ -330,12 +336,8 @@ public class Collection extends SubSystem {
             horizontalMotor.update(0);
 
         } else {
-            if ((slideTarget*ticksPerCM) < 570){
-                error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
-            }else {
-                error = Math.abs((570) - (double) horizontalMotor.getCurrentPosition());
-            }
 
+            error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
 
             if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
                 slideTarget = 0;
@@ -487,6 +489,15 @@ public class Collection extends SubSystem {
             () -> {
                 fourBarSecondPivot.setPosition(secondPivotTransferAuto);
                 fourBarMainPivot.setPosition(mainPivotTransferAuto);
+
+                clawsState = clawState.grab;
+            }
+    );
+
+    private final Command TransferAutoSpike = new Execute(
+            () -> {
+                fourBarSecondPivot.setPosition(secondPivotTransferAutoSpike);
+                fourBarMainPivot.setPosition(mainPivotTransferAutoSpike);
 
                 clawsState = clawState.grab;
             }
@@ -1294,7 +1305,7 @@ public class Collection extends SubSystem {
                         targetPositionManuel = new Vector2D(20, 20);
 
                         if (horizontalMotor.getCurrentPosition() < 320){
-                            TransferAuto.execute();
+                            TransferAutoSpike.execute();
                         }else{
                             fourBarMainPivot.setPosition(mainPivotPreCollect+5);
                             fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
@@ -1306,7 +1317,7 @@ public class Collection extends SubSystem {
                 }
 
                 if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
-                    TransferAuto.execute();
+                    TransferAutoSpike.execute();
                     transferToFar = false;
                 }
 
@@ -1509,6 +1520,59 @@ public class Collection extends SubSystem {
 
                     }else {
                         griperRotate.setPosition(90);
+                        setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
+                    }
+
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+                if(isCancelTransferActive() && !breakBeam.isPressed() && clawsState == clawState.grab && fourBarTargetState != fourBar.collect && transferCounter < 6){
+                    preCollect.execute();
+                    setClawsState(clawState.drop);
+                    fourBarState = fourBar.preCollect;
+                    cancelTransfer = true;
+                    transferCanceled = true;
+                    clearQueue();
+                }
+
+            },
+            () -> fourBarState == fourBar.stowedChamber && slideTarget == 0 || cancelTransfer
+    );
+
+    public Command chamberCollectSample = new LambdaCommand(
+            () -> {
+                cancelTransfer = false;
+            },
+            () -> {
+
+                if (fourBarState == fourBar.collect && clawsState == clawState.drop){
+
+                    fourBarTimer.reset();
+                    transferWaitTime = gripperOpenTime;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    clawsState = clawState.grab;
+
+                }else if (fourBarState == fourBar.collect){
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.stowedChamber;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotChamberStowed)*(microRoboticTime+10), Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotChamberStowed)*10);
+
+                    fourBarMainPivot.setPosition(mainPivotChamberStowed+10);
+                    fourBarSecondPivot.setPosition(secondPivotChamberStowed);
+                    turret.setPosition(turretTransferPosition);
+
+                    if(isCancelTransferActive() && !breakBeam.isPressed()){
+
+                    }else {
+                        griperRotate.setPosition(rotateTransfer);
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
                     }
@@ -1745,6 +1809,9 @@ public class Collection extends SubSystem {
 
                         queueCommand(openGripper);
                         break;
+                    case UnderChamberCycle:
+                        queueCommand(chamberCollectSample);
+                        break;
                     case sample:
                         queueCommand(delivery.transferSample);
 
@@ -1823,8 +1890,8 @@ public class Collection extends SubSystem {
             this.slideTarget = slideTarget;
         }
 
-        if (slideTarget > 60){
-            this.slideTarget = 60;
+        if (slideTarget > 69){
+            this.slideTarget = 69;
         }
     }
 
@@ -1832,7 +1899,7 @@ public class Collection extends SubSystem {
         double oldX = targetPositionManuel.getX();
         double oldY = targetPositionManuel.getY();
 
-        if (oldY+incrementHorizontal > clawOffsetFromSlides*2){
+        if (oldY+incrementHorizontal > (clawOffsetFromSlides*2)){
             incrementHorizontal = 0;
             oldY = clawOffsetFromSlides*2;
         } else if (oldY+incrementHorizontal < 0) {
@@ -1840,7 +1907,13 @@ public class Collection extends SubSystem {
             incrementHorizontal = 0;
         }
 
-        targetPositionManuel = new Vector2D(oldX+incrementVertical, oldY+incrementHorizontal);
+        double finalXTarget = oldX+incrementVertical;
+
+        if (finalXTarget > 68){
+            finalXTarget = 68;
+        }
+
+        targetPositionManuel = new Vector2D(finalXTarget, oldY+incrementHorizontal);
 
         if (globalTargeting){
             setSlideTarget(calculateKinematicsGlobal());
@@ -1851,6 +1924,7 @@ public class Collection extends SubSystem {
     }
 
     private double calculateKinematics(){
+
         double yError = clawOffsetFromSlides - targetPositionManuel.getY();
 
         double angle = Math.toDegrees(Math.acos(yError / clawOffsetFromSlides));
@@ -1863,10 +1937,10 @@ public class Collection extends SubSystem {
 
         turretTargetPosition = 77.5 + angle;
 
-        if (targetPositionManuel.getY() < clawOffsetFromSlides+8){
-            parallelAngle = 180 + (turret.getPositionDegrees() - turretTransferPosition);
+        if (targetPositionManuel.getY() < clawOffsetFromSlides+10){
+            parallelAngle = 165 + (turret.getPositionDegrees() - turretTransferPosition);
         }else {
-            parallelAngle = 0 + (turret.getPositionDegrees() - turretTransferPosition);
+            parallelAngle = -15 + (turret.getPositionDegrees() - turretTransferPosition);
         }
 
         double perAngle = 0;
@@ -1878,6 +1952,10 @@ public class Collection extends SubSystem {
         }
 
         griperRotate.setPosition(perAngle);
+
+//        System.out.println("SlideTarget: " + (targetPositionManuel.getX() - slideOffset));
+//        System.out.println("slideOffset: " + (slideOffset));
+//        System.out.println("target Y: " + (targetPositionManuel.getY()));
 
         return targetPositionManuel.getX() - slideOffset;
     }
