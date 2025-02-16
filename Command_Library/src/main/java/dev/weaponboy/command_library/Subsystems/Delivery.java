@@ -44,7 +44,7 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public final double highBasket = 62;
-    public final double autoHighBasket = 64;
+    public final double autoHighBasket = 63.5;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25;
@@ -63,7 +63,7 @@ public class Delivery extends SubSystem {
     boolean slideDisabledForHang = false;
 
     double gripperDrop = 108;
-    double gripperGrab = 58;
+    double gripperGrab = 57;
     double gripperSlightRelease = 80;
 
     /**
@@ -95,9 +95,14 @@ public class Delivery extends SubSystem {
     /**
      * Bucket deposit position values
      * */
-    double mainPivotDepoAuto = 100;
-    double secondDepoAuto = 245;
-    double gripperDepoAuto = gripperGrab;
+    double mainPivotDepoAuto = 92;
+    double secondDepoAuto = 254;
+
+    /**
+     * Bucket deposit position values
+     * */
+    double mainPivotDepoAutoPreload  = 92;
+    double secondDepoAutoPreload = 255;
 
     /**
      * Clipping position values
@@ -109,7 +114,7 @@ public class Delivery extends SubSystem {
     /**
      * Clipping position values
      * */
-    double mainPivotClipBack = 135;
+    double mainPivotClipBack = 145;
     double secondClipBack = 230;
     double gripperClipBack = gripperGrab;
 
@@ -480,8 +485,6 @@ public class Delivery extends SubSystem {
                     PreClipBack.execute();
                 }
 
-//                System.out.println("RUNNING PRECLIP CODE");
-
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
                     fourbarState = fourBarTargetState;
                 }
@@ -522,7 +525,7 @@ public class Delivery extends SubSystem {
                 if (fourbarState == fourBarState.preClip && slideMotor.getCurrentPosition() > 100) {
 
                     fourBarTimer.reset();
-                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotClipFront)*6, Math.abs(secondPivot.getPositionDegrees()- secondClipFront)*microRoboticTime);
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotClipFront)*9, Math.abs(secondPivot.getPositionDegrees()- secondClipFront)*9);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.clip;
 //                    gripperState = gripper.slightRelease;

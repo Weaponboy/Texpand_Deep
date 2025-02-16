@@ -58,6 +58,8 @@ public class natsTeleop extends OpModeEX {
     double targetHeading;
     int counter = 0;
 
+    boolean disableManuelServos = false;
+
     Vector2D targetExtendoPoint = new Vector2D(344, 82);
 
     pathsManager paths = new pathsManager();
@@ -73,7 +75,7 @@ public class natsTeleop extends OpModeEX {
 
     @Override
     public void initEX() {
-        odometry.startPosition(344, 282, 270);
+        odometry.startPosition(82.5, 100, 0);
 
         paths.addNewPath("collectSub");
         paths.buildPath(subCollect);
@@ -112,14 +114,12 @@ public class natsTeleop extends OpModeEX {
             case waiting:
                 break;
             case prepare:
+                hang.setServoActive(false);
                 delivery.slideSetPoint(62);
                 delivery.slides = Delivery.slideState.moving;
                 delivery.Hang.execute();
                 collection.setHangHold(true);
-
-                collection.fourBarMainPivot.setPosition(collection.mainPivotHang);
-                collection.fourBarSecondPivot.setPosition(collection.secondPivotHang);
-                collection.turret.setPosition(collection.turretTransferPosition);
+                collection.queueCommand(collection.StowForHang);
                 break;
             case engage:
                 if (!hang.getServoActive()){
@@ -134,7 +134,6 @@ public class natsTeleop extends OpModeEX {
                     hang.setServoActive(false);
                 }
                 delivery.setSlideDisabledForHang(true);
-                collection.disableServos();
                 limelight.shutDown();
                 break;
             case pullUp:
@@ -148,19 +147,6 @@ public class natsTeleop extends OpModeEX {
                 break;
             default:
         }
-
-        if (gamepad1.dpad_right){
-            hang.hangPower.update(-0.5);
-        }
-
-//        if (!busyDetecting && collection.getCurrentCommand() != collection.extendoTargetPoint && pathing && gamepad1.right_stick_y == 0 && gamepad1.left_trigger == 0 &&  gamepad1.right_trigger == 0 && gamepad1.right_stick_x == 0){
-//            odometry.queueCommand(odometry.updateLineBased);
-//            RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
-//
-//            driveBase.queueCommand(driveBase.drivePowers(currentPower));
-//        }else if (!busyDetecting && collection.getCurrentCommand() != collection.extendoTargetPoint){
-//            pathing = false;
-//        }
 
         /**
          * Overwrites
@@ -277,6 +263,10 @@ public class natsTeleop extends OpModeEX {
             ranTransfer = false;
         }
 
+//        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.stowedChamber){
+//
+//        } else
+
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.preCollect){
 
             collection.queueCommand(collection.collect);
@@ -354,7 +344,7 @@ public class natsTeleop extends OpModeEX {
         }else if (gamepad2.dpad_right){
             hang.hang1.setPosition(0);
             hang.hang2.setPosition(0);
-        }else if (!hang.getServoActive()){
+        }else if (!hang.getServoActive() || disableManuelServos){
             hang.hang1.setPosition(0.5);
             hang.hang2.setPosition(0.5);
         }
@@ -391,7 +381,7 @@ public class natsTeleop extends OpModeEX {
 
             counter++;
 
-            if (limelight.getTargetPoint() != null){
+            if (limelight.getTargetPoint() != null && counter > 4){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
 
@@ -478,14 +468,22 @@ public class natsTeleop extends OpModeEX {
             delivery.slides = Delivery.slideState.moving;
             flipOutDepo = true;
 
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState() == Collection.fourBar.preCollect)){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState() == Collection.fourBar.preCollect) && delivery.slideTarget == delivery.highBasket){
+            delivery.queueCommand(delivery.deposit);
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 15 && !(collection.getFourBarState() == Collection.fourBar.preCollect) && delivery.slideTarget == delivery.lowBasket){
             delivery.queueCommand(delivery.deposit);
         }
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-            delivery.griperRotateSev.setPosition(90);
+//            delivery.griperRotateSev.setPosition(90);
             flipOutDepo = false;
+        }
+
+        if (currentGamepad2.a && !lastGamepad2.a && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+            delivery.slideSetPoint(delivery.lowBasket);
+            delivery.slides = Delivery.slideState.moving;
+            flipOutDepo = true;
         }
 
         telemetry.addData("loop time ", loopTime);
