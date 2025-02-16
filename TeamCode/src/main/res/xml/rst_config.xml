@@ -1,6 +1,5 @@
 <Robot type="FirstInspires-FTC">
-    <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.27" name="limelight" port="0" ipAddress="172.29.0.1" />
-    <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ8OZYQO" parentModuleAddress="2">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5202SeriesMotor name="horizontalMotor" port="0"/>
             <goBILDA5202SeriesMotor name="slideMotor" port="1"/>
@@ -13,8 +12,6 @@
             <Servo name="hang1" port="0"/>
             <Servo name="gripperRotate" port="1"/>
         </LynxModule>
-    </LynxUsbDevice>
-    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="RF" port="3"/>
             <goBILDA5202SeriesMotor name="RB" port="0"/>
@@ -37,6 +34,5 @@
             <ControlHubImuBHI260AP name="imu" port="0" bus="0"/>
         </LynxModule>
     </LynxUsbDevice>
-    <!--    <Webcam name="webcam" serialNumber="01.00.00"/>-->
-<!--    <Webcam name="webcam" serialNumber="SN0002" />-->
+    <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.27" name="limelight" port="0" ipAddress="172.29.0.1" />
 </Robot>

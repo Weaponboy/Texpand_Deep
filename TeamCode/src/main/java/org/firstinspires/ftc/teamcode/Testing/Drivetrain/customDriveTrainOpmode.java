@@ -8,7 +8,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 
-@TeleOp
+@TeleOp(name = "Drive_Only", group = "Testing")
 public class customDriveTrainOpmode extends OpMode {
 
     MotorEx LF = new MotorEx();
@@ -31,6 +31,30 @@ public class customDriveTrainOpmode extends OpMode {
     public void loop() {
 
         drive(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5);
+
+        if (gamepad1.a){
+            LF.update(0.5);
+        }else{
+            LF.update(0);
+        }
+
+        if (gamepad1.y){
+            LB.update(0.5);
+        }else{
+            LB.update(0);
+        }
+
+        if (gamepad1.b){
+            RF.update(0.5);
+        }else{
+            RF.update(0);
+        }
+
+        if (gamepad1.x){
+            RB.update(0.5);
+        }else{
+            RB.update(0);
+        }
 
     }
 

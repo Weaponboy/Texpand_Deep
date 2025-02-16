@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.Testing.Auto;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Auto.Blue.Blue_Left_cyclin;
+import org.firstinspires.ftc.teamcode.Auto.Sample.Sample_full;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
-import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
 @Autonomous
+@Disabled
 public class Testing_Sub_Failsafe extends OpModeEX {
 
     pathsManager paths = new pathsManager();
@@ -48,8 +48,8 @@ public class Testing_Sub_Failsafe extends OpModeEX {
         five,
         finished;
 
-        public static Blue_Left_cyclin.autoState next(Blue_Left_cyclin.autoState current) {
-            Blue_Left_cyclin.autoState[] values = Blue_Left_cyclin.autoState.values();
+        public static Sample_full.autoState next(Sample_full.autoState current) {
+            Sample_full.autoState[] values = Sample_full.autoState.values();
             int nextIndex = (current.ordinal() + 1) % values.length; // Wrap around to the first enum
             return values[nextIndex];
         }
@@ -79,22 +79,16 @@ public class Testing_Sub_Failsafe extends OpModeEX {
     boolean pathing = false;
     boolean headingAdjustment = false;
 
-    public Blue_Left_cyclin.cycleState CycleState = Blue_Left_cyclin.cycleState.subCollect;
+    public Sample_full.cycleState CycleState = Sample_full.cycleState.subCollect;
 
-    public Blue_Left_cyclin.autoState targetState = Blue_Left_cyclin.autoState.three;
-    public Blue_Left_cyclin.autoState state = Blue_Left_cyclin.autoState.preload;
-    public Blue_Left_cyclin.building built = Blue_Left_cyclin.building.notBuilt;
-    public Blue_Left_cyclin.building cycleBuilt = Blue_Left_cyclin.building.notBuilt;
+    public Sample_full.autoState targetState = Sample_full.autoState.three;
+    public Sample_full.autoState state = Sample_full.autoState.preload;
+    public Sample_full.building built = Sample_full.building.notBuilt;
+    public Sample_full.building cycleBuilt = Sample_full.building.notBuilt;
 
     @Override
     public void initEX() {
         odometry.startPosition(200, 200, 235);
-
-        FtcDashboard.getInstance().startCameraStream(collection.sampleSorterContour, 30);
-
-        collection.sampleSorterContour.closestFirst = true;
-
-        collection.setCancelTransfer(true);
     }
 
     @Override
@@ -132,9 +126,9 @@ public class Testing_Sub_Failsafe extends OpModeEX {
 
     public void subCycle () {
 
-        if (CycleState == Blue_Left_cyclin.cycleState.subCollect){
+        if (CycleState == Sample_full.cycleState.subCollect){
 
-            if (cycleBuilt == Blue_Left_cyclin.building.notBuilt){
+            if (cycleBuilt == Sample_full.building.notBuilt){
                 busyDetecting = false;
                 pathing = true;
                 pullDownSlides = false;
@@ -147,7 +141,7 @@ public class Testing_Sub_Failsafe extends OpModeEX {
                 collection.setCancelTransfer(true);
                 counter = 0;
 
-                cycleBuilt = Blue_Left_cyclin.building.built;
+                cycleBuilt = Sample_full.building.built;
 
                 delivery.queueCommand(delivery.cameraScan);
                 collection.queueCommand(collection.collect);
@@ -158,8 +152,6 @@ public class Testing_Sub_Failsafe extends OpModeEX {
                 autoQueued = false;
                 headingOverride = true;
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-
-                collection.sampleSorterContour.setScanning(true, 5);
 
                 busyDetecting = true;
                 detectionTimer.reset();
@@ -210,20 +202,20 @@ public class Testing_Sub_Failsafe extends OpModeEX {
 
                 counter++;
 
-                if (!collection.sampleSorterContour.detections.isEmpty() && !collection.sampleSorterContour.isScanning() && counter > 12){
-
-                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
-                        collection.queueCommand(collection.collect);
-                    }
-
-                    collection.sampleMap = collection.sampleSorterContour.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
-
-                    collection.queueCommand(collection.autoCollectGlobal);
-
-                    collect = true;
-
-                    counter = 40;
-                }
+//                if (!collection.sampleDetector.detections.isEmpty() && !collection.sampleDetector.isScanning() && counter > 12){
+//
+//                    if (collection.getFourBarState() != Collection.fourBar.preCollect){
+//                        collection.queueCommand(collection.collect);
+//                    }
+//
+//                    collection.sampleMap = collection.sampleDetector.convertPositionsToFieldPositions(new RobotPower(odometry.X(), odometry.Y(), odometry.Heading()), delivery.getSlidePositionCM(), 180 - (90 -Math.abs((delivery.mainPivot.getPositionDegrees()-190.5)*1.2587)));
+//
+//                    collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
+//
+//                    collect = true;
+//
+//                    counter = 40;
+//                }
 
             }
 
@@ -242,16 +234,14 @@ public class Testing_Sub_Failsafe extends OpModeEX {
             } else if (delivery.getSlidePositionCM() > 15 && collection.isTransferCanceled() && Math.abs(delivery.slideMotor.getVelocity()) < 10) {
                 delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
 
-                collection.sampleSorterContour.setScanning(true, 5);
-
                 busyDetecting = false;
 
                 collection.resetTransferCanceled();
             }
 
             if (collection.isTransferCanceled() && subRetry && collection.getSlideTarget() != 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
-                CycleState = Blue_Left_cyclin.cycleState.basketDrob;
-                cycleBuilt = Blue_Left_cyclin.building.notBuilt;
+                CycleState = Sample_full.cycleState.basketDrob;
+                cycleBuilt = Sample_full.building.notBuilt;
 
                 collection.setSlideTarget(0);
                 collection.overrideCurrent(true, collection.stow);
