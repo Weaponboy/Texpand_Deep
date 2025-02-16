@@ -185,7 +185,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAuto = 180;
+    double mainPivotTransferAuto = 182;
     double secondPivotTransferAuto = 142;
 
     /**
@@ -990,7 +990,7 @@ public class Collection extends SubSystem {
                     abortTimer.reset();
                     runningCheck = true;
 
-                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (griperRotate.getPositionDegrees() < 90)){
+                } else if (!cancelTransfer && (fourBarState == fourBar.collect || fourBarState == fourBar.stowedChamber) && clawsState == clawState.grab && (griperRotate.getPositionDegrees() < 90)){
 
                     fourBarTimer.reset();
 
@@ -1007,7 +1007,7 @@ public class Collection extends SubSystem {
                     double oldX = targetPositionManuel.getX();
                     targetPositionManuel = new Vector2D(oldX, 20);
 
-                }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                }else if (!cancelTransfer && (fourBarState == fourBar.collect || fourBarState == fourBar.stowedChamber) && clawsState == clawState.grab) {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
@@ -1810,7 +1810,17 @@ public class Collection extends SubSystem {
                         queueCommand(openGripper);
                         break;
                     case UnderChamberCycle:
-                        queueCommand(chamberCollectSample);
+                        if (fourBarState == fourBar.preCollect){
+                            queueCommand(chamberCollectSample);
+                        }else if (fourBarState == fourBar.stowedChamber){
+                            queueCommand(transferSlam);
+
+                            queueCommand(transferDropSlam);
+
+                            queueCommand(delivery.closeGripper);
+
+                            queueCommand(openGripper);
+                        }
                         break;
                     case sample:
                         queueCommand(delivery.transferSample);
