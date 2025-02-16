@@ -9,13 +9,23 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Odometry;
+import dev.weaponboy.nexus_pathing.Follower.follower;
+import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
+import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
+import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
+import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @TeleOp
-@Disabled
 public class TestMaxVelocity extends OpModeEX {
 
     ElapsedTime elapsedTimeX = new ElapsedTime();
     ElapsedTime elapsedTimeY = new ElapsedTime();
+
+    pathsManager paths = new pathsManager();
+    boolean following = false;
+    follower follow = new follower();
+    double targetHeading;
+
 
     double maxVecticalVelo;
     double maxHorzontalVelo;
@@ -29,6 +39,9 @@ public class TestMaxVelocity extends OpModeEX {
     double turnPower = 0;
     double horizontal = 0;
     double lastHeading;
+    private final sectionBuilder[] drive = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(10, 0), new Vector2D(25, 0)),
+    };
 
 //    public void getAcc(){
 //
@@ -63,11 +76,20 @@ public class TestMaxVelocity extends OpModeEX {
 
     @Override
     public void initEX() {
+        odometry.startPosition(0, 0, 180);
+        paths.addNewPath("drive");
+        paths.buildPath(drive);
+
 
     }
 
     @Override
     public void loopEX() {
+        if (gamepad1.a){
+            targetHeading = 180;
+            following = true;
+            follow.setPath(paths.returnPath("drive"));
+        }
 
         horizontal = -gamepad2.right_stick_x*0.5;
         double lastHor = -lastGamepad2.right_stick_x*0.5;
@@ -112,6 +134,11 @@ public class TestMaxVelocity extends OpModeEX {
         if (maxHorzontalVelo > 130 && lastTimeY < 1){
             lastTimeY = elapsedTimeY.seconds();
         }
+        if (following) {
+            RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
+//
+            driveBase.queueCommand(driveBase.drivePowers(currentPower));
+        }
 
         telemetry.addData("x velo", maxVecticalVelo);
         telemetry.addData("y velo", maxHorzontalVelo);
@@ -120,6 +147,7 @@ public class TestMaxVelocity extends OpModeEX {
 
         telemetry.addData("x velo actual", odometry.getXVelocity());
         telemetry.addData("y velo actual", odometry.getYVelocity());
+        telemetry.addData("power",driveBase.RB.getPower());
         telemetry.update();
 
     }
