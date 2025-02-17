@@ -209,7 +209,7 @@ public class natsTeleop extends OpModeEX {
 
             collection.queueCommand(collection.collect);
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
         }
 
@@ -273,7 +273,7 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
             if (clipping){
                 runClip = true;
