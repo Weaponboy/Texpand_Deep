@@ -367,7 +367,7 @@ public class Delivery extends SubSystem {
                     DepositAuto.execute();
 
                 }else if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.grab) {
-                    secondPivot.setPosition(254);
+                    secondPivot.setPosition(255);
                     drop = true;
                     dropTimer.reset();
 
@@ -378,7 +378,7 @@ public class Delivery extends SubSystem {
 
 
                 }
-                if (drop && dropTimer.milliseconds()>25){
+                if (drop && dropTimer.milliseconds()>35){
                     gripperState = gripper.drop;
                     drop = false;
 

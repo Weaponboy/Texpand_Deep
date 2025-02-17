@@ -248,7 +248,7 @@ public class Sample_full extends OpModeEX {
 
             if (built == building.notBuilt) {
 
-                targetHeading = 183;
+                targetHeading = 180;
 
                 built = building.built;
                 cycleBuilt = building.notBuilt;
@@ -263,7 +263,7 @@ public class Sample_full extends OpModeEX {
             }
 
             if (odometry.Heading() <210 && !extend){
-                collection.setSlideTarget(35);
+                collection.setSlideTarget(41);
                 extend = true;
             }
 
@@ -299,7 +299,7 @@ public class Sample_full extends OpModeEX {
                             delivery.queueCommand(delivery.deposit);
                         }
 
-                        if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 5 && odometry.getXVelocity() < 10) {
+                        if (!headingAdjustment && !autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && Math.abs(odometry.Heading() - targetHeading) < 7 && odometry.getXVelocity() < 15) {
 
                             autoQueued = true;
 
@@ -507,11 +507,11 @@ public class Sample_full extends OpModeEX {
 
                         if (odometry.X() < 320 && !pullDownSlides) {
                             pullDownSlides = true;
+                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             delivery.queueCommand(delivery.depositAuto);
                         }
 
                         if (delivery.getSlidePositionCM() < 60 && !autoQueued) {
-                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             autoQueued = true;
                         }
 
@@ -695,12 +695,12 @@ public class Sample_full extends OpModeEX {
                     case collecting:
                         if (odometry.X() < 320 && !pullDownSlides) {
                             pullDownSlides = true;
+                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                             delivery.queueCommand(delivery.depositAuto);
                         }
 
                         if (delivery.getSlidePositionCM() < 60 && !autoQueued) {
                             autoQueued = true;
-                            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
                         }
 
                         if(autoQueued && collection.isTransferCanceled() && collection.getCurrentCommand() == collection.returnDefaultCommand()){

@@ -864,7 +864,7 @@ public class Collection extends SubSystem {
 
 //                }
             },
-            () -> runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1 && Math.abs(horizontalMotor.getVelocity()) < 20 && Math.abs(extendoPower) < 0.1 && getSlideTarget() > 1 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime
+            () -> runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3.5 && Math.abs(horizontalMotor.getVelocity()) < 60 && Math.abs(extendoPower) < 0.2 && getSlideTarget() > 1 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime
     );
 
     public Command autoCollectGlobal(TargetSample targetPoint){
@@ -1257,12 +1257,12 @@ public class Collection extends SubSystem {
             },
             () -> {
 
-                if (!cancelTransfer && fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 5) {
+                if (!cancelTransfer && fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 9) {
 
                     clawsState = clawState.grab;
 
                     fourBarTimer.reset();
-                    transferWaitTime = 120;
+                    transferWaitTime = 80;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
