@@ -40,7 +40,7 @@ public class TestMaxVelocity extends OpModeEX {
     double horizontal = 0;
     double lastHeading;
     private final sectionBuilder[] drive = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(10, 0), new Vector2D(25, 0)),
+            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(20, 0), new Vector2D(45, 0)),
     };
 
 //    public void getAcc(){
@@ -85,8 +85,8 @@ public class TestMaxVelocity extends OpModeEX {
 
     @Override
     public void loopEX() {
-        if (gamepad1.a){
-            targetHeading = 180;
+        if (gamepad2.a){
+            targetHeading = 0;
             following = true;
             follow.setPath(paths.returnPath("drive"));
         }

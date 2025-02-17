@@ -305,7 +305,7 @@ public class Sample_full extends OpModeEX {
 
                             collection.angle = 90;
 
-                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 353)));
+                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 351)));
 
                             collection.queueCommand(collection.transfer(Collection.tranfer.spike, true));
 
@@ -405,7 +405,7 @@ public class Sample_full extends OpModeEX {
 
                             targetHeading = 200;
 
-                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 329)));
+                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 327)));
                             collection.queueCommand(collection.collect);
                         }
 
@@ -449,7 +449,7 @@ public class Sample_full extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 329)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 327)));
 
                     collection.queueCommand(collection.collect);
 
@@ -583,7 +583,7 @@ public class Sample_full extends OpModeEX {
 
                             collection.angle = 60;
 
-                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 304)));
+                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 302)));
                             collection.queueCommand(collection.collect);
                         }
                         break;
@@ -600,7 +600,7 @@ public class Sample_full extends OpModeEX {
 
                             collection.angle = 70;
 
-                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 304)));
+                            collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 302)));
                             collection.queueCommand(collection.collect);
                         }
 
@@ -947,7 +947,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3 && odometry.X() < 300){
+                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 5 && Math.abs(odometry.getYVelocity()) < 5 && odometry.X() < 305){
 
                         autoQueued = false;
                         pathing = false;
@@ -967,7 +967,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (30*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
 
                         counter++;
 
@@ -1031,7 +1031,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * if collect successful move to the depo code
                      * */
-                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
+                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 5 && collect && autoQueued && collection.horizontalMotor.getVelocity() > -5 && collection.getSlidePositionCM() < 30) {
                         CycleState = cycleState.basketDrob;
                         cycleBuilt = building.notBuilt;
                     }
@@ -1126,7 +1126,7 @@ public class Sample_full extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 212;
+                targetHeading = 223;
 
                 follow.usePathHeadings(false);
 
@@ -1138,7 +1138,7 @@ public class Sample_full extends OpModeEX {
                 limelight.setReturningData(false);
             }
 
-            if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 240 && drop){
+            if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 220 && drop){
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
             }
@@ -1148,7 +1148,7 @@ public class Sample_full extends OpModeEX {
 //                CycleState = cycleState.subCollect;
 //            }
 
-            if (delivery.slideMotor.getCurrentPosition() > 695 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
+            if (delivery.slideMotor.getCurrentPosition() > 655 && delivery.fourbarState == Delivery.fourBarState.transfer && drop){
                 delivery.queueCommand(delivery.depositAuto);
             }
 

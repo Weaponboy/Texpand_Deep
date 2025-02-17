@@ -36,6 +36,10 @@ public class Delivery extends SubSystem {
     public ServoDegrees secondPivot = new ServoDegrees();
     public ServoDegrees griperRotateSev =new ServoDegrees();
 
+    boolean drop = false;
+
+    ElapsedTime dropTimer = new ElapsedTime();
+
 
     public TouchSensor slidesReset;
 
@@ -96,7 +100,7 @@ public class Delivery extends SubSystem {
      * Bucket deposit position values
      * */
     double mainPivotDepoAuto = 92;
-    double secondDepoAuto = 254;
+    double secondDepoAuto = 224;
 
     /**
      * Bucket deposit position values
@@ -227,7 +231,6 @@ public class Delivery extends SubSystem {
             () -> {
                 mainPivot.setPosition(mainPivotDepoAuto);
                 secondPivot.setPosition(secondDepoAuto);
-                griperSev.setPosition(gripperDepo);
             }
     );
 
@@ -364,16 +367,23 @@ public class Delivery extends SubSystem {
                     DepositAuto.execute();
 
                 }else if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.grab) {
-
-                    gripperState = gripper.drop;
+                    secondPivot.setPosition(254);
+                    drop = true;
+                    dropTimer.reset();
 
                     fourBarTimer.reset();
-                    transferWaitTime = 100;
+                    transferWaitTime = 50;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
-                    DepositAuto.execute();
+
                 }
+                if (drop && dropTimer.milliseconds()>25){
+                    gripperState = gripper.drop;
+                    drop = false;
+
+                }
+
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourbarState = fourBarTargetState;
