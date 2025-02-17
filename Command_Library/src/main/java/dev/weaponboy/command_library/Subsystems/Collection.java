@@ -1289,7 +1289,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*0.7, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*1.5);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*0.7, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*1.8);
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){

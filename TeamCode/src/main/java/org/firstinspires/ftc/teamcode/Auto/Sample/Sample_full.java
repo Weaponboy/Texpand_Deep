@@ -112,7 +112,7 @@ public class Sample_full extends OpModeEX {
     subFailsafeStates subCollectState = subFailsafeStates.visionScanning;
     spikeStates spikeState = spikeStates.collecting;
 
-    public autoState targetState = autoState.three;
+    public autoState targetState = autoState.four;
     public autoState state = autoState.preload;
     public building built = building.notBuilt;
     public building cycleBuilt = building.notBuilt;
@@ -194,13 +194,6 @@ public class Sample_full extends OpModeEX {
     @Override
     public void loopEX() {
 
-//        if (run8){
-//            targetState = autoState.four;
-//        }
-
-        if (!run8){
-            targetState = autoState.three;
-        }
 
         if (state == autoState.preload) {
 
@@ -644,7 +637,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 65;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 304)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(244, 302.5)));
 
                     collection.queueCommand(collection.collect);
 
@@ -1031,7 +1024,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * if collect successful move to the depo code
                      * */
-                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 5 && collect && autoQueued && collection.horizontalMotor.getVelocity() > -5 && collection.getSlidePositionCM() < 30) {
+                    if (!collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() > -10 && collection.getSlidePositionCM() < 30) {
                         CycleState = cycleState.basketDrob;
                         cycleBuilt = building.notBuilt;
                     }
@@ -1084,7 +1077,7 @@ public class Sample_full extends OpModeEX {
 
                     }
 
-                    if (rescan.milliseconds() > 500 && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 15 && collect && autoQueued && collection.horizontalMotor.getVelocity() < -7 && collection.getSlidePositionCM() < 30) {
+                    if (rescan.milliseconds() > 500 && !collection.isTransferCanceled() && collection.getSlideTarget() == 0 && collection.getClawsState() == Collection.clawState.grab && delivery.getSlidePositionCM() < 5 && collect && autoQueued && collection.horizontalMotor.getVelocity() > -5 && collection.getSlidePositionCM() < 30) {
                         CycleState = cycleState.basketDrob;
                         cycleBuilt = building.notBuilt;
                     }
@@ -1126,7 +1119,7 @@ public class Sample_full extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 223;
+                targetHeading = 220;
 
                 follow.usePathHeadings(false);
 
