@@ -39,6 +39,12 @@ public class Collection extends SubSystem {
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
 
+    public void setSpikeTime(double spikeTime) {
+        this.spikeTime = spikeTime;
+    }
+
+    public double spikeTime = 2;
+
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
@@ -864,7 +870,7 @@ public class Collection extends SubSystem {
 
 //                }
             },
-            () -> runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3.5 && Math.abs(horizontalMotor.getVelocity()) < 60 && Math.abs(extendoPower) < 0.2 && getSlideTarget() > 1 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime
+            () -> runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 20 && Math.abs(extendoPower) < 0.1 && getSlideTarget() > 1 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime
     );
 
     public Command autoCollectGlobal(TargetSample targetPoint){
@@ -1289,7 +1295,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*0.7, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*1.8);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*0.7, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*spikeTime);
                     fourBarTargetState = fourBar.transferUp;
 
                     if(isCancelTransferActive() && !breakBeam.isPressed()){
