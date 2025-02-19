@@ -67,7 +67,7 @@ public class Delivery extends SubSystem {
     boolean slideDisabledForHang = false;
 
     double gripperDrop = 108;
-    double gripperGrab = 57;
+    double gripperGrab = 50;
     double gripperSlightRelease = 80;
 
     /**

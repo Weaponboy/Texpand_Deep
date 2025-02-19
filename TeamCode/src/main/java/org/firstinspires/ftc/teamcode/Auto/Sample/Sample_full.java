@@ -126,11 +126,11 @@ public class Sample_full extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 236)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 230)),
     };
 
     private final sectionBuilder[] subCollectCloser = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(220, 295), new Vector2D(205, 236)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(220, 295), new Vector2D(205, 230)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
@@ -255,7 +255,7 @@ public class Sample_full extends OpModeEX {
                 limelight.switchPipeline(0);
             }
 
-            if (odometry.Heading() <210 && !extend){
+            if (odometry.Heading() <200 && !extend){
                 collection.setSlideTarget(41);
                 extend = true;
             }
@@ -442,7 +442,7 @@ public class Sample_full extends OpModeEX {
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 325.5)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(246, 326.5)));
 
                     collection.queueCommand(collection.collect);
 
@@ -636,7 +636,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 65;
 
-                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(242.6, 299)));
+                    collection.queueCommand(collection.extendoTargetPoint(new Vector2D(241.5, 302)));
 
                     collection.queueCommand(collection.collect);
 
@@ -942,7 +942,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 5 && Math.abs(odometry.getYVelocity()) < 5 && odometry.X() < 305){
+                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3 && odometry.X() < 305){
 
                         autoQueued = false;
                         pathing = false;
@@ -962,7 +962,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (30*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
 
                         counter++;
 
@@ -1121,7 +1121,7 @@ public class Sample_full extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 220;
+                targetHeading = 215;
 
                 follow.usePathHeadings(false);
 
