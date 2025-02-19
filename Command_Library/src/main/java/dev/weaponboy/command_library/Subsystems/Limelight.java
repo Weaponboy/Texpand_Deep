@@ -40,6 +40,7 @@ public class Limelight extends SubSystem {
         closeFirstInt = closeFirst ? 1 : 0;
     }
 
+
     public boolean isScanning() {
         return isScanning;
     }
@@ -159,8 +160,8 @@ public class Limelight extends SubSystem {
 
     }
 
-    public void updatePythonInputs(double X, double Y, double Heading, double SlideCM){
-        double[] inputs = {isScanningInt, closeFirstInt, X, Y, Heading, SlideCM, horInt, 0};
+    public void updatePythonInputs(double X, double Y, double Heading, double SlideCM, double getXVelocity, double getYVelocity ){
+        double[] inputs = {getXVelocity, closeFirstInt, X, Y, Heading, SlideCM, horInt, getYVelocity};
         limelight.updatePythonInputs(inputs);
     }
 

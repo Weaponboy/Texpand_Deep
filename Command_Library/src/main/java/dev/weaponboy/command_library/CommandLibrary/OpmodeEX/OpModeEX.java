@@ -88,7 +88,7 @@ public abstract class OpModeEX extends OpMode {
 
         RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
         collection.updateRobotPosition(RobotPosition);
-        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM());
+        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM(), odometry.getXVelocity(), odometry.getYVelocity());
         collection.updateDelivery(delivery);
 
         scheduler.execute();
