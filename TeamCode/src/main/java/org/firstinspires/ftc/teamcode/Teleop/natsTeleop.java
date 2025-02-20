@@ -369,7 +369,7 @@ public class natsTeleop extends OpModeEX {
             cameraScan = false;
         }
 
-        if (visionRan && Math.abs(odometry.getXVelocity()) < 2 && Math.abs(odometry.getYVelocity()) < 2){
+        if (visionRan ){
             visionRan = false;
 
             busyDetecting = true;
