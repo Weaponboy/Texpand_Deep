@@ -43,6 +43,8 @@ public class Sample_full extends OpModeEX {
     boolean collectRetry = false;
     boolean PIDToPoint = false;
     boolean a8 = true;
+    boolean stopDiviving = false;
+    boolean startpid = false;
 
     Vector2D powerPID = new Vector2D();
 
@@ -939,10 +941,12 @@ public class Sample_full extends OpModeEX {
                         }
                     }
 
+
+
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 3 && Math.abs(odometry.getYVelocity()) < 3 && odometry.X() < 305){
+                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 65 && Math.abs(odometry.getYVelocity()) < 65 && odometry.X() < 240 && odometry.Y() < 290){
 
                         autoQueued = false;
                         pathing = false;
@@ -962,7 +966,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand && rescan.milliseconds() > 200){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand ){
 
                         counter++;
 
@@ -1011,6 +1015,15 @@ public class Sample_full extends OpModeEX {
                     if (collect && collection.getSlideTarget() != 0 && delivery.slideTarget > 15){
                         delivery.overrideCurrent(true, delivery.stow);
                         delivery.runReset();
+                        stopDiviving = true;
+                        follow.finishPath();
+                    }
+                    /**
+                     * stop driving
+                     * */
+                    if (stopDiviving){
+
+                        stopDiviving = false;
                     }
 
                     /**
