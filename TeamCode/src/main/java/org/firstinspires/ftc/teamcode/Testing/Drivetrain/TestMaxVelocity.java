@@ -134,6 +134,7 @@ public class TestMaxVelocity extends OpModeEX {
         if (maxHorzontalVelo > 130 && lastTimeY < 1){
             lastTimeY = elapsedTimeY.seconds();
         }
+
         if (following) {
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
 //

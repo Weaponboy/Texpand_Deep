@@ -946,7 +946,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && Math.abs(odometry.getXVelocity()) < 65 && Math.abs(odometry.getYVelocity()) < 65 && odometry.X() < 240 && odometry.Y() < 290){
+                    if (!busyDetecting && odometry.X() < 240 && odometry.Y() < 250 && odometry.Heading() > 255){
 
                         autoQueued = false;
                         pathing = false;
@@ -966,7 +966,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13 && collection.getCurrentCommand() == collection.defaultCommand ){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13){
 
                         counter++;
 
