@@ -946,7 +946,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && odometry.X() < 240 && odometry.Y() < 250 && odometry.Heading() > 255){
+                    if (!busyDetecting && odometry.Heading() > 250){
 
                         autoQueued = false;
                         pathing = false;
@@ -966,7 +966,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Running vision scan
                      * */
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 13){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 30){
 
                         counter++;
 
@@ -985,7 +985,7 @@ public class Sample_full extends OpModeEX {
                             subCollectState = subFailsafeStates.collecting;
                         }
 
-                    }else if (!collect && busyDetecting && counter >= 12 && collection.getFourBarState() == Collection.fourBar.preCollect && targetHeading < 275) {
+                    }else if (!collect && busyDetecting && counter >= 29 && collection.getFourBarState() == Collection.fourBar.preCollect && targetHeading < 275) {
 
                         targetHeading = odometry.Heading() + 15;
 
@@ -993,7 +993,7 @@ public class Sample_full extends OpModeEX {
                         follow.setExtendoHeading(true);
                         subCollectState = subFailsafeStates.turningNoneFound;
 
-                    }else if (!collect && busyDetecting && counter >= 12 && collection.getFourBarState() == Collection.fourBar.preCollect && (targetHeading+15) > 275){
+                    }else if (!collect && busyDetecting && counter >= 29 && collection.getFourBarState() == Collection.fourBar.preCollect && (targetHeading+15) > 275){
                         CycleState = cycleState.basketDrob;
                         cycleBuilt = building.notBuilt;
 
