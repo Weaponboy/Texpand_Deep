@@ -16,6 +16,8 @@ public class ServoDegrees {
     double positionConstantConverter;
     double PWMPerDegree;
 
+    double currentPosition = 0;
+
     public void setOffset(double offset) {
         this.offset = offset;
     }
@@ -48,9 +50,13 @@ public class ServoDegrees {
 
     public void setPosition(double position) {
 
+        double changeInPosition = Math.abs((position+offset) - currentPosition);
+
         if (setPositionAsync == null){
+            currentPosition = position+offset;
             setPositionAsync = setPositionAsync(position+offset);
-        } else if (setPositionAsync.isDone()) {
+        } else if (setPositionAsync.isDone() && changeInPosition > 2) {
+            currentPosition = position+offset;
             setPositionAsync = setPositionAsync(position+offset);
         }
 

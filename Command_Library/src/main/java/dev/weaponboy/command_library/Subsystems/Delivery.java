@@ -40,7 +40,6 @@ public class Delivery extends SubSystem {
 
     ElapsedTime dropTimer = new ElapsedTime();
 
-
     public TouchSensor slidesReset;
 
     public motionProfile profile = new motionProfile(1200, 210, 71, 850, 0.2);

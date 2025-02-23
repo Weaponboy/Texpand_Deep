@@ -15,7 +15,7 @@ public class MotorEx {
 
     DcMotorEx motor;
     private ExecutorService executor;
-    double tolerance = 0.005;
+    double tolerance = 0.05;
 
     double currentPower;
     int currentPosition;
@@ -67,18 +67,18 @@ public class MotorEx {
 
         if (setPowerFuture == null){
             setPowerFuture = setPowerAsync(power);
-        }else if (setPowerFuture.isDone() &&( powerDelta > tolerance || power == 0)){
+        }else if (setPowerFuture.isDone() && (powerDelta > tolerance || power == 0)){
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getVelocityFuture == null){
-            getVelocityFuture = getPositionAsync();
-            updatePosition = false;
-        }else if (getVelocityFuture.isDone()  && updatePosition){
-            timeCompleted = System.nanoTime();
-            getVelocityFuture = getPositionAsync();
-            updatePosition = false;
-        }
+//        if (getVelocityFuture == null){
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }else if (getVelocityFuture.isDone()  && updatePosition){
+//            timeCompleted = System.nanoTime();
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }
 
     }
 
