@@ -340,7 +340,6 @@ public class Collection extends SubSystem {
 
         if (hangHold) {
             horizontalMotor.update(0);
-
         } else {
 
             error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
