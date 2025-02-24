@@ -966,21 +966,21 @@ public class Sample_full extends OpModeEX {
 
                         collection.resetTransferCanceled();
                     }
-                    System.out.println(odometry.X());
-                    System.out.println(odometry.Y());
+
+                    System.out.println("Slide velocity" + collection.horizontalMotor.getVelocity());
+                    System.out.println("X" + odometry.X());
+                    System.out.println("Y" + odometry.Y());
 
                     /**
                      * Running vision scan
                      * */
-                    System.out.println(collection.horizontalMotor.getVelocity());
+
 
                     if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 30){
-                        boolean bobisyourunc = false;
-                        System.out.println(bobisyourunc);
-                        System.out.println(odometry.X());
-                        System.out.println(odometry.Y());
 
-                        if (odometry.Y() < 229 && odometry.getXVelocity() < 1 && odometry.getYVelocity() < 1 || counter <6){
+                        System.out.println("Vision running" + counter);
+
+                        if (odometry.Y() < 229 && odometry.getXVelocity() < 1 && odometry.getYVelocity() < 1 || counter < 6){
                             counter++;
                         }
 
@@ -989,10 +989,8 @@ public class Sample_full extends OpModeEX {
                             if (collection.getFourBarState() != Collection.fourBar.preCollect){
                                 collection.queueCommand(collection.collect);
                             }
-                            boolean bobisnotyourunc = true;
-                            System.out.println(bobisnotyourunc);
 
-
+                            System.out.println("Targeting activated!!!");
 
                             limelight.setGettingResults(false);
 

@@ -134,13 +134,9 @@ public class Limelight extends SubSystem {
 
         if (returningData){
 
-            System.out.println("returning Data");
-
             result = limelight.getLatestResult();
 
             if (result != null && isGettingResults){
-
-                System.out.println("returning Data in if");
 
                 double[] pythonOutput = result.getPythonOutput();
 
