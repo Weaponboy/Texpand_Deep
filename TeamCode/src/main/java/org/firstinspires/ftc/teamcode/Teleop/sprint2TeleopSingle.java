@@ -59,7 +59,7 @@ public class sprint2TeleopSingle extends OpModeEX {
         }else {
             folowing = false;
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.3));
 
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
@@ -77,6 +77,7 @@ public class sprint2TeleopSingle extends OpModeEX {
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
+            collection.targetPositionManuel = new Vector2D(20, 20);
             scanpos = false;
             firstDrop = true;
         }
@@ -100,10 +101,34 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         }
 
-        if ((currentGamepad1.a && !lastGamepad1.a) || (currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
-            collection.queueCommand(collection.collect);
-            collection.setClawsState(Collection.clawState.drop);
-            delivery.griperRotateSev.setPosition(0);
+        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
+            if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
+                collection.queueCommand(collection.collect);
+                if (collection.getSlidePositionCM() < 0.5) {
+                    collection.manualAngle = 0;
+                    collection.armEndPointIncrement(0, 30, false);
+                } else if (collection.getSlidePositionCM() < 22) {
+                    collection.manualAngle = 0;
+                    collection.armEndPointIncrement(0, 15, false);
+                }
+
+                delivery.setGripperState(Delivery.gripper.drop);
+                delivery.overrideCurrent(true, delivery.stow);
+                delivery.griperRotateSev.setPosition(0);
+            }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
+                if(collection.getFourBarState() == Collection.fourBar.preCollect) {
+                    collection.queueCommand(collection.collect);
+                    delivery.setGripperState(Delivery.gripper.drop);
+                }
+
+                collection.queueCommand(collection.transfer);
+
+                firstDrop = true;
+            }
+
+
+
+
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
@@ -116,7 +141,6 @@ public class sprint2TeleopSingle extends OpModeEX {
         }else if (currentGamepad1.left_stick_y > 0.4){
             collection.armEndPointIncrement(0, -0.5, false);
         }else if (collection.slidesReset.isPressed()){
-            collection.targetPositionManuel = new Vector2D(20, 20);
         }
 
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.normalSlam){
@@ -145,9 +169,9 @@ public class sprint2TeleopSingle extends OpModeEX {
         }
 
         if (currentGamepad1.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
-            collection.armEndPointIncrement(-Math.abs(currentGamepad1.left_stick_x*0.5), 0, false);
+            collection.armEndPointIncrement(-Math.abs(currentGamepad1.left_stick_x*0.9), 0, false);
         }else if (currentGamepad1.left_stick_x > 0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
-            collection.armEndPointIncrement(Math.abs(currentGamepad1.left_stick_x*0.5), 0, false);
+            collection.armEndPointIncrement(Math.abs(currentGamepad1.left_stick_x*0.9), 0, false);
         }
 
         if (((gamepad1.dpad_left || (currentGamepad1.left_bumper && !lastGamepad1.left_bumper)) && !rotated) && collection.getFourBarState() == Collection.fourBar.preCollect){
@@ -290,7 +314,7 @@ public class sprint2TeleopSingle extends OpModeEX {
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-            delivery.griperRotateSev.setPosition(90);
+            delivery.griperRotateSev.setPosition(0);
             flipOutDepo = false;
         }
 
