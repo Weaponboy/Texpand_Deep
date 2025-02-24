@@ -15,7 +15,7 @@ public class MotorEx {
 
     DcMotorEx motor;
     private ExecutorService executor;
-    double tolerance = 0.005;
+    double tolerance = 0.05;
 
     double currentPower;
     int currentPosition;
@@ -66,8 +66,10 @@ public class MotorEx {
         double powerDelta = Math.abs(power - currentPower);
 
         if (setPowerFuture == null){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
         }else if (setPowerFuture.isDone() && (powerDelta > tolerance || power == 0)){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
         }
 
