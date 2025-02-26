@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.concurrent.TimeUnit;
+
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -105,6 +107,7 @@ public class Sample_full extends OpModeEX {
 
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
+    double offsetTimer = 0;
     int counter = 0;
 
     boolean pathing = false;
@@ -926,6 +929,8 @@ public class Sample_full extends OpModeEX {
                 limelight.setSortHorizontal(false);
 
                 limelight.setReturningData(true);
+
+                offsetTimer = 0;
             }
 
             switch (subCollectState){
@@ -942,6 +947,7 @@ public class Sample_full extends OpModeEX {
                             collection.queueCommand(collection.collect);
                         }
                     }
+
                     if (odometry.X() < 270){
                         follow.usePathHeadings(false);
                         targetHeading = 270;
@@ -962,8 +968,7 @@ public class Sample_full extends OpModeEX {
                         detectionTimer.reset();
                         rescan.reset();
                         counter = 0;
-                            limelight.setGettingResults(true);
-
+                        limelight.setGettingResults(true);
 
                         collection.resetTransferCanceled();
                     }
@@ -976,16 +981,21 @@ public class Sample_full extends OpModeEX {
                      * Running vision scan
                      * */
 
+                    if (counter == 4){
+                        offsetTimer = detectionTimer.milliseconds() - 200;
+                    }
 
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30){
+                    if (!collect && busyDetecting && (detectionTimer.milliseconds() - offsetTimer) > (50*counter) && counter < 30){
 
                         System.out.println("Vision running" + counter);
 
-                        if (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity()) <6 || counter < 4){
+                        if (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity()) < 6 || counter < 4){
                             counter++;
                         }
+
                         System.out. println("Velocity" + (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())));
                         System.out.println("Target point"+limelight.getTargetPoint());
+
                         if (limelight.getTargetPoint() != null && counter > 3){
 
                             if (collection.getFourBarState() != Collection.fourBar.preCollect){
