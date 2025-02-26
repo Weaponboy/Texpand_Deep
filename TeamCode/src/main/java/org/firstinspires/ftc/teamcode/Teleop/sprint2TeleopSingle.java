@@ -94,8 +94,9 @@ public class sprint2TeleopSingle extends OpModeEX {
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
             }
+            collection.setSpikeTime(2.6);
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
             firstDrop = true;
 
@@ -120,8 +121,9 @@ public class sprint2TeleopSingle extends OpModeEX {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
+                collection.setSpikeTime(2.6);
 
-                collection.queueCommand(collection.transfer);
+                collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
                 firstDrop = true;
             }

@@ -128,7 +128,7 @@ public class Sample_full extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(225, 299), new Vector2D(200, 230)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(208, 332), new Vector2D(200, 230)),
     };
 
     private final sectionBuilder[] subCollectCloser = new sectionBuilder[]{
@@ -950,7 +950,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && odometry.Y() < 265 && odometry.X() < 238 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 165){
+                    if (!busyDetecting && odometry.Y() < 285 && odometry.X() < 238 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 165){
 
                         autoQueued = false;
                         pathing = false;
@@ -962,7 +962,8 @@ public class Sample_full extends OpModeEX {
                         detectionTimer.reset();
                         rescan.reset();
                         counter = 0;
-                        limelight.setGettingResults(true);
+                            limelight.setGettingResults(true);
+
 
                         collection.resetTransferCanceled();
                     }
@@ -976,14 +977,15 @@ public class Sample_full extends OpModeEX {
                      * */
 
 
-                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (55*counter) && counter < 30){
+                    if (!collect && busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 30){
 
                         System.out.println("Vision running" + counter);
 
-                        if (odometry.Y() < 229 && odometry.getXVelocity() < 1 && odometry.getYVelocity() < 1 || counter < 6){
+                        if (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity()) <6 || counter < 4){
                             counter++;
                         }
-
+                        System.out. println("Velocity" + (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())));
+                        System.out.println("Target point"+limelight.getTargetPoint());
                         if (limelight.getTargetPoint() != null && counter > 3){
 
                             if (collection.getFourBarState() != Collection.fourBar.preCollect){

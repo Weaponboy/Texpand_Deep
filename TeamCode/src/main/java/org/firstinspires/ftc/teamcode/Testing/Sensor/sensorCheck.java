@@ -37,7 +37,7 @@ public class sensorCheck extends OpMode {
     public void loop() {
 
         telemetry.addData("intake Claw", collectionBreakbeam.isPressed());
-        telemetry.addData("collection reset", collectionBreakbeam.isPressed());
+        telemetry.addData("collection reset", collectionReset.isPressed());
         telemetry.addData("depo reset", deliveryReset.isPressed());
         telemetry.addData("depo claw sensor", depoTouch.isPressed());
         telemetry.addData("backLeft", backLeft.getPosition());

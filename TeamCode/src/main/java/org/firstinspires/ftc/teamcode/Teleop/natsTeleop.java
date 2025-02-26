@@ -380,7 +380,8 @@ public class natsTeleop extends OpModeEX {
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
 
             counter++;
-
+            System.out.println("Velocity" + (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())));
+            System.out.println("Target point"+limelight.getTargetPoint());
             if (limelight.getTargetPoint() != null && counter > 4){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
