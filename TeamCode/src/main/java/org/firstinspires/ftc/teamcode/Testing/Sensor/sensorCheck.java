@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.Testing.Sensor;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import dev.weaponboy.command_library.Hardware.DistanceSensor;
+import dev.weaponboy.command_library.Hardware.MotorEx;
 
 @TeleOp(name = "Sensor_Check", group = "Testing")
 public class sensorCheck extends OpMode {
@@ -19,6 +21,8 @@ public class sensorCheck extends OpMode {
     public DistanceSensor backRight = new DistanceSensor();
     public DistanceSensor right = new DistanceSensor();
 
+    public MotorEx horizontalMotor = new MotorEx();
+
     @Override
     public void init() {
 
@@ -31,11 +35,16 @@ public class sensorCheck extends OpMode {
         backLeft.init(hardwareMap, "backLeft");
         right.init(hardwareMap, "right");
 
+        horizontalMotor.initMotor("horizontalMotor", hardwareMap);
+
+        horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
     public void loop() {
 
+        telemetry.addData("collection slides position", horizontalMotor.getCurrentPosition());
         telemetry.addData("intake Claw", collectionBreakbeam.isPressed());
         telemetry.addData("collection reset", collectionReset.isPressed());
         telemetry.addData("depo reset", deliveryReset.isPressed());

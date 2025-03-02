@@ -15,7 +15,7 @@ public class MotorEx {
 
     DcMotorEx motor;
     private ExecutorService executor;
-    double tolerance = 0.05;
+    double tolerance = 0.005;
 
     double currentPower;
     int currentPosition;

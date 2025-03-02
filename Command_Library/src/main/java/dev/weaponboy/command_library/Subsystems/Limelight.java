@@ -40,7 +40,6 @@ public class Limelight extends SubSystem {
         closeFirstInt = closeFirst ? 1 : 0;
     }
 
-
     public boolean isScanning() {
         return isScanning;
     }
@@ -95,7 +94,7 @@ public class Limelight extends SubSystem {
     public boolean resultIsValid = false;
 
     int isScanningInt = 1;
-    int closeFirstInt = 0;
+    int closeFirstInt = 1;
     int horInt = 0;
 
     public void setReturningData(boolean returningData) {

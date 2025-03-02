@@ -55,7 +55,7 @@ public class Delivery extends SubSystem {
 
     public final double visionTarget = 19.5;
 
-    public final double chamberCollectScanPosition = 18.5;
+    public final double chamberCollectScanPosition = 26;
 
     PIDController adjustment = new PIDController(0.012, 0, 0.01);
 
@@ -79,14 +79,21 @@ public class Delivery extends SubSystem {
     /**
      * transfer position values
      * */
-    double mainPivotTransfer = 245;
-    double secondTransfer = 152;
+    double mainPivotTransfer = 244;
+    double secondTransfer = 156;
 
     /**
      * transfer position values
      * */
-    double mainPivotSampleTransfer = 250;
+    double mainPivotSampleTransfer = 248;
     double secondSampleTransfer = 107;
+
+    /**
+     * transfer position values
+     * */
+    double mainPivotCamara = 210;
+    double secondCamara = 107;
+
 
     /**
      * Bucket deposit position values
@@ -132,8 +139,14 @@ public class Delivery extends SubSystem {
      * PRE clipping position values for clipping out the back
      * */
     double mainPivotPreClipBack = 100;
-    double secondPreClipBack = 245;
+    double secondPreClipBack = 255;
     double gripperPreClipBack = gripperGrab;
+
+    /**
+     * PRE clipping position values for clipping out the back
+     * */
+    double mainPivotIntClipBack = 140;
+    double secondPreIntClipBack = 255;
 
     /**
      * Hang
@@ -145,6 +158,7 @@ public class Delivery extends SubSystem {
 
     public enum fourBarState {
         transfer,
+        preClipInt,
         preClip,
         clip,
         basketDeposit,
@@ -284,6 +298,13 @@ public class Delivery extends SubSystem {
                 mainPivot.setPosition(mainPivotPreClipBack);
                 secondPivot.setPosition(secondPreClipBack);
                 griperSev.setPosition(gripperPreClipBack);
+            }
+    );
+
+    public Command IntClipBack = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotIntClipBack);
+                secondPivot.setPosition(secondPreIntClipBack);
             }
     );
 
@@ -484,10 +505,18 @@ public class Delivery extends SubSystem {
             },
             () -> {
 
-                if (fourbarState != fourBarState.transferringStates && getSlidePositionCM() > highChamberBack-1) {
+                if (fourbarState != fourBarState.transferringStates && getSlidePositionCM() > highChamberBack-1 && fourbarState != fourBarState.preClipInt) {
 
                     fourBarTimer.reset();
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipBack)*axonMaxTime, Math.max(Math.abs(secondPivot.getPositionDegrees()- secondPreClipBack)*axonMaxTime, Math.abs(getSlidePositionCM() - slideTarget)*20));
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.preClipInt;
+
+                    IntClipBack.execute();
+                }if (fourbarState == fourBarState.preClipInt) {
+
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotIntClipBack)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()- secondPreIntClipBack)*axonMaxTime);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClip;
 
@@ -516,8 +545,8 @@ public class Delivery extends SubSystem {
                     fourBarTargetState = fourBarState.preClip;
                     gripperState = gripper.slightRelease;
 
-                    secondPivot.setPosition(80);
-                    mainPivot.setPosition(findCameraScanPosition(true, chamberCollectScanPosition));
+                    secondPivot.setPosition(secondCamara);
+                    mainPivot.setPosition(mainPivotCamara);
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
@@ -669,7 +698,8 @@ public class Delivery extends SubSystem {
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
 
-        griperRotateSev.setPosition(0);
+        griperRotateSev.setOffset(43);
+        griperRotateSev.setPosition(90);
 
         Deposit.execute();
 
