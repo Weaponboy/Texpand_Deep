@@ -81,7 +81,7 @@ public class SpecimenTeleop extends OpModeEX {
         /**
          * Collection code
          * */
-        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
+        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() < 5){
 
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
                 collection.queueCommand(collection.collect);
@@ -113,6 +113,9 @@ public class SpecimenTeleop extends OpModeEX {
                 firstDrop = true;
             }
 
+        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5){
+            delivery.queueCommand(delivery.clipBack);
+            delivery.queueCommand(delivery.releaseClip);
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
@@ -156,8 +159,8 @@ public class SpecimenTeleop extends OpModeEX {
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimen){
             collection.setTransferType(Collection.tranfer.specimen);
             gamepad1.rumble(300);
-        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.sample){
-            collection.setTransferType(Collection.tranfer.chamberCollect);
+        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
+            collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             gamepad1.rumble(300);
         }
 
@@ -171,7 +174,7 @@ public class SpecimenTeleop extends OpModeEX {
             collection.queueCommand(collection.visionScan);
 
             collection.targetPositionManuel = new Vector2D(6, 20);
-            collection.armEndPointIncrement(-16, -4, false);
+            collection.armEndPointIncrement(14, -4, false);
 
             limelight.setReturningData(true);
             limelight.setGettingResults(true);
@@ -225,14 +228,10 @@ public class SpecimenTeleop extends OpModeEX {
         /**
          * Spec delivery code
          * */
-        if (currentGamepad1.y && !lastGamepad1.y && delivery.fourbarState == Delivery.fourBarState.preClip){
-            delivery.queueCommand(delivery.clipBack);
-            delivery.queueCommand(delivery.releaseClip);
-        }
 
         if (flipOutDepo && collection.getTransferType() == Collection.tranfer.specimen && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.getGripperState() == Delivery.gripper.grab){
             delivery.queueCommand(delivery.preClipBack);
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(10);
             flipOutDepo = false;
         }
 
@@ -241,7 +240,7 @@ public class SpecimenTeleop extends OpModeEX {
          * */
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getFourBarState() == Collection.fourBar.stowedChamber){
             collection.setSlideTarget(48);
-            collection.queueCommand(collection.collect);
+            collection.queueCommand(collection.visionScan);
             collection.manualAngle = 90;
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getSlidePositionCM() > 0 && collection.getClawsState() == Collection.clawState.grab){
             collection.setClawsState(Collection.clawState.drop);
@@ -249,6 +248,13 @@ public class SpecimenTeleop extends OpModeEX {
             collection.setSlideTarget(0);
             collection.queueCommand(collection.stow);
             collection.manualAngle = 90;
+        }
+
+        if (currentGamepad1.a && !lastGamepad1.a){
+            delivery.queueCommand(delivery.preClipFront);
+//            collection.queueCommand(collection.stowClipFront);
+        } else if (currentGamepad1.b && !lastGamepad1.b) {
+            delivery.queueCommand(delivery.clipFront);
         }
 
         telemetry.addData("loop time ", loopTime);
