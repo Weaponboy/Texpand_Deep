@@ -257,9 +257,9 @@ public class Collection extends SubSystem {
     /**gripper positions*/
     double gripperDrop = 100;
     double gripperGrab = 32;
-    double gripperHangGrab = 120;
+    double gripperHangGrab = 100;
     double gripperSlightRelease = 86;
-    double gripperOpenFull = 132;
+    double gripperOpenFull = 100;
 
     boolean braking = false;
     ElapsedTime brakingTimer = new ElapsedTime();
@@ -632,6 +632,25 @@ public class Collection extends SubSystem {
 
     public final Command transferDropAuto = new LambdaCommand(
             () -> {
+//                TransferAuto.execute();
+                setClawsState(clawState.slightRelease);
+                WaitForTranferDrop.reset();
+
+                TransferDrop = false;
+                fourBarState = fourBar.stowed;
+            },
+            () -> {
+                setClawsState(clawState.slightRelease);
+                if (WaitForTranferDrop.milliseconds() > 40){
+                    TransferDrop = true;
+                }
+            },
+            () -> TransferDrop
+
+    );
+
+    public final Command transferDropSpec = new LambdaCommand(
+            () -> {
                 TransferAuto.execute();
                 setClawsState(clawState.slightRelease);
                 WaitForTranferDrop.reset();
@@ -916,7 +935,7 @@ public class Collection extends SubSystem {
                         fourBarState = fourBar.transferringStates;
                         fourBarTargetState = fourBar.preCollect;
 
-                        setClawsState(clawState.openFull);
+                        setClawsState(clawState.drop);
                         preCollect.execute();
                   }
 
@@ -1733,8 +1752,8 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    fourBarTargetState = fourBar.preCollect;
-                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPreCollect+30)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*1);
+                    fourBarTargetState = fourBar.transferUp;
+                    transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotPreCollect+30)*0.4, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotPreCollect)*0.4);
 
                     keepTargeting = false;
 
@@ -1748,7 +1767,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> fourBarState == fourBar.preCollect || cancelTransfer
+            () -> fourBarState == fourBar.transferUp || cancelTransfer
     );
 
     public Command chamberCollectSample = new LambdaCommand(

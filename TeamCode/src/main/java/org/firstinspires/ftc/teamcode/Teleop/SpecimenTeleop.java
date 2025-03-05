@@ -39,7 +39,7 @@ public class SpecimenTeleop extends OpModeEX {
 
         paths.addNewPath("DepositPath");
 
-        collection.setTransferType(Collection.tranfer.chamberCollect);
+        collection.setTransferType(Collection.tranfer.specimenSampleCollect);
 
         limelight.setTargetColor(Limelight.color.red);
 
@@ -58,9 +58,10 @@ public class SpecimenTeleop extends OpModeEX {
 
         }else {
             folowing = false;
-            if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
+            if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimenSampleCollect){
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.6, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.6));
-
+            }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen){
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.15, -gamepad1.right_stick_x*0.3));
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
             }
@@ -88,12 +89,22 @@ public class SpecimenTeleop extends OpModeEX {
 
                 delivery.griperRotateSev.setPosition(90);
 
-                if (collection.getSlidePositionCM() < 0.5) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 30, false);
-                } else if (collection.getSlidePositionCM() < 22) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 15, false);
+                if (collection.getTransferType() == Collection.tranfer.specimen){
+                    if (collection.getSlidePositionCM() < 0.5) {
+                        collection.manualAngle = 0;
+                        collection.armEndPointIncrement(0, 40, false);
+                    } else if (collection.getSlidePositionCM() < 22) {
+                        collection.manualAngle = 0;
+                        collection.armEndPointIncrement(0, 15, false);
+                    }
+                }else {
+                    if (collection.getSlidePositionCM() < 0.5) {
+                        collection.manualAngle = 0;
+                        collection.armEndPointIncrement(0, 30, false);
+                    } else if (collection.getSlidePositionCM() < 22) {
+                        collection.manualAngle = 0;
+                        collection.armEndPointIncrement(0, 15, false);
+                    }
                 }
 
                 delivery.setGripperState(Delivery.gripper.drop);
@@ -197,8 +208,10 @@ public class SpecimenTeleop extends OpModeEX {
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
 
-                delivery.overrideCurrent(true, delivery.stow);
-                delivery.runReset();
+                if (collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
+                    delivery.overrideCurrent(true, delivery.stow);
+                    delivery.runReset();
+                }
 
                 flipOutDepo = true;
                 queueCollection = true;
@@ -209,7 +222,7 @@ public class SpecimenTeleop extends OpModeEX {
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
 
-            collection.overrideCurrent(true, collection.stow);
+            delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
 
             busyDetecting = false;
@@ -240,7 +253,7 @@ public class SpecimenTeleop extends OpModeEX {
          * */
         if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getFourBarState() == Collection.fourBar.stowedChamber){
             collection.setSlideTarget(48);
-            collection.queueCommand(collection.visionScan);
+            collection.queueCommand(collection.observationDrop);
             collection.manualAngle = 90;
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getSlidePositionCM() > 0 && collection.getClawsState() == Collection.clawState.grab){
             collection.setClawsState(Collection.clawState.drop);

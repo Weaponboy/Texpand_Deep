@@ -458,6 +458,8 @@ public class Delivery extends SubSystem {
             },
             () -> {
                 gripperState = gripper.grab;
+
+                System.out.println("IN GRAB COMMAND");
             },
             () -> fourBarTimer.milliseconds() > transferWaitTime
     );
