@@ -84,7 +84,7 @@ public class SpecimenTeleop extends OpModeEX {
         /**
          * Collection code
          * */
-        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() < 5){
+        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.fourbarState != Delivery.fourBarState.preClip){
 
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
                 collection.queueCommand(collection.collect);
@@ -110,8 +110,10 @@ public class SpecimenTeleop extends OpModeEX {
                 }
 
                 delivery.setGripperState(Delivery.gripper.drop);
-                delivery.overrideCurrent(true, delivery.stow);
 
+                if (collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
+                    delivery.overrideCurrent(true, delivery.stow);
+                }
                 delivery.griperRotateSev.setPosition(90);
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {
@@ -128,9 +130,11 @@ public class SpecimenTeleop extends OpModeEX {
                 firstDrop = true;
             }
 
-        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5){
+        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5 && collection.getTransferType() == Collection.tranfer.specimen){
             delivery.queueCommand(delivery.clipBack);
-            delivery.queueCommand(delivery.releaseClip);
+            delivery.queueCommand(delivery.releaseClipScan);
+
+
 //
 //            if (collection.getSlidePositionCM() < 0.5) {
 //                collection.manualAngle = 0;
@@ -183,7 +187,11 @@ public class SpecimenTeleop extends OpModeEX {
          * */
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimen){
             collection.setTransferType(Collection.tranfer.specimen);
+            delivery.overrideCurrent(true, delivery.stow);
+            delivery.runReset();
+            delivery.setGripperState(Delivery.gripper.drop);
             gamepad1.rumble(300);
+            flipOutDepo = false;
         }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
             collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             gamepad1.rumble(300);
@@ -247,7 +255,7 @@ public class SpecimenTeleop extends OpModeEX {
          * */
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(collection.transfer(Collection.tranfer.chamberCollect));
+            collection.queueCommand(collection.transfer);
 
             queueCollection = false;
         }
