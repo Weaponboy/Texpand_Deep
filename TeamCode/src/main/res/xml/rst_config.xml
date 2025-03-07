@@ -13,6 +13,7 @@
             <Servo name="gripperRotate" port="1"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
+            <ControlHubImuBHI260AP name="imu" port="0" bus="0"/>
             <goBILDA5202SeriesMotor name="RF" port="3"/>
             <goBILDA5202SeriesMotor name="RB" port="0"/>
             <goBILDA5202SeriesMotor name="LB" port="1"/>
