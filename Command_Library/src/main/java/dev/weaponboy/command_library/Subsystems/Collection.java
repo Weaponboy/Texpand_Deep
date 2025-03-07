@@ -742,7 +742,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 200
+            () -> fourBarTimer.milliseconds() > 100
     );
 
     public Command wallCollect = new LambdaCommand(
@@ -857,7 +857,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.visionScan;
                     transferWaitTime = 0;
 
-                    fourBarMainPivot.setPosition(mainPivotPreCollect+20);
+                    fourBarMainPivot.setPosition(mainPivotPreCollect+10);
                     fourBarSecondPivot.setPosition(secondPivotPreCollect-20);
 
                 }
@@ -1335,7 +1335,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*4);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;
@@ -1688,6 +1688,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.preCollect;
                     cancelTransfer = true;
                     transferCanceled = true;
+                    keepTargeting = false;
                     clearQueue();
                 }
 

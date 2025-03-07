@@ -137,8 +137,8 @@ public class Spec_Full extends OpModeEX {
     ElapsedTime detectionTimer = new ElapsedTime();
 
     Vector2D spikeOne = new Vector2D(244,55);
-    Vector2D spikeTwo = new Vector2D(244.5,30);
-    Vector2D spikeThree = new Vector2D(244.5,5.5);
+    Vector2D spikeTwo = new Vector2D(244,29);
+    Vector2D spikeThree = new Vector2D(244,4.5);
 
     @Override
     public void initEX() {
@@ -537,7 +537,7 @@ public class Spec_Full extends OpModeEX {
             }
 
             //point to target for collection
-            Vector2D targetExtendoPoint = new Vector2D(328.8, 3);
+            Vector2D targetExtendoPoint = new Vector2D(329.5, 1.5);
             Vector2D pidTarget = new Vector2D(290, 141);
 
             if (cycleState == CycleState.obs_collect) {
@@ -554,7 +554,7 @@ public class Spec_Full extends OpModeEX {
                     retryCollection = false;
 
                     //set target heading
-                    targetHeading = 292;
+                    targetHeading = 290;
 
                     //reset and enable transfer fail detection
                     collection.resetTransferCanceled();
@@ -908,14 +908,14 @@ public class Spec_Full extends OpModeEX {
             }
 
             if (state == targetState){
-                if (follow.isFinished() && clipped && delivery.getGripperState() == Delivery.gripper.drop) {
+                if (clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.finished;
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
                     System.out.println("finished: " + state.name());
                 }
             }else{
-                if (follow.isFinished() && clipped && delivery.getGripperState() == Delivery.gripper.drop) {
+                if (clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
