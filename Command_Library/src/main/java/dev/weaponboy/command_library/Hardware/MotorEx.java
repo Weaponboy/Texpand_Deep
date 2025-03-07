@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +20,8 @@ public class MotorEx {
     double currentPower;
     int currentPosition;
 
+    double velocity;
+
     public double getTimeCompleted() {
         return timeCompleted;
     }
@@ -28,7 +32,7 @@ public class MotorEx {
 
     CompletableFuture<Boolean> setPowerFuture;
     CompletableFuture<Boolean> getPowerFuture;
-    CompletableFuture<Boolean> getPositionFuture;
+    CompletableFuture<Boolean> getVelocityFuture;
 
     public void initMotor(String motorName, HardwareMap hardwareMap){
         motor = hardwareMap.get(DcMotorEx.class, motorName);
@@ -45,6 +49,10 @@ public class MotorEx {
         return motor.getCurrentPosition();
     }
 
+    public double getCurrentDraw() {
+        return motor.getCurrent(CurrentUnit.MILLIAMPS);
+    }
+
     public void setDirection(DcMotorSimple.Direction direction){
         motor.setDirection(direction);
     }
@@ -58,25 +66,27 @@ public class MotorEx {
         double powerDelta = Math.abs(power - currentPower);
 
         if (setPowerFuture == null){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
-        }else if (setPowerFuture.isDone() &&( powerDelta > tolerance || power == 0)){
+        }else if (setPowerFuture.isDone() && (powerDelta > tolerance || power == 0)){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getPositionFuture == null){
-            getPositionFuture = getPositionAsync();
-            updatePosition = false;
-        }else if (getPositionFuture.isDone()  && updatePosition){
-            timeCompleted = System.nanoTime();
-            getPositionFuture = getPositionAsync();
-            updatePosition = false;
-        }
+//        if (getVelocityFuture == null){
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }else if (getVelocityFuture.isDone()  && updatePosition){
+//            timeCompleted = System.nanoTime();
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }
 
     }
 
     private CompletableFuture<Boolean> getPositionAsync() {
         return CompletableFuture.supplyAsync(() -> {
-            currentPosition = motor.getCurrentPosition();
+            velocity = motor.getVelocity();
             return true;
         }, executor);
     }
@@ -92,6 +102,10 @@ public class MotorEx {
         }, executor);
     }
 
+    public double getVelocity(){
+        return motor.getVelocity();
+    }
+
     public CompletableFuture<Boolean> getSetPowerFuture() {
         return setPowerFuture;
     }
@@ -100,7 +114,7 @@ public class MotorEx {
         executor.shutdown();
     }
 
-    public void updatePosition() {
+    public void updateVelocity() {
         this.updatePosition = true;
     }
 
