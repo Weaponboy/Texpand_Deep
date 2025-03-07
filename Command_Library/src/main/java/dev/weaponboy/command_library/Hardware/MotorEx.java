@@ -66,19 +66,21 @@ public class MotorEx {
         double powerDelta = Math.abs(power - currentPower);
 
         if (setPowerFuture == null){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
-        }else if (setPowerFuture.isDone() &&( powerDelta > tolerance || power == 0)){
+        }else if (setPowerFuture.isDone() && (powerDelta > tolerance || power == 0)){
+            currentPower = power;
             setPowerFuture = setPowerAsync(power);
         }
 
-        if (getVelocityFuture == null){
-            getVelocityFuture = getPositionAsync();
-            updatePosition = false;
-        }else if (getVelocityFuture.isDone()  && updatePosition){
-            timeCompleted = System.nanoTime();
-            getVelocityFuture = getPositionAsync();
-            updatePosition = false;
-        }
+//        if (getVelocityFuture == null){
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }else if (getVelocityFuture.isDone()  && updatePosition){
+//            timeCompleted = System.nanoTime();
+//            getVelocityFuture = getPositionAsync();
+//            updatePosition = false;
+//        }
 
     }
 
