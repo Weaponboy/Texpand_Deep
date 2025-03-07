@@ -94,7 +94,7 @@ public class Limelight extends SubSystem {
     public boolean resultIsValid = false;
 
     int isScanningInt = 1;
-    int closeFirstInt = 0;
+    int closeFirstInt = 1;
     int horInt = 0;
 
     public void setReturningData(boolean returningData) {
@@ -133,13 +133,9 @@ public class Limelight extends SubSystem {
 
         if (returningData){
 
-            System.out.println("returning Data");
-
             result = limelight.getLatestResult();
 
             if (result != null && isGettingResults){
-
-                System.out.println("returning Data in if");
 
                 double[] pythonOutput = result.getPythonOutput();
 
@@ -159,8 +155,8 @@ public class Limelight extends SubSystem {
 
     }
 
-    public void updatePythonInputs(double X, double Y, double Heading, double SlideCM){
-        double[] inputs = {isScanningInt, closeFirstInt, X, Y, Heading, SlideCM, horInt, 0};
+    public void updatePythonInputs(double X, double Y, double Heading, double SlideCM, double getXVelocity, double getYVelocity ){
+        double[] inputs = {getXVelocity, closeFirstInt, X, Y, Heading, SlideCM, horInt, getYVelocity};
         limelight.updatePythonInputs(inputs);
     }
 

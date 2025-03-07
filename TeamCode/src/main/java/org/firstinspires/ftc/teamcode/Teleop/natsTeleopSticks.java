@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Auto.Sample.Sample_full;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -15,8 +13,8 @@ import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@TeleOp(name = "Nats_Teleop", group = "AAAAAAt the top")
-public class natsTeleop extends OpModeEX {
+@TeleOp(name = "Nats_Teleop_Stick", group = "AAAAAAt the top")
+public class natsTeleopSticks extends OpModeEX {
 
     ElapsedTime detectionTimer = new ElapsedTime();
 
@@ -96,9 +94,9 @@ public class natsTeleop extends OpModeEX {
             PID_TO_POINT = false;
 
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, -gamepad1.left_stick_x*0.4, -gamepad1.right_stick_x*0.5));
             }else {
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.6, -gamepad1.right_stick_x * 0.9));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, -gamepad1.left_stick_x*0.6, -gamepad1.right_stick_x * 0.9));
             }
         }
 
@@ -238,23 +236,23 @@ public class natsTeleop extends OpModeEX {
                 collection.queueCommand(collection.collect);
             }
 
-            if (clipping || collection.getTransferType() == Collection.tranfer.chamberCollect){
-                if (collection.getSlidePositionCM() < 0.5) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 40, false);
-                } else if (collection.getSlidePositionCM() < 22) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 30, false);
-                }
-            }else {
-                if (collection.getSlidePositionCM() < 0.5) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 20, false);
-                } else if (collection.getSlidePositionCM() < 22) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 15, false);
-                }
-            }
+//            if (clipping || collection.getTransferType() == Collection.tranfer.chamberCollect){
+//                if (collection.getSlidePositionCM() < 0.5) {
+//                    collection.manualAngle = 0;
+//                    collection.armEndPointIncrement(0, 40, false);
+//                } else if (collection.getSlidePositionCM() < 22) {
+//                    collection.manualAngle = 0;
+//                    collection.armEndPointIncrement(0, 30, false);
+//                }
+//            }else {
+//                if (collection.getSlidePositionCM() < 0.5) {
+//                    collection.manualAngle = 0;
+//                    collection.armEndPointIncrement(0, 20, false);
+//                } else if (collection.getSlidePositionCM() < 22) {
+//                    collection.manualAngle = 0;
+//                    collection.armEndPointIncrement(0, 15, false);
+//                }
+//            }
 
             delivery.setGripperState(Delivery.gripper.drop);
             delivery.overrideCurrent(true, delivery.stow);
@@ -262,6 +260,10 @@ public class natsTeleop extends OpModeEX {
 
             ranTransfer = false;
         }
+
+//        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.stowedChamber){
+//
+//        } else
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.preCollect){
 
@@ -352,23 +354,20 @@ public class natsTeleop extends OpModeEX {
             delivery.queueCommand(delivery.cameraScan);
             cameraScan = true;
 
-            if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand){
-                collection.queueCommand(collection.collect);
-            }
-
-            collection.targetPositionManuel = new Vector2D(8, 20);
-            collection.armEndPointIncrement(-16, -4, false);
-
             limelight.setReturningData(true);
-            limelight.setGettingResults(true);
+        }
+
+        if (cameraScan && delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
         }
 
         if (currentGamepad2.y && !lastGamepad2.y && delivery.getSlidePositionCM() > 15){
+            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
             visionRan = true;
             cameraScan = false;
         }
 
-        if (visionRan){
+        if (visionRan ){
             visionRan = false;
 
             busyDetecting = true;
@@ -379,10 +378,8 @@ public class natsTeleop extends OpModeEX {
         if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20){
 
             counter++;
-
             System.out.println("Velocity" + (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())));
             System.out.println("Target point"+limelight.getTargetPoint());
-
             if (limelight.getTargetPoint() != null && counter > 4){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
@@ -400,8 +397,7 @@ public class natsTeleop extends OpModeEX {
             }
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter >= 19) {
-
-            delivery.overrideCurrent(true, delivery.stow);
+            collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
 
             busyDetecting = false;
@@ -496,7 +492,6 @@ public class natsTeleop extends OpModeEX {
         telemetry.addData("pre clip thing ", autoPreClip);
         telemetry.addData("ran pre clip thing ", runClip);
         telemetry.addData("ranTransfer ", ranTransfer);
-        telemetry.addData("hang IMU ", hang.imu.getRobotYawPitchRollAngles().getPitch());
         telemetry.addData("Four bar state ", collection.getFourBarState());
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
         telemetry.addData("vertical slides 1 ", delivery.getSlidePositionCM());

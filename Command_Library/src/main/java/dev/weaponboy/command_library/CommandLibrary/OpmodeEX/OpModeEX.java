@@ -74,6 +74,7 @@ public abstract class OpModeEX extends OpMode {
 
     @Override
     public void loop() {
+
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
@@ -88,7 +89,9 @@ public abstract class OpModeEX extends OpMode {
 
         RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
         collection.updateRobotPosition(RobotPosition);
-        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM());
+
+        //This might be taking up time??
+        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM(), odometry.getXVelocity(), odometry.getYVelocity());
         collection.updateDelivery(delivery);
 
         scheduler.execute();
