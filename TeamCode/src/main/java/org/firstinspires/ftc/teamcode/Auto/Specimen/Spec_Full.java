@@ -28,39 +28,49 @@ public class Spec_Full extends OpModeEX {
     };
 
     private final sectionBuilder[] deliverSubSample = {
-            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198),new Vector2D(309, 137))
+            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198), new Vector2D(309, 137))
     };
 
     private final sectionBuilder[] spikeMarks1 = {
-            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(290,172),new Vector2D(290, 116))
+            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(290,172), new Vector2D(290, 116))
     };
 
     private final sectionBuilder[] spikeMarks2 = {
-            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172),new Vector2D(290, 90))
+            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172), new Vector2D(290, 90))
     };
 
     private final sectionBuilder[] spikeMarks3 = {
-            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172),new Vector2D(290, 65))
+            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172), new Vector2D(290, 65))
     };
 
     private final sectionBuilder[] spikeMarks3Drop = {
-            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172),new Vector2D(300, 70))
+            () -> paths.addPoints(new Vector2D(252, 178), new Vector2D(310,172), new Vector2D(300, 70))
     };
 
     private final sectionBuilder[] goToDrop1 = {
-            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 190))
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145), new Vector2D(258, 162))
     };
 
     private final sectionBuilder[] goToDrop2 = {
-            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 174))
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145), new Vector2D(258, 166))
     };
 
     private final sectionBuilder[] goToDrop3 = {
-            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 163))
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145), new Vector2D(258, 170))
     };
 
     private final sectionBuilder[] goToDrop4 = {
-            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 158))
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 174))
+    };
+
+    private final sectionBuilder[] goToDrop5 = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(282,145),new Vector2D(258, 178))
+    };
+
+    Vector2D collectObservationZonePoint = new Vector2D(292, 127);
+
+    private final sectionBuilder[] collectObservationZone = {
+            () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(265,170), collectObservationZonePoint)
     };
 
     public enum autoState {
@@ -119,16 +129,16 @@ public class Spec_Full extends OpModeEX {
     int counter = 0;
 
     autoState state = autoState.preload;
-    autoState targetState = autoState.cycle_four;
+    autoState targetState = autoState.cycle_five;
     building built = building.notBuilt;
     building cycleBuilt = building.notBuilt;
     CycleState cycleState = CycleState.clip;
     visionPreload visionStates = visionPreload.driving;
     ElapsedTime detectionTimer = new ElapsedTime();
 
-    Vector2D spikeOne = new Vector2D(248.5,59);
-    Vector2D spikeTwo = new Vector2D(249.5,32);
-    Vector2D spikeThree = new Vector2D(249,7.5);
+    Vector2D spikeOne = new Vector2D(244,55);
+    Vector2D spikeTwo = new Vector2D(244.5,30);
+    Vector2D spikeThree = new Vector2D(244.5,5.5);
 
     @Override
     public void initEX() {
@@ -167,6 +177,12 @@ public class Spec_Full extends OpModeEX {
         paths.addNewPath("goToDrob_cycle_four");
         paths.buildPath(goToDrop4);
 
+        paths.addNewPath("goToDrob_cycle_five");
+        paths.buildPath(goToDrop5);
+
+        paths.addNewPath("collectObservationZone");
+        paths.buildPath(collectObservationZone);
+
         follow.setPath(paths.returnPath("preloadPath"));
 
     }
@@ -190,6 +206,7 @@ public class Spec_Full extends OpModeEX {
                 collection.queueCommand(collection.visionScan);
 
                 visionStates = visionPreload.driving;
+                limelight.setTargetColor(Limelight.color.red);
 
                 collection.targetPositionManuel = new Vector2D(6, 20);
                 collection.armEndPointIncrement(14, -4, false);
@@ -235,7 +252,7 @@ public class Spec_Full extends OpModeEX {
 
                         counter++;
 
-                        if (limelight.getTargetPoint() != null && counter > 6){
+                        if (limelight.getTargetPoint() != null && counter > 2){
 
                             System.out.println("tareget X" + limelight.getTargetPoint().getTargetPoint().getX());
                             System.out.println("tareget Y" + limelight.getTargetPoint().getTargetPoint().getY());
@@ -268,7 +285,7 @@ public class Spec_Full extends OpModeEX {
                     break;
                 case collecting:
 
-                    if (collect && collection.getFourBarState() == Collection.fourBar.collect){
+                    if (collect && collection.getFourBarState() == Collection.fourBar.collect && collection.getCurrentCommand() == collection.returnDefaultCommand()){
                         collection.queueCommand(collection.transferNoSave(Collection.tranfer.chamberCollect));
                     }
 
@@ -520,7 +537,7 @@ public class Spec_Full extends OpModeEX {
             }
 
             //point to target for collection
-            Vector2D targetExtendoPoint = new Vector2D(328.5, 6);
+            Vector2D targetExtendoPoint = new Vector2D(328.8, 3);
             Vector2D pidTarget = new Vector2D(290, 141);
 
             if (cycleState == CycleState.obs_collect) {
@@ -605,6 +622,9 @@ public class Spec_Full extends OpModeEX {
                     retryTimer.reset();
 
                     collection.resetTransferCanceled();
+
+                    collection.stopTargeting();
+
                     collection.setSlideTarget(20);
 
                 }
@@ -627,7 +647,7 @@ public class Spec_Full extends OpModeEX {
 
                 if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
                     delivery.griperRotateSev.setPosition(10);
-                    delivery.queueCommand(delivery.preClipBack);
+                    delivery.queueCommand(delivery.preClipBackAuto);
                     ranPreClip = true;
                 }
 
@@ -661,7 +681,7 @@ public class Spec_Full extends OpModeEX {
                 }
 
             }
-        }else {
+        } else {
 
             if (built == building.notBuilt) {
 
@@ -751,7 +771,8 @@ public class Spec_Full extends OpModeEX {
         telemetry.addData("looptime ", loopTime);
         telemetry.addData("pathing ", following);
         telemetry.addData("counter ", counter);
-        telemetry.addData("vision state ", visionStates.name());
+        telemetry.addData("vision state ", state.name());
+        telemetry.addData("cycle state ", cycleState.name());
         telemetry.addData("fourbar state ", collection.getFourBarState().name());
         telemetry.addData("gripper state ", collection.getClawsState().name());
 //        telemetry.addData("boolean second", Math.abs(targetHeading - odometry.Heading()));
@@ -764,8 +785,7 @@ public class Spec_Full extends OpModeEX {
     public void fullCycleOld(){
 
         //point to target for collection
-        Vector2D targetExtendoPoint = new Vector2D(349, 77);
-        Vector2D pidTarget = new Vector2D(290, 141);
+        Vector2D targetExtendoPoint = new Vector2D(336, 59);
 
         if (cycleState == CycleState.obs_collect) {
 
@@ -775,14 +795,15 @@ public class Spec_Full extends OpModeEX {
                 cycleBuilt = building.built;
 
                 //reset booleans
-                following = false;
+                following = true;
                 collectSample = false;
                 headingOverride = false;
-                PIDToPoint = true;
                 retryCollection = false;
 
                 //set target heading
-                targetHeading = 315;
+                targetHeading = 306;
+
+                follow.setPath(paths.returnPath("collectObservationZone"));
 
                 //reset and enable transfer fail detection
                 collection.resetTransferCanceled();
@@ -797,24 +818,12 @@ public class Spec_Full extends OpModeEX {
             }
 
             /**
-             * pid to point calcs
-             * */
-            if (PIDToPoint) {
-                PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), pidTarget, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
-                powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
-            } else {
-                powerPID = new Vector2D();
-            }
-
-            /**
              * run collection commands
              * */
-            if (!retryCollection && error(pidTarget.getX(), odometry.X()) < 5 && error(pidTarget.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
+            if (!retryCollection && error(collectObservationZonePoint.getX(), odometry.X()) < 5 && error(collectObservationZonePoint.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
 
                 // Reset booleans
-                following = false;
                 collectSample = true;
-                PIDToPoint = false;
 
                 // Queue collection and transfer
                 collection.angle = 90;
@@ -861,6 +870,8 @@ public class Spec_Full extends OpModeEX {
                 collection.resetTransferCanceled();
                 collection.setSlideTarget(30);
 
+                collection.stopTargeting();
+
             }
 
         }else if (cycleState == CycleState.clip) {
@@ -881,7 +892,7 @@ public class Spec_Full extends OpModeEX {
 
             if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
                 delivery.griperRotateSev.setPosition(10);
-                delivery.queueCommand(delivery.preClipBack);
+                delivery.queueCommand(delivery.preClipBackAuto);
                 ranPreClip = true;
             }
 
@@ -897,14 +908,14 @@ public class Spec_Full extends OpModeEX {
             }
 
             if (state == targetState){
-                if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                if (follow.isFinished() && clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.finished;
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
                     System.out.println("finished: " + state.name());
                 }
             }else{
-                if (follow.isFinished() && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.clip) {
+                if (follow.isFinished() && clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;

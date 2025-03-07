@@ -454,12 +454,10 @@ public class Delivery extends SubSystem {
     public Command closeGripperSpec = new LambdaCommand(
             () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 400;
+                transferWaitTime = 100;
             },
             () -> {
                 gripperState = gripper.grab;
-
-                System.out.println("IN GRAB COMMAND");
             },
             () -> fourBarTimer.milliseconds() > transferWaitTime
     );
@@ -546,6 +544,31 @@ public class Delivery extends SubSystem {
                 }
             },
             () -> fourbarState == fourBarState.preClip && Math.abs(getSlidePositionCM() - highChamberBack) < 2
+    );
+
+    public Command preClipBackAuto = new LambdaCommand(
+            () -> {
+                slideSetPoint(highChamberBack-1);
+                slides = slideState.moving;
+            },
+            () -> {
+
+                if (fourbarState != fourBarState.transferringStates) {
+
+                    fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotPreClipBack)*2, Math.max(Math.abs(secondPivot.getPositionDegrees()- secondPreClipBack)*4, 0));
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.preClip;
+
+                    PreClipBack.execute();
+
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > ClippingWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+            },
+            () -> fourbarState == fourBarState.preClip && Math.abs(getSlidePositionCM() - (highChamberBack-1)) < 2
     );
 
     public Command cameraScan = new LambdaCommand(
@@ -675,6 +698,7 @@ public class Delivery extends SubSystem {
 
                     slideSetPoint(0);
                     slides = Delivery.slideState.moving;
+                    griperRotateSev.setPosition(90);
 
                     Transfer.execute();
                 }

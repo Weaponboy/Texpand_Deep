@@ -23,6 +23,8 @@ public class SpecimenTeleop extends OpModeEX {
     boolean busyDetecting = false;
     boolean flipOutDepo = false;
 
+    boolean slowDrive = false;
+
     /**Numbers**/
     double Heading;
     int counter = 0;
@@ -61,7 +63,7 @@ public class SpecimenTeleop extends OpModeEX {
             if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimenSampleCollect){
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.6, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.6));
             }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.15, -gamepad1.right_stick_x*0.3));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.35, (gamepad1.left_trigger - gamepad1.right_trigger)*0.25, -gamepad1.right_stick_x*0.35));
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
             }
@@ -120,6 +122,8 @@ public class SpecimenTeleop extends OpModeEX {
 
                 collection.queueCommand(collection.transfer);
 
+                slowDrive = false;
+
                 flipOutDepo = true;
                 firstDrop = true;
             }
@@ -127,6 +131,16 @@ public class SpecimenTeleop extends OpModeEX {
         }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5){
             delivery.queueCommand(delivery.clipBack);
             delivery.queueCommand(delivery.releaseClip);
+//
+//            if (collection.getSlidePositionCM() < 0.5) {
+//                collection.manualAngle = 0;
+//                collection.armEndPointIncrement(0, 40, false);
+//            } else if (collection.getSlidePositionCM() < 22) {
+//                collection.manualAngle = 0;
+//                collection.armEndPointIncrement(0, 15, false);
+//            }
+//
+//            collection.queueCommand(collection.collect);
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
@@ -233,7 +247,7 @@ public class SpecimenTeleop extends OpModeEX {
          * */
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transfer(Collection.tranfer.chamberCollect));
 
             queueCollection = false;
         }
@@ -242,7 +256,7 @@ public class SpecimenTeleop extends OpModeEX {
          * Spec delivery code
          * */
 
-        if (flipOutDepo && collection.getTransferType() == Collection.tranfer.specimen && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.getGripperState() == Delivery.gripper.grab){
+        if (flipOutDepo && collection.getTransferType() == Collection.tranfer.specimen && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && delivery.fourbarState == Delivery.fourBarState.transfer){
             delivery.queueCommand(delivery.preClipBack);
             delivery.griperRotateSev.setPosition(10);
             flipOutDepo = false;
@@ -278,7 +292,11 @@ public class SpecimenTeleop extends OpModeEX {
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
-        telemetry.addData("slide target", collection.getSlideTarget());
+        if (limelight.getTargetPoint() != null){
+            telemetry.addData("limelight results X", limelight.getTargetPoint().getTargetPoint().getX());
+            telemetry.addData("limelight results Y", limelight.getTargetPoint().getTargetPoint().getY());
+            telemetry.addData("limelight results angle", limelight.getTargetPoint().getAngle());
+        }
         telemetry.update();
     }
 }
