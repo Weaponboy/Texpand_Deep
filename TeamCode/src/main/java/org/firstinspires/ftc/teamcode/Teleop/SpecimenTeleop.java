@@ -23,6 +23,8 @@ public class SpecimenTeleop extends OpModeEX {
     boolean busyDetecting = false;
     boolean flipOutDepo = false;
 
+    boolean armToVision = false;
+
     boolean slowDrive = false;
 
     /**Numbers**/
@@ -33,6 +35,8 @@ public class SpecimenTeleop extends OpModeEX {
     pathsManager paths = new pathsManager();
     follower follow = new follower();
     ElapsedTime detectionTimer = new ElapsedTime();
+
+    ElapsedTime armToVisionTimer = new ElapsedTime();
 
     @Override
     public void initEX() {
@@ -84,7 +88,7 @@ public class SpecimenTeleop extends OpModeEX {
         /**
          * Collection code
          * */
-        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.fourbarState != Delivery.fourBarState.preClip){
+        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.fourbarState != Delivery.fourBarState.preClip && delivery.getCurrentCommand() != delivery.preClipBack){
 
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
                 collection.queueCommand(collection.collect);
@@ -116,13 +120,20 @@ public class SpecimenTeleop extends OpModeEX {
                 }
                 delivery.griperRotateSev.setPosition(90);
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
+
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
+
                 collection.setSpikeTime(2.6);
 
                 collection.queueCommand(collection.transfer);
+
+                if (collection.getTransferType() == Collection.tranfer.specimen){
+                    delivery.overrideCurrent(true, delivery.stow);
+                    delivery.runReset();
+                }
 
                 slowDrive = false;
 
@@ -132,7 +143,7 @@ public class SpecimenTeleop extends OpModeEX {
 
         }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5 && collection.getTransferType() == Collection.tranfer.specimen){
             delivery.queueCommand(delivery.clipBack);
-            delivery.queueCommand(delivery.releaseClipScan);
+            delivery.queueCommand(delivery.releaseClip);
 
 
 //
@@ -186,12 +197,26 @@ public class SpecimenTeleop extends OpModeEX {
          * Transfer toggle
          * */
         if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimen){
+
             collection.setTransferType(Collection.tranfer.specimen);
+
             delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
+
+            collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 20, 20);
+            collection.armEndPointIncrement(0, 0, false);
+
+            collection.setClawsState(Collection.clawState.drop);
+            collection.queueCommand(collection.collect);
+
+            busyDetecting = false;
+            collection.stopTargeting();
+
             delivery.setGripperState(Delivery.gripper.drop);
             gamepad1.rumble(300);
+
             flipOutDepo = false;
+
         }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
             collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             gamepad1.rumble(300);
@@ -279,10 +304,16 @@ public class SpecimenTeleop extends OpModeEX {
             collection.manualAngle = 90;
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getSlidePositionCM() > 0 && collection.getClawsState() == Collection.clawState.grab){
             collection.setClawsState(Collection.clawState.drop);
+            armToVision = true;
             collection.targetPositionManuel = new Vector2D(20, 20);
-            collection.setSlideTarget(0);
-            collection.queueCommand(collection.stow);
+            collection.armEndPointIncrement(0, -4, false);
+            collection.queueCommand(collection.visionScan);
             collection.manualAngle = 90;
+        }
+
+        if (armToVision && collection.getSlidePositionCM() < 10){
+            armToVision = false;
+            collection.armEndPointIncrement(14, -4, false);
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){

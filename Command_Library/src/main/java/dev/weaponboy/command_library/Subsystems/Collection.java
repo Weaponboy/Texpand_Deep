@@ -195,7 +195,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSpec = 182;
+    double mainPivotTransferSpec = 184;
     double secondPivotTransferSpec = 138;
 
     /**
@@ -857,7 +857,7 @@ public class Collection extends SubSystem {
                     fourBarState = fourBar.visionScan;
                     transferWaitTime = 0;
 
-                    fourBarMainPivot.setPosition(mainPivotPreCollect+10);
+                    fourBarMainPivot.setPosition(mainPivotPreCollect+20);
                     fourBarSecondPivot.setPosition(secondPivotPreCollect-20);
 
                 }
