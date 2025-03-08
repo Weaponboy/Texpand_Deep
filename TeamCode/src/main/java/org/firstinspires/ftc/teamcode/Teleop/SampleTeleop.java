@@ -108,7 +108,7 @@ public class SampleTeleop extends OpModeEX {
 
                 delivery.setGripperState(Delivery.gripper.drop);
                 delivery.overrideCurrent(true, delivery.stow);
-                delivery.griperRotateSev.setPosition(0);
+                delivery.griperRotateSev.setPosition(90);
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {
@@ -196,7 +196,7 @@ public class SampleTeleop extends OpModeEX {
             detectionTimer.reset();
             counter = 0;
             scanpos = false;
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
 
         }
 
@@ -261,7 +261,7 @@ public class SampleTeleop extends OpModeEX {
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
             flipOutDepo = false;
         }
 
