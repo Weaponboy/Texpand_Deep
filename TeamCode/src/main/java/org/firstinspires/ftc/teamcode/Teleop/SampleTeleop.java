@@ -117,8 +117,6 @@ public class SampleTeleop extends OpModeEX {
 
                 collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
-                collection.manualAngle = 0;
-
                 firstDrop = true;
             }
         }
