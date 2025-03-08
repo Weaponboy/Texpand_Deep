@@ -1071,6 +1071,7 @@ public class Collection extends SubSystem {
                     }else {
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
                         setClawsState(clawState.grab);
 
                         griperRotate.setPosition(rotateTransfer);
@@ -1162,6 +1163,7 @@ public class Collection extends SubSystem {
 
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferSlam.execute();
@@ -1257,6 +1259,7 @@ public class Collection extends SubSystem {
                         if (horizontalMotor.getCurrentPosition() < 320){
 
                             targetPositionManuel = new Vector2D(20, 20);
+                            manualAngle = 90;
 
                             TransferAuto.execute();
                         }else{
@@ -1352,6 +1355,7 @@ public class Collection extends SubSystem {
 
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferSpec.execute();
@@ -1451,6 +1455,7 @@ public class Collection extends SubSystem {
 
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
 
                         if (horizontalMotor.getCurrentPosition() < 320){
                             TransferAutoSpike.execute();
@@ -1541,6 +1546,7 @@ public class Collection extends SubSystem {
                     setSlideTarget(0);
 
                     targetPositionManuel = new Vector2D(20, 20);
+                    manualAngle = 90;
 
                     TransferSample.execute();
 
@@ -1618,6 +1624,7 @@ public class Collection extends SubSystem {
 
                     setSlideTarget(0);
                     targetPositionManuel = new Vector2D(20, 20);
+                    manualAngle = 90;
 
                     if (horizontalMotor.getCurrentPosition() < 300){
                         Transfer.execute();
@@ -1674,6 +1681,7 @@ public class Collection extends SubSystem {
                         griperRotate.setPosition(180);
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
                     }
 
                 }
@@ -1730,6 +1738,7 @@ public class Collection extends SubSystem {
 
                     setSlideTarget(0);
                     targetPositionManuel = new Vector2D(20, 20);
+                    manualAngle = 90;
 
                 }
 
@@ -1819,6 +1828,7 @@ public class Collection extends SubSystem {
                         griperRotate.setPosition(rotateTransfer);
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
                     }
 
                 }
@@ -1872,6 +1882,7 @@ public class Collection extends SubSystem {
                         griperRotate.setPosition(rotateTransfer);
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
                     }
 
                 }else if (fourBarState == fourBar.stowed){
@@ -1889,6 +1900,7 @@ public class Collection extends SubSystem {
                         griperRotate.setPosition(rotateTransfer);
                         setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
+                        manualAngle = 90;
                     }
 
                 }
