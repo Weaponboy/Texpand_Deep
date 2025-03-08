@@ -13,6 +13,7 @@ import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.DriveBase;
 import dev.weaponboy.command_library.Subsystems.Hang;
+import dev.weaponboy.command_library.Subsystems.Limelight;
 import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 
@@ -26,9 +27,11 @@ public abstract class OpModeEX extends OpMode {
 
     public Odometry odometry = new Odometry(this);
 
+    public Limelight limelight = new Limelight(this);
+
     public Hang hang = new Hang(this);
-//collection, delivery, driveBase, odometry
-    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {collection, delivery, driveBase, odometry});
+
+    private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {limelight, collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
 
@@ -65,11 +68,13 @@ public abstract class OpModeEX extends OpMode {
     @Override
     public void start() {
         autoTime.reset();
+        limelight.onStart();
         super.start();
     }
 
     @Override
     public void loop() {
+
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
@@ -85,11 +90,36 @@ public abstract class OpModeEX extends OpMode {
         RobotPosition = new RobotPower(odometry.X(), odometry.Y(), odometry.Heading());
         collection.updateRobotPosition(RobotPosition);
 
+        //This might be taking up time??
+        limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM(), odometry.getXVelocity(), odometry.getYVelocity());
+        collection.updateDelivery(delivery);
+
         scheduler.execute();
         loopEX();
 
+        if (delivery.transferFailed){
+            collection.clearQueue();
+
+            collection.queueCommand(collection.retryTransfer);
+
+            collection.queueCommand(delivery.closeGripper);
+
+            collection.queueCommand(collection.openGripper);
+
+            delivery.transferFailed = false;
+        }
+
+//        System.out.println("collection slides: " + collection.horizontalMotor.getCurrentDraw());
+//        System.out.println("delivery slide 1: " + delivery.slideMotor.getCurrentDraw());
+//        System.out.println("delivery slide 2: " + delivery.slideMotor2.getCurrentDraw());
+//        System.out.println("hang motor: " + hang.hangPower.getCurrentDraw());
+//        System.out.println("Right front: " + driveBase.RF.getCurrentDraw());
+//        System.out.println("Left front: " + driveBase.LF.getCurrentDraw());
+//        System.out.println("Right back: " + driveBase.RB.getCurrentDraw());
+//        System.out.println("Left back: " + driveBase.LB.getCurrentDraw());
+
         loopTime = timer.milliseconds() - lastTime;
-//        System.out.println("loop time: " +loopTime);
+        System.out.println("loop time: " +loopTime);
     }
 
     /**
@@ -97,7 +127,7 @@ public abstract class OpModeEX extends OpMode {
      * */
     @Override
     public void stop() {
-        collection.disableServos();
+//        collection.disableServos();
 //        delivery.disableServos();
 //        super.stop();
     }
