@@ -2294,26 +2294,6 @@ public class Collection extends SubSystem {
 
             double realAngle;
 
-            if (this.angle > 85 || this.angle < -85){
-                realAngle = parallelAngle;
-            }else{
-                double perAngle = 0;
-
-                if (parallelAngle > 90){
-                    perAngle = parallelAngle - 90;
-                }else if (parallelAngle < 90){
-                    perAngle = parallelAngle + 90;
-                }
-
-                realAngle = perAngle - this.angle;
-
-                if (realAngle > 180){
-                    realAngle = realAngle - 180;
-                } else if (realAngle < 0) {
-                    realAngle = realAngle + 180;
-                }
-            }
-
             angle = Math.toDegrees(Math.acos((errors.getY()) / clawOffsetFromSlides));
 
             if (errors.getY() < -6){
@@ -2355,6 +2335,8 @@ public class Collection extends SubSystem {
                 targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides - errors.getY());
 
                 griperRotate.setPosition(realAngle);
+
+                manualAngle = realAngle;
 
                 turret.setPosition(turretPosition);
 
