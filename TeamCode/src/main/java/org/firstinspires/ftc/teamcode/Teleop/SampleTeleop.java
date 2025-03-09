@@ -92,6 +92,8 @@ public class SampleTeleop extends OpModeEX {
 
         if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
 
+            collection.stopTargeting();
+
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
 
                 collection.queueCommand(collection.collect);
@@ -107,12 +109,14 @@ public class SampleTeleop extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.griperRotateSev.setPosition(90);
+
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
+
                 collection.setSpikeTime(2.6);
 
                 collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
