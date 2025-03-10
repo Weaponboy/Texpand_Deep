@@ -176,7 +176,7 @@ public class SampleTeleop extends OpModeEX {
             collection.armEndPointIncrement(0, 0, false);
         }
 
-        if(((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.fourbarState != Delivery.fourBarState.preClip){
+        if(((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.fourbarState != Delivery.fourBarState.preClip && delivery.getGripperState() != Delivery.gripper.grab){
 
             delivery.queueCommand(delivery.cameraScan);
 
@@ -190,7 +190,7 @@ public class SampleTeleop extends OpModeEX {
 
         }
 
-        if (((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.getSlidePositionCM() > 15){
+        if (((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.getSlidePositionCM() > 15 && delivery.getGripperState() != Delivery.gripper.grab){
 
             busyDetecting = true;
             detectionTimer.reset();

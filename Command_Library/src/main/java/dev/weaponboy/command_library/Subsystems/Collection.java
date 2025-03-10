@@ -44,7 +44,7 @@ public class Collection extends SubSystem {
     }
 
     // 1.8 is safe speed
-    public double spikeTime = 1.6;
+    public double spikeTime = 1.9;
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -1406,7 +1406,7 @@ public class Collection extends SubSystem {
                     clawsState = clawState.grab;
 
                     fourBarTimer.reset();
-                    transferWaitTime = 50;
+                    transferWaitTime = 76;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
