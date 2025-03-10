@@ -155,7 +155,7 @@ public class natsTeleopSticks extends OpModeEX {
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
             collection.targetPositionManuel = new Vector2D(20, 20);
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
 
             cameraScan = false;
             ranTransfer = false;
@@ -168,7 +168,7 @@ public class natsTeleopSticks extends OpModeEX {
         if (PID_TO_POINT && Math.abs(odometry.getXVelocity()) < 2 && Math.abs(odometry.getYVelocity()) < 2 && retryTimer.milliseconds() > 200){
             PID_TO_POINT = false;
 
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
             collection.angle = 90;
             collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
 
@@ -182,7 +182,7 @@ public class natsTeleopSticks extends OpModeEX {
         if (collectingSpecAuto && collection.isTransferCanceled()){
             delivery.runReset();
 
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
 
             delivery.setGripperState(Delivery.gripper.drop);
 
@@ -199,7 +199,7 @@ public class natsTeleopSticks extends OpModeEX {
 
             collectingRetry = false;
 
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
 
             collection.angle = 90;
 
@@ -226,7 +226,7 @@ public class natsTeleopSticks extends OpModeEX {
             }
 
             collection.setSlideTarget(30);
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
         }
 
 
@@ -256,7 +256,7 @@ public class natsTeleopSticks extends OpModeEX {
 
             delivery.setGripperState(Delivery.gripper.drop);
             delivery.overrideCurrent(true, delivery.stow);
-            delivery.griperRotateSev.setPosition(0);
+            delivery.griperRotateSev.setPosition(90);
 
             ranTransfer = false;
         }
@@ -357,14 +357,18 @@ public class natsTeleopSticks extends OpModeEX {
             limelight.setReturningData(true);
         }
 
-        if (cameraScan && delivery.getSlidePositionCM() > 15){
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
-        }
-
         if (currentGamepad2.y && !lastGamepad2.y && delivery.getSlidePositionCM() > 15){
-            delivery.mainPivot.setPosition(delivery.findCameraScanPosition());
+            delivery.queueCommand(delivery.cameraScan);
+
+            collection.queueCommand(collection.visionScan);
+
+            collection.targetPositionManuel = new Vector2D(20, 20);
+            collection.armEndPointIncrement(14, -4, false);
+
+            limelight.setReturningData(true);
+            limelight.setGettingResults(true);
+
             visionRan = true;
-            cameraScan = false;
         }
 
         if (visionRan ){
@@ -380,13 +384,14 @@ public class natsTeleopSticks extends OpModeEX {
             counter++;
             System.out.println("Velocity" + (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())));
             System.out.println("Target point"+limelight.getTargetPoint());
+
             if (limelight.getTargetPoint() != null && counter > 4){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
 
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.runReset();
-                delivery.griperRotateSev.setPosition(0);
+                delivery.griperRotateSev.setPosition(90);
 
                 limelight.setReturningData(false);
 
@@ -397,7 +402,7 @@ public class natsTeleopSticks extends OpModeEX {
             }
 
         } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter >= 19) {
-            collection.overrideCurrent(true, collection.stow);
+            delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
 
             busyDetecting = false;
@@ -432,7 +437,7 @@ public class natsTeleopSticks extends OpModeEX {
         /**Auto pre clip position*/
         if (runClip && collection.getCurrentCommand() == collection.defaultCommand && delivery.clawSensor.isPressed()){
             delivery.queueCommand(delivery.preClipBack);
-            delivery.griperRotateSev.setPosition(90);
+            delivery.griperRotateSev.setPosition(10);
             runClip = false;
         }
 
