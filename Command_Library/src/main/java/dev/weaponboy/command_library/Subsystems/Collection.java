@@ -2336,7 +2336,7 @@ public class Collection extends SubSystem {
 
                 griperRotate.setPosition(realAngle);
 
-                manualAngle = realAngle;
+//                manualAngle = realAngle;
 
                 turret.setPosition(turretPosition);
 

@@ -13,7 +13,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@TeleOp(name = "Nats_Teleop_Stick", group = "AAAAAAt the top")
+@TeleOp(name = "Stick_Teleop", group = "AAAAAAt the top")
 public class natsTeleopSticks extends OpModeEX {
 
     ElapsedTime detectionTimer = new ElapsedTime();
@@ -25,15 +25,8 @@ public class natsTeleopSticks extends OpModeEX {
     boolean ranTransfer = false;
     boolean autoPreClip = false;
     boolean runClip = false;
-    boolean pathing = false;
     boolean flipOutDepo = false;
     boolean visionRan = false;
-    boolean PID_TO_POINT = false;
-    boolean collectingSpecAuto = false;
-    boolean collectingRetry = false;
-    boolean engage = false;
-    boolean pullUp = false;
-    boolean Hang = true;
 
     enum hangStates{
         waiting,
@@ -52,52 +45,22 @@ public class natsTeleopSticks extends OpModeEX {
     hangStates hangState = hangStates.waiting;
 
     ElapsedTime pullUpTimer = new ElapsedTime();
-    ElapsedTime retryTimer = new ElapsedTime();
-    double targetHeading;
     int counter = 0;
 
     boolean disableManuelServos = false;
 
-    Vector2D targetExtendoPoint = new Vector2D(344, 82);
-
-    pathsManager paths = new pathsManager();
-    follower follow = new follower();
-
-    private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(235, 290), new Vector2D(200, 248)),
-    };
-
-    private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(220, 280), new Vector2D(329, 329)),
-    };
-
     @Override
     public void initEX() {
         odometry.startPosition(82.5, 100, 0);
-
-        paths.addNewPath("collectSub");
-        paths.buildPath(subCollect);
-
-        paths.addNewPath("dropBasket");
-        paths.buildPath(subDeposit);
-
     }
 
     @Override
     public void loopEX() {
 
-        if (PID_TO_POINT && gamepad1.right_stick_y == 0 && gamepad1.left_trigger == 0 &&  gamepad1.right_trigger == 0 && gamepad1.right_stick_x == 0){
-            PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(290, 141), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
-            driveBase.queueCommand(driveBase.drivePowers(new RobotPower(power.getVertical(), power.getHorizontal(), follow.getTurnPower(targetHeading, odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity()))));
-        }else{
-
-            PID_TO_POINT = false;
-
-            if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, -gamepad1.left_stick_x*0.4, -gamepad1.right_stick_x*0.5));
-            }else {
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, -gamepad1.left_stick_x*0.6, -gamepad1.right_stick_x * 0.9));
-            }
+        if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.5, -gamepad1.left_stick_x*0.4, -gamepad1.right_stick_x*0.5));
+        }else {
+            driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y * 0.9, -gamepad1.left_stick_x*0.6, -gamepad1.right_stick_x * 0.9));
         }
 
         if (currentGamepad1.y && !lastGamepad1.y){
@@ -164,95 +127,11 @@ public class natsTeleopSticks extends OpModeEX {
         /**
          * Collection code
          * */
-
-        if (PID_TO_POINT && Math.abs(odometry.getXVelocity()) < 2 && Math.abs(odometry.getYVelocity()) < 2 && retryTimer.milliseconds() > 200){
-            PID_TO_POINT = false;
-
-            delivery.griperRotateSev.setPosition(90);
-            collection.angle = 90;
-            collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
-
-            collection.queueCommand(collection.collect);
-
-            collection.queueCommand(collection.transfer);
-
-            collectingSpecAuto = true;
-        }
-
-        if (collectingSpecAuto && collection.isTransferCanceled()){
-            delivery.runReset();
-
-            delivery.griperRotateSev.setPosition(90);
-
-            delivery.setGripperState(Delivery.gripper.drop);
-
-            collectingSpecAuto = false;
-
-            collection.setSlideTarget(30);
-
-            retryTimer.reset();
-
-            collectingRetry = true;
-        }
-
-        if (collection.getSlideTarget() == 30 && retryTimer.milliseconds() > 1000 && collectingRetry){
-
-            collectingRetry = false;
-
-            delivery.griperRotateSev.setPosition(90);
-
-            collection.angle = 90;
-
-            collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
-
-            collection.queueCommand(collection.collect);
-
-            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
-
-        }
-
-        if (currentGamepad2.x && !lastGamepad2.x){
-
-            retryTimer.reset();
-
-            delivery.runReset();
-            delivery.setGripperState(Delivery.gripper.drop);
-
-            PID_TO_POINT = true;
-            targetHeading = 319;
-
-            if (collection.getFourBarState() != Collection.fourBar.preCollect){
-                collection.queueCommand(collection.preCollectNoWait);
-            }
-
-            collection.setSlideTarget(30);
-            delivery.griperRotateSev.setPosition(90);
-        }
-
-
         if (currentGamepad2.right_bumper && !lastGamepad2.right_bumper){
 
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand){
                 collection.queueCommand(collection.collect);
             }
-
-//            if (clipping || collection.getTransferType() == Collection.tranfer.chamberCollect){
-//                if (collection.getSlidePositionCM() < 0.5) {
-//                    collection.manualAngle = 0;
-//                    collection.armEndPointIncrement(0, 40, false);
-//                } else if (collection.getSlidePositionCM() < 22) {
-//                    collection.manualAngle = 0;
-//                    collection.armEndPointIncrement(0, 30, false);
-//                }
-//            }else {
-//                if (collection.getSlidePositionCM() < 0.5) {
-//                    collection.manualAngle = 0;
-//                    collection.armEndPointIncrement(0, 20, false);
-//                } else if (collection.getSlidePositionCM() < 22) {
-//                    collection.manualAngle = 0;
-//                    collection.armEndPointIncrement(0, 15, false);
-//                }
-//            }
 
             delivery.setGripperState(Delivery.gripper.drop);
             delivery.overrideCurrent(true, delivery.stow);
@@ -261,10 +140,6 @@ public class natsTeleopSticks extends OpModeEX {
             ranTransfer = false;
         }
 
-//        if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.stowedChamber){
-//
-//        } else
-
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.preCollect){
 
             collection.queueCommand(collection.collect);
@@ -272,10 +147,6 @@ public class natsTeleopSticks extends OpModeEX {
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
             collection.queueCommand(collection.transfer(Collection.tranfer.spike));
-
-            if (clipping){
-                runClip = true;
-            }
 
             ranTransfer = true;
         }
@@ -358,8 +229,8 @@ public class natsTeleopSticks extends OpModeEX {
         }
 
         if (currentGamepad2.y && !lastGamepad2.y && delivery.getSlidePositionCM() > 15){
-            delivery.queueCommand(delivery.cameraScan);
 
+            delivery.queueCommand(delivery.cameraScan);
             collection.queueCommand(collection.visionScan);
 
             collection.targetPositionManuel = new Vector2D(20, 20);
@@ -369,6 +240,7 @@ public class natsTeleopSticks extends OpModeEX {
             limelight.setGettingResults(true);
 
             visionRan = true;
+
         }
 
         if (visionRan ){
@@ -420,7 +292,6 @@ public class natsTeleopSticks extends OpModeEX {
             ranTransfer = true;
         }
 
-
         /**
          * Delivery code
          * */
@@ -428,41 +299,10 @@ public class natsTeleopSticks extends OpModeEX {
         /**Clipping normal*/
         if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed() && collection.getCurrentCommand() == collection.defaultCommand){
             delivery.queueCommand(delivery.preClipBack);
-            delivery.griperRotateSev.setPosition(90);
+            delivery.griperRotateSev.setPosition(10);
         }else if (currentGamepad1.right_bumper && !lastGamepad1.right_bumper && delivery.slideMotor.getCurrentPosition() > 100){
             delivery.queueCommand(delivery.clipBack);
             delivery.queueCommand(delivery.releaseClip);
-        }
-
-        /**Auto pre clip position*/
-        if (runClip && collection.getCurrentCommand() == collection.defaultCommand && delivery.clawSensor.isPressed()){
-            delivery.queueCommand(delivery.preClipBack);
-            delivery.griperRotateSev.setPosition(10);
-            runClip = false;
-        }
-
-        /**
-         * auto pathing
-         * */
-        if (currentGamepad1.x && !lastGamepad1.x){
-            follow.setPath(paths.returnPath("dropBasket"));
-            follow.usePathHeadings(false);
-            targetHeading = 225;
-            pathing = true;
-        }
-
-        if (currentGamepad1.a && !lastGamepad1.a){
-            follow.setPath(paths.returnPath("collectSub"));
-            follow.usePathHeadings(true);
-            pathing = true;
-        }
-
-        if (currentGamepad1.b && !lastGamepad1.b){
-            if (clipping || collection.getTransferType() == Collection.tranfer.chamberCollect){
-                odometry.runDistanceSensorReset(false);
-            }else {
-                odometry.runDistanceSensorReset(true);
-            }
         }
 
         /**Sample delivery*/
@@ -480,7 +320,6 @@ public class natsTeleopSticks extends OpModeEX {
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-//            delivery.griperRotateSev.setPosition(90);
             flipOutDepo = false;
         }
 
