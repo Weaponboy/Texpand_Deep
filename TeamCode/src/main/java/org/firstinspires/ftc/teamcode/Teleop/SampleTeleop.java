@@ -74,9 +74,6 @@ public class SampleTeleop extends OpModeEX {
         /**
          * Collection code
          * */
-        if (gamepad1.x && (collection.getFourBarState() == Collection.fourBar.transferUp || collection.getFourBarState() == Collection.fourBar.preCollect)){
-            collection.setSlideTarget(45);
-        }
 
         if ((currentGamepad1.left_stick_button && !(lastGamepad1.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
 
@@ -84,6 +81,7 @@ public class SampleTeleop extends OpModeEX {
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
             }
+
             collection.setSpikeTime(2.6);
 
             collection.queueCommand(collection.transfer(Collection.tranfer.spike));
@@ -93,6 +91,8 @@ public class SampleTeleop extends OpModeEX {
         }
 
         if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
+
+            collection.stopTargeting();
 
             if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
 
@@ -109,17 +109,17 @@ public class SampleTeleop extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
                 delivery.overrideCurrent(true, delivery.stow);
                 delivery.griperRotateSev.setPosition(90);
+
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
                 if(collection.getFourBarState() == Collection.fourBar.preCollect) {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
+
                 collection.setSpikeTime(2.6);
 
                 collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
-
-                collection.manualAngle = 0;
 
                 firstDrop = true;
             }
@@ -145,23 +145,6 @@ public class SampleTeleop extends OpModeEX {
             gamepad1.rumble(300);
         }
 
-        if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() != Collection.fourBar.wallCollect){
-
-            collection.queueCommand(collection.wallCollect);
-            delivery.setGripperState(Delivery.gripper.drop);
-
-        } else if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() == Collection.fourBar.wallCollect) {
-            collection.queueCommand(collection.wallTransfer);
-
-            collection.queueCommand(delivery.transfer);
-
-            collection.queueCommand(collection.transferDrop);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
-        }
-
         if (currentGamepad1.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
             collection.armEndPointIncrement(-Math.abs(currentGamepad1.left_stick_x*0.8), 0, false);
         }else if (currentGamepad1.left_stick_x > 0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -183,7 +166,7 @@ public class SampleTeleop extends OpModeEX {
             collection.queueCommand(collection.visionScan);
 
             collection.targetPositionManuel = new Vector2D(20, 20);
-            collection.armEndPointIncrement(-16, -4, false);
+            collection.armEndPointIncrement(14, -4, false);
 
             limelight.setReturningData(true);
             limelight.setGettingResults(true);
@@ -255,7 +238,7 @@ public class SampleTeleop extends OpModeEX {
             delivery.slides = Delivery.slideState.moving;
             flipOutDepo = true;
 
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.slideMotor.getCurrentPosition() > 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
         }
 
