@@ -10,6 +10,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
+import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
@@ -28,6 +29,9 @@ public class SampleTeleop extends OpModeEX {
     boolean flipOutDepo = false;
     double rotateTarget = 90;
 
+    boolean drive = false;
+    boolean pozSet = false;
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
     public Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -36,10 +40,14 @@ public class SampleTeleop extends OpModeEX {
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
+    private final sectionBuilder[] subDeposit = new sectionBuilder[]{
+            () -> paths.addPoints(new Vector2D(200, 240), new Vector2D(220, 280), new Vector2D(329, 329)),
+    };
     @Override
     public void initEX() {
         odometry.startPosition(82.5,100,0);
-        paths.addNewPath("DepositPath");
+        paths.addNewPath("dropBasket");
+        paths.buildPath(subDeposit);
     }
 
     @Override
@@ -50,7 +58,6 @@ public class SampleTeleop extends OpModeEX {
             driveBase.queueCommand(driveBase.drivePowers(RobotPower));
 
         }else {
-            folowing = false;
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.3));
 
@@ -237,9 +244,19 @@ public class SampleTeleop extends OpModeEX {
             delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;
             flipOutDepo = true;
+            drive = true;
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
+            odometry.startPosition(325,325,0);
+            pozSet = true;
+        }
+        if (drive && pozSet){
+            follow.setPath(paths.returnPath("dropBasket"));
+            drive = false;
+        }
+        if (follow.isFinished(10,10)){
+
         }
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
