@@ -189,8 +189,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 185;
-    double secondPivotTransferSlam = 138;
+    double mainPivotTransferSlam = 186.6;
+    double secondPivotTransferSlam = 134;
 
     /**
      * stowed position values
@@ -213,8 +213,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 182;
-    double secondPivotTransferAutoSpike = 140;
+    double mainPivotTransferAutoSpike = 184.3;
+    double secondPivotTransferAutoSpike = 138;
 
     /**
      * stowed position values
@@ -262,7 +262,7 @@ public class Collection extends SubSystem {
 
     /**gripper positions*/
     double gripperDrop = 100;
-    double gripperGrab = 32;
+    double gripperGrab = 30;
     double gripperHangGrab = 100;
     double gripperSlightRelease = 45;
     double gripperOpenFull = 100;
@@ -312,7 +312,7 @@ public class Collection extends SubSystem {
         fourBarSecondPivot.setRange(335);
         turret.setRange(335);
 
-        turret.setOffset(-4);
+        turret.setOffset(-2.5);
         fourBarMainPivot.setOffset(4);
         fourBarSecondPivot.setOffset(-5);
 
@@ -416,7 +416,10 @@ public class Collection extends SubSystem {
             horizontalMotor.update(Range.clip(extendoPower, -1, 1));
 
             if (keepTargeting && getCurrentCommand() != extendoTargetPoint) {
-                setSlideTarget(calculateKinematicsGlobal());
+                double slidetargot = calculateKinematicsGlobal();
+                if (slidetargot != 18763) {
+                    setSlideTarget(slidetargot);
+                }
             }
         }
     }
@@ -1115,7 +1118,7 @@ public class Collection extends SubSystem {
                     clawsState = clawState.grab;
 
                     fourBarTimer.reset();
-                    transferWaitTime = 200;
+                    transferWaitTime = 220;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
@@ -1407,7 +1410,7 @@ public class Collection extends SubSystem {
                     clawsState = clawState.grab;
 
                     fourBarTimer.reset();
-                    transferWaitTime = 76;
+                    transferWaitTime = 56;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 

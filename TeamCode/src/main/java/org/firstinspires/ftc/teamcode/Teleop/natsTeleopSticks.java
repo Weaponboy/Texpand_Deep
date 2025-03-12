@@ -128,16 +128,8 @@ public class natsTeleopSticks extends OpModeEX {
          * Collection code
          * */
         if (currentGamepad2.right_bumper && !lastGamepad2.right_bumper){
+            collection.queueCommand(collection.collect);
 
-            if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand){
-                collection.queueCommand(collection.collect);
-            }
-
-            delivery.setGripperState(Delivery.gripper.drop);
-            delivery.overrideCurrent(true, delivery.stow);
-            delivery.griperRotateSev.setPosition(90);
-
-            ranTransfer = false;
         }
 
         if (currentGamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0) && collection.getFourBarState() == Collection.fourBar.preCollect){
@@ -145,6 +137,7 @@ public class natsTeleopSticks extends OpModeEX {
             collection.queueCommand(collection.collect);
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
+            collection.setSpikeTime(2.4);
 
             collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 

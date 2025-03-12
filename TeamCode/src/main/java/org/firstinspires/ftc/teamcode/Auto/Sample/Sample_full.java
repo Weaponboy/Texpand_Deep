@@ -925,7 +925,7 @@ public class Sample_full extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 236 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 155){
+                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 236 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 155 && odometry.Heading() > 264){
 
                         autoQueued = false;
 
@@ -963,6 +963,8 @@ public class Sample_full extends OpModeEX {
                         System.out.println("Target point" + limelight.getTargetPoint());
 
                         if (limelight.getTargetPoint() != null && counter > 3){
+                            targetHeading = 270;
+
 
                             if (collection.getFourBarState() != Collection.fourBar.preCollect){
                                 collection.queueCommand(collection.collect);
@@ -1039,8 +1041,7 @@ public class Sample_full extends OpModeEX {
                      * stop driving
                      * */
                     if (stopDiviving){
-
-
+                        targetHeading = 270;
                         stopDiviving = false;
                     }
                     if (startpid) {

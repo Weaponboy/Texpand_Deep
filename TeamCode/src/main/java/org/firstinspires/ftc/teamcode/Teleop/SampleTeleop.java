@@ -28,6 +28,7 @@ public class SampleTeleop extends OpModeEX {
     follower follow = new follower();
     boolean flipOutDepo = false;
     double rotateTarget = 90;
+    boolean autoDepo = false;
 
     boolean drive = false;
     boolean pozSet = false;
@@ -40,14 +41,14 @@ public class SampleTeleop extends OpModeEX {
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
-    private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 240), new Vector2D(220, 280), new Vector2D(329, 329)),
-    };
+//    private final sectionBuilder[] subDeposit = new sectionBuilder[]{
+//            () -> paths.addPoints(new Vector2D(200, 240), new Vector2D(220, 280), new Vector2D(329, 329)),
+//    };
     @Override
     public void initEX() {
         odometry.startPosition(82.5,100,0);
-        paths.addNewPath("dropBasket");
-        paths.buildPath(subDeposit);
+//        paths.addNewPath("dropBasket");
+//        paths.buildPath(subDeposit);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class SampleTeleop extends OpModeEX {
 
         }else {
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.3));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.45));
 
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
@@ -89,7 +90,7 @@ public class SampleTeleop extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
             }
 
-            collection.setSpikeTime(2.6);
+            collection.setSpikeTime(1.6);
 
             collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
@@ -124,9 +125,9 @@ public class SampleTeleop extends OpModeEX {
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
 
-                collection.setSpikeTime(2.6);
+                collection.setSpikeTime(1.6);
 
-                collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+                collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
                 firstDrop = true;
             }
@@ -158,10 +159,10 @@ public class SampleTeleop extends OpModeEX {
             collection.armEndPointIncrement(Math.abs(currentGamepad1.left_stick_x*0.8), 0, false);
         }
 
-        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle < 75 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle < 75 && (collection.getFourBarState() == Collection.fourBar.preCollect||collection.getFourBarState() == Collection.fourBar.transferringStates)){
             collection.manualAngle = 90;
             collection.armEndPointIncrement(0, 0, false);
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle > 75 && collection.getFourBarState() == Collection.fourBar.preCollect){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle > 75 && (collection.getFourBarState() == Collection.fourBar.preCollect||collection.getFourBarState() == Collection.fourBar.transferringStates)){
             collection.manualAngle = 0;
             collection.armEndPointIncrement(0, 0, false);
         }
@@ -226,20 +227,24 @@ public class SampleTeleop extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.queueCommand(collection.transfer);
+            collection.setSpikeTime(1.4);
+
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
             queueCollection = false;
         }
         /**
          * Delivery code
          * */
-        if (currentGamepad1.start && !lastGamepad1.start && delivery.slideMotor.getCurrentPosition() < 100 && collection.slidesReset.isPressed()){
-            delivery.queueCommand(delivery.preClipFront);
-        }else if (currentGamepad1.start && !lastGamepad1.start && delivery.slideMotor.getCurrentPosition() > 100){
-            delivery.queueCommand(delivery.clipFront);
+        if (currentGamepad1.start && !lastGamepad1.start && autoDepo){
+            autoDepo = false;
+            gamepad1.rumble(100);
+        }else if (currentGamepad1.start && !lastGamepad1.start && !autoDepo){
+            autoDepo = true;
+            gamepad1.rumble(300);
         }
 
-        if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper)||autoDepo) && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
 
             delivery.slideSetPoint(delivery.highBasket);
             delivery.slides = Delivery.slideState.moving;
@@ -248,20 +253,20 @@ public class SampleTeleop extends OpModeEX {
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
             delivery.queueCommand(delivery.deposit);
-            odometry.startPosition(325,325,0);
+//            odometry.startPosition(325,325,0);
             pozSet = true;
         }
-        if (drive && pozSet){
-            follow.setPath(paths.returnPath("dropBasket"));
-            drive = false;
-        }
-        if (follow.isFinished(10,10)){
-
-        }
+//        if (drive && pozSet){
+//            follow.setPath(paths.returnPath("dropBasket"));
+//            drive = false;
+//        }
+//        if (follow.isFinished(10,10)){
+//
+//        }
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
-            delivery.griperRotateSev.setPosition(90);
+            delivery.griperRotateSev.setPosition(45);
             flipOutDepo = false;
         }
 
