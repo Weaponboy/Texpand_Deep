@@ -63,7 +63,7 @@ public class SampleTeleop extends OpModeEX {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.45));
 
             }else {
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x*1));
             }
         }
 
@@ -90,9 +90,9 @@ public class SampleTeleop extends OpModeEX {
                 delivery.setGripperState(Delivery.gripper.drop);
             }
 
-            collection.setSpikeTime(1.6);
+            collection.setSpikeTime(2.5);
 
-            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
+            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
             firstDrop = true;
 
@@ -125,9 +125,9 @@ public class SampleTeleop extends OpModeEX {
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
 
-                collection.setSpikeTime(1.6);
+                collection.setSpikeTime(2.5);
 
-                collection.queueCommand(collection.transfer(Collection.tranfer.spike));
+                collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
                 firstDrop = true;
             }
@@ -227,9 +227,9 @@ public class SampleTeleop extends OpModeEX {
 
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
-            collection.setSpikeTime(1.4);
+            collection.setSpikeTime(2);
 
-            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
+            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
             queueCollection = false;
         }
