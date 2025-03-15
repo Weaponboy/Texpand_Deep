@@ -98,8 +98,8 @@ public class Delivery extends SubSystem {
     /**
      * Bucket deposit position values
      * */
-    double mainPivotDepo = 100;
-    double secondDepo = 220;
+    double mainPivotDepo = 94;
+    double secondDepo = 228;
     double gripperDepo = gripperGrab;
 
     /**
@@ -415,7 +415,7 @@ public class Delivery extends SubSystem {
    public Command closeGripper = new LambdaCommand(
            () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 120;
+                transferWaitTime = 50;
            },
            () -> {
                 gripperState = gripper.grab;

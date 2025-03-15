@@ -213,8 +213,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 183;
-    double secondPivotTransferAutoSpike = 139;
+    double mainPivotTransferAutoSpike = 176.5;
+    double secondPivotTransferAutoSpike = 140;
 
     /**
      * stowed position values
@@ -351,6 +351,7 @@ public class Collection extends SubSystem {
     public void execute() {
 
         executeEX();
+        cancelTransferActive = false;
 
         double ticksPerCM = (double) 205 / 18;
         double error;
@@ -652,14 +653,14 @@ public class Collection extends SubSystem {
     public final Command transferDropAuto = new LambdaCommand(
             () -> {
 //                TransferAuto.execute();
-                setClawsState(clawState.slightRelease);
+//                setClawsState(clawState.slightRelease);
                 WaitForTranferDrop.reset();
 
                 TransferDrop = false;
                 fourBarState = fourBar.stowed;
             },
             () -> {
-                setClawsState(clawState.slightRelease);
+//                setClawsState(clawState.slightRelease);
                 if (WaitForTranferDrop.milliseconds() > 40){
                     TransferDrop = true;
                 }
@@ -734,7 +735,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 80
+            () -> fourBarTimer.milliseconds() > 20
     );
 
     public final Command openGripperSpec = new LambdaCommand(

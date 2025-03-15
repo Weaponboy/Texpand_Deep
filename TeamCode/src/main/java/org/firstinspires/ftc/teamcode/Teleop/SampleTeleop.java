@@ -125,7 +125,7 @@ public class SampleTeleop extends OpModeEX {
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
 
-                collection.setSpikeTime(2.5);
+                collection.setSpikeTime(0.2);
 
                 collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
