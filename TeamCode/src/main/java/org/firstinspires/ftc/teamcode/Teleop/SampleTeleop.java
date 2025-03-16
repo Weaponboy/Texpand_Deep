@@ -109,9 +109,6 @@ public class SampleTeleop extends OpModeEX {
                 if (collection.getSlidePositionCM() < 0.5) {
                     collection.manualAngle = 0;
                     collection.armEndPointIncrement(0, 30, false);
-                } else if (collection.getSlidePositionCM() < 22) {
-                    collection.manualAngle = 0;
-                    collection.armEndPointIncrement(0, 15, false);
                 }
 
                 delivery.setGripperState(Delivery.gripper.drop);
@@ -125,7 +122,7 @@ public class SampleTeleop extends OpModeEX {
                     delivery.setGripperState(Delivery.gripper.drop);
                 }
 
-                collection.setSpikeTime(0.2);
+                collection.setSpikeTime(1.2);
 
                 collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
 
@@ -134,14 +131,14 @@ public class SampleTeleop extends OpModeEX {
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
-            collection.armEndPointIncrement(0, 0.7, false);
+            collection.armEndPointIncrement(0, 0.9, false);
             if(collection.getCurrentCommand() == collection.defaultCommand && collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
                 collection.queueCommand(collection.collect);
                 delivery.setGripperState(Delivery.gripper.drop);
                 firstDrop = false;
             }
         }else if (currentGamepad1.left_stick_y > 0.4){
-            collection.armEndPointIncrement(0, -0.7, false);
+            collection.armEndPointIncrement(0, -0.9, false);
         }else if (collection.slidesReset.isPressed()){
         }
 

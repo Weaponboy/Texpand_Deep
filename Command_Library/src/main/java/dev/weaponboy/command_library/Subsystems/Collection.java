@@ -46,6 +46,7 @@ public class Collection extends SubSystem {
     // 1.8 is safe speed
     public double spikeTime = 1.9;
 
+
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
     public ServoDegrees fourBarSecondPivot= new ServoDegrees();
@@ -189,8 +190,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 186.6;
-    double secondPivotTransferSlam = 134;
+    double mainPivotTransferSlam = 183.6;
+    double secondPivotTransferSlam = 131;
 
     /**
      * stowed position values
@@ -208,7 +209,7 @@ public class Collection extends SubSystem {
      * stowed position values
      * */
     double mainPivotTransferAuto = 187;
-    double secondPivotTransferAuto = 135;
+    double secondPivotTransferAuto = 132;
 
     /**
      * stowed position values
@@ -352,6 +353,7 @@ public class Collection extends SubSystem {
 
         executeEX();
         cancelTransferActive = false;
+
 
         double ticksPerCM = (double) 205 / 18;
         double error;
@@ -1239,10 +1241,11 @@ public class Collection extends SubSystem {
                     keepTargeting = false;
 
                 }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                    double turretTime = Math.abs( turret.getPositionDegrees()-turretTransferPosition)*0.4;
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*2.0);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*1.2);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;
@@ -1437,10 +1440,12 @@ public class Collection extends SubSystem {
                     keepTargeting = false;
 
                 }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                    double turretTime = Math.abs( turret.getPositionDegrees()-turretTransferPosition)*0.4;
+
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*spikeTime);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*spikeTime);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;
