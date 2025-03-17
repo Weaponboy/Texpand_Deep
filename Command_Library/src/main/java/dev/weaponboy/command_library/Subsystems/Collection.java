@@ -190,8 +190,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 183.6;
-    double secondPivotTransferSlam = 131;
+    double mainPivotTransferSlam = 178;
+    double secondPivotTransferSlam = 129    ;
 
     /**
      * stowed position values
@@ -262,8 +262,8 @@ public class Collection extends SubSystem {
     public Vector2D targetPositionManuel = new Vector2D(clawOffsetFromSlides, clawOffsetFromSlides);
 
     /**gripper positions*/
-    double gripperDrop = 100;
-    double gripperGrab = 30;
+    double gripperDrop = 94;
+    double gripperGrab = 28;
     double gripperHangGrab = 100;
     double gripperSlightRelease = 45;
     double gripperOpenFull = 100;
@@ -737,7 +737,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 20
+            () -> fourBarTimer.milliseconds() > 60
     );
 
     public final Command openGripperSpec = new LambdaCommand(
@@ -1343,7 +1343,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*3, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*3);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*1.5);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;

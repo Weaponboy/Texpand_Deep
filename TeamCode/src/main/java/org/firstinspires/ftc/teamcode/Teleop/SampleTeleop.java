@@ -32,6 +32,7 @@ public class SampleTeleop extends OpModeEX {
 
     boolean drive = false;
     boolean pozSet = false;
+    boolean lowBucket = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -142,12 +143,12 @@ public class SampleTeleop extends OpModeEX {
         }else if (collection.slidesReset.isPressed()){
         }
 
-        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.normalSlam){
-            collection.setTransferType(Collection.tranfer.normalSlam);
+        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && !lowBucket){
+            lowBucket = true;
             gamepad1.rumble(300);
-        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.sample){
-            collection.setTransferType(Collection.tranfer.sample);
-            gamepad1.rumble(300);
+        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && lowBucket){
+            lowBucket = false;
+            gamepad1.rumble(100);
         }
 
         if (currentGamepad1.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -242,13 +243,17 @@ public class SampleTeleop extends OpModeEX {
         }
 
         if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper)||autoDepo) && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
-
-            delivery.slideSetPoint(delivery.highBasket);
-            delivery.slides = Delivery.slideState.moving;
             flipOutDepo = true;
             drive = true;
+            if (lowBucket){
+                delivery.slideSetPoint(delivery.lowBasket);
+                delivery.slides = Delivery.slideState.moving;
+            }else if (!lowBucket){
+                delivery.slideSetPoint(delivery.highBasket);
+                delivery.slides = Delivery.slideState.moving;
+            }
 
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)||currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 17 && !(collection.getFourBarState()== Collection.fourBar.preCollect) && lowBucket){
             delivery.queueCommand(delivery.deposit);
 //            odometry.startPosition(325,325,0);
             pozSet = true;
