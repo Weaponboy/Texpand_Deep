@@ -134,7 +134,7 @@ public class Sample__X extends OpModeEX {
             () -> paths.addPoints(new Vector2D(326, 326), new Vector2D(327.5, 196))
     };
     private final sectionBuilder[] preload2depo = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(327.5, 196), new Vector2D(325, 324))
+            () -> paths.addPoints(new Vector2D(327.5, 195), new Vector2D(325, 324))
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
