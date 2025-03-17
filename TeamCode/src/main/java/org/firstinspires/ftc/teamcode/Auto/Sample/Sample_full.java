@@ -52,6 +52,8 @@ public class Sample_full extends OpModeEX {
     boolean startpid = false;
     boolean turn = true;
     boolean rerun = true;
+    boolean lockHeading = false;
+    double headingLock;
 
     Vector2D powerPID = new Vector2D();
 
@@ -206,7 +208,7 @@ public class Sample_full extends OpModeEX {
                 delivery.slides = Delivery.slideState.moving;
 
                 follow.setPath(paths.returnPath("preloadPath"));
-                targetHeading = 185;
+                targetHeading = 188;
                 built = building.built;
                 drop = true;
                 dropTimer.reset();
@@ -254,7 +256,7 @@ public class Sample_full extends OpModeEX {
                 CycleState = cycleState.spikeCollect;
                 PIDToPoint = true;
                 pathing = false;
-                collection.setSlideTarget(40);
+                collection.setSlideTarget(33);
 
 
 
@@ -659,7 +661,7 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 65;
 
-                    targetHeading = 210;
+                    targetHeading = 208;
 
                     collection.setSpikeTime(0.4);
 
@@ -694,7 +696,7 @@ public class Sample_full extends OpModeEX {
 
                 if (cycleBuilt == building.notBuilt) {
 
-                    targetHeading = 210;
+                    targetHeading = 208;
                     follow.setExtendoHeading(false);
 
                     cycleBuilt = building.built;
@@ -996,14 +998,14 @@ public class Sample_full extends OpModeEX {
 
                     if (odometry.X() < 255 && turn){
                         follow.usePathHeadings(false);//
-                        targetHeading = 235;
+                        targetHeading = 232;
                         turn = false;//
                   }
 
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 215 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 80){
+                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 208 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 160){
 
                         autoQueued = false;//
 
@@ -1015,10 +1017,19 @@ public class Sample_full extends OpModeEX {
                         counter = 0;
                         limelight.setGettingResults(true);
                         limelight.setCloseFirst(true);
+                        follow.usePathHeadings(false);//
 
                         collection.resetTransferCanceled();
                         holdx = 0;
                         holdy = 0;
+                        headingLock = odometry.Heading();
+                        lockHeading = true;
+                    }
+                    if (lockHeading){
+                        targetHeading = headingLock;
+                        lockHeading = false;
+                        follow.usePathHeadings(false);//
+
                     }
 
                     System.out.println("Slide velocity" + collection.horizontalMotor.getVelocity());
@@ -1033,7 +1044,8 @@ public class Sample_full extends OpModeEX {
                     }
 
                     if (!collect && busyDetecting && (detectionTimer.milliseconds() - offsetTimer) > (50*counter) && counter < 30){
-
+                        targetHeading = headingLock;
+                        follow.usePathHeadings(false);//
 
                         System.out.println("Vision running" + counter);
 
@@ -1051,6 +1063,8 @@ public class Sample_full extends OpModeEX {
                             }
                             holdy = odometry.Y();
                             holdx = odometry.X();
+                            targetHeading = headingLock;
+
 
                             System.out.println("Targeting activated!!!");
 
