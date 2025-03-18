@@ -198,6 +198,9 @@ public class Sample_full extends OpModeEX {
 
     @Override
     public void loopEX() {
+        if (state == autoState.preload || state == autoState.spikeOne || state == autoState.spikeTwo || state == autoState.spikeThree){
+            delivery.setSpikeTransfer(true);
+        }
 
 
         if (state == autoState.preload) {
@@ -212,6 +215,7 @@ public class Sample_full extends OpModeEX {
                 built = building.built;
                 drop = true;
                 dropTimer.reset();
+                delivery.setSpikeTransfer(true);
 
                 pathing = true;
                 follow.setExtendoHeading(true);
@@ -246,7 +250,7 @@ public class Sample_full extends OpModeEX {
         } else if (state == autoState.spikeThree) {
 
             if (built == building.notBuilt) {
-                collection.setSpikeTime(0.4);
+                collection.setSpikeTime(1);
 
                 targetHeading = 171;
 
@@ -440,7 +444,7 @@ public class Sample_full extends OpModeEX {
                 if (cycleBuilt == building.notBuilt) {
                     cycleBuilt = building.built;
                     PIDToPoint = true;
-                    targetHeading = 200;
+                    targetHeading = 185;
                     drop = true;
                     autoQueued = false;
                 }
@@ -450,13 +454,12 @@ public class Sample_full extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                if (delivery.slideMotor.getCurrentPosition() > 699 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
                 if (collection.getCurrentCommand() == collection.defaultCommand && !autoQueued) {
                     collection.queueCommand(collection.preCollectNoWait);
-                    targetHeading = 185;
 
                     collection.queueCommand(collection.extendoTargetPoint(new Vector2D(239, 327)));
 
@@ -464,7 +467,6 @@ public class Sample_full extends OpModeEX {
 
                     collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
-                    targetHeading = 185;
 
                     autoQueued = true;
                 }
@@ -644,6 +646,7 @@ public class Sample_full extends OpModeEX {
                 if (cycleBuilt == building.notBuilt) {
                     cycleBuilt = building.built;
                     drop = true;
+                    targetHeading = 208;
                     autoQueued = false;
                 }
 
@@ -652,7 +655,7 @@ public class Sample_full extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                if (delivery.slideMotor.getCurrentPosition() > 699 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
@@ -661,16 +664,14 @@ public class Sample_full extends OpModeEX {
 
                     collection.angle = 65;
 
-                    targetHeading = 208;
 
-                    collection.setSpikeTime(0.4);
+                    collection.setSpikeTime(1.4);
 
                     collection.queueCommand(collection.extendoTargetPoint(new Vector2D(241, 302)));
 
                     collection.queueCommand(collection.collect);
 
                     collection.queueCommand(collection.transfer(Collection.tranfer.spike));
-
 
                     autoQueued = true;
                 }
@@ -847,13 +848,13 @@ public class Sample_full extends OpModeEX {
                     delivery.slides = Delivery.slideState.moving;
                 }
 
-                if (delivery.slideMotor.getCurrentPosition() > 300 && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                if (delivery.slideMotor.getCurrentPosition() > 699 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                     delivery.queueCommand(delivery.depositAuto);
                 }
 
                 if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab) {
                     delivery.queueCommand(delivery.depositAuto);
-                    state = autoState.one;
+                    state = autoState.finished;
                     built = building.notBuilt;
                     PIDToPoint = false;
                 }
@@ -953,7 +954,7 @@ public class Sample_full extends OpModeEX {
                 pathing = true;
                 headingOverride = false;
                 PIDToPoint = false;
-
+                delivery.setSpikeTransfer(true);
                 follow.setHeadingLookAheadDistance(40);
 
                 //reset vision and collection variables

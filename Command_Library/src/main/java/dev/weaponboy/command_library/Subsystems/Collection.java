@@ -74,6 +74,8 @@ public class Collection extends SubSystem {
     boolean TransferDrop = false;
     ElapsedTime WaitForTranferDrop = new ElapsedTime();
 
+
+
     /**states*/
     public enum fourBar{
         preCollect,
@@ -214,8 +216,8 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 177.5;
-    double secondPivotTransferAutoSpike = 140;
+    double mainPivotTransferAutoSpike = 198;
+    double secondPivotTransferAutoSpike = 160;
 
     /**
      * stowed position values
@@ -263,7 +265,7 @@ public class Collection extends SubSystem {
 
     /**gripper positions*/
     double gripperDrop = 94;
-    double gripperGrab = 28;
+    double gripperGrab = 26;
     double gripperHangGrab = 100;
     double gripperSlightRelease = 45;
     double gripperOpenFull = 100;

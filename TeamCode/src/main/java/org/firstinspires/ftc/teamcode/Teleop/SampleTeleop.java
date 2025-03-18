@@ -33,6 +33,8 @@ public class SampleTeleop extends OpModeEX {
     boolean drive = false;
     boolean pozSet = false;
     boolean lowBucket = false;
+    boolean chamberColect = false;
+    boolean tranfer = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -83,6 +85,11 @@ public class SampleTeleop extends OpModeEX {
         /**
          * Collection code
          * */
+        if (!chamberColect && currentGamepad1.dpad_right && !lastGamepad1.dpad_right){
+            chamberColect = true;
+        }else  if (chamberColect && currentGamepad1.dpad_right && !lastGamepad1.dpad_right){
+            chamberColect = false;
+        }
 
         if ((currentGamepad1.left_stick_button && !(lastGamepad1.left_stick_button)) && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
 
@@ -99,7 +106,7 @@ public class SampleTeleop extends OpModeEX {
 
         }
 
-        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper)){
+        if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && !tranfer){
 
             collection.stopTargeting();
 
@@ -118,17 +125,26 @@ public class SampleTeleop extends OpModeEX {
 
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
-                if(collection.getFourBarState() == Collection.fourBar.preCollect) {
+
+
+                if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberColect) {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
+                    collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+                }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberColect){
+//                    collection.queueCommand(collection.collect);
+//                    delivery.setGripperState(Delivery.gripper.drop);
+//                    collection.queueCommand(collection.transfer(Collection.tranfer.UnderChamberCycle));
+//                    tranfer = true;
                 }
 
-                collection.setSpikeTime(1.2);
 
-                collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+
 
                 firstDrop = true;
             }
+        } else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && tranfer) {
+            collection.queueCommand(collection.transfer(Collection.tranfer.UnderChamberCycle));
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
