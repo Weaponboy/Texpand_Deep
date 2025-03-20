@@ -38,6 +38,12 @@ public class Delivery extends SubSystem {
 
     boolean drop = false;
 
+    public void setSpikeTransfer(boolean spikeTransfer) {
+        this.spikeTransfer = spikeTransfer;
+    }
+
+    boolean spikeTransfer = false;
+
     ElapsedTime dropTimer = new ElapsedTime();
 
     public TouchSensor slidesReset;
@@ -46,8 +52,8 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 62;
-    public final double autoHighBasket = 63.5;
+    public final double highBasket = 60;
+    public final double autoHighBasket = 60;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25.5;
@@ -80,7 +86,13 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotTransfer = 244;
-    double secondTransfer = 156;
+    double secondTransfer = 162;
+
+    /**
+     * transfer position values
+     * */
+    double mainPivotSpikeTransfer = 235;
+    double secondSpikeTransfer = 110;
 
     /**
      * transfer position values
@@ -98,8 +110,8 @@ public class Delivery extends SubSystem {
     /**
      * Bucket deposit position values
      * */
-    double mainPivotDepo = 100;
-    double secondDepo = 220;
+    double mainPivotDepo = 94;
+    double secondDepo = 228;
     double gripperDepo = gripperGrab;
 
     /**
@@ -213,8 +225,13 @@ public class Delivery extends SubSystem {
 
     private Command Transfer = new Execute(
             () -> {
-                mainPivot.setPosition(mainPivotTransfer);
-                secondPivot.setPosition(secondTransfer);
+                if (spikeTransfer){
+                    mainPivot.setPosition(mainPivotSpikeTransfer);
+                    secondPivot.setPosition(secondSpikeTransfer);
+                }else {
+                    mainPivot.setPosition(mainPivotTransfer);
+                    secondPivot.setPosition(secondTransfer);
+                }
             }
     );
 
@@ -326,11 +343,15 @@ public class Delivery extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*5, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.transfer;
+                    if (spikeTransfer){
+                        slideSetPoint(14.8);
+                    } else{
+                        slideSetPoint(0);
+                    }
 
-                    slideSetPoint(0);
                     slides = Delivery.slideState.moving;
 
-                    griperRotateSev.setPosition(0);
+                    griperRotateSev.setPosition(90);
                     Transfer.execute();
 
                 } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 150) {
@@ -368,11 +389,15 @@ public class Delivery extends SubSystem {
                 if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.drop){
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*5, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*5);
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*3, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*3);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.transfer;
 
-                    slideSetPoint(0);
+                    if (spikeTransfer){
+                        slideSetPoint(14.8);
+                    } else{
+                        slideSetPoint(0);
+                    }
                     slides = Delivery.slideState.moving;
 
                     Transfer.execute();
@@ -380,7 +405,7 @@ public class Delivery extends SubSystem {
                 } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 150) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*2, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*2);
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*1.5, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
@@ -415,7 +440,7 @@ public class Delivery extends SubSystem {
    public Command closeGripper = new LambdaCommand(
            () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 120;
+                transferWaitTime = 50;
            },
            () -> {
                 gripperState = gripper.grab;

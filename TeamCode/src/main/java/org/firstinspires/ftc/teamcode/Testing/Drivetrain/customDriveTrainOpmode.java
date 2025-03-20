@@ -32,6 +32,7 @@ public class customDriveTrainOpmode extends OpMode {
 
         drive(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5);
 
+
         if (gamepad1.a){
             LF.update(0.5);
         }else{
