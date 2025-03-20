@@ -412,7 +412,7 @@ public class natsTeleop extends OpModeEX {
 
             delivery.queueCommand(delivery.transferHold(() -> collection.getCurrentCommand() == collection.returnDefaultCommand()));
 
-            collection.queueCommand(collection.transfer);
+            collection.queueCommand(collection.transfer(Collection.tranfer.auto));
 
             queueCollection = false;
 

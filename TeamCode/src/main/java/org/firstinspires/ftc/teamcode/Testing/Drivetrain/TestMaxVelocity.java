@@ -15,11 +15,13 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-//@TeleOp
+@TeleOp
 public class TestMaxVelocity extends OpModeEX {
 
     ElapsedTime elapsedTimeX = new ElapsedTime();
     ElapsedTime elapsedTimeY = new ElapsedTime();
+    ElapsedTime time = new ElapsedTime();
+
 
     pathsManager paths = new pathsManager();
     boolean following = false;
@@ -145,6 +147,16 @@ public class TestMaxVelocity extends OpModeEX {
         telemetry.addData("y velo", maxHorzontalVelo);
         telemetry.addData("lastTime", lastTimeX);
         telemetry.addData("lastTime", lastTimeY);
+        System.out.println("x max" + maxVecticalVelo);
+        System.out.println("y max" + maxHorzontalVelo);
+        System.out.println("x velo" + odometry.getXVelocity());
+        System.out.println("y velo" + odometry.getYVelocity());
+        System.out.println("x" + odometry.X());
+        System.out.println("y" + odometry.Y());
+        System.out.println("time" + time.seconds());
+
+
+
 
         telemetry.addData("x velo actual", odometry.getXVelocity());
         telemetry.addData("y velo actual", odometry.getYVelocity());
