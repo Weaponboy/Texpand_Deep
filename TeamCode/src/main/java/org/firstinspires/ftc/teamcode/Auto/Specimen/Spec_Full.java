@@ -248,7 +248,7 @@ public class Spec_Full extends OpModeEX {
                     break;
                 case detecting:
 
-                    if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20 && !collect){
+                    if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 10 && !collect){
 
                         counter++;
 
@@ -270,17 +270,14 @@ public class Spec_Full extends OpModeEX {
 
                         }
 
-                    }
+                    } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter >= 10) {
 
-//                    else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
-//
-//                        delivery.queueCommand(delivery.clipFront);
-//                        clipped = true;
-//
-//                        visionStates = visionPreload.doneFailed;
-//x
-//                        busyDetecting = false;
-//                    }
+                        delivery.queueCommand(delivery.clipFront);
+                        clipped = true;
+
+                        visionStates = visionPreload.doneFailed;
+                        busyDetecting = false;
+                    }
 
                     break;
                 case collecting:
@@ -464,7 +461,6 @@ public class Spec_Full extends OpModeEX {
                 follow.setExtendoHeading(false);
             }
 
-
         } else if (state == autoState.spike_three){
 
             if (built == building.notBuilt) {
@@ -520,7 +516,6 @@ public class Spec_Full extends OpModeEX {
                 built = building.notBuilt;
                 follow.setExtendoHeading(false);
             }
-
 
         } else if (state == autoState.cycle_one) {
 

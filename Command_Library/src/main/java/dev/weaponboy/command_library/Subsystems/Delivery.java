@@ -53,7 +53,7 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public final double highBasket = 60;
-    public final double autoHighBasket = 60;
+    public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25.5;
@@ -805,7 +805,7 @@ public class Delivery extends SubSystem {
 
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setOffset(-10);
+        griperSev.setOffset(-15);
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 
@@ -813,7 +813,7 @@ public class Delivery extends SubSystem {
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
 
-        griperRotateSev.setOffset(40);
+        griperRotateSev.setOffset(35);
         griperRotateSev.setPosition(90);
 
         Deposit.execute();

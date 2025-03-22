@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.sun.source.tree.IfTree;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
@@ -83,6 +84,7 @@ public class SpecimenTeleop extends OpModeEX {
             delivery.setGripperState(Delivery.gripper.drop);
             scanpos = false;
             firstDrop = true;
+            collection.targetPositionManuel = new Vector2D(20, 20);
         }
 
         /**
@@ -203,11 +205,14 @@ public class SpecimenTeleop extends OpModeEX {
             delivery.overrideCurrent(true, delivery.stow);
             delivery.runReset();
 
+            collection.manualAngle = 0;
             collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 20, 20);
             collection.armEndPointIncrement(0, 0, false);
 
             collection.setClawsState(Collection.clawState.drop);
-            collection.queueCommand(collection.collect);
+            if (collection.getFourBarState() != Collection.fourBar.preCollect){
+                collection.queueCommand(collection.collect);
+            }
 
             busyDetecting = false;
             collection.stopTargeting();
@@ -232,7 +237,8 @@ public class SpecimenTeleop extends OpModeEX {
             collection.queueCommand(collection.visionScan);
 
             collection.targetPositionManuel = new Vector2D(6, 20);
-            collection.armEndPointIncrement(14, -4, false);
+            collection.armEndPointIncrement(14, -10, false);
+            collection.targetPositionManuel = new Vector2D(20, 20);
 
             limelight.setReturningData(true);
             limelight.setGettingResults(true);
@@ -313,7 +319,8 @@ public class SpecimenTeleop extends OpModeEX {
 
         if (armToVision && collection.getSlidePositionCM() < 10){
             armToVision = false;
-            collection.armEndPointIncrement(14, -4, false);
+            collection.armEndPointIncrement(14, -12, false);
+            collection.targetPositionManuel = new Vector2D(20, 20);
         }
 
         if (currentGamepad1.a && !lastGamepad1.a){
@@ -331,6 +338,9 @@ public class SpecimenTeleop extends OpModeEX {
         telemetry.addData("collection  slides", collection.slidesReset.isPressed());
         telemetry.addData("claw sensor collection", collection.breakBeam.isPressed());
         telemetry.addData("claw sensor delivery", delivery.clawSensor.isPressed());
+        telemetry.addData("Turret feedback ", collection.turretPosition.getPosition() );
+        telemetry.addData("Slides target X", collection.targetPositionManuel.getX());
+        telemetry.addData("Slides target Y", collection.targetPositionManuel.getY());
         if (limelight.getTargetPoint() != null){
             telemetry.addData("limelight results X", limelight.getTargetPoint().getTargetPoint().getX());
             telemetry.addData("limelight results Y", limelight.getTargetPoint().getTargetPoint().getY());
