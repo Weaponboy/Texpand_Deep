@@ -244,6 +244,9 @@ public class Collection extends SubSystem {
     private clawState clawsState = clawState.drop;
     private tranfer transferType = tranfer.normalSlam;
 
+    private tranfer transferTypeSaved = tranfer.normalSlam;
+    boolean resetTransfer = false;
+
     /**PID controllers**/
     PIDController adjustment = new PIDController(0.018, 0, 0.05);
     PIDController adjustmentClose = new PIDController(0.014, 0, 0.009);
@@ -597,6 +600,8 @@ public class Collection extends SubSystem {
     );
 
     public Command transferNoSave(tranfer transferType){
+        resetTransfer = true;
+        transferTypeSaved = this.transferType;
         this.transferType = transferType;
         return transfer;
     }
@@ -2143,6 +2148,11 @@ public class Collection extends SubSystem {
                         queueCommand(observationCollection);
                         break;
                     default:
+                }
+
+                if (resetTransfer){
+                    resetTransfer = false;
+                    transferType = transferTypeSaved;
                 }
             },
             () -> true

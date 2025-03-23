@@ -304,7 +304,7 @@ public class Sample_full extends OpModeEX {
                     delivery.queueCommand(delivery.deposit);
                 }
 
-                if (!autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && odometry.Heading() > 182) {
+                if (!autoQueued && collection.getFourBarState() == Collection.fourBar.preCollect && odometry.Heading() < 182) {
 
                     autoQueued = true;
 
