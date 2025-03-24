@@ -234,11 +234,11 @@ public class Sample_full extends OpModeEX {
                 limelight.setGettingResults(false);
             }
 
-            if (delivery.slideMotor.getCurrentPosition() > 100 && delivery.fourbarState == Delivery.fourBarState.transfer) {
+            if (delivery.slideMotor.getCurrentPosition() > 500 && delivery.fourbarState == Delivery.fourBarState.transfer) {
                 delivery.queueCommand(delivery.deposit);
             }
 
-            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(12, 12)) {
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 56 && follow.isFinished(12, 12)) {
                 delivery.queueCommand(delivery.deposit);
 
                 pathing = false;
