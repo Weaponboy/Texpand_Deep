@@ -805,7 +805,7 @@ public class Spec_Full extends OpModeEX {
                 collection.setCancelTransfer(true);
 
                 //reset and enable transfer fail detection
-                collection.queueCommand(collection.preCollectNoRotate(180));
+                collection.queueCommand(collection.collect);
 
                 //reset delivery gripper to transfer position
                 delivery.griperRotateSev.setPosition(90);
@@ -914,7 +914,7 @@ public class Spec_Full extends OpModeEX {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    collection.setSlideTarget(30);
+                    collection.setSlideTarget(35);
                     follow.setExtendoHeading(false);
                     System.out.println("incremented state: " + state.name());
                 }

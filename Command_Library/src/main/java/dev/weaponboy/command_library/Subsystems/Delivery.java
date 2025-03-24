@@ -72,7 +72,7 @@ public class Delivery extends SubSystem {
     boolean slideDisabledForHang = false;
 
     double gripperDrop = 108;
-    double gripperGrab = 52;
+    double gripperGrab = 48;
     double gripperSlightRelease = 80;
 
     /**
@@ -129,9 +129,11 @@ public class Delivery extends SubSystem {
     /**
      * Clipping position values
      * */
-    double mainPivotClipFront = 215;
-    double secondClipFront = 130;
-    double gripperClipFront = gripperSlightRelease;
+    double mainPivotClipFront = 250;
+    double secondClipFront = 115;
+
+    double mainPivotClipFrontInt = 200;
+    double secondClipFrontInt = 115;
 
     /**
      * Clipping position values
@@ -144,7 +146,7 @@ public class Delivery extends SubSystem {
      * PRE clipping position values
      * */
     double mainPivotPreClipFront = 190;
-    double secondPreClipFront = 130;
+    double secondPreClipFront = 80;
     double gripperPreClipFront = gripperGrab;
 
     /**
@@ -306,6 +308,14 @@ public class Delivery extends SubSystem {
             () -> {
                 mainPivot.setPosition(mainPivotClipFront);
                 secondPivot.setPosition(secondClipFront);
+//                griperSev.setPosition(gripperClipFront);
+            }
+    );
+
+    private Command ClipFrontInt = new Execute(
+            () -> {
+                mainPivot.setPosition(mainPivotClipFrontInt);
+                secondPivot.setPosition(secondClipFrontInt);
 //                griperSev.setPosition(gripperClipFront);
             }
     );
@@ -629,12 +639,21 @@ public class Delivery extends SubSystem {
                 if (fourbarState == fourBarState.preClip && slideMotor.getCurrentPosition() > 100) {
 
                     fourBarTimer.reset();
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotClipFrontInt)*9, Math.abs(secondPivot.getPositionDegrees()- secondClipFrontInt)*9);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.preClipInt;
+
+//                    slideSetPoint(highChamberFront+2);
+//                    slides = Delivery.slideState.moving;
+
+                    ClipFrontInt.execute();
+
+                }else if(fourbarState == fourBarState.preClipInt){
+
+                    fourBarTimer.reset();
                     ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- mainPivotClipFront)*9, Math.abs(secondPivot.getPositionDegrees()- secondClipFront)*9);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.clip;
-
-                    slideSetPoint(highChamberFront-6);
-                    slides = Delivery.slideState.moving;
 
                     ClipFront.execute();
 

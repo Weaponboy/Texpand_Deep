@@ -69,8 +69,8 @@ public class SpecimenTeleop extends OpModeEX {
             folowing = false;
             if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimenSampleCollect){
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.6, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.6));
-            }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen){
-                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.35, (gamepad1.left_trigger - gamepad1.right_trigger)*0.25, -gamepad1.right_stick_x*0.35));
+            }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen && delivery.getSlidePositionCM() < 8){
+                driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.35, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.45));
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x));
             }
@@ -87,14 +87,17 @@ public class SpecimenTeleop extends OpModeEX {
             scanpos = false;
             firstDrop = true;
             collection.targetPositionManuel = new Vector2D(20, 20);
+            delivery.griperRotateSev.setPosition(90);
         }
 
-        if (flipOutArm && collection.getCurrentCommand() == collection.defaultCommand){
+        if (flipOutArm && collection.getCurrentCommand() == collection.defaultCommand && !collection.isTransferCanceled()){
             collection.queueCommand(collection.collect);
 
             collection.targetPositionManuel = new Vector2D(6, 20);
             collection.armEndPointIncrement(14, -10, false);
 
+            flipOutArm = false;
+        } else if (flipOutArm && collection.getCurrentCommand() == collection.defaultCommand && collection.isTransferCanceled()) {
             flipOutArm = false;
         }
 
@@ -131,6 +134,7 @@ public class SpecimenTeleop extends OpModeEX {
                 if (collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
                     delivery.overrideCurrent(true, delivery.stow);
                 }
+
                 delivery.griperRotateSev.setPosition(90);
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
@@ -158,20 +162,17 @@ public class SpecimenTeleop extends OpModeEX {
                 firstDrop = true;
             }
 
-        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5 && collection.getTransferType() == Collection.tranfer.specimen){
+        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5 && collection.getTransferType() == Collection.tranfer.specimen && !clip_and_collect){
             delivery.queueCommand(delivery.clipBack);
             delivery.queueCommand(delivery.releaseClip);
+        }else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && delivery.getSlidePositionCM() > 5 && collection.getTransferType() == Collection.tranfer.specimen && clip_and_collect){
+            busyDetecting = true;
+            detectionTimer.reset();
+            counter = 0;
+            scanpos = false;
 
-//            if (collection.getSlidePositionCM() < 0.5) {
-//                collection.manualAngle = 0;
-//                collection.armEndPointIncrement(0, 40, false);
-//            } else if (collection.getSlidePositionCM() < 22) {
-//                collection.manualAngle = 0;
-//                collection.armEndPointIncrement(0, 15, false);
-//            }
-//
-//            collection.queueCommand(collection.collect);
-
+            limelight.setReturningData(true);
+            limelight.setGettingResults(true);
         }
 
         if (currentGamepad1.left_stick_y < -0.4){
@@ -184,15 +185,6 @@ public class SpecimenTeleop extends OpModeEX {
         }else if (currentGamepad1.left_stick_y > 0.4){
             collection.armEndPointIncrement(0, -0.7, false);
         }else if (collection.slidesReset.isPressed()){
-        }
-
-        if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() != Collection.fourBar.wallCollect){
-
-            collection.queueCommand(collection.wallCollect);
-            delivery.setGripperState(Delivery.gripper.drop);
-
-        } else if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up && collection.getFourBarState() == Collection.fourBar.wallCollect) {
-            collection.queueCommand(collection.transferNoSave(Collection.tranfer.wallCollect));
         }
 
         if (currentGamepad1.left_stick_x < -0.7 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -210,9 +202,9 @@ public class SpecimenTeleop extends OpModeEX {
         }
 
         /**
-         * Transfer toggle
+         * Transfer, delivery and deposit modes
          * */
-        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimen){
+        if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down){
 
             collection.setTransferType(Collection.tranfer.specimen);
 
@@ -220,7 +212,7 @@ public class SpecimenTeleop extends OpModeEX {
             delivery.runReset();
 
             collection.manualAngle = 0;
-            collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 20, 20);
+            collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 15, 20);
             collection.armEndPointIncrement(0, 0, false);
 
             collection.setClawsState(Collection.clawState.drop);
@@ -236,17 +228,17 @@ public class SpecimenTeleop extends OpModeEX {
 
             flipOutDepo = false;
 
-        }else if (currentGamepad1.dpad_down && !lastGamepad1.dpad_down && collection.getTransferType() != Collection.tranfer.specimenSampleCollect){
+            clip_and_collect = false;
+
+        }
+
+        if (currentGamepad1.dpad_up && !lastGamepad1.dpad_up){
             collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             clip_and_collect = false;
             gamepad1.rumble(300);
         }
 
-        if (currentGamepad1.dpad_right && !lastGamepad1.dpad_right && clip_and_collect){
-            collection.setTransferType(Collection.tranfer.specimen);
-            clip_and_collect = false;
-            gamepad1.rumble(300);
-        }else if (currentGamepad1.dpad_right && !lastGamepad1.dpad_right && !clip_and_collect){
+        if (currentGamepad1.dpad_right && !lastGamepad1.dpad_right){
             collection.setTransferType(Collection.tranfer.specimen);
 
             delivery.overrideCurrent(true, delivery.stow);
@@ -269,6 +261,7 @@ public class SpecimenTeleop extends OpModeEX {
 
             clip_and_collect = true;
             gamepad1.rumble(300);
+            delivery.griperRotateSev.setPosition(90);
         }
 
         /**
@@ -293,6 +286,9 @@ public class SpecimenTeleop extends OpModeEX {
             detectionTimer.reset();
             counter = 0;
             scanpos = false;
+
+            limelight.setReturningData(true);
+            limelight.setGettingResults(true);
 //            delivery.griperRotateSev.setPosition(90);
 
         }
