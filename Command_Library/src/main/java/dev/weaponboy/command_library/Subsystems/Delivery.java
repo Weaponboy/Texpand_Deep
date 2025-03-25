@@ -433,10 +433,10 @@ public class Delivery extends SubSystem {
 
 
                 }
+
                 if (drop && dropTimer.milliseconds()>35){
                     gripperState = gripper.drop;
                     drop = false;
-
                 }
 
 

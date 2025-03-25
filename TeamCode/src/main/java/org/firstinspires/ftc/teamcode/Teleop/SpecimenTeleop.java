@@ -381,7 +381,6 @@ public class SpecimenTeleop extends OpModeEX {
 
         if (currentGamepad1.a && !lastGamepad1.a){
             delivery.queueCommand(delivery.preClipFront);
-//            collection.queueCommand(collection.stowClipFront);
         } else if (currentGamepad1.b && !lastGamepad1.b) {
             delivery.queueCommand(delivery.clipFront);
         }
