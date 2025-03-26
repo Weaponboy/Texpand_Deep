@@ -354,7 +354,7 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.transfer;
                     if (spikeTransfer){
-                        slideSetPoint(14.8);
+                        slideSetPoint(16);
                     } else{
                         slideSetPoint(0);
                     }
@@ -404,7 +404,7 @@ public class Delivery extends SubSystem {
                     fourBarTargetState = fourBarState.transfer;
 
                     if (spikeTransfer){
-                        slideSetPoint(14.8);
+                        slideSetPoint(16);
                     } else{
                         slideSetPoint(0);
                     }

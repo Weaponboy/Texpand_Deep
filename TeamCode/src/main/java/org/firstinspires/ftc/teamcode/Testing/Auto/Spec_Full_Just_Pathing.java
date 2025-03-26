@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Testing.Auto;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
@@ -14,6 +15,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
+@Disabled
 @Autonomous(name = "Spec_Full_Just_Pathing", group = "AA Comp Autos")
 public class Spec_Full_Just_Pathing extends OpModeEX {
 

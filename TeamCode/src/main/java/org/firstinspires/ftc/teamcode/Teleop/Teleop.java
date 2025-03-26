@@ -59,6 +59,7 @@ public class Teleop extends OpModeEX {
 
                 overrideCurrent(currentGamepad1, lastGamepad1);
                 toggle(currentGamepad2, lastGamepad2);
+                toggleBreakBeams(currentGamepad1, lastGamepad1);
 
                 /**
                  * Toggles
@@ -135,7 +136,7 @@ public class Teleop extends OpModeEX {
                     collection.queueCommand(collection.visionScan);
 
                     collection.targetPositionManuel = new Vector2D(20, 20);
-                    collection.armEndPointIncrement(14, -4, false);
+                    collection.armEndPointIncrement(14, -12, false);
 
                     limelight.setReturningData(true);
                     limelight.setGettingResults(true);
@@ -219,6 +220,7 @@ public class Teleop extends OpModeEX {
 
                 overrideCurrent(currentGamepad2, lastGamepad2);
                 toggle(currentGamepad1, lastGamepad1);
+                toggleBreakBeams(currentGamepad1, lastGamepad1);
 
                 /**
                  * Transfer, delivery and deposit modes
@@ -565,6 +567,17 @@ public class Teleop extends OpModeEX {
             }
             flipOutDepo = false;
             busyDetecting = false;
+        }
+    }
+
+
+    public void toggleBreakBeams(Gamepad current, Gamepad last){
+        if (current.left_bumper && !last.left_bumper){
+            if (collection.isCancelTransferActive()){
+                collection.setCancelTransfer(false);
+            }else {
+                collection.setCancelTransfer(true);
+            }
         }
     }
 }

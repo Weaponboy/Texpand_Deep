@@ -115,7 +115,7 @@ public class Collection extends SubSystem {
     /**
      * collect position values
      * */
-    double mainPivotCollect = 85;
+    double mainPivotCollect = 89;
     double secondPivotCollect = 322;
 
     /**
@@ -133,7 +133,7 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 104;
+    double mainPivotPreCollect = 110;
     double secondPivotPreCollect = 318.5;
 
     /**
@@ -212,7 +212,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 206;
+    double mainPivotTransferAutoSpike = 202;
     double secondPivotTransferAutoSpike = 155;
 
     /**
@@ -263,8 +263,8 @@ public class Collection extends SubSystem {
     public Vector2D targetPositionManuel = new Vector2D(clawOffsetFromSlides, clawOffsetFromSlides);
 
     /**gripper positions*/
-    double gripperDrop = 94;
-    double gripperGrab = 30;
+    double gripperDrop = 82;
+    double gripperGrab = 28;
     double gripperHangGrab = 100;
     double gripperSlightRelease = 45;
     double gripperOpenFull = 100;
@@ -276,7 +276,8 @@ public class Collection extends SubSystem {
 
     RobotPower RobotPosition = new RobotPower();
 
-    public Point targetPointGlobal;
+    boolean angleRecheck = true;
+    boolean goPositive = false;
     public double angle;
     public double parallelAngle;
     public double manualAngle = 0;
@@ -980,6 +981,7 @@ public class Collection extends SubSystem {
             () -> {
                 abortTimer.reset();
 
+                angleRecheck = true;
                 runSet = false;
                 abortTime = 1000;
             },
@@ -2307,7 +2309,16 @@ public class Collection extends SubSystem {
             }else{
                 double perAngle = 0;
 
-                if (parallelAngle > 135){
+                if(angleRecheck){
+                    if (parallelAngle > 135){
+                        goPositive= true;
+                    }else{
+                        goPositive= false;
+                    }
+                    angleRecheck = false;
+                }
+
+                if (goPositive){
                     perAngle = parallelAngle - 90;
                 }else{
                     perAngle = parallelAngle + 90;
