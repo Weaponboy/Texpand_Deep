@@ -134,7 +134,7 @@ public class Collection extends SubSystem {
      * preCollect position values
      * */
     double mainPivotPreCollect = 110;
-    double secondPivotPreCollect = 318.5;
+    double secondPivotPreCollect = 314;
 
     /**
      * preCollect position values
@@ -265,9 +265,15 @@ public class Collection extends SubSystem {
     /**gripper positions*/
     double gripperDrop = 82;
     double gripperGrab = 28;
-    double gripperHangGrab = 100;
+    double gripperHangGrab = 94;
     double gripperSlightRelease = 45;
-    double gripperOpenFull = 100;
+    double gripperOpenFull = 94;
+
+    public void setOpenWide(boolean openWide) {
+        this.openWide = openWide;
+    }
+
+    boolean openWide = false;
 
     boolean braking = false;
     ElapsedTime brakingTimer = new ElapsedTime();
@@ -404,11 +410,15 @@ public class Collection extends SubSystem {
             if (clawsState == clawState.grab){
                 gripServo.setPosition(gripperGrab);
             } else if (clawsState == clawState.drop){
-                gripServo.setPosition(gripperDrop);
+                if (openWide) {
+                    gripServo.setPosition(gripperOpenFull);
+                }else {
+                    gripServo.setPosition(gripperDrop);
+                }
             } else if (clawsState == clawState.slightRelease){
                 gripServo.setPosition(gripperSlightRelease);
             }else if (clawsState == clawState.openFull){
-                gripServo.setPosition(gripperOpenFull);
+
             }else if (clawsState == clawState.griperHang){
                 gripServo.setPosition(gripperHangGrab);
             }

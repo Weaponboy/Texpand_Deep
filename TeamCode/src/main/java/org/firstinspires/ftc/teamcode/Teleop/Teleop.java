@@ -28,6 +28,7 @@ public class Teleop extends OpModeEX {
     boolean collectChamberTransfer = false;
     boolean armToVision = false;
 
+    boolean busyClipping = false;
     boolean queueCollection = false;
 
     boolean busyDetecting = false;
@@ -129,7 +130,7 @@ public class Teleop extends OpModeEX {
                     transfer = false;
                 }
 
-                if(((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.fourbarState != Delivery.fourBarState.preClip && delivery.getGripperState() != Delivery.gripper.grab){
+                if(((currentGamepad1.dpad_left && !lastGamepad1.dpad_left)) && delivery.fourbarState != Delivery.fourBarState.preClip){
 
                     delivery.queueCommand(delivery.cameraScan);
 
@@ -214,7 +215,7 @@ public class Teleop extends OpModeEX {
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.6, (gamepad2.left_trigger - gamepad2.right_trigger)*0.3, -gamepad2.right_stick_x*0.6));
                 }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen && collection.getSlidePositionCM() > 10){
                     driveBase.queueCommand(driveBase.drivePowers(gamepad2.right_stick_y*0.35, (gamepad2.left_trigger - gamepad2.right_trigger)*0.3, -gamepad2.right_stick_x*0.45));
-                }else {
+                }else if (!busyClipping){
                     driveBase.queueCommand(driveBase.drivePowers(gamepad2.right_stick_y, (gamepad2.left_trigger - gamepad2.right_trigger) * 0.65, -gamepad2.right_stick_x));
                 }
 
@@ -335,6 +336,8 @@ public class Teleop extends OpModeEX {
 
                         delivery.griperRotateSev.setPosition(90);
 
+                        collection.setOpenWide(true);
+
                         if (collection.getTransferType() == Collection.tranfer.specimen){
                             if (collection.getSlidePositionCM() < 0.5) {
                                 collection.manualAngle = 0;
@@ -370,7 +373,7 @@ public class Teleop extends OpModeEX {
                         collection.setSpikeTime(2.6);
 
                         if (collectChamberTransfer){
-
+                            collection.queueCommand(collection.transferNoSave(Collection.tranfer.chamberCollect));
                         }else {
                             collection.queueCommand(collection.transfer);
                         }
@@ -398,6 +401,15 @@ public class Teleop extends OpModeEX {
 
                     limelight.setReturningData(true);
                     limelight.setGettingResults(true);
+
+                    busyClipping = true;
+                    collection.setOpenWide(false);
+                }
+
+                if (busyClipping && detectionTimer.milliseconds() < 300){
+                    driveBase.drivePowers(-0.5, 0, 0);
+                }else {
+                    busyClipping = false;
                 }
 
                 if (collectChamberTransfer && collection.getSlideTarget() == 0){
@@ -428,6 +440,8 @@ public class Teleop extends OpModeEX {
 
                     limelight.setReturningData(true);
                     limelight.setGettingResults(true);
+
+                    collection.setOpenWide(false);
                 }
 
                 if (flipOutDepo && collection.getTransferType() == Collection.tranfer.specimen && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && delivery.fourbarState == Delivery.fourBarState.transfer){
@@ -521,7 +535,10 @@ public class Teleop extends OpModeEX {
             }
 
         } else if (busyDetecting && clip_and_collect && counter >= 10) {
+            gamepad2.rumble(500);
+            busyDetecting = false;
             delivery.queueCommand(delivery.clipFront);
+            collection.manualAngle = 90;
             collection.targetPositionManuel = new Vector2D(35, 20);
             collection.armEndPointIncrement(0,0, false);
             collectChamberTransfer = true;
@@ -559,11 +576,11 @@ public class Teleop extends OpModeEX {
             if (teleState == teleopState.sample){
                 teleState = teleopState.specimen;
                 limelight.setTargetColor(Limelight.color.red);
-                collection.setTransferType(Collection.tranfer.normalSlam);
+                collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             }else {
                 teleState = teleopState.sample;
                 limelight.setTargetColor(Limelight.color.yellow);
-                collection.setTransferType(Collection.tranfer.specimen);
+                collection.setTransferType(Collection.tranfer.normalSlam);
             }
             flipOutDepo = false;
             busyDetecting = false;
