@@ -356,6 +356,7 @@ public class Spec_Full extends OpModeEX {
                 runCollect = false;
                 built = building.built;
                 collection.queueCommand(collection.preCollectNoRotate(45));
+                collection.setOpenWide(true);
             }
 
             if (odometry.Heading() > 225 && odometry.Heading() < 245 && odometry.Y() < 140 && !firstSpike){

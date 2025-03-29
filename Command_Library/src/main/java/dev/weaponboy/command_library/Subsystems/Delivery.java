@@ -832,7 +832,7 @@ public class Delivery extends SubSystem {
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
 
-        griperRotateSev.setOffset(35);
+        griperRotateSev.setOffset(0);
         griperRotateSev.setPosition(90);
 
         Deposit.execute();

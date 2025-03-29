@@ -49,9 +49,11 @@ public class SampleTeleop extends OpModeEX {
 //    };
     @Override
     public void initEX() {
-        odometry.startPosition(82.5,100,0);
+        odometry.startPosition(344, 282, 270);
 //        paths.addNewPath("dropBasket");
 //        paths.buildPath(subDeposit);
+
+        limelight.setAuto(true);
     }
 
     @Override

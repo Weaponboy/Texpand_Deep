@@ -201,6 +201,8 @@ public class Sample_full extends OpModeEX {
 
         limelight.switchPipeline(0);
         limelight.setSortHorizontal(true);
+        limelight.setTargetColor(Limelight.color.yellow);
+        limelight.setAuto(true);
 
     }
 
@@ -217,6 +219,7 @@ public class Sample_full extends OpModeEX {
 
             if (built == building.notBuilt) {
 
+                collection.setOpenWide(true);
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
 
@@ -690,6 +693,7 @@ public class Sample_full extends OpModeEX {
 
                 follow.setPath(paths.returnPath("collectSubCloser"));
 
+                collection.setOpenWide(false);
                 follow.usePathHeadings(true);
                 pathing = true;
                 headingOverride = false;

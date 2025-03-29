@@ -194,7 +194,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSpec = 189;
+    double mainPivotTransferSpec = 188;
     double secondPivotTransferSpec = 132;
 
     /**
@@ -267,10 +267,14 @@ public class Collection extends SubSystem {
     double gripperGrab = 28;
     double gripperHangGrab = 94;
     double gripperSlightRelease = 45;
-    double gripperOpenFull = 94;
+    double gripperOpenFull = 100;
 
     public void setOpenWide(boolean openWide) {
         this.openWide = openWide;
+    }
+
+    public boolean isOpenWide() {
+        return openWide;
     }
 
     boolean openWide = false;
@@ -686,7 +690,7 @@ public class Collection extends SubSystem {
 
     public final Command transferDropSpec = new LambdaCommand(
             () -> {
-                TransferAuto.execute();
+//                TransferAuto.execute();
 //                setClawsState(clawState.slightRelease);
                 WaitForTranferDrop.reset();
 
@@ -1357,7 +1361,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*2.2);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1.5, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam)*2.5);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;
