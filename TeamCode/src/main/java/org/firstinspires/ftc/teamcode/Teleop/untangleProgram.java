@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import dev.weaponboy.command_library.Hardware.MotorEx;
 
-@TeleOp(name = "Sample_Teleop", group = "AAAAAAt the top")
+@TeleOp(name = "untangleProgram", group = "AAAAAAt the top")
 public class untangleProgram extends OpMode {
 
     MotorEx LF = new MotorEx();

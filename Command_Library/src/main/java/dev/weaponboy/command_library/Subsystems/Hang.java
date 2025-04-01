@@ -24,8 +24,23 @@ public class Hang extends SubSystem {
 
     boolean servoActive = false;
     boolean engage = false;
+    boolean stopServoActive = false;
+
+    public void setSlideposition(double slideposition) {
+        this.slideposition = slideposition;
+    }
+
+    double slideposition;
+    enum hangState{
+        pulldown,
+        hold,
+        abort
+    }
 
     ElapsedTime engageTime = new ElapsedTime();
+    ElapsedTime servoactive = new ElapsedTime();
+
+    public hangState hangstate = hangState.pulldown;
 
     double targetTilt = -18.4;
 
@@ -54,7 +69,7 @@ public class Hang extends SubSystem {
         hangPower3.initMotor("slideMotor2",getOpModeEX().hardwareMap);
         hangPower3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hangPower3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        hang1.setDirection(Servo.Direction.REVERSE);
+        hang1.setDirection(Servo.Direction.REVERSE);
 
         RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
         RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
@@ -89,10 +104,6 @@ public class Hang extends SubSystem {
 
     public void setServoActive(boolean servoActive) {
         this.servoActive = servoActive;
-    }
-
-    public void pullUp(double SlidePosition){
-        hangPower.update(-0.4 + adjustment.calculate(2, SlidePosition));
     }
 
     @Override
@@ -137,16 +148,52 @@ public class Hang extends SubSystem {
             () -> engageTime.milliseconds() > 400
     );
 
+
+
+    public LambdaCommand hang = new LambdaCommand(
+            () -> {
+                hangPower.update(0);
+            },
+            () -> {
+
+                if (hangstate == hangState.pulldown && engage && engageTime.milliseconds() > 300 && imu.getRobotYawPitchRollAngles().getPitch() < targetTilt+0.5){
+                    hangPower.update(-1);
+                    hangPower2.update(-0.4);
+                    hangPower3.update(-0.4);
+                    hangstate = hangState.hold;
+                    servoActive = false;
+
+                    hang2.setPosition(0.5);
+                    hang1.setPosition(0.5);
+//                    stopServoActive = true;
+//                    servoactive.reset();
+                }
+
+//                if (stopServoActive && servoactive.milliseconds() > 400){
+//                    servoActive = false;
+//                    stopServoActive = false;
+//                }
+
+                if (hangstate == hangState.hold && slideposition < 0){
+                    hangPower.update(-0.4 + adjustment.calculate(2, slideposition));
+                }
+
+            },
+            () -> false
+    );
+
     public LambdaCommand Engage  = new LambdaCommand(
             () -> {
                 engageTime.reset();
+                queueCommand(hang);
             },
             () -> {
                 PTO.setPosition(90);
                 hangPower.update(0.2);
                 engage = true;
+                servoActive = true;
             },
-            () ->engage && engageTime.milliseconds() > 300
+            () -> engage && engageTime.milliseconds() > 300
     );
 
 

@@ -31,15 +31,34 @@ public class Teleop extends OpModeEX {
     boolean busyClipping = false;
     boolean queueCollection = false;
 
+    boolean resetGlobalTargetingHeading = false;
+    hangStates hangState = hangStates.waiting;
+
+
     boolean busyDetecting = false;
     ElapsedTime detectionTimer = new ElapsedTime();
     int counter = 0;
+
+    ElapsedTime rotateTimer = new ElapsedTime();
 
     enum teleopState{
         specimen,
         sample
     }
+    enum hangStates{
+        waiting,
+        prepare,
+        Hang,
+        abort;
 
+        public static hangStates next(hangStates current) {
+            hangStates[] values = hangStates.values();
+            int nextIndex = (current.ordinal() + 1) % values.length;
+            return values[nextIndex];
+        }
+    }
+
+    ElapsedTime pullUpTimer = new ElapsedTime();
     teleopState teleState = teleopState.sample;
 
     @Override
@@ -52,6 +71,8 @@ public class Teleop extends OpModeEX {
 
         switch (teleState){
             case sample:
+                collection.setOpenWide(true);
+
                 if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.45));
                 }else {
@@ -60,15 +81,40 @@ public class Teleop extends OpModeEX {
 
                 overrideCurrent(currentGamepad1, lastGamepad1);
                 toggle(currentGamepad2, lastGamepad2);
-                toggleBreakBeams(currentGamepad1, lastGamepad1);
+                toggleBreakBeams(currentGamepad2, lastGamepad2);
+
+                hang(currentGamepad2, lastGamepad2);
+
+                if (currentGamepad2.left_stick_y < 0){
+                    if (delivery.highBasket < 64){
+                        delivery.highBasket += 1;
+                    }
+                    delivery.slideSetPoint(delivery.highBasket);
+                }
+
+                if (currentGamepad2.left_stick_y > 0){
+                    delivery.highBasket -= 1;
+                    delivery.slideSetPoint(delivery.highBasket);
+                }
+
+                if (gamepad2.right_stick_y > 0){
+                    hang.hang1.setPosition(1);
+                    hang.hang2.setPosition(1);
+                } else if (gamepad2.right_stick_y < 0) {
+                    hang.hang1.setPosition(0);
+                    hang.hang2.setPosition(0);
+                }else if (hangState != hangStates.Hang){
+                    hang.hang1.setPosition(0.5);
+                    hang.hang2.setPosition(0.5);
+                }
 
                 /**
                  * Toggles
                  * */
-                if (!chamberCollect && currentGamepad1.dpad_right && !lastGamepad1.dpad_right){
+                if (!chamberCollect && currentGamepad2.dpad_right && !lastGamepad2.dpad_right){
                     chamberCollect = true;
                     gamepad1.rumble(300);
-                }else  if (chamberCollect && currentGamepad1.dpad_right && !lastGamepad1.dpad_right){
+                }else  if (chamberCollect && currentGamepad2.dpad_right && !lastGamepad2.dpad_right){
                     chamberCollect = false;
                     gamepad1.rumble(100);
                 }
@@ -100,9 +146,10 @@ public class Teleop extends OpModeEX {
 
                         collection.queueCommand(collection.collect);
 
-                        if (collection.getSlidePositionCM() < 0.5) {
+                        if (collection.getSlidePositionCM() < 0.5 && !chamberCollect) {
                             collection.manualAngle = 0;
                             collection.armEndPointIncrement(0, 30, false);
+                            //add the heading reset here
                         }
 
                         delivery.setGripperState(Delivery.gripper.drop);
@@ -119,13 +166,14 @@ public class Teleop extends OpModeEX {
                             collection.queueCommand(collection.collect);
                             delivery.setGripperState(Delivery.gripper.drop);
                             collection.queueCommand(collection.transferNoSave(Collection.tranfer.UnderChamberCycle));
-                            transfer = true;
                         }
 
                         firstDrop = true;
                     }
 
-                } else if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && transfer && chamberCollect) {
+                }
+
+                if ((currentGamepad2.right_trigger > 0 && (lastGamepad2.right_trigger != 0)) && collection.getFourBarState() == Collection.fourBar.stowedChamber && chamberCollect) {
                     collection.queueCommand(collection.transferNoSave(Collection.tranfer.UnderChamberCycle));
                     transfer = false;
                 }
@@ -137,7 +185,7 @@ public class Teleop extends OpModeEX {
                     collection.queueCommand(collection.visionScan);
 
                     collection.targetPositionManuel = new Vector2D(20, 20);
-                    collection.armEndPointIncrement(14, -12, false);
+                    collection.armEndPointIncrement(8, -12, false);
 
                     limelight.setReturningData(true);
                     limelight.setGettingResults(true);
@@ -175,10 +223,10 @@ public class Teleop extends OpModeEX {
                 /**
                  * collection rotate
                  * */
-                if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle < 75 && (collection.getFourBarState() == Collection.fourBar.preCollect||collection.getFourBarState() == Collection.fourBar.transferringStates)){
+                if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle < 75 && (collection.getFourBarState() == Collection.fourBar.preCollect || rotateTimer.milliseconds() < 600)){
                     collection.manualAngle = 90;
                     collection.armEndPointIncrement(0, 0, false);
-                }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle > 75 && (collection.getFourBarState() == Collection.fourBar.preCollect||collection.getFourBarState() == Collection.fourBar.transferringStates)){
+                }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.manualAngle > 75 && (collection.getFourBarState() == Collection.fourBar.preCollect || rotateTimer.milliseconds() < 600)){
                     collection.manualAngle = 0;
                     collection.armEndPointIncrement(0, 0, false);
                 }
@@ -197,6 +245,8 @@ public class Teleop extends OpModeEX {
                         delivery.slideSetPoint(delivery.highBasket);
                         delivery.slides = Delivery.slideState.moving;
                     }
+
+                    rotateTimer.reset();
 
                 }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)||currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 17 && !(collection.getFourBarState()== Collection.fourBar.preCollect) && lowBucket){
                     delivery.queueCommand(delivery.deposit);
@@ -223,6 +273,8 @@ public class Teleop extends OpModeEX {
                 toggle(currentGamepad1, lastGamepad1);
                 toggleBreakBeams(currentGamepad1, lastGamepad1);
 
+                hang(currentGamepad1, lastGamepad1);
+
                 /**
                  * Transfer, delivery and deposit modes
                  * */
@@ -232,6 +284,8 @@ public class Teleop extends OpModeEX {
 
                     delivery.overrideCurrent(true, delivery.stow);
                     delivery.runReset();
+
+                    delivery.griperRotateSev.setPosition(90);
 
                     collection.manualAngle = 0;
                     collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 15, 20);
@@ -274,6 +328,8 @@ public class Teleop extends OpModeEX {
                     if (collection.getFourBarState() != Collection.fourBar.preCollect){
                         collection.queueCommand(collection.collect);
                     }
+
+                    delivery.griperRotateSev.setPosition(90);
 
                     busyDetecting = false;
                     collection.stopTargeting();
@@ -469,7 +525,7 @@ public class Teleop extends OpModeEX {
 
                     if (clip_and_collect){
                         collection.manualAngle = 90;
-                        collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 15, 20);
+                        collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 10, 20);
                         collection.armEndPointIncrement(0, 0, false);
                         collection.queueCommand(collection.collect);
                         delivery.griperRotateSev.setPosition(90);
@@ -498,9 +554,6 @@ public class Teleop extends OpModeEX {
 
                 if (currentGamepad2.b && !lastGamepad2.b) {
                     delivery.queueCommand(delivery.clipFront);
-                    collection.targetPositionManuel = new Vector2D(15, 20);
-                    collection.armEndPointIncrement(0,0,false);
-                    collection.queueCommand(collection.collect);
                 }
 
                 break;
@@ -553,6 +606,12 @@ public class Teleop extends OpModeEX {
             collectChamberTransfer = true;
         }
 
+//        if (!resetGlobalTargetingHeading && collection.slidesReset.isPressed() && (collection.getFourBarState() != Collection.fourBar.preCollect || collection.getFourBarState() != Collection.fourBar.collect || collection.getFourBarState() != Collection.fourBar.transferringStates)){
+//            resetGlobalTargetingHeading = true;
+//            collection.targetPositionManuel = new Vector2D(collection.getSlidePositionCM() + 15, 20);
+//            collection.armEndPointIncrement(0, 0, false);
+//        }
+
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
@@ -576,11 +635,32 @@ public class Teleop extends OpModeEX {
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
-            collection.targetPositionManuel = new Vector2D(15, 20);
-            collection.armEndPointIncrement(0,0,false);
+            if (!chamberCollect){
+                collection.targetPositionManuel = new Vector2D(15, 20);
+                collection.armEndPointIncrement(0,0,false);
+            }
             firstDrop = true;
             delivery.griperRotateSev.setPosition(90);
         }
+    }
+    public void hang (Gamepad current, Gamepad last){
+        if (current.y && !last.y){
+            if (hangState == hangStates.waiting){
+                hangState = hangStates.prepare;
+                hang.setServoActive(false);
+                delivery.slideSetPoint(62);
+                delivery.slides = Delivery.slideState.moving;
+                delivery.Hang.execute();
+                collection.setHangHold(true);
+                collection.queueCommand(collection.StowForHang);
+            }else if (hangState == hangStates.prepare){
+                hangState = hangStates.Hang;
+                delivery.slides = Delivery.slideState.holdPosition;
+                hang.queueCommand(hang.Engage);
+            }
+
+        }
+
     }
 
     public void toggle(Gamepad current, Gamepad last){

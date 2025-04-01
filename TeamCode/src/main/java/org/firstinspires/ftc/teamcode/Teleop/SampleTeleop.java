@@ -54,6 +54,7 @@ public class SampleTeleop extends OpModeEX {
 //        paths.buildPath(subDeposit);
 
         limelight.setAuto(true);
+        collection.setCancelTransfer(false);
     }
 
     @Override
@@ -101,7 +102,9 @@ public class SampleTeleop extends OpModeEX {
 
             collection.setSpikeTime(2.5);
 
-            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+            delivery.setSpikeTransfer(true);
+
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
             firstDrop = true;
 

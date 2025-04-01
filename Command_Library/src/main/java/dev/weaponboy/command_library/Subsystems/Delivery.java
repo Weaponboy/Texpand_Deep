@@ -52,7 +52,7 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public final double highBasket = 60;
+    public double highBasket = 60;
     public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
@@ -415,7 +415,7 @@ public class Delivery extends SubSystem {
                 } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 150) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*1.5, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.5);
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*2, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
@@ -427,18 +427,15 @@ public class Delivery extends SubSystem {
                     dropTimer.reset();
 
                     fourBarTimer.reset();
-                    transferWaitTime = 50;
+                    transferWaitTime = 100;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
-
-
                 }
 
-                if (drop && dropTimer.milliseconds()>35){
+                if (drop && dropTimer.milliseconds() > 35){
                     gripperState = gripper.drop;
                     drop = false;
                 }
-
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourbarState = fourBarTargetState;
@@ -846,6 +843,7 @@ public class Delivery extends SubSystem {
     @Override
     public void execute() {
 
+
         executeEX();
 
         double ticksPerCM = (double) 900 / 71;
@@ -875,7 +873,6 @@ public class Delivery extends SubSystem {
                     resettingSlides = false;
                 }
             }
-
 
         }
 //

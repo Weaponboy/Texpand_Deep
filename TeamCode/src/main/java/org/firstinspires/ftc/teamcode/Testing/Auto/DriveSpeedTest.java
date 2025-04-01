@@ -18,7 +18,7 @@ public class DriveSpeedTest extends OpModeEX {
     follower follow = new follower();
 
     private final sectionBuilder[] straightLine = {
-            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(200, 0))
+            () -> paths.addPoints(new Vector2D(0, 0), new Vector2D(150, 0))
     };
 
     @Override
