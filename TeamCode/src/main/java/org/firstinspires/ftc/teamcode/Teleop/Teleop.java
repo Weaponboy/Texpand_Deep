@@ -612,6 +612,10 @@ public class Teleop extends OpModeEX {
 //            collection.armEndPointIncrement(0, 0, false);
 //        }
 
+        System.out.println("SlideMotor 1" + delivery.slideMotor.getCurrentPosition());
+        System.out.println("SlideMotor 2" + delivery.slideMotor2.getCurrentPosition());
+        System.out.println("collection 2" + collection.horizontalMotor.getCurrentPosition());
+
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
         telemetry.addData("vertical slides ", delivery.getSlidePositionCM());
@@ -667,7 +671,7 @@ public class Teleop extends OpModeEX {
         if (current.right_bumper && !last.right_bumper){
             if (teleState == teleopState.sample){
                 teleState = teleopState.specimen;
-                limelight.setTargetColor(Limelight.color.red);
+                limelight.setTargetColor(Limelight.color.blue);
                 collection.setTransferType(Collection.tranfer.specimenSampleCollect);
             }else {
                 teleState = teleopState.sample;
