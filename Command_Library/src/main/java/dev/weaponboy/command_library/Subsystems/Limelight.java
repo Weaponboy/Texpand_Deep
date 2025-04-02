@@ -55,6 +55,12 @@ public class Limelight extends SubSystem {
         blue
     }
 
+    public void setAuto(boolean auto) {
+        this.auto = auto;
+    }
+
+    boolean auto = false;
+
     public color getTargetColor() {
         return targetColor;
     }
@@ -66,7 +72,11 @@ public class Limelight extends SubSystem {
                 limelight.pipelineSwitch(2);
                 break;
             case yellow:
-                limelight.pipelineSwitch(0);
+                if (auto) {
+                    limelight.pipelineSwitch(1);
+                } else {
+                    limelight.pipelineSwitch(0);
+                }
                 break;
             case blue:
                 limelight.pipelineSwitch(3);
@@ -149,7 +159,6 @@ public class Limelight extends SubSystem {
                     targetPoints.add(new TargetSample(new Vector2D(pythonOutput[3], pythonOutput[4]), pythonOutput[5]));
                 }
             }
-
 
         }
 

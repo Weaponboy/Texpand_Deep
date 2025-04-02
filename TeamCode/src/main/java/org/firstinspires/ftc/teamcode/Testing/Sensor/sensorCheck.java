@@ -5,8 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.DistanceSensor;
 import dev.weaponboy.command_library.Hardware.MotorEx;
+import dev.weaponboy.command_library.Subsystems.Collection;
 
 @TeleOp(name = "Sensor_Check", group = "Testing")
 public class sensorCheck extends OpMode {
@@ -22,6 +24,8 @@ public class sensorCheck extends OpMode {
     public DistanceSensor right = new DistanceSensor();
 
     public MotorEx horizontalMotor = new MotorEx();
+
+    double ticksPerCM = (double) 18 / 190;
 
     @Override
     public void init() {
@@ -45,6 +49,7 @@ public class sensorCheck extends OpMode {
     public void loop() {
 
         telemetry.addData("collection slides position", horizontalMotor.getCurrentPosition());
+        telemetry.addData("collection slides position in CM", (horizontalMotor.getCurrentPosition()*ticksPerCM));
         telemetry.addData("intake Claw", collectionBreakbeam.isPressed());
         telemetry.addData("collection reset", collectionReset.isPressed());
         telemetry.addData("depo reset", deliveryReset.isPressed());

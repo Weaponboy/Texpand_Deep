@@ -185,6 +185,8 @@ public class Spec_Full extends OpModeEX {
 
         follow.setPath(paths.returnPath("preloadPath"));
 
+        collection.setOpenWide(false);
+
     }
 
     @Override
@@ -248,7 +250,7 @@ public class Spec_Full extends OpModeEX {
                     break;
                 case detecting:
 
-                    if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 20 && !collect){
+                    if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter < 10 && !collect){
 
                         counter++;
 
@@ -270,17 +272,14 @@ public class Spec_Full extends OpModeEX {
 
                         }
 
-                    }
+                    } else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter >= 10) {
 
-//                    else if (busyDetecting && detectionTimer.milliseconds() > (50*counter) && counter > 20) {
-//
-//                        delivery.queueCommand(delivery.clipFront);
-//                        clipped = true;
-//
-//                        visionStates = visionPreload.doneFailed;
-//x
-//                        busyDetecting = false;
-//                    }
+                        delivery.queueCommand(delivery.clipFront);
+                        clipped = true;
+
+                        visionStates = visionPreload.doneFailed;
+                        busyDetecting = false;
+                    }
 
                     break;
                 case collecting:
@@ -330,6 +329,7 @@ public class Spec_Full extends OpModeEX {
                 following = true;
                 runCollect = false;
                 built = building.built;
+                collection.setOpenWide(true);
             }
 
             if (odometry.Heading() > 270 && collection.getSlideTarget() != 48){
@@ -356,6 +356,7 @@ public class Spec_Full extends OpModeEX {
                 runCollect = false;
                 built = building.built;
                 collection.queueCommand(collection.preCollectNoRotate(45));
+                collection.setOpenWide(true);
             }
 
             if (odometry.Heading() > 225 && odometry.Heading() < 245 && odometry.Y() < 140 && !firstSpike){
@@ -464,7 +465,6 @@ public class Spec_Full extends OpModeEX {
                 follow.setExtendoHeading(false);
             }
 
-
         } else if (state == autoState.spike_three){
 
             if (built == building.notBuilt) {
@@ -520,7 +520,6 @@ public class Spec_Full extends OpModeEX {
                 built = building.notBuilt;
                 follow.setExtendoHeading(false);
             }
-
 
         } else if (state == autoState.cycle_one) {
 
@@ -674,7 +673,7 @@ public class Spec_Full extends OpModeEX {
                         state = autoState.next(state);
                         built = building.notBuilt;
                         cycleBuilt = building.notBuilt;
-                        collection.setSlideTarget(30);
+                        collection.setSlideTarget(28);
                         follow.setExtendoHeading(false);
                         System.out.println("incremented state: " + state.name());
                     }
@@ -810,7 +809,7 @@ public class Spec_Full extends OpModeEX {
                 collection.setCancelTransfer(true);
 
                 //reset and enable transfer fail detection
-                collection.queueCommand(collection.preCollectNoRotate(180));
+                collection.queueCommand(collection.collect);
 
                 //reset delivery gripper to transfer position
                 delivery.griperRotateSev.setPosition(90);
@@ -919,7 +918,7 @@ public class Spec_Full extends OpModeEX {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    collection.setSlideTarget(30);
+                    collection.setSlideTarget(28);
                     follow.setExtendoHeading(false);
                     System.out.println("incremented state: " + state.name());
                 }

@@ -49,9 +49,12 @@ public class SampleTeleop extends OpModeEX {
 //    };
     @Override
     public void initEX() {
-        odometry.startPosition(82.5,100,0);
+        odometry.startPosition(344, 282, 270);
 //        paths.addNewPath("dropBasket");
 //        paths.buildPath(subDeposit);
+
+        limelight.setAuto(true);
+        collection.setCancelTransfer(false);
     }
 
     @Override
@@ -64,7 +67,6 @@ public class SampleTeleop extends OpModeEX {
         }else {
             if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.3, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.45));
-
             }else {
                 driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x*1));
             }
@@ -100,7 +102,9 @@ public class SampleTeleop extends OpModeEX {
 
             collection.setSpikeTime(2.5);
 
-            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+            delivery.setSpikeTransfer(true);
+
+            collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
             firstDrop = true;
 
@@ -130,7 +134,7 @@ public class SampleTeleop extends OpModeEX {
                 if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberColect) {
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
-                    collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+                    collection.queueCommand(collection.transfer(Collection.tranfer.auto));
                 }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberColect){
 //                    collection.queueCommand(collection.collect);
 //                    delivery.setGripperState(Delivery.gripper.drop);
@@ -258,29 +262,22 @@ public class SampleTeleop extends OpModeEX {
             gamepad1.rumble(300);
         }
 
-        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper)||autoDepo) && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
             flipOutDepo = true;
             drive = true;
+
             if (lowBucket){
                 delivery.slideSetPoint(delivery.lowBasket);
                 delivery.slides = Delivery.slideState.moving;
-            }else if (!lowBucket){
+            }else {
                 delivery.slideSetPoint(delivery.highBasket);
                 delivery.slides = Delivery.slideState.moving;
             }
 
         }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)||currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 17 && !(collection.getFourBarState()== Collection.fourBar.preCollect) && lowBucket){
             delivery.queueCommand(delivery.deposit);
-//            odometry.startPosition(325,325,0);
             pozSet = true;
         }
-//        if (drive && pozSet){
-//            follow.setPath(paths.returnPath("dropBasket"));
-//            drive = false;
-//        }
-//        if (follow.isFinished(10,10)){
-//
-//        }
 
         if (flipOutDepo && delivery.getSlidePositionCM() > 15){
             delivery.queueCommand(delivery.deposit);
