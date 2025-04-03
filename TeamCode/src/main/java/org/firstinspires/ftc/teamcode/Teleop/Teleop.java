@@ -97,10 +97,10 @@ public class Teleop extends OpModeEX {
                     delivery.slideSetPoint(delivery.highBasket);
                 }
 
-                if (gamepad2.right_stick_y > 0){
+                if (gamepad2.right_stick_y < 0){
                     hang.hang1.setPosition(1);
                     hang.hang2.setPosition(1);
-                } else if (gamepad2.right_stick_y < 0) {
+                } else if (gamepad2.right_stick_y > 0) {
                     hang.hang1.setPosition(0);
                     hang.hang2.setPosition(0);
                 }else if (hangState != hangStates.Hang){
@@ -114,17 +114,21 @@ public class Teleop extends OpModeEX {
                 if (!chamberCollect && currentGamepad2.dpad_right && !lastGamepad2.dpad_right){
                     chamberCollect = true;
                     gamepad1.rumble(300);
+                    gamepad2.rumble(300);
                 }else  if (chamberCollect && currentGamepad2.dpad_right && !lastGamepad2.dpad_right){
                     chamberCollect = false;
                     gamepad1.rumble(100);
+                    gamepad2.rumble(100);
                 }
 
                 if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !lowBucket){
                     lowBucket = true;
                     gamepad1.rumble(300);
+                    gamepad2.rumble(300);
                 }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && lowBucket){
                     lowBucket = false;
                     gamepad1.rumble(100);
+                    gamepad2.rumble(100);
                 }
 
                 if (currentGamepad1.start && !lastGamepad1.start && autoDepo){
@@ -274,6 +278,17 @@ public class Teleop extends OpModeEX {
                 toggleBreakBeams(currentGamepad1, lastGamepad1);
 
                 hang(currentGamepad1, lastGamepad1);
+
+                if (gamepad1.right_stick_y < 0){
+                    hang.hang1.setPosition(1);
+                    hang.hang2.setPosition(1);
+                } else if (gamepad1.right_stick_y > 0) {
+                    hang.hang1.setPosition(0);
+                    hang.hang2.setPosition(0);
+                }else if (hangState != hangStates.Hang){
+                    hang.hang1.setPosition(0.5);
+                    hang.hang2.setPosition(0.5);
+                }
 
                 /**
                  * Transfer, delivery and deposit modes

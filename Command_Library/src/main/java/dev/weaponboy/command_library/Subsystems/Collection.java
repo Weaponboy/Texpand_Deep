@@ -330,7 +330,7 @@ public class Collection extends SubSystem {
         breakBeam = getOpModeEX().hardwareMap.get(TouchSensor.class, "clawsensor");
         slidesReset = getOpModeEX().hardwareMap.get(TouchSensor.class, "CollectionReset");
 
-        turretPosition.setOffset(-10.5);
+        turretPosition.setOffset(-14);
 
         fourBarMainPivot.setRange(335);
         fourBarSecondPivot.setRange(335);
@@ -1035,7 +1035,7 @@ public class Collection extends SubSystem {
                 if (spikesTargeting){
                     exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 5 && Math.abs(horizontalMotor.getVelocity()) < 90 && Math.abs(extendoPower) < 0.4 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 10 || !runSet && abortTimer.milliseconds() > abortTime;
                 }else{
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 30 && Math.abs(extendoPower) < 0.2 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 50 && Math.abs(extendoPower) < 0.3 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
                 }
 
             },
