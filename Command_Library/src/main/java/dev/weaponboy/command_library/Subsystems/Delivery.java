@@ -92,7 +92,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotSpikeTransfer = 235;
-    double secondSpikeTransfer = 110;
+    double secondSpikeTransfer = 112;
 
     /**
      * transfer position values
@@ -506,6 +506,29 @@ public class Delivery extends SubSystem {
 
                     Transfer.execute();
                     gripperState = gripper.drop;
+                }
+
+                if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourbarState = fourBarTargetState;
+                }
+            },
+            () -> fourbarState == fourBarState.transfer
+    );
+    public Command spike = new LambdaCommand(
+            () -> {
+                gripperState = gripper.drop;
+            },
+            () -> {
+
+                if (fourbarState != fourBarState.transferringStates) {
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*axonMaxTime, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*microRoboticTime);
+                    fourbarState = fourBarState.transferringStates;
+                    fourBarTargetState = fourBarState.transfer;
+
+                    Transfer.execute();
+                    gripperState = gripper.drop;
+                    slideSetPoint(14.5);
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){

@@ -231,8 +231,6 @@ public class teny extends OpModeEX {
 
         if (state == autoState.preload || state == autoState.spikeOne || state == autoState.spikeTwo || state == autoState.spikeThree){
             delivery.setSpikeTransfer(true);
-        }else {
-            delivery.setSpikeTransfer(false);
         }
 
         if (state == autoState.preload) {
@@ -541,17 +539,16 @@ public class teny extends OpModeEX {
             } else if (CycleState == cycleState.basketDrob) {
 
                 if (PIDToPoint) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(319, 342), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(318.5, 344), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();
                 }
 
-
                 if (cycleBuilt == building.notBuilt) {
                     cycleBuilt = building.built;
                     drop = true;
-                    targetHeading = 176;
+                    targetHeading = 178;
                     autoQueued = false;
                 }
 
@@ -593,7 +590,7 @@ public class teny extends OpModeEX {
             if (built == building.notBuilt) {
 
                 collection.setSpikeTime(0.6);
-                targetHeading = 176;
+                targetHeading = 178;
 
                 built = building.built;
                 cycleBuilt = building.notBuilt;
@@ -968,8 +965,8 @@ public class teny extends OpModeEX {
                      * stow delivery slides for transfer
                      * */
                     if (collect && collection.getSlideTarget() != 0 && delivery.slideTarget > 15){
-                        delivery.overrideCurrent(true, delivery.stow);
-                        delivery.runReset();
+                        delivery.overrideCurrent(true, delivery.spike);
+//                        delivery.runReset();
                         stopDiviving = true;
                     }
 
@@ -992,7 +989,7 @@ public class teny extends OpModeEX {
                      * */
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                        collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                        collection.queueCommand(collection.transfer(Collection.tranfer.spike));
 
                         autoQueued = true;
                     }
