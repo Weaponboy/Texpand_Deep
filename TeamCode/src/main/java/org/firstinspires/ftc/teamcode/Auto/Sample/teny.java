@@ -28,6 +28,7 @@ public class teny extends OpModeEX {
     follower follow = new follower();
 
     double targetHeading;
+    boolean ended = false;
     double approachAngle = 222;
 
     boolean drop;
@@ -56,7 +57,7 @@ public class teny extends OpModeEX {
     boolean turn = true;
     boolean rerun = true;
     boolean lockHeading = false;
-    double headingLock;
+    double scanSpeed = 120;
 
     Vector2D powerPID = new Vector2D();
 
@@ -158,11 +159,11 @@ public class teny extends OpModeEX {
     };
 
     private final sectionBuilder[] subCollect = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(205, 260), new Vector2D(203, 236.5)),
+            () -> paths.addPoints(new Vector2D(326.3, 326), new Vector2D(205, 265), new Vector2D(205, 240)),
     };
 
     private final sectionBuilder[] subCollectCloser = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(330, 330), new Vector2D(220, 270), new Vector2D(210, 228)),
+            () -> paths.addPoints(new Vector2D(330, 330), new Vector2D(220, 275), new Vector2D(205, 242)),
     };
 
     private final sectionBuilder[] spikeDeposit = new sectionBuilder[]{
@@ -761,6 +762,12 @@ public class teny extends OpModeEX {
 
         }
 
+        if (autoTime.milliseconds() > 29800){
+            delivery.griperSev.setPosition(delivery.gripperDrop);
+            delivery.setGripperState(Delivery.gripper.drop);
+            ended = true;
+        }
+
         telemetry.addData("Collection command default", collection.getCurrentCommand() == collection.defaultCommand);
         telemetry.addData("Delivery command default", delivery.getCurrentCommand() == delivery.returnDefaultCommand());
         telemetry.addData("Heading error", Math.abs(targetHeading - odometry.Heading()));
@@ -825,6 +832,9 @@ public class teny extends OpModeEX {
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);
                 collection.setSpikesTargeting(false);
+                collection.setResettingDisabled(false);
+
+//                collection.setSlideTarget(25);
 
                 offsetTimer = 0;
             }
@@ -856,7 +866,7 @@ public class teny extends OpModeEX {
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */
-                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 220 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < 105){
+                    if (!busyDetecting && odometry.Y() < 269 && odometry.X() < 220 && Math.abs(odometry.getXVelocity() + odometry.getYVelocity()) < scanSpeed){
                         autoQueued = false;
 
                         busyDetecting = true;
@@ -916,10 +926,9 @@ public class teny extends OpModeEX {
                             collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                             follow.finishPath();
 
-                            if (limelight.getTargetPoint() != null){
-
-                            }else {
+                            if (state == autoState.three){
                                 approachAngle += 15;
+                                scanSpeed -= 20;
                             }
 
                             startpid = true;
@@ -1087,7 +1096,7 @@ public class teny extends OpModeEX {
 
                 follow.setPath(paths.returnPath("dropBasket"));
 
-                targetHeading = 211;
+                targetHeading = 212;
                 follow.setHeadingOffset(0);
 
                 follow.usePathHeadings(false);
@@ -1103,6 +1112,7 @@ public class teny extends OpModeEX {
             if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 145 && drop){
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
+                collection.setSlideTarget(25);
             }
 
 //            else if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 260 && !delivery.clawSensor.isPressed() && delivery.getSlidePositionCM() < 8 && delivery.fourbarState == Delivery.fourBarState.transfer) {
@@ -1127,7 +1137,7 @@ public class teny extends OpModeEX {
                     dropTimerDriving.reset();
                 }
 
-                if (!pathing && !drop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop){
+                if (!pathing && !drop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop && !ended){
                     follow.setPath(paths.returnPath("spikeTwo"));
                     pathing = true;
                     stop = false;

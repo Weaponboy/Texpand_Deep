@@ -35,7 +35,7 @@ public abstract class OpModeEX extends OpMode {
 
     List<LynxModule> allHubs;
 
-    ElapsedTime autoTime = new ElapsedTime();
+    public ElapsedTime autoTime = new ElapsedTime();
 
     ElapsedTime timer = new ElapsedTime();
     double lastTime;

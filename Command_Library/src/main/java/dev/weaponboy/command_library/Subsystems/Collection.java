@@ -305,6 +305,12 @@ public class Collection extends SubSystem {
 
     boolean spikesTargeting = false;
 
+    public void setResettingDisabled(boolean resettingDisabled) {
+        this.resettingDisabled = resettingDisabled;
+    }
+
+    boolean resettingDisabled = false;
+
     public Collection(OpModeEX opModeEX) {
         registerSubsystem(opModeEX, defaultCommand);
     }
@@ -385,7 +391,7 @@ public class Collection extends SubSystem {
 
             error = Math.abs((slideTarget*ticksPerCM) - (double) horizontalMotor.getCurrentPosition());
 
-            if (!resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
+            if (!resettingDisabled && !resettingSlides && !slidesReset.isPressed() && slideTarget == 0 && Math.abs(horizontalMotor.getVelocity()) < 10 && horizontalMotor.getCurrentPosition() < 100){
                 slideTarget = 0;
                 extendoPower = -0.55;
                 resettingSlides = true;
@@ -1035,7 +1041,7 @@ public class Collection extends SubSystem {
                 if (spikesTargeting){
                     exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 5 && Math.abs(horizontalMotor.getVelocity()) < 90 && Math.abs(extendoPower) < 0.4 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 10 || !runSet && abortTimer.milliseconds() > abortTime;
                 }else{
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 50 && Math.abs(extendoPower) < 0.3 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3 && Math.abs(horizontalMotor.getVelocity()) < 60 && Math.abs(extendoPower) < 0.35 && Math.abs(turretTargetPosition - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
                 }
 
             },
