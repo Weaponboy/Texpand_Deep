@@ -72,9 +72,9 @@ public class Odometry extends SubSystem {
 
     @Override
     public void init() {
-        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
-        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
-        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LB");
+        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
+        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
+        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
 
         backRight.init(getOpModeEX().hardwareMap, "backRight");
         backLeft.init(getOpModeEX().hardwareMap, "backLeft");

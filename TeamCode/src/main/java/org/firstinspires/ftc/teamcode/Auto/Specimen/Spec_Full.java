@@ -73,6 +73,10 @@ public class Spec_Full extends OpModeEX {
             () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(265,170), collectObservationZonePoint)
     };
 
+    private final sectionBuilder[] collectObservationZoneClipCollect = {
+            () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(265,170), new Vector2D(315,125))
+    };
+
     public enum autoState {
         preload,
         deliverObsSpec,
@@ -80,6 +84,7 @@ public class Spec_Full extends OpModeEX {
         spike_two,
         spike_three,
         cycle_one,
+        clip_Two,
         cycle_two,
         cycle_three,
         cycle_four,
@@ -88,7 +93,7 @@ public class Spec_Full extends OpModeEX {
 
         public static autoState next(autoState current) {
             autoState[] values = autoState.values();
-            int nextIndex = (current.ordinal() + 1) % values.length; // Wrap around to the first enum
+            int nextIndex = (current.ordinal() + 1) % values.length;
             return values[nextIndex];
         }
     }
@@ -182,6 +187,9 @@ public class Spec_Full extends OpModeEX {
 
         paths.addNewPath("collectObservationZone");
         paths.buildPath(collectObservationZone);
+
+        paths.addNewPath("collectObservationZoneClipCollect");
+        paths.buildPath(collectObservationZoneClipCollect);
 
         follow.setPath(paths.returnPath("preloadPath"));
 
@@ -351,7 +359,7 @@ public class Spec_Full extends OpModeEX {
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("spike1"));
-                targetHeading = 235;
+                targetHeading = 238;
                 following = true;
                 runCollect = false;
                 built = building.built;
@@ -564,7 +572,6 @@ public class Spec_Full extends OpModeEX {
 
                     //reset delivery gripper to transfer position
                     delivery.griperRotateSev.setPosition(90);
-
                 }
 
                 /**
@@ -641,7 +648,7 @@ public class Spec_Full extends OpModeEX {
                     clipped = false;
                     ranPreClip = false;
 
-                    targetHeading = 345;
+                    targetHeading = 338;
                 }
 
                 if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
@@ -673,7 +680,163 @@ public class Spec_Full extends OpModeEX {
                         state = autoState.next(state);
                         built = building.notBuilt;
                         cycleBuilt = building.notBuilt;
-                        collection.setSlideTarget(28);
+                        collection.setSlideTarget(30);
+                        follow.setExtendoHeading(false);
+                        System.out.println("incremented state: " + state.name());
+                    }
+                }
+
+            }
+        } else if (state == autoState.clip_Two) {
+
+            if (built == building.notBuilt) {
+
+                cycleBuilt = building.notBuilt;
+
+                cycleState = CycleState.obs_collect;
+
+                following = true;
+
+                built = building.built;
+
+            }
+
+            //point to target for collection
+            Vector2D targetExtendoPoint = new Vector2D(329.5, 54);
+
+            if (cycleState == CycleState.obs_collect) {
+
+                if (cycleBuilt == building.notBuilt) {
+
+                    //build state set
+                    cycleBuilt = building.built;
+
+                    //reset booleans
+                    collectSample = false;
+                    headingOverride = false;
+                    retryCollection = false;
+
+                    //set target heading
+                    targetHeading = 270;
+
+                    //reset and enable transfer fail detection
+                    collection.resetTransferCanceled();
+                    collection.setCancelTransfer(true);
+
+                    //reset and enable transfer fail detection
+                    collection.queueCommand(collection.preCollectNoRotate(180));
+
+                    //reset delivery gripper to transfer position
+                    delivery.griperRotateSev.setPosition(90);
+                }
+
+                /**
+                 * run collection commands
+                 * */
+                if (!retryCollection && Math.abs(odometry.Heading() - targetHeading) < 8 && !collectSample){
+
+                    // Reset booleans
+                    following = false;
+                    collectSample = true;
+                    PIDToPoint = false;
+
+                    // Queue collection and transfer
+                    collection.angle = 90;
+
+                    collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
+                    collection.queueCommand(collection.collect);
+                    collection.queueCommand(collection.transfer(Collection.tranfer.specimen));
+
+                    // Delivery rotate reset to transfer
+                    delivery.griperRotateSev.setPosition(90);
+
+                } else if (collectSample && collection.getSlideTarget() == 0 && Math.abs(collection.horizontalMotor.getVelocity()) > 20){
+
+                    cycleState = CycleState.clip;
+                    cycleBuilt = building.notBuilt;
+
+                } else if (collectSample && retryCollection && collection.isTransferCanceled()){
+
+                    cycleState = CycleState.clip;
+                    cycleBuilt = building.notBuilt;
+
+                    collection.setCancelTransfer(false);
+                    collection.queueCommand(collection.collect);
+                    collection.queueCommand(collection.transfer(Collection.tranfer.specimen));
+
+                }
+
+                if (retryCollection && collection.getCurrentCommand() == collection.returnDefaultCommand() && retryTimer.milliseconds() > 1000 && !collectSample){
+                    collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
+
+                    collection.queueCommand(collection.collect);
+
+                    collection.queueCommand(collection.transfer(Collection.tranfer.specimen));
+
+                    collectSample = true;
+                }
+
+                if (collection.isTransferCanceled() && collectSample && !retryCollection){
+
+                    retryCollection = true;
+                    collectSample = false;
+
+                    retryTimer.reset();
+
+                    collection.resetTransferCanceled();
+
+                    collection.stopTargeting();
+
+                    collection.setSlideTarget(20);
+
+                }
+
+            }else if (cycleState == CycleState.clip) {
+
+                if (cycleBuilt == building.notBuilt) {
+
+                    cycleBuilt = building.built;
+
+                    follow.setPath(paths.returnPath("goToDrob_" + state.name()));
+
+                    following = true;
+                    PIDToPoint = false;
+                    clipped = false;
+                    ranPreClip = false;
+
+                    targetHeading = 338;
+                }
+
+                if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
+                    delivery.griperRotateSev.setPosition(10);
+                    delivery.queueCommand(delivery.preClipBackAuto);
+                    ranPreClip = true;
+                }
+
+//                if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 2 && odometry.X() < 270){
+//                    following = false;
+//                    follow.finishPath();
+//                }
+
+                if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.preClip){
+                    delivery.queueCommand(delivery.clipBack);
+                    delivery.queueCommand(delivery.releaseClip);
+                    clipped = true;
+                }
+
+                if (state == targetState){
+                    if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                        state = autoState.finished;
+                        built = building.notBuilt;
+                        cycleBuilt = building.notBuilt;
+                        System.out.println("finished: " + state.name());
+                    }
+                }else{
+                    if (follow.isFinished() && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.clip) {
+                        state = autoState.next(state);
+                        built = building.notBuilt;
+                        cycleBuilt = building.notBuilt;
+                        collection.setSlideTarget(30);
                         follow.setExtendoHeading(false);
                         System.out.println("incremented state: " + state.name());
                     }
@@ -886,7 +1049,7 @@ public class Spec_Full extends OpModeEX {
                 clipped = false;
                 ranPreClip = false;
 
-                targetHeading = 350;
+                targetHeading = 340;
             }
 
             if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
@@ -918,7 +1081,7 @@ public class Spec_Full extends OpModeEX {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    collection.setSlideTarget(28);
+                    collection.setSlideTarget(30);
                     follow.setExtendoHeading(false);
                     System.out.println("incremented state: " + state.name());
                 }

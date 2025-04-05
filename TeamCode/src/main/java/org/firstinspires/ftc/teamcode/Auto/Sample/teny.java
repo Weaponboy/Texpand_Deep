@@ -799,7 +799,7 @@ public class teny extends OpModeEX {
 
                 follow.setPath(paths.returnPath("collectSubCloser"));
 
-                collection.setOpenWide(true);
+                collection.setOpenWide(false);
                 follow.usePathHeadings(true);
                 pathing = true;
                 headingOverride = false;
@@ -819,7 +819,7 @@ public class teny extends OpModeEX {
                 follow.setExtendoHeading(false);
 
                 // transfer reset
-                collection.setCancelTransfer(false);
+                collection.setCancelTransfer(true);
                 collection.resetTransferCanceled();
 
                 //limelight pipeline switch
@@ -830,8 +830,6 @@ public class teny extends OpModeEX {
                 limelight.setGettingResults(true);
                 collection.setSpikesTargeting(false);
                 collection.setResettingDisabled(false);
-
-//                collection.setSlideTarget(25);
 
                 offsetTimer = 0;
             }
@@ -923,7 +921,7 @@ public class teny extends OpModeEX {
                             collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                             follow.finishPath();
 
-                            if (state == autoState.three){
+                            if (limelight.getTargetPoint() == null){
                                 approachAngle += 15;
                                 scanSpeed -= 20;
                             }
@@ -1109,7 +1107,7 @@ public class teny extends OpModeEX {
             if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 145 && drop){
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
-                collection.setSlideTarget(25);
+//                collection.setSlideTarget(25);
             }
 
 //            else if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 260 && !delivery.clawSensor.isPressed() && delivery.getSlidePositionCM() < 8 && delivery.fourbarState == Delivery.fourBarState.transfer) {

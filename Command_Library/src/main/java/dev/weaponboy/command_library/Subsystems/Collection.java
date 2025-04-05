@@ -1823,7 +1823,7 @@ public class Collection extends SubSystem {
                 if (fourBarState == fourBar.collect && clawsState == clawState.drop){
 
                     fourBarTimer.reset();
-                    transferWaitTime = gripperOpenTime;
+                    transferWaitTime = 100;
                     fourBarState = fourBar.transferringStates;
                     fourBarTargetState = fourBar.collect;
 
