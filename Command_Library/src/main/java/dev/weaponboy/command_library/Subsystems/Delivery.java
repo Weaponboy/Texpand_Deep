@@ -53,11 +53,11 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public double highBasket = 60;
-    public final double autoHighBasket = 61;
+    public final double autoHighBasket = 62;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25.5;
-    public final double highChamberBack = 9;
+    public final double highChamberBack = 8.2;
 
     public final double visionTarget = 19.5;
 
@@ -601,7 +601,7 @@ public class Delivery extends SubSystem {
 
     public Command preClipBackAuto = new LambdaCommand(
             () -> {
-                slideSetPoint(highChamberBack-1);
+                slideSetPoint(highChamberBack-2);
                 slides = slideState.moving;
             },
             () -> {

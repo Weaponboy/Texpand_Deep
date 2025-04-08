@@ -16,6 +16,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @TeleOp
+@Disabled
 public class TestMaxVelocity extends OpModeEX {
 
     ElapsedTime elapsedTimeX = new ElapsedTime();

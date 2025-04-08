@@ -17,7 +17,7 @@
             <goBILDA5202SeriesMotor name="RF" port="3"/>
             <goBILDA5202SeriesMotor name="RB" port="0"/>
             <goBILDA5202SeriesMotor name="LB" port="1"/>
-            <goBILDA5202SeriesMotor name="LF" port="2"/>
+            <goBILDA5202SeriesMotor name="LF" port="2"/>s54f
             <Servo name="devClaw" port="1"/>
             <Servo name="hang2" port="5"/>
             <Servo name="mainPivot" port="2"/>

@@ -58,6 +58,7 @@ public class teny extends OpModeEX {
     boolean rerun = true;
     boolean lockHeading = false;
     double scanSpeed = 120;
+    boolean slowExtend = false;
 
     Vector2D powerPID = new Vector2D();
 
@@ -258,7 +259,7 @@ public class teny extends OpModeEX {
                 collection.setSpikeDriving(true);
 
                 collection.setSlideTarget(20);
-                collection.setSpikesTargeting(true);
+                collection.setTargeting(Collection.targetingTypes.spike);
             }
 
             if (delivery.getSlidePositionCM() > 20 && delivery.fourbarState == Delivery.fourBarState.transfer) {
@@ -806,6 +807,7 @@ public class teny extends OpModeEX {
                 PIDToPoint = false;
                 delivery.setSpikeTransfer(true);
                 follow.setHeadingLookAheadDistance(40);
+                slowExtend = false;
 
                 //reset vision and collection variables
                 counter = 0;
@@ -828,7 +830,7 @@ public class teny extends OpModeEX {
 
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);
-                collection.setSpikesTargeting(false);
+                collection.setTargeting(Collection.targetingTypes.normal);
                 collection.setResettingDisabled(false);
 
                 offsetTimer = 0;
@@ -1107,8 +1109,9 @@ public class teny extends OpModeEX {
             if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 145 && drop){
                 delivery.slideSetPoint(delivery.autoHighBasket);
                 delivery.slides = Delivery.slideState.moving;
-//                collection.setSlideTarget(25);
+                slowExtend = true;
             }
+            if (slowExtend && collection.getSlidePositionCM() <30)
 
 //            else if (collection.getCurrentCommand() == collection.defaultCommand && odometry.X() > 260 && !delivery.clawSensor.isPressed() && delivery.getSlidePositionCM() < 8 && delivery.fourbarState == Delivery.fourBarState.transfer) {
 //                cycleBuilt = building.notBuilt;
