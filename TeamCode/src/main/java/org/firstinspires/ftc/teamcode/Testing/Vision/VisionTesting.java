@@ -57,7 +57,7 @@ public class VisionTesting extends OpModeEX {
 
             counter++;
 
-            if (limelight.getTargetPoint() != null && counter > 2){
+            if (limelight.getTargetPoint() != null){
 
                 collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
 

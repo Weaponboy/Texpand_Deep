@@ -1,5 +1,7 @@
 package dev.weaponboy.command_library.Subsystems;
 
+import android.util.SparseArray;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -220,7 +222,7 @@ public class Collection extends SubSystem {
      * stowed position values
      * */
     double mainPivotTransferAutoSpikeDriving = 200;
-    double secondPivotTransferAutoSpikeDriving = 160;
+    double secondPivotTransferAutoSpikeDriving = 154;
 
     /**
      * stowed position values
@@ -254,7 +256,7 @@ public class Collection extends SubSystem {
     boolean resetTransfer = false;
 
     /**PID controllers**/
-    PIDController adjustment = new PIDController(0.018, 0, 0.07);
+    PIDController adjustment = new PIDController(0.018, 0, 0.06);
     PIDController adjustmentClose = new PIDController(0.014, 0, 0.009);
 
     /**Slide target stuff**/
@@ -369,7 +371,7 @@ public class Collection extends SubSystem {
 //        portal = builder.build();
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
-        griperRotate.setOffset(25);
+        griperRotate.setOffset(20);
         griperRotate.setPosition(135);
 
         setClawsState(clawState.drop);
@@ -424,6 +426,8 @@ public class Collection extends SubSystem {
                 }else {
                     IErrorCorrection = 0;
                 }
+
+                IErrorCorrection = 0;
 
                 if (longTarget){
                     extendoPower = Range.clip(adjustment.calculate(((slideTarget + IErrorCorrection) * ticksPerCM), horizontalMotor.getCurrentPosition()), -1, 1);
@@ -514,8 +518,8 @@ public class Collection extends SubSystem {
 
     private final Command preCollectLowerSpikes = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(mainPivotPreCollect-14);
-                fourBarSecondPivot.setPosition(secondPivotPreCollect + 10);
+                fourBarMainPivot.setPosition(mainPivotPreCollect-7);
+                fourBarSecondPivot.setPosition(secondPivotPreCollect + 6);
             }
     );
 
@@ -1069,11 +1073,11 @@ public class Collection extends SubSystem {
                 }
 
                 if (targeting == targetingTypes.spike){
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 6.5 && Math.abs(horizontalMotor.getVelocity()) < 200 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 15 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 5 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
                 }else if (targeting == targetingTypes.normal){
                     exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
                 } else if (targeting == targetingTypes.slower) {
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1 && Math.abs(horizontalMotor.getVelocity()) < 30 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime;
 
                     System.out.println("Slides" + (Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60));
                     System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
@@ -1087,6 +1091,7 @@ public class Collection extends SubSystem {
 //        System.out.println("Running the global collect" + targetPoint.getTargetPoint().getX() + " : " + targetPoint.getTargetPoint().getY());
         targetPosition = targetPoint.getTargetPoint();
         angle = targetPoint.getAngle();
+        System.out.println("Sample angle" + angle);
         return autoCollectGlobal;
     }
 
@@ -2506,47 +2511,14 @@ public class Collection extends SubSystem {
 
             parallelAngle = 135 + (turretTargetPosition - turretTransferPosition);
 
-            if (this.angle > 85 || this.angle < -85){
-                realAngle = parallelAngle;
-            }else{
-                double perAngle = 0;
+//            if (this.angle > 15 || this.angle > -15){
+//                realAngle = parallelAngle;
+//                System.out.println("Para angle: " + parallelAngle);
+//            }else{
+            double perAngle = 0;
 
-                if(angleRecheck){
-                    if (parallelAngle > 135){
-                        goPositive= true;
-                    }else{
-                        goPositive= false;
-                    }
-                }
 
-                if (goPositive){
-                    perAngle = parallelAngle - 90;
-                }else{
-                    perAngle = parallelAngle + 90;
-                }
-
-                realAngle = perAngle - this.angle;
-
-                if(angleRecheck){
-                    if (realAngle > 270){
-                        goNegative = true;
-                    } else if (realAngle < 0) {
-                        goNegative = true;
-                    }else {
-                        goNegative = false;
-                    }
-
-                    angleRecheck = false;
-                }
-
-                if (goNegative){
-                    if (realAngle > 270){
-                        realAngle = realAngle - 180;
-                    } else if (realAngle < 0) {
-                        realAngle = realAngle + 180;
-                    }
-                }
-            }
+//            }
 
             angle = Math.toDegrees((Math.acos(errors.getY() / clawOffsetFromSlides)));
 
@@ -2567,14 +2539,53 @@ public class Collection extends SubSystem {
 
                 targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides - errors.getY());
 
-                griperRotate.setPosition(realAngle);
-
-//                manualAngle = realAngle;
-
                 turret.setPosition(turretPosition);
 
                 turretTargetPosition = turretPosition;
 
+                if(angleRecheck){
+                    if (parallelAngle > 135){
+                        goPositive= true;
+                    }else{
+                        goPositive= false;
+                    }
+                }
+
+                if (goPositive){
+                    perAngle = parallelAngle + 90;
+                    System.out.println("perAngle positive: " + perAngle);
+                }else{
+                    perAngle = parallelAngle - 90;
+                    System.out.println("perAngle negitive: " + perAngle);
+                }
+
+                realAngle = perAngle - this.angle;
+
+                if(angleRecheck){
+                    if (realAngle >= 270){
+                        goNegative = true;
+                    } else if (realAngle <= 0) {
+                        goNegative = true;
+                    }else {
+                        goNegative = false;
+                    }
+
+                    System.out.println("real angle goNegative: " + goNegative);
+
+                    angleRecheck = false;
+                }
+
+                if (goNegative){
+                    if (realAngle >= 270){
+                        realAngle = realAngle - 180;
+                    } else if (realAngle <= 0) {
+                        realAngle = realAngle + 180;
+                    }
+                }
+
+                griperRotate.setPosition(realAngle);
+
+//                manualAngle = realAngle;
 //                System.out.println("Turret target: " + turretPosition);
 //                System.out.println("Slide target: " + returnTarget);
 

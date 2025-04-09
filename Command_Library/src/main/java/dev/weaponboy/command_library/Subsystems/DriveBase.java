@@ -92,8 +92,8 @@ public class DriveBase extends SubSystem {
                 LB.update((vertikal+strafe-turn)/denominator);
                 RB.update((vertikal-strafe+turn)/denominator);
 
-                System.out.println("vertikal power" + vertikal);
-                System.out.println("Left front power" + LF.getPower());
+//                System.out.println("vertikal power" + vertikal);
+//                System.out.println("Left front power" + LF.getPower());
             },
             () -> true
     );
