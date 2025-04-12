@@ -1,7 +1,5 @@
 package dev.weaponboy.command_library.Subsystems;
 
-import android.util.SparseArray;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -38,6 +36,7 @@ public class Collection extends SubSystem {
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
+    boolean transferRetryBoolean = true;
 
     public void setSpikeTime(double spikeTime) {
         this.spikeTime = spikeTime;
@@ -102,6 +101,7 @@ public class Collection extends SubSystem {
     public enum tranfer{
         auto,
         spike,
+        highTele,
         overHeadTransfer,
         sample,
         normalSlam,
@@ -149,7 +149,7 @@ public class Collection extends SubSystem {
      * preCollect position values
      * */
     double mainPivotRetryTransfer = 170;
-    double secondPivotMidRetryTransfer = 160;
+    double secondPivotMidRetryTransfer = 175;
 
     /**
      * low chamber position values
@@ -191,7 +191,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 188;
+    double mainPivotTransferSlam = 184;
     double secondPivotTransferSlam = 132;
 
     /**
@@ -273,9 +273,9 @@ public class Collection extends SubSystem {
 
     /**gripper positions*/
     double gripperDrop = 86;
-    double gripperGrab = 28;
+    double gripperGrab = 31;
     double gripperHangGrab = 94;
-    double gripperSlightRelease = 45;
+    double gripperSlightRelease = 40;
     double gripperOpenFull = 100;
 
     public void setOpenWide(boolean openWide) {
@@ -314,6 +314,8 @@ public class Collection extends SubSystem {
     public void setResettingDisabled(boolean resettingDisabled) {
         this.resettingDisabled = resettingDisabled;
     }
+
+    boolean transferSuccessful = false;
 
     boolean resettingDisabled = false;
     targetingTypes targeting = targetingTypes.normal;
@@ -371,7 +373,7 @@ public class Collection extends SubSystem {
 //        portal = builder.build();
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
-        griperRotate.setOffset(20);
+        griperRotate.setOffset(26);
         griperRotate.setPosition(135);
 
         setClawsState(clawState.drop);
@@ -760,6 +762,17 @@ public class Collection extends SubSystem {
 
     );
 
+    public final Command openGripper = new LambdaCommand(
+            () -> {
+                setClawsState(clawState.drop);
+                Stowed.execute();
+                fourBarTimer.reset();
+            },
+            () -> {
+            },
+            () -> fourBarTimer.milliseconds() > 60
+    );
+
     public final Command retryTransfer = new LambdaCommand(
             () -> {
                 transferRetry.execute();
@@ -770,28 +783,25 @@ public class Collection extends SubSystem {
                 fourBarState = fourBar.stowed;
             },
             () -> {
-                if (WaitForTranferDrop.milliseconds() > 600){
+                if (WaitForTranferDrop.milliseconds() > 400){
                     TransferDrop = true;
-                } else if (WaitForTranferDrop.milliseconds() > 300) {
-                    TransferAuto.execute();
                 }
             },
             () -> TransferDrop
 
     );
 
-    public final Command transferDropSampleTeleop = new LambdaCommand(
+    public final Command retryTransferTransfer = new LambdaCommand(
             () -> {
-                TransferSample.execute();
-                setClawsState(clawState.slightRelease);
+                TransferAutoSpike.execute();
+                setClawsState(clawState.grab);
                 WaitForTranferDrop.reset();
 
                 TransferDrop = false;
-                fourBarState = fourBar.stowed;
+                fourBarState = fourBar.transferUp;
             },
             () -> {
-                setClawsState(clawState.slightRelease);
-                if (WaitForTranferDrop.milliseconds() > 150){
+                if (WaitForTranferDrop.milliseconds() > 400){
                     TransferDrop = true;
                 }
             },
@@ -799,15 +809,113 @@ public class Collection extends SubSystem {
 
     );
 
-    public final Command openGripper = new LambdaCommand(
+    public final Command retryHighTeleFirst = new LambdaCommand(
             () -> {
-                setClawsState(clawState.drop);
-                Stowed.execute();
-                fourBarTimer.reset();
+                fourBarSecondPivot.setPosition(secondPivotTransferAutoSpike + 30);
+                fourBarMainPivot.setPosition(mainPivotTransferAutoSpike - 30);
+                setClawsState(clawState.grab);
+                WaitForTranferDrop.reset();
+
+                TransferDrop = false;
+                fourBarState = fourBar.preClipLow;
             },
             () -> {
+
+                fourBarSecondPivot.setPosition(secondPivotTransferAutoSpike + 30);
+                fourBarMainPivot.setPosition(mainPivotTransferAutoSpike - 30);
+
+                if (WaitForTranferDrop.milliseconds() > 400){
+                    TransferDrop = true;
+                }
             },
-            () -> fourBarTimer.milliseconds() > 60
+            () -> TransferDrop
+
+    );
+
+    public final Command retryHighTele = new LambdaCommand(
+            () -> {
+                TransferAutoSpike.execute();
+                setClawsState(clawState.grab);
+                WaitForTranferDrop.reset();
+
+                TransferDrop = false;
+                fourBarState = fourBar.transferUp;
+            },
+            () -> {
+                if (WaitForTranferDrop.milliseconds() > 400){
+                    TransferDrop = true;
+                }
+            },
+            () -> TransferDrop
+
+    );
+
+    public final Command openGripperRetry = new LambdaCommand(
+            () -> {
+                transferSuccessful = false;
+                abortTimer.reset();
+            },
+            () -> {
+
+                if (delivery.getGripperState() == Delivery.gripper.grab && delivery.clawSensor.isPressed()){
+                    setClawsState(clawState.drop);
+                    Stowed.execute();
+                    transferSuccessful = true;
+                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200){
+                    clearQueue();
+
+                    queueCommand(delivery.openGripper);
+
+                    queueCommand(retryTransfer);
+
+                    queueCommand(retryTransferTransfer);
+
+                    queueCommand(delivery.closeGripper);
+
+                    queueCommand(openGripper);
+
+                    transferSuccessful = true;
+                }
+
+            },
+            () -> transferSuccessful
+    );
+
+    public final Command openGripperRetryTeleHigh = new LambdaCommand(
+            () -> {
+                transferSuccessful = false;
+                abortTimer.reset();
+                cancelTransfer = false;
+//                setClawsState(clawState.slightRelease);
+            },
+            () -> {
+
+                if ((!transferSuccessful && delivery.getGripperState() == Delivery.gripper.grab && delivery.clawSensor.isPressed() || !transferRetryBoolean) && abortTimer.milliseconds() > 100){
+                    setClawsState(clawState.drop);
+                    transferSuccessful = true;
+                    abortTimer.reset();
+                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful){
+                    clearQueue();
+
+                    queueCommand(delivery.openGripper);
+
+                    queueCommand(retryHighTeleFirst);
+
+                    queueCommand(retryHighTele);
+
+                    queueCommand(delivery.closeGripperSpike);
+
+                    queueCommand(openGripper);
+
+                    cancelTransfer = true;
+                }
+
+                if (transferSuccessful && abortTimer.milliseconds() > 100){
+                    Stowed.execute();
+                }
+
+            },
+            () -> transferSuccessful && abortTimer.milliseconds() > 140 || cancelTransfer
     );
 
     public final Command openGripperSpec = new LambdaCommand(
@@ -1695,6 +1803,111 @@ public class Collection extends SubSystem {
             () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
     );
 
+    public Command highTele = new LambdaCommand(
+            () -> {
+                cancelTransfer = false;
+                transferCounter = 0;
+                transferToFar = false;
+
+                fourBarTargetState = fourBar.collect;
+            },
+            () -> {
+
+                if (!cancelTransfer && fourBarState == fourBar.collect && (clawsState == clawState.drop || clawsState == clawState.openFull) && horizontalMotor.getVelocity() < 9) {
+
+                    clawsState = clawState.grab;
+
+                    fourBarTimer.reset();
+                    transferWaitTime = 150;
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.collect;
+
+                    abortTimer.reset();
+
+                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab && (griperRotate.getPositionDegrees() < 45 || griperRotate.getPositionDegrees() > 225)){
+
+                    fourBarTimer.reset();
+
+                    fourBarState = fourBar.transferringStates;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*0.4, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotMidTransfer)*0.4);
+                    fourBarTargetState = fourBar.collect;
+
+                    fourBarMainPivot.setPosition(mainPivotPreCollect+30);
+                    fourBarSecondPivot.setPosition(secondPivotPreCollect);
+
+                    griperRotate.setPosition(rotateTransfer);
+                    turret.setPosition(turretTransferPosition);
+
+                    double oldX = targetPositionManuel.getX();
+                    targetPositionManuel = new Vector2D(oldX, 20);
+
+                    keepTargeting = false;
+
+                }else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+
+                    double turretTime = Math.abs( turret.getPositionDegrees()-turretTransferPosition)*0.4;
+
+                    fourBarTimer.reset();
+                    fourBarState = fourBar.transferringStates;
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*2.2);
+                    fourBarTargetState = fourBar.transferUp;
+
+                    keepTargeting = false;
+
+                    if(isCancelTransferActive() && !breakBeam.isPressed()){
+
+                    }else {
+
+                        setClawsState(clawState.grab);
+
+                        griperRotate.setPosition(rotateTransfer);
+                        turret.setPosition(turretTransferPosition);
+
+                        setSlideTarget(0);
+                        targetPositionManuel = new Vector2D(20, 20);
+
+                        if (horizontalMotor.getCurrentPosition() < 320){
+                            if (spikeDriving){
+                                TransferAutoSpikeDriving.execute();
+                            }else{
+                                TransferAutoSpike.execute();
+                            }
+                        }else{
+                            fourBarMainPivot.setPosition(mainPivotPreCollect+15);
+                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
+                            transferToFar = true;
+                        }
+
+                    }
+
+                }
+
+                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
+                    if (spikeDriving){
+                        TransferAutoSpikeDriving.execute();
+                    }else{
+                        TransferAutoSpike.execute();
+                    }
+                    transferToFar = false;
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+                if(isCancelTransferActive() && !breakBeam.isPressed() && clawsState == clawState.grab && abortTimer.milliseconds() > 200 && abortTimer.milliseconds() < 400){
+                    preCollect.execute();
+                    setClawsState(clawState.drop);
+                    fourBarState = fourBar.preCollect;
+                    cancelTransfer = true;
+                    transferCanceled = true;
+                    clearQueue();
+                }
+
+            },
+            () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
+    );
+
     public Command transferSampleTeleop = new LambdaCommand(
             () -> {
                 cancelTransfer = false;
@@ -2281,7 +2494,7 @@ public class Collection extends SubSystem {
 
                         queueCommand(delivery.closeGripper);
 
-                        queueCommand(openGripper);
+                        queueCommand(openGripperRetry);
                         break;
                     case spike:
                         queueCommand(transferSpike);
@@ -2291,6 +2504,15 @@ public class Collection extends SubSystem {
                         queueCommand(delivery.closeGripperSpike);
 
                         queueCommand(openGripper);
+                        break;
+                    case highTele:
+                        queueCommand(highTele);
+
+//                        queueCommand(transferDropAuto);
+
+                        queueCommand(delivery.closeGripperSpike);
+
+                        queueCommand(openGripperRetryTeleHigh);
                         break;
                     case overHeadTransfer:
                         queueCommand(overheadTransfer);
@@ -2662,6 +2884,14 @@ public class Collection extends SubSystem {
 
     public void setTargeting(targetingTypes Targeting) {
         this.targeting = Targeting;
+    }
+
+    public boolean isTransferRetryBoolean() {
+        return transferRetryBoolean;
+    }
+
+    public void setTransferRetryBoolean(boolean transferRetryBoolean) {
+        this.transferRetryBoolean = transferRetryBoolean;
     }
 
 }

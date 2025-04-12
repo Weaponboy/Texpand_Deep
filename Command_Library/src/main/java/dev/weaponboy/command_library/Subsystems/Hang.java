@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
+import dev.weaponboy.command_library.Hardware.AxonEncoder;
 import dev.weaponboy.command_library.Hardware.MotorEx;
 import dev.weaponboy.command_library.Hardware.ServoDegrees;
 import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
@@ -25,6 +26,9 @@ public class Hang extends SubSystem {
     boolean servoActive = false;
     boolean engage = false;
     boolean stopServoActive = false;
+
+    public AxonEncoder hang1Right = new AxonEncoder();
+    public AxonEncoder hang1Left = new AxonEncoder();
 
     public void setSlideposition(double slideposition) {
         this.slideposition = slideposition;
@@ -70,6 +74,12 @@ public class Hang extends SubSystem {
         hangPower3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hangPower3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         hang1.setDirection(Servo.Direction.REVERSE);
+
+        hang1Left.init(getOpModeEX().hardwareMap, "leftHang");
+        hang1Right.init(getOpModeEX().hardwareMap, "rightHang");
+
+        hang1Left.setOffset(207);
+        //target 340
 
         RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
         RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;

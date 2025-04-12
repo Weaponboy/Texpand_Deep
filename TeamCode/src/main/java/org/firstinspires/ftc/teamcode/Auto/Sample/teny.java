@@ -221,7 +221,6 @@ public class teny extends OpModeEX {
         collection.setCancelTransfer(true);
 
         limelight.switchPipeline(0);
-        limelight.setSortHorizontal(true);
         limelight.setTargetColor(Limelight.color.yellow);
         limelight.setAuto(false);
 
@@ -826,7 +825,6 @@ public class teny extends OpModeEX {
 
                 //limelight pipeline switch
                 limelight.setTargetColor(Limelight.color.yellow);
-                limelight.setSortHorizontal(false);
 
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);
@@ -872,7 +870,6 @@ public class teny extends OpModeEX {
                         counter = 0;
 
                         limelight.setGettingResults(true);
-                        limelight.setCloseFirst(true);
 //                        follow.usePathHeadings(false);
 
                         collection.resetTransferCanceled();

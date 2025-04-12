@@ -28,6 +28,8 @@ public class Teleop extends OpModeEX {
     boolean collectChamberTransfer = false;
     boolean armToVision = false;
 
+    double slideSetPoint = 30;
+
     boolean busyClipping = false;
     boolean queueCollection = false;
 
@@ -64,6 +66,8 @@ public class Teleop extends OpModeEX {
     @Override
     public void initEX() {
         odometry.startPosition(82.5,100,0);
+        collection.manualAngle = 0;
+        collection.setTransferType(Collection.tranfer.highTele);
     }
 
     @Override
@@ -73,8 +77,10 @@ public class Teleop extends OpModeEX {
             case sample:
                 collection.setOpenWide(true);
 
-                if(collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect){
+                if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && !chamberCollect){
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.25, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.38));
+                }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && chamberCollect){
+                    driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.45, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.48));
                 }else {
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x*1));
                 }
@@ -82,6 +88,7 @@ public class Teleop extends OpModeEX {
                 overrideCurrent(currentGamepad1, lastGamepad1);
                 toggle(currentGamepad2, lastGamepad2);
                 toggleBreakBeams(currentGamepad2, lastGamepad2);
+                toggleTransferRetry(currentGamepad2, lastGamepad2);
 
                 hang(currentGamepad2, lastGamepad2);
 
@@ -90,6 +97,10 @@ public class Teleop extends OpModeEX {
                         delivery.highBasket += 1;
                     }
                     delivery.slideSetPoint(delivery.highBasket);
+                }
+
+                if (currentGamepad2.a && !lastGamepad2.a){
+                    collection.manualAngle = 90;
                 }
 
                 if (currentGamepad2.left_stick_y > 0){
@@ -117,6 +128,16 @@ public class Teleop extends OpModeEX {
                     gamepad2.rumble(300);
                 }else  if (chamberCollect && currentGamepad2.dpad_right && !lastGamepad2.dpad_right){
                     chamberCollect = false;
+                    gamepad1.rumble(100);
+                    gamepad2.rumble(100);
+                }
+
+                if (slideSetPoint == 30 && currentGamepad2.dpad_left && !lastGamepad2.dpad_left){
+                    slideSetPoint = 48;
+                    gamepad1.rumble(300);
+                    gamepad2.rumble(300);
+                }else  if (slideSetPoint == 48 && currentGamepad2.dpad_left && !lastGamepad2.dpad_left){
+                    slideSetPoint = 30;
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
                 }
@@ -150,22 +171,38 @@ public class Teleop extends OpModeEX {
 
                         collection.queueCommand(collection.collect);
 
-                        if (collection.getSlidePositionCM() < 0.5 && !chamberCollect) {
-                            collection.manualAngle = 0;
-                            collection.armEndPointIncrement(0, 30, false);
+                        if (collection.getSlidePositionCM() < 2 && !chamberCollect) {
+                            collection.armEndPointIncrement(0, slideSetPoint, false);
+
                             //add the heading reset here
                         }
 
                         delivery.setGripperState(Delivery.gripper.drop);
-                        delivery.overrideCurrent(true, delivery.stow);
+
+                        if (chamberCollect){
+                            delivery.setSpikeTransfer(false);
+                            delivery.overrideCurrent(true, delivery.stow);
+                            delivery.runReset();
+                        }else {
+                            delivery.setSpikeTransfer(true);
+                            if (delivery.fourbarState == Delivery.fourBarState.transfer){
+                                delivery.queueCommand(delivery.spike);
+                            }else{
+                                delivery.overrideCurrent(true, delivery.spike);
+                            }
+                        }
+
+//                        delivery.slideSetPoint(10);
+//                        delivery.slides = Delivery.slideState.moving;
                         delivery.griperRotateSev.setPosition(90);
+                        collection.manualAngle = 0;
 
                     }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
                         if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberCollect) {
                             collection.queueCommand(collection.collect);
                             delivery.setGripperState(Delivery.gripper.drop);
-                            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+                            collection.queueCommand(collection.transfer(Collection.tranfer.highTele));
                         }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberCollect){
                             collection.queueCommand(collection.collect);
                             delivery.setGripperState(Delivery.gripper.drop);
@@ -200,6 +237,8 @@ public class Teleop extends OpModeEX {
                     busyDetecting = true;
                     detectionTimer.reset();
                     counter = 0;
+                    delivery.setSpikeTransfer(true);
+                    delivery.overrideCurrent(true, delivery.spike);
                     delivery.griperRotateSev.setPosition(90);
                 }
 
@@ -208,14 +247,14 @@ public class Teleop extends OpModeEX {
                  * */
 
                 if (currentGamepad1.left_stick_y < -0.4){
-                    collection.armEndPointIncrement(0, 0.9, false);
+                    collection.armEndPointIncrement(0, 1.2, false);
                     if(collection.getCurrentCommand() == collection.defaultCommand && collection.horizontalMotor.getCurrentPosition() > 40 && firstDrop && collection.getFourBarState() != Collection.fourBar.preCollect){
                         collection.queueCommand(collection.collect);
                         delivery.setGripperState(Delivery.gripper.drop);
                         firstDrop = false;
                     }
                 }else if (currentGamepad1.left_stick_y > 0.4){
-                    collection.armEndPointIncrement(0, -0.9, false);
+                    collection.armEndPointIncrement(0, -1.2, false);
                 }
 
                 if (currentGamepad1.left_stick_x < -0.5 && (collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect)){
@@ -238,7 +277,7 @@ public class Teleop extends OpModeEX {
                 /**
                  * Deposit code
                  * */
-                if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getGripperState() == Delivery.gripper.grab && delivery.slideMotor.getCurrentPosition() < 700 && !(collection.getFourBarState()== Collection.fourBar.preCollect)){
+                if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && delivery.getGripperState() == Delivery.gripper.grab && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < delivery.spikeTransferHeight + 1){
                     flipOutDepo = true;
                     drive = true;
 
@@ -259,7 +298,7 @@ public class Teleop extends OpModeEX {
 
                 if (flipOutDepo && delivery.getSlidePositionCM() > 15){
                     delivery.queueCommand(delivery.deposit);
-                    delivery.griperRotateSev.setPosition(45);
+//                    delivery.griperRotateSev.setPosition(45);
                     flipOutDepo = false;
                 }
 
@@ -270,12 +309,13 @@ public class Teleop extends OpModeEX {
                 }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && collection.getTransferType() == Collection.tranfer.specimen && collection.getSlidePositionCM() > 10){
                     driveBase.queueCommand(driveBase.drivePowers(gamepad2.right_stick_y*0.25, (gamepad2.left_trigger - gamepad2.right_trigger)*0.2, -gamepad2.right_stick_x*0.3));
                 }else if (!busyClipping){
-                    driveBase.queueCommand(driveBase.drivePowers((gamepad2.right_stick_y*0.7), (gamepad2.left_trigger - gamepad2.right_trigger)*0.45, -(gamepad2.right_stick_x *0.7)));
+                    driveBase.queueCommand(driveBase.drivePowers((gamepad2.right_stick_y*0.7), (gamepad2.left_trigger - gamepad2.right_trigger)*0.65, -(gamepad2.right_stick_x *0.7)));
                 }
 
                 overrideCurrent(currentGamepad2, lastGamepad2);
                 toggle(currentGamepad1, lastGamepad1);
                 toggleBreakBeams(currentGamepad1, lastGamepad1);
+                toggleTransferRetry(currentGamepad1, lastGamepad1);
 
                 hang(currentGamepad1, lastGamepad1);
 
@@ -605,8 +645,14 @@ public class Teleop extends OpModeEX {
                     if (clip_and_collect){
                         delivery.queueCommand(delivery.clipFront);
                     }else {
-                        delivery.overrideCurrent(true, delivery.stow);
-                        delivery.runReset();
+                        if (collection.getTransferType() == Collection.tranfer.highTele){
+                            delivery.overrideCurrent(true, delivery.spike);
+//                            delivery.runReset();
+                        }else {
+                            delivery.overrideCurrent(true, delivery.stow);
+                            delivery.runReset();
+                        }
+
                     }
                 }
 
@@ -648,8 +694,10 @@ public class Teleop extends OpModeEX {
         telemetry.addData("collection claw boolean ", collection.isOpenWide());
         telemetry.addData("claw collection state ", collection.getClawsState());
 
-        telemetry.addData("turret target position ", collection.turret.getPositionDegrees());
-        telemetry.addData("turret sensor position ", collection.turretPosition.getPosition());
+        telemetry.addData("Hang left", hang.hang1Left.getPosition());
+        telemetry.addData("Hang right", hang.hang1Right.getPosition());
+
+        telemetry.addData("delivery default", delivery.getCurrentCommand() == delivery.returnDefaultCommand());
 
         if (limelight.getTargetPoint() != null){
             telemetry.addData("limelight results X", limelight.getTargetPoint().getTargetPoint().getX());
@@ -661,6 +709,7 @@ public class Teleop extends OpModeEX {
 
     public void overrideCurrent(Gamepad current, Gamepad last){
         if (current.back && !last.back){
+            delivery.setSpikeTransfer(false);
             delivery.overrideCurrent(true, delivery.stow);
             collection.overrideCurrent(true, collection.stow);
             delivery.runReset();
@@ -709,13 +758,30 @@ public class Teleop extends OpModeEX {
         }
     }
 
+    public void toggleTransferRetry(Gamepad current, Gamepad last){
+        if (current.start && !last.start){
+            if (collection.isTransferRetryBoolean()){
+                collection.setTransferRetryBoolean(false);
+                gamepad2.rumble(100);
+                gamepad1.rumble(100);
+            }else {
+                collection.setTransferRetryBoolean(true);
+                gamepad2.rumble(500);
+                gamepad1.rumble(500);
+            }
+        }
+    }
 
     public void toggleBreakBeams(Gamepad current, Gamepad last){
         if (current.left_bumper && !last.left_bumper){
             if (collection.isCancelTransferActive()){
                 collection.setCancelTransfer(false);
+                gamepad2.rumble(100);
+                gamepad1.rumble(100);
             }else {
                 collection.setCancelTransfer(true);
+                gamepad2.rumble(500);
+                gamepad1.rumble(500);
             }
         }
     }

@@ -98,18 +98,6 @@ public abstract class OpModeEX extends OpMode {
         scheduler.execute();
         loopEX();
 
-        if (delivery.transferFailed){
-            collection.clearQueue();
-
-            collection.queueCommand(collection.retryTransfer);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
-
-            delivery.transferFailed = false;
-        }
-
 //        System.out.println("collection slides: " + collection.horizontalMotor.getCurrentDraw());
 //        System.out.println("delivery slide 1: " + delivery.slideMotor.getCurrentDraw());
 //        System.out.println("delivery slide 2: " + delivery.slideMotor2.getCurrentDraw());

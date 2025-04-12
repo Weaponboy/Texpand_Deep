@@ -179,7 +179,7 @@ public class NewSample extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(227, 258), new Vector2D(323.5, 324)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(225, 264), new Vector2D(323.5, 324)),
     };
 
     Vector2D spikeOneTarget = new Vector2D(241, 302);
@@ -226,7 +226,8 @@ public class NewSample extends OpModeEX {
         collection.setCancelTransfer(false);
 
         limelight.switchPipeline(0);
-        limelight.setSortHorizontal(true);
+        limelight.collectColoredSamples(true);
+        limelight.setDetectionColor(true);
         limelight.setTargetColor(Limelight.color.yellow);
         limelight.setAuto(true);
 
@@ -792,7 +793,6 @@ public class NewSample extends OpModeEX {
 
                 //limelight pipeline switch
                 limelight.setTargetColor(Limelight.color.yellow);
-                limelight.setSortHorizontal(false);
 
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);
@@ -850,7 +850,6 @@ public class NewSample extends OpModeEX {
                         counter = 0;
 
                         limelight.setGettingResults(true);
-                        limelight.setCloseFirst(true);
 
                         pathing = false;
                         headingOverride = true;
@@ -903,17 +902,18 @@ public class NewSample extends OpModeEX {
 //                            targetHeading = odometry.Heading();
 //                            follow.usePathHeadings(false);
 
+                            targetHeading = odometry.Heading();
                             limelight.setGettingResults(false);
 
                             pathing = false;
-                            headingOverride = true;
+//                            headingOverride = true;
 
                             collection.queueCommand(collection.autoCollectGlobal(limelight.returnPointToCollect()));
                             follow.finishPath();
 
                             if (limelight.getTargetPoint() == null && approachAngle < 258){
-                                approachAngle += 25;
-                                scanSpeed -= 40;
+                                approachAngle += 15;
+                                scanSpeed -= 60;
                             }
 
                             startpid = true;
@@ -925,7 +925,8 @@ public class NewSample extends OpModeEX {
 
                     }else if (!collect && busyDetecting && counter >= 9 && collection.getFourBarState() == Collection.fourBar.preCollect && targetHeading < 265) {
 
-                        targetHeading = odometry.Heading() + 25;
+                        targetHeading = odometry.Heading() + 20;
+                        approachAngle += 20;
 
                         headingOverride = false;
                         follow.setExtendoHeading(true);

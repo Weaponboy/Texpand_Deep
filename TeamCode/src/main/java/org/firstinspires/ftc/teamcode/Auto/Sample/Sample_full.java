@@ -205,7 +205,6 @@ public class Sample_full extends OpModeEX {
         collection.setCancelTransfer(false);
 
         limelight.switchPipeline(0);
-        limelight.setSortHorizontal(true);
         limelight.setTargetColor(Limelight.color.yellow);
         limelight.setAuto(true);
         limelight.setTargetColor(Limelight.color.yellow);
@@ -729,7 +728,6 @@ public class Sample_full extends OpModeEX {
 
                 //limelight pipeline switch
                 limelight.setTargetColor(Limelight.color.yellow);
-                limelight.setSortHorizontal(false);
 
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);
@@ -783,7 +781,6 @@ public class Sample_full extends OpModeEX {
                         counter = 0;
 
                         limelight.setGettingResults(true);
-                        limelight.setCloseFirst(true);
 //                        follow.usePathHeadings(false);
 
                         collection.resetTransferCanceled();
