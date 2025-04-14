@@ -31,6 +31,8 @@ public abstract class OpModeEX extends OpMode {
 
     public Hang hang = new Hang(this);
 
+    boolean updateLimelightTime = false;
+
     private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {limelight, collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
@@ -57,9 +59,11 @@ public abstract class OpModeEX extends OpMode {
     public void init() {
 
         allHubs = hardwareMap.getAll(LynxModule.class);
+
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+
         timer.reset();
         scheduler.init();
         initEX();
@@ -79,6 +83,8 @@ public abstract class OpModeEX extends OpMode {
             hub.clearBulkCache();
         }
 
+        limelight.setOdoTime();
+
         lastGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
 
@@ -92,7 +98,14 @@ public abstract class OpModeEX extends OpMode {
         hang.setSlideposition(delivery.getSlidePositionCM());
 
         //This might be taking up time??
+//        if (!updateLimelightTime){
+//            limelight.updateTimeStamp();
+//            updateLimelightTime = true;
+//        }else {
+//        }
+
         limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM(), odometry.getXVelocity(), odometry.getYVelocity());
+
         collection.updateDelivery(delivery);
 
         scheduler.execute();

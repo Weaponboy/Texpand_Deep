@@ -29,7 +29,16 @@ public class Delivery extends SubSystem {
     public MotorEx slideMotor2 = new MotorEx();
 
     boolean resettingSlides = false;
-    boolean hold = false;
+
+    public boolean isLowBucket() {
+        return lowBucket;
+    }
+
+    public void setLowBucket(boolean lowBucket) {
+        this.lowBucket = lowBucket;
+    }
+
+    boolean lowBucket = false;
 
     public ServoDegrees griperSev =new ServoDegrees();
     public ServoDegrees mainPivot=new ServoDegrees();
@@ -93,7 +102,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotSpikeTransfer = 235;
-    double secondSpikeTransfer = 118;
+    double secondSpikeTransfer = 116;
 
     /**
      * transfer position values
@@ -373,7 +382,12 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
-                    Deposit.execute();
+                    if (lowBucket){
+                        mainPivot.setPosition(mainPivotDepo);
+                        secondPivot.setPosition(secondDepo + 15);
+                    }else {
+                        Deposit.execute();
+                    }
 
                 }else if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.grab) {
 
@@ -871,7 +885,7 @@ public class Delivery extends SubSystem {
         mainPivot.setPosition(mainPivotTransfer);
         secondPivot.setPosition(secondTransfer);
 
-        griperRotateSev.setOffset(-5);
+        griperRotateSev.setOffset(1);
         griperRotateSev.setPosition(90);
 
 //        Deposit.execute();

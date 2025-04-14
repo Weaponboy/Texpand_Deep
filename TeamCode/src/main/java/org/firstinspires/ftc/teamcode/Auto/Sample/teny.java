@@ -20,7 +20,7 @@ import dev.weaponboy.nexus_pathing.PathingUtility.PIDController;
 import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
-@Autonomous(name = "Sample_Partner", group = "AA Comp Autos")
+@Autonomous(name = "Z_Sample_Partner", group = "AA Comp Autos")
 public class teny extends OpModeEX {
 
     pathsManager paths = new pathsManager();

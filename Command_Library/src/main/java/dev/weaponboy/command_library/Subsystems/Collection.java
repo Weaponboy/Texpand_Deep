@@ -773,6 +773,21 @@ public class Collection extends SubSystem {
             () -> fourBarTimer.milliseconds() > 60
     );
 
+    public final Command openGripperNormal = new LambdaCommand(
+            () -> {
+                setClawsState(clawState.drop);
+                fourBarTimer.reset();
+            },
+            () -> {
+
+                if (fourBarTimer.milliseconds() > 100){
+                    Stowed.execute();
+                }
+
+            },
+            () -> fourBarTimer.milliseconds() > 300
+    );
+
     public final Command retryTransfer = new LambdaCommand(
             () -> {
                 transferRetry.execute();
@@ -1176,7 +1191,7 @@ public class Collection extends SubSystem {
 
                 if (newSlideTarget != 18763){
                     setSlideTarget(newSlideTarget);
-                    System.out.println("RAN SET IN EXTENDO TARGETING" + runSet);
+//                    System.out.println("RAN SET IN EXTENDO TARGETING" + runSet);
                     runSet = true;
                 }
 
@@ -1187,8 +1202,8 @@ public class Collection extends SubSystem {
                 } else if (targeting == targetingTypes.slower) {
                     exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1 && Math.abs(horizontalMotor.getVelocity()) < 30 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime;
 
-                    System.out.println("Slides" + (Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60));
-                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
+//                    System.out.println("Slides" + (Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60));
+//                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
                 }
 
             },
@@ -1199,7 +1214,7 @@ public class Collection extends SubSystem {
 //        System.out.println("Running the global collect" + targetPoint.getTargetPoint().getX() + " : " + targetPoint.getTargetPoint().getY());
         targetPosition = targetPoint.getTargetPoint();
         angle = targetPoint.getAngle();
-        System.out.println("Sample angle" + angle);
+//        System.out.println("Sample angle" + angle);
         return autoCollectGlobal;
     }
 
@@ -2494,7 +2509,7 @@ public class Collection extends SubSystem {
 
                         queueCommand(delivery.closeGripper);
 
-                        queueCommand(openGripperRetry);
+                        queueCommand(openGripperNormal);
                         break;
                     case spike:
                         queueCommand(transferSpike);
@@ -2699,7 +2714,7 @@ public class Collection extends SubSystem {
             perAngle = parallelAngle + manualAngle;
         }
 
-        System.out.println("gripper rotate set position" + perAngle);
+//        System.out.println("gripper rotate set position" + perAngle);
 
         griperRotate.setPosition(perAngle);
 
@@ -2711,11 +2726,10 @@ public class Collection extends SubSystem {
     private double calculateKinematicsGlobal(){
 
         Vector2D errors = rotatePosition(RobotPosition.getPivot(), new Vector2D(RobotPosition.getHorizontal() - targetPosition.getY(), targetPosition.getX() - RobotPosition.getVertical()));
-
 //        System.out.println("RobotPosition.getPivot(): " + RobotPosition.getPivot());
 //
-//        System.out.println("errors.gety(): " + targetPosition.getY());
-//        System.out.println("errors.getx(): " + (targetPosition.getX()));
+        System.out.println("errors.gety(): " + targetPosition.getY());
+        System.out.println("errors.getx(): " + (targetPosition.getX()));
 //
 //        System.out.println("errors.getY(): " + errors.getY());
 //        System.out.println("errors.getX(): " + errors.getX());
@@ -2775,10 +2789,10 @@ public class Collection extends SubSystem {
 
                 if (goPositive){
                     perAngle = parallelAngle + 90;
-                    System.out.println("perAngle positive: " + perAngle);
+//                    System.out.println("perAngle positive: " + perAngle);
                 }else{
                     perAngle = parallelAngle - 90;
-                    System.out.println("perAngle negitive: " + perAngle);
+//                    System.out.println("perAngle negitive: " + perAngle);
                 }
 
                 realAngle = perAngle - this.angle;
@@ -2792,7 +2806,7 @@ public class Collection extends SubSystem {
                         goNegative = false;
                     }
 
-                    System.out.println("real angle goNegative: " + goNegative);
+//                    System.out.println("real angle goNegative: " + goNegative);
 
                     angleRecheck = false;
                 }

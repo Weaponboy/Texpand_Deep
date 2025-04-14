@@ -51,6 +51,7 @@ public class Teleop extends OpModeEX {
         waiting,
         prepare,
         Hang,
+        hold,
         abort;
 
         public static hangStates next(hangStates current) {
@@ -60,6 +61,7 @@ public class Teleop extends OpModeEX {
         }
     }
 
+    boolean Red = false;
     ElapsedTime pullUpTimer = new ElapsedTime();
     teleopState teleState = teleopState.sample;
 
@@ -67,8 +69,24 @@ public class Teleop extends OpModeEX {
     public void initEX() {
         odometry.startPosition(82.5,100,0);
         collection.manualAngle = 0;
-        collection.setTransferType(Collection.tranfer.highTele);
+//        collection.setTransferType(Collection.tranfer.highTele);
     }
+
+//    @Override
+//    public void init_loop() {
+//        if (gamepad1.dpad_right){
+//            Red = true;
+//        }
+//
+//        if (gamepad1.dpad_left){
+//            Red = false;
+//        }
+//
+//        telemetry.addData("Vision targeting red", Red);
+//        telemetry.update();
+//
+//        super.init_loop();
+//    }
 
     @Override
     public void loopEX() {
@@ -142,12 +160,12 @@ public class Teleop extends OpModeEX {
                     gamepad2.rumble(100);
                 }
 
-                if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !lowBucket){
-                    lowBucket = true;
+                if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && !delivery.isLowBucket()){
+                    delivery.setLowBucket(true);
                     gamepad1.rumble(300);
                     gamepad2.rumble(300);
-                }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && lowBucket){
-                    lowBucket = false;
+                }else if (currentGamepad2.dpad_down && !lastGamepad2.dpad_down && delivery.isLowBucket()){
+                    delivery.setLowBucket(false);
                     gamepad1.rumble(100);
                     gamepad2.rumble(100);
                 }
@@ -179,30 +197,18 @@ public class Teleop extends OpModeEX {
 
                         delivery.setGripperState(Delivery.gripper.drop);
 
-                        if (chamberCollect){
-                            delivery.setSpikeTransfer(false);
-                            delivery.overrideCurrent(true, delivery.stow);
-                            delivery.runReset();
-                        }else {
-                            delivery.setSpikeTransfer(true);
-                            if (delivery.fourbarState == Delivery.fourBarState.transfer){
-                                delivery.queueCommand(delivery.spike);
-                            }else{
-                                delivery.overrideCurrent(true, delivery.spike);
-                            }
-                        }
+                        delivery.overrideCurrent(true, delivery.stow);
+                        delivery.runReset();
 
-//                        delivery.slideSetPoint(10);
-//                        delivery.slides = Delivery.slideState.moving;
                         delivery.griperRotateSev.setPosition(90);
-                        collection.manualAngle = 0;
 
                     }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
                         if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberCollect) {
                             collection.queueCommand(collection.collect);
                             delivery.setGripperState(Delivery.gripper.drop);
-                            collection.queueCommand(collection.transfer(Collection.tranfer.highTele));
+                            collection.queueCommand(collection.transfer(Collection.tranfer.normalSlam));
+                            collection.manualAngle = 0;
                         }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberCollect){
                             collection.queueCommand(collection.collect);
                             delivery.setGripperState(Delivery.gripper.drop);
@@ -238,7 +244,8 @@ public class Teleop extends OpModeEX {
                     detectionTimer.reset();
                     counter = 0;
                     delivery.setSpikeTransfer(true);
-                    delivery.overrideCurrent(true, delivery.spike);
+                    delivery.overrideCurrent(true, delivery.stow);
+                    delivery.runReset();
                     delivery.griperRotateSev.setPosition(90);
                 }
 
@@ -281,7 +288,7 @@ public class Teleop extends OpModeEX {
                     flipOutDepo = true;
                     drive = true;
 
-                    if (lowBucket){
+                    if (delivery.isLowBucket()){
                         delivery.slideSetPoint(delivery.lowBasket);
                         delivery.slides = Delivery.slideState.moving;
                     }else {
@@ -298,7 +305,7 @@ public class Teleop extends OpModeEX {
 
                 if (flipOutDepo && delivery.getSlidePositionCM() > 15){
                     delivery.queueCommand(delivery.deposit);
-//                    delivery.griperRotateSev.setPosition(45);
+                    delivery.griperRotateSev.setPosition(45);
                     flipOutDepo = false;
                 }
 
@@ -318,6 +325,16 @@ public class Teleop extends OpModeEX {
                 toggleTransferRetry(currentGamepad1, lastGamepad1);
 
                 hang(currentGamepad1, lastGamepad1);
+
+                if (gamepad1.dpad_right){
+                    Red = true;
+                    limelight.setTargetColor(Limelight.color.red);
+                }
+
+                if (gamepad1.dpad_left){
+                    Red = false;
+                    limelight.setTargetColor(Limelight.color.blue);
+                }
 
                 if (gamepad1.right_stick_y < 0){
                     hang.hang1.setPosition(1);
@@ -645,14 +662,8 @@ public class Teleop extends OpModeEX {
                     if (clip_and_collect){
                         delivery.queueCommand(delivery.clipFront);
                     }else {
-                        if (collection.getTransferType() == Collection.tranfer.highTele){
-                            delivery.overrideCurrent(true, delivery.spike);
-//                            delivery.runReset();
-                        }else {
-                            delivery.overrideCurrent(true, delivery.stow);
-                            delivery.runReset();
-                        }
-
+                        delivery.overrideCurrent(true, delivery.stow);
+                        delivery.runReset();
                     }
                 }
 
@@ -736,6 +747,8 @@ public class Teleop extends OpModeEX {
                 hangState = hangStates.Hang;
                 delivery.slides = Delivery.slideState.holdPosition;
                 hang.queueCommand(hang.Engage);
+            } else if (hangState == hangStates.Hang) {
+                hangState = hangStates.hold;
             }
 
         }

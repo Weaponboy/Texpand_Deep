@@ -10,7 +10,7 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@Autonomous(name = "DriveSpeedTest", group = "AA Comp Autos")
+@Autonomous(name = "DriveSpeedTest", group = "Testing")
 public class DriveSpeedTest extends OpModeEX {
 
     double targetHeading;

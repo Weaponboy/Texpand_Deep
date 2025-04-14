@@ -519,7 +519,7 @@ public class Spec_Full extends OpModeEX {
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("spike3"));
-                targetHeading = 255;
+                targetHeading = 243;
                 following = true;
                 runCollect = false;
                 built = building.built;
@@ -706,7 +706,7 @@ public class Spec_Full extends OpModeEX {
 //                    follow.finishPath();
 //                }
 
-                if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.preClip){
+                if (follow.isFinished(3, 3) && delivery.fourbarState == Delivery.fourBarState.preClip){
                     delivery.queueCommand(delivery.clipBack);
                     delivery.queueCommand(delivery.releaseClip);
                     clipped = true;
@@ -891,11 +891,12 @@ public class Spec_Full extends OpModeEX {
             /**
              * run collection commands
              * */
-            if (!retryCollection && error(collectObservationZonePoint.getX(), odometry.X()) < 5 && error(collectObservationZonePoint.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample && (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())) < 80){
+            if (!retryCollection && error(collectObservationZonePoint.getX(), odometry.X()) < 5 && error(collectObservationZonePoint.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 7 && !collectSample && (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())) < 80){
 
                 // Reset booleans
                 collectSample = true;
-//                following = false;
+                following = false;
+                headingOverride = true;
 
                 // Queue collection and transfer
                 collection.angle = 90;
