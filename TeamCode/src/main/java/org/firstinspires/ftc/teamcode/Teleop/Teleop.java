@@ -243,7 +243,7 @@ public class Teleop extends OpModeEX {
                     busyDetecting = true;
                     detectionTimer.reset();
                     counter = 0;
-                    delivery.setSpikeTransfer(true);
+                    delivery.setSpikeTransfer(false);
                     delivery.overrideCurrent(true, delivery.stow);
                     delivery.runReset();
                     delivery.griperRotateSev.setPosition(90);
@@ -284,7 +284,7 @@ public class Teleop extends OpModeEX {
                 /**
                  * Deposit code
                  * */
-                if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && delivery.getGripperState() == Delivery.gripper.grab && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < delivery.spikeTransferHeight + 1){
+                if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && delivery.getGripperState() == Delivery.gripper.grab && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 12){
                     flipOutDepo = true;
                     drive = true;
 
@@ -298,7 +298,7 @@ public class Teleop extends OpModeEX {
 
                     rotateTimer.reset();
 
-                }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect)||currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 17 && !(collection.getFourBarState()== Collection.fourBar.preCollect) && lowBucket){
+                }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 50 && !(collection.getFourBarState()== Collection.fourBar.preCollect) || currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() > 15 && !(collection.getFourBarState() == Collection.fourBar.preCollect) && delivery.isLowBucket()){
                     delivery.queueCommand(delivery.deposit);
                     pozSet = true;
                 }

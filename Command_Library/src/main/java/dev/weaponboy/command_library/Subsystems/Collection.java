@@ -72,7 +72,9 @@ public class Collection extends SubSystem {
 
     boolean runSet = false;
     boolean TransferDrop = false;
+    boolean runSlideSet = false;
     ElapsedTime WaitForTranferDrop = new ElapsedTime();
+    ElapsedTime secondPivotWaitTimer = new ElapsedTime();
 
     /**states*/
     public enum fourBar{
@@ -191,7 +193,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 184;
+    double mainPivotTransferSlam = 186;
     double secondPivotTransferSlam = 132;
 
     /**
@@ -245,6 +247,7 @@ public class Collection extends SubSystem {
     double transferWaitTime;
 
     boolean autoCollecting = false;
+    double slidesWaitTime = 0;
 
     /**enum states*/
     private fourBar fourBarState = fourBar.stowed;
@@ -298,6 +301,7 @@ public class Collection extends SubSystem {
     boolean angleRecheck = true;
     boolean goPositive = false;
     boolean goNegative = false;
+    boolean over = false;
     public double angle;
     public double parallelAngle;
     public double manualAngle = 0;
@@ -373,7 +377,8 @@ public class Collection extends SubSystem {
 //        portal = builder.build();
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
-        griperRotate.setOffset(26);
+        //positive = left from the top
+        griperRotate.setOffset(20);
         griperRotate.setPosition(135);
 
         setClawsState(clawState.drop);
@@ -615,7 +620,6 @@ public class Collection extends SubSystem {
             () -> {
                 fourBarSecondPivot.setPosition(secondPivotTransferAutoSpike);
                 fourBarMainPivot.setPosition(mainPivotTransferAutoSpike);
-
                 clawsState = clawState.grab;
             }
     );
@@ -1200,10 +1204,16 @@ public class Collection extends SubSystem {
                 }else if (targeting == targetingTypes.normal){
                     exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
                 } else if (targeting == targetingTypes.slower) {
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1 && Math.abs(horizontalMotor.getVelocity()) < 30 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 6 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 45 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 4 || !runSet && abortTimer.milliseconds() > abortTime;
 
 //                    System.out.println("Slides" + (Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60));
 //                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
+                }
+
+                if ((runSet || abortTimer.milliseconds() > 100) && newSlideTarget == 18763){
+                    exitTargeting = true;
+                    clearQueue();
+                    System.out.println("Out of range excited targeting");
                 }
 
             },
@@ -1773,33 +1783,45 @@ public class Collection extends SubSystem {
                         griperRotate.setPosition(rotateTransfer);
                         turret.setPosition(turretTransferPosition);
 
-                        setSlideTarget(0);
                         targetPositionManuel = new Vector2D(20, 20);
 
-                        if (horizontalMotor.getCurrentPosition() < 320){
-                            if (spikeDriving){
-                                TransferAutoSpikeDriving.execute();
-                            }else{
-                                TransferAutoSpike.execute();
-                            }
-                        }else{
-                            fourBarMainPivot.setPosition(mainPivotPreCollect+15);
-                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
-                            transferToFar = true;
+                        secondPivotWaitTimer.reset();
+                        runSlideSet = true;
+                        if (getSlidePositionCM() > 35){
+                            slidesWaitTime = 0;
+                        }else {
+                            slidesWaitTime = (69 - getSlidePositionCM()) * 2.3;
                         }
 
-                    }
+                        if (spikeDriving){
+                            TransferAutoSpikeDriving.execute();
+                        }else{
+                            TransferAutoSpike.execute();
+                        }
 
+//                        if (horizontalMotor.getCurrentPosition() < 320){
+//
+//                        }else{
+//                            fourBarMainPivot.setPosition(mainPivotPreCollect+15);
+//                            fourBarSecondPivot.setPosition(secondPivotPreCollect - 40);
+//                            transferToFar = true;
+//                        }
+                    }
                 }
 
-                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
-                    if (spikeDriving){
-                        TransferAutoSpikeDriving.execute();
-                    }else{
-                        TransferAutoSpike.execute();
-                    }
-                    transferToFar = false;
+                if (secondPivotWaitTimer.milliseconds() > slidesWaitTime && runSlideSet){
+                    setSlideTarget(0);
+                    runSlideSet = false;
                 }
+
+//                if (horizontalMotor.getCurrentPosition() < 320 && transferToFar){
+//                    if (spikeDriving){
+//                        TransferAutoSpikeDriving.execute();
+//                    }else{
+//                        TransferAutoSpike.execute();
+//                    }
+//                    transferToFar = false;
+//                }
 
                 if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
                     fourBarState = fourBarTargetState;
@@ -2728,11 +2750,11 @@ public class Collection extends SubSystem {
         Vector2D errors = rotatePosition(RobotPosition.getPivot(), new Vector2D(RobotPosition.getHorizontal() - targetPosition.getY(), targetPosition.getX() - RobotPosition.getVertical()));
 //        System.out.println("RobotPosition.getPivot(): " + RobotPosition.getPivot());
 //
-        System.out.println("errors.gety(): " + targetPosition.getY());
-        System.out.println("errors.getx(): " + (targetPosition.getX()));
+//        System.out.println("errors.gety(): " + targetPosition.getY());
+//        System.out.println("errors.getx(): " + (targetPosition.getX()));
 //
-//        System.out.println("errors.getY(): " + errors.getY());
-//        System.out.println("errors.getX(): " + errors.getX());
+        System.out.println("errors.getY(): " + errors.getY());
+        System.out.println("errors.getX(): " + errors.getX());
 
         targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides + errors.getY());
 
@@ -2745,23 +2767,13 @@ public class Collection extends SubSystem {
             double angle = Math.toDegrees((Math.acos(errors.getY()) / clawOffsetFromSlides));
             double realAngle;
 
-            parallelAngle = 135 + (turretTargetPosition - turretTransferPosition);
-
-//            if (this.angle > 15 || this.angle > -15){
-//                realAngle = parallelAngle;
-//                System.out.println("Para angle: " + parallelAngle);
-//            }else{
             double perAngle = 0;
-
-
-//            }
 
             angle = Math.toDegrees((Math.acos(errors.getY() / clawOffsetFromSlides)));
 
-//            System.out.println("Angle radians: " + Math.acos(errors.getY()) / clawOffsetFromSlides);
-//            System.out.println("Angle: " + angle);
-
             double turretPosition = 77.5 + angle;
+
+            parallelAngle = 135 + (turretPosition - turretTransferPosition);
 
             double hypotSquared = (clawOffsetFromSlides * clawOffsetFromSlides) - (Math.abs(errors.getY()) * Math.abs(errors.getY()));
 
@@ -2771,7 +2783,7 @@ public class Collection extends SubSystem {
 
             double returnTarget = ((((errors.getX()) - robotLength) - slideOffset) + turretOffset);
 
-            if (returnTarget < 62){
+            if (returnTarget < 65){
 
                 targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides - errors.getY());
 
@@ -2800,21 +2812,21 @@ public class Collection extends SubSystem {
                 if(angleRecheck){
                     if (realAngle >= 270){
                         goNegative = true;
+                        over = true;
                     } else if (realAngle <= 0) {
                         goNegative = true;
+                        over = false;
                     }else {
                         goNegative = false;
                     }
-
-//                    System.out.println("real angle goNegative: " + goNegative);
 
                     angleRecheck = false;
                 }
 
                 if (goNegative){
-                    if (realAngle >= 270){
+                    if (over){
                         realAngle = realAngle - 180;
-                    } else if (realAngle <= 0) {
+                    } else {
                         realAngle = realAngle + 180;
                     }
                 }

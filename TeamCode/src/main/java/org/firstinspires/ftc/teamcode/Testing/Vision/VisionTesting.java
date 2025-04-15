@@ -38,8 +38,8 @@ public class VisionTesting extends OpModeEX {
 
             collection.queueCommand(collection.visionScan);
 
-            collection.targetPositionManuel = new Vector2D(20, 20);
-            collection.armEndPointIncrement(14, -8, false);
+            collection.targetPositionManuel = new Vector2D(6, 20);
+            collection.armEndPointIncrement(16, -12, false);
 
             limelight.setReturningData(true);
             limelight.setGettingResults(true);

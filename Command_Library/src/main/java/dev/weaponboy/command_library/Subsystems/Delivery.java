@@ -68,7 +68,7 @@ public class Delivery extends SubSystem {
     public final double highChamberFront = 25.5;
     public final double highChamberBack = 8.2;
 
-    public final double spikeTransferHeight = 13.6;
+    public final double spikeTransferHeight = 13.8;
 
     public final double chamberCollectScanPosition = 25.5;
 
@@ -102,7 +102,7 @@ public class Delivery extends SubSystem {
      * transfer position values
      * */
     double mainPivotSpikeTransfer = 235;
-    double secondSpikeTransfer = 116;
+    double secondSpikeTransfer = 112;
 
     /**
      * transfer position values
@@ -115,7 +115,6 @@ public class Delivery extends SubSystem {
      * */
     double mainPivotCamara = 210;
     double secondCamara = 107;
-
 
     /**
      * Bucket deposit position values
@@ -669,7 +668,7 @@ public class Delivery extends SubSystem {
                 if (getSlidePositionCM() > 15 && fourbarState != fourBarState.transferringStates) {
 
                     fourBarTimer.reset();
-                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()- findCameraScanPosition(true, chamberCollectScanPosition))*25, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*25);
+                    ClippingWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees() - findCameraScanPosition(true, chamberCollectScanPosition))*25, Math.abs(secondPivot.getPositionDegrees()- secondPreClipFront)*25);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.preClipInt;
                     gripperState = gripper.slightRelease;
