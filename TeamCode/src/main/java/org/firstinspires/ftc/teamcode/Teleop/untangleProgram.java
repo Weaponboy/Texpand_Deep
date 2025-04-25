@@ -1,21 +1,22 @@
-package org.firstinspires.ftc.teamcode.Testing.Drivetrain;
+package org.firstinspires.ftc.teamcode.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.MotorEx;
-import dev.weaponboy.command_library.Subsystems.DriveBase;
 
-@TeleOp(name = "Drive_Only", group = "Testing")
-public class customDriveTrainOpmode extends OpMode {
+@TeleOp(name = "untangleProgram", group = "AAAAAAt the top")
+public class untangleProgram extends OpMode {
 
     MotorEx LF = new MotorEx();
     MotorEx RF = new MotorEx();
     MotorEx RB = new MotorEx();
     MotorEx LB = new MotorEx();
+
+    MotorEx rightSlide = new MotorEx();
+    MotorEx leftSlide = new MotorEx();
 
     @Override
     public void init() {
@@ -24,15 +25,15 @@ public class customDriveTrainOpmode extends OpMode {
         LB.initMotor("LB", hardwareMap);
         RB.initMotor("RB", hardwareMap);
 
-//        LF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        LB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        RF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        RB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlide.initMotor("slideMotor", hardwareMap);
+        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        LF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftSlide.initMotor("slideMotor2", hardwareMap);
+        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -43,30 +44,16 @@ public class customDriveTrainOpmode extends OpMode {
 
         drive(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5);
 
-
-//        if (gamepad1.a){
-//            LF.update(0.5);
-//        }else{
-//            LF.update(0);
-//        }
-//
-//        if (gamepad1.y){
-//            LB.update(0.5);
-//        }else{
-//            LB.update(0);
-//        }
-//
-//        if (gamepad1.b){
-//            RF.update(0.5);
-//        }else{
-//            RF.update(0);
-//        }
-//
-//        if (gamepad1.x){
-//            RB.update(0.5);
-//        }else{
-//            RB.update(0);
-//        }
+        if (gamepad1.y){
+            rightSlide.update(-0.5);
+            leftSlide.update(-0.5);
+        }else if (gamepad1.a){
+            rightSlide.update(0.5);
+            leftSlide.update(0.5);
+        }else {
+            rightSlide.update(0.05);
+            leftSlide.update(0.05);
+        }
 
     }
 

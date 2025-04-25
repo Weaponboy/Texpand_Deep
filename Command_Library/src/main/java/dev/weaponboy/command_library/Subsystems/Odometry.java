@@ -204,6 +204,10 @@ public class Odometry extends SubSystem {
             () -> false
     );
 
+    public void offsetY(double offset){
+        Y += offset;
+    }
+
     public LambdaCommand updateLineBased = new LambdaCommand(
             () -> {},
             () -> {

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Auto.Sample.Sample_full;
+import org.firstinspires.ftc.teamcode.Auto.Sample.Old_Sample;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
@@ -48,8 +48,8 @@ public class Testing_Sub_Failsafe extends OpModeEX {
         five,
         finished;
 
-        public static Sample_full.autoState next(Sample_full.autoState current) {
-            Sample_full.autoState[] values = Sample_full.autoState.values();
+        public static Old_Sample.autoState next(Old_Sample.autoState current) {
+            Old_Sample.autoState[] values = Old_Sample.autoState.values();
             int nextIndex = (current.ordinal() + 1) % values.length; // Wrap around to the first enum
             return values[nextIndex];
         }
@@ -79,12 +79,12 @@ public class Testing_Sub_Failsafe extends OpModeEX {
     boolean pathing = false;
     boolean headingAdjustment = false;
 
-    public Sample_full.cycleState CycleState = Sample_full.cycleState.subCollect;
+    public Old_Sample.cycleState CycleState = Old_Sample.cycleState.subCollect;
 
-    public Sample_full.autoState targetState = Sample_full.autoState.three;
-    public Sample_full.autoState state = Sample_full.autoState.preload;
-    public Sample_full.building built = Sample_full.building.notBuilt;
-    public Sample_full.building cycleBuilt = Sample_full.building.notBuilt;
+    public Old_Sample.autoState targetState = Old_Sample.autoState.three;
+    public Old_Sample.autoState state = Old_Sample.autoState.preload;
+    public Old_Sample.building built = Old_Sample.building.notBuilt;
+    public Old_Sample.building cycleBuilt = Old_Sample.building.notBuilt;
 
     @Override
     public void initEX() {
@@ -126,9 +126,9 @@ public class Testing_Sub_Failsafe extends OpModeEX {
 
     public void subCycle () {
 
-        if (CycleState == Sample_full.cycleState.subCollect){
+        if (CycleState == Old_Sample.cycleState.subCollect){
 
-            if (cycleBuilt == Sample_full.building.notBuilt){
+            if (cycleBuilt == Old_Sample.building.notBuilt){
                 busyDetecting = false;
                 pathing = true;
                 pullDownSlides = false;
@@ -141,7 +141,7 @@ public class Testing_Sub_Failsafe extends OpModeEX {
                 collection.setCancelTransfer(true);
                 counter = 0;
 
-                cycleBuilt = Sample_full.building.built;
+                cycleBuilt = Old_Sample.building.built;
 
                 delivery.queueCommand(delivery.cameraScan);
                 collection.queueCommand(collection.collect);
@@ -240,8 +240,8 @@ public class Testing_Sub_Failsafe extends OpModeEX {
             }
 
             if (collection.isTransferCanceled() && subRetry && collection.getSlideTarget() != 0 && collection.getFourBarState() == Collection.fourBar.preCollect){
-                CycleState = Sample_full.cycleState.basketDrob;
-                cycleBuilt = Sample_full.building.notBuilt;
+                CycleState = Old_Sample.cycleState.basketDrob;
+                cycleBuilt = Old_Sample.building.notBuilt;
 
                 collection.setSlideTarget(0);
                 collection.overrideCurrent(true, collection.stow);
