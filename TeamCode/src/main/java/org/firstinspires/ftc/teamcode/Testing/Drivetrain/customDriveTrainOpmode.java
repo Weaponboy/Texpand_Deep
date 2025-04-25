@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Testing.Drivetrain;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
@@ -23,6 +24,16 @@ public class customDriveTrainOpmode extends OpMode {
         LB.initMotor("LB", hardwareMap);
         RB.initMotor("RB", hardwareMap);
 
+//        LF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        LB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        RF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        RB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        LF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -33,29 +44,29 @@ public class customDriveTrainOpmode extends OpMode {
         drive(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5);
 
 
-        if (gamepad1.a){
-            LF.update(0.5);
-        }else{
-            LF.update(0);
-        }
-
-        if (gamepad1.y){
-            LB.update(0.5);
-        }else{
-            LB.update(0);
-        }
-
-        if (gamepad1.b){
-            RF.update(0.5);
-        }else{
-            RF.update(0);
-        }
-
-        if (gamepad1.x){
-            RB.update(0.5);
-        }else{
-            RB.update(0);
-        }
+//        if (gamepad1.a){
+//            LF.update(0.5);
+//        }else{
+//            LF.update(0);
+//        }
+//
+//        if (gamepad1.y){
+//            LB.update(0.5);
+//        }else{
+//            LB.update(0);
+//        }
+//
+//        if (gamepad1.b){
+//            RF.update(0.5);
+//        }else{
+//            RF.update(0);
+//        }
+//
+//        if (gamepad1.x){
+//            RB.update(0.5);
+//        }else{
+//            RB.update(0);
+//        }
 
     }
 

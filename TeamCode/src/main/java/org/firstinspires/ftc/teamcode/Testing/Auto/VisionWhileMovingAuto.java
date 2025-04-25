@@ -182,7 +182,6 @@ public class VisionWhileMovingAuto extends OpModeEX {
         collection.setCancelTransfer(false);
 
         limelight.switchPipeline(0);
-        limelight.setSortHorizontal(true);
 
     }
 
@@ -305,7 +304,6 @@ public class VisionWhileMovingAuto extends OpModeEX {
 
                 //limelight pipeline switch
                 limelight.setTargetColor(Limelight.color.yellow);
-                limelight.setSortHorizontal(false);
 
                 limelight.setReturningData(true);
                 limelight.setGettingResults(true);

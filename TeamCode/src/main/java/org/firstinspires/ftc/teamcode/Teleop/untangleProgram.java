@@ -33,6 +33,8 @@ public class untangleProgram extends OpMode {
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -42,15 +44,15 @@ public class untangleProgram extends OpMode {
 
         drive(gamepad1.right_stick_y*0.5, (gamepad1.left_trigger - gamepad1.right_trigger)*0.4, -gamepad1.right_stick_x*0.5);
 
-        if (gamepad1.left_stick_x > 0){
+        if (gamepad1.y){
             rightSlide.update(-0.5);
             leftSlide.update(-0.5);
-        }else if (gamepad1.left_stick_x < 0){
+        }else if (gamepad1.a){
             rightSlide.update(0.5);
             leftSlide.update(0.5);
         }else {
-            rightSlide.update(0);
-            leftSlide.update(0);
+            rightSlide.update(0.05);
+            leftSlide.update(0.05);
         }
 
     }

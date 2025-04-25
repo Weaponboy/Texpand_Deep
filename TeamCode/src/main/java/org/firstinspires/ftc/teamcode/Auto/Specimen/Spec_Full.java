@@ -8,6 +8,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.Limelight;
+import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
@@ -24,11 +25,11 @@ public class Spec_Full extends OpModeEX {
     ElapsedTime retryTimer = new ElapsedTime();
 
     private final sectionBuilder[] preloadDelivery = {
-            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 192))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 190))
     };
 
     private final sectionBuilder[] deliverSubSample = {
-            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198), new Vector2D(309, 137))
+            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198), new Vector2D(304, 137))
     };
 
     private final sectionBuilder[] spikeMarks1 = {
@@ -73,6 +74,14 @@ public class Spec_Full extends OpModeEX {
             () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(265,170), collectObservationZonePoint)
     };
 
+    private final sectionBuilder[] collectObservationZoneClipCollect = {
+            () -> paths.addPoints(new Vector2D(250, 180), new Vector2D(265,170), new Vector2D(315,125))
+    };
+
+    private final sectionBuilder[] Park = {
+            () -> paths.addPoints(new Vector2D(292, 129), new Vector2D(290,125),new Vector2D(320, 60))
+    };
+
     public enum autoState {
         preload,
         deliverObsSpec,
@@ -84,11 +93,12 @@ public class Spec_Full extends OpModeEX {
         cycle_three,
         cycle_four,
         cycle_five,
+        park,
         finished;
 
         public static autoState next(autoState current) {
             autoState[] values = autoState.values();
-            int nextIndex = (current.ordinal() + 1) % values.length; // Wrap around to the first enum
+            int nextIndex = (current.ordinal() + 1) % values.length;
             return values[nextIndex];
         }
     }
@@ -136,15 +146,18 @@ public class Spec_Full extends OpModeEX {
     visionPreload visionStates = visionPreload.driving;
     ElapsedTime detectionTimer = new ElapsedTime();
 
-    Vector2D spikeOne = new Vector2D(244,55);
-    Vector2D spikeTwo = new Vector2D(244,29);
-    Vector2D spikeThree = new Vector2D(244,4.5);
+    boolean Red = true;
+
+    Vector2D spikeOne = new Vector2D(245,55);
+    Vector2D spikeTwo = new Vector2D(245,29);
+    Vector2D spikeThree = new Vector2D(245,4.5);
+
+    ElapsedTime obsDropTimer = new ElapsedTime();
 
     @Override
     public void initEX() {
 
         delivery.setGripperState(Delivery.gripper.grab);
-
         odometry.startPosition(342.5, 164, 180);
 
         paths.addNewPath("preloadPath");
@@ -183,14 +196,43 @@ public class Spec_Full extends OpModeEX {
         paths.addNewPath("collectObservationZone");
         paths.buildPath(collectObservationZone);
 
+        paths.addNewPath("collectObservationZoneClipCollect");
+        paths.buildPath(collectObservationZoneClipCollect);
+
+        paths.addNewPath("park");
+        paths.buildPath(Park);
+
         follow.setPath(paths.returnPath("preloadPath"));
 
         collection.setOpenWide(false);
+        collection.disableOutOfRangeDetection = true;
 
     }
 
     @Override
+    public void init_loop() {
+        if (gamepad1.dpad_right){
+            Red = true;
+        }
+
+        if (gamepad1.dpad_left){
+            Red = false;
+        }
+
+        telemetry.addData("Vision targeting red", Red);
+        telemetry.update();
+
+        super.init_loop();
+    }
+
+    @Override
     public void loopEX() {
+
+        System.out.println("X " + odometry.X());
+        System.out.println("Y " + odometry.Y());
+
+        System.out.println("X velocity " + odometry.getXVelocity());
+        System.out.println("Y velocity" + odometry.getYVelocity());
 
         if (state == autoState.preload) {
 
@@ -208,11 +250,19 @@ public class Spec_Full extends OpModeEX {
                 collection.queueCommand(collection.visionScan);
 
                 visionStates = visionPreload.driving;
-                limelight.setTargetColor(Limelight.color.red);
+
+                if (Red){
+                    limelight.setTargetColor(Limelight.color.red);
+                }else {
+                    limelight.setTargetColor(Limelight.color.blue);
+                }
+
+                collection.setCancelTransfer(false);
 
                 collection.targetPositionManuel = new Vector2D(6, 20);
                 collection.armEndPointIncrement(14, -4, false);
 
+                collection.setTargeting(Collection.targetingTypes.normal);
                 System.out.println("Built program" + odometry.X());
             }
 
@@ -224,7 +274,7 @@ public class Spec_Full extends OpModeEX {
                         limelight.setReturningData(true);
                         limelight.setGettingResults(true);
 
-                        limelight.setTargetColor(Limelight.color.red);
+//                        limelight.setTargetColor(Limelight.color.red);
 
                         busyDetecting = true;
                         detectionTimer.reset();
@@ -239,7 +289,7 @@ public class Spec_Full extends OpModeEX {
                         System.out.println("Ran Targeting" + odometry.getXVelocity());
                     }
 
-                    if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 2 && follow.getXError() < 5){
+                    if (!follow.isFinished() && Math.abs(odometry.getXVelocity()) < 8 && follow.getXError() < 5){
                         follow.finishPath();
                         following = false;
                         PIDToPoint = false;
@@ -277,7 +327,7 @@ public class Spec_Full extends OpModeEX {
                         delivery.queueCommand(delivery.clipFront);
                         clipped = true;
 
-                        visionStates = visionPreload.doneFailed;
+                        visionStates = visionPreload.doneGotOne;
                         busyDetecting = false;
                     }
 
@@ -325,11 +375,13 @@ public class Spec_Full extends OpModeEX {
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("subSample"));
-                targetHeading = 295;
+                targetHeading = 299;
                 following = true;
                 runCollect = false;
+                clipped = true;
                 built = building.built;
                 collection.setOpenWide(true);
+                collection.setTargeting(Collection.targetingTypes.normal);
             }
 
             if (odometry.Heading() > 270 && collection.getSlideTarget() != 48){
@@ -338,20 +390,24 @@ public class Spec_Full extends OpModeEX {
                 collection.manualAngle = 90;
             }
 
-            if (follow.isFinished(4, 4) && collection.getSlidePositionCM() > 40){
+            if (follow.isFinished(5, 5) && collection.getSlidePositionCM() > 40 && clipped){
                 collection.setClawsState(Collection.clawState.drop);
-                collection.setSlideTarget(20);
 
+                obsDropTimer.reset();
+                clipped = false;
+            }
+
+            if (!clipped && obsDropTimer.milliseconds() > 120){
+                collection.setSlideTarget(25);
                 state = autoState.spike_one;
                 built = building.notBuilt;
-                clipped = false;
             }
 
         } else if (state == autoState.spike_one){
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("spike1"));
-                targetHeading = 235;
+                targetHeading = 238;
                 following = true;
                 runCollect = false;
                 built = building.built;
@@ -359,10 +415,10 @@ public class Spec_Full extends OpModeEX {
                 collection.setOpenWide(true);
             }
 
-            if (odometry.Heading() > 225 && odometry.Heading() < 245 && odometry.Y() < 140 && !firstSpike){
-                collection.angle = 45;
-                collection.targetPointWithExtendo(spikeOne);
-            }
+//            if (odometry.Heading() > 225 && odometry.Heading() < 245 && odometry.Y() < 140 && !firstSpike){
+//                collection.angle = 45;
+//                collection.targetPointWithExtendo(spikeOne);
+//            }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && !following && runCollect){
 
@@ -408,7 +464,7 @@ public class Spec_Full extends OpModeEX {
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("spike2"));
-                targetHeading = 245;
+                targetHeading = 256;
                 following = true;
                 runCollect = false;
                 clipped = false;
@@ -416,10 +472,10 @@ public class Spec_Full extends OpModeEX {
                 collection.queueCommand(collection.preCollectNoRotate(45));
             }
 
-            if (odometry.Heading() > 235 && odometry.Heading() < 255 && odometry.Y() < 140 && !firstSpike){
-                collection.angle = 45;
-                collection.targetPointWithExtendo(spikeTwo);
-            }
+//            if (odometry.Heading() > 235 && odometry.Heading() < 255 && odometry.Y() < 140 && !firstSpike){
+//                collection.angle = 45;
+//                collection.targetPointWithExtendo(spikeTwo);
+//            }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && !following && runCollect){
 
@@ -469,17 +525,17 @@ public class Spec_Full extends OpModeEX {
 
             if (built == building.notBuilt) {
                 follow.setPath(paths.returnPath("spike3"));
-                targetHeading = 242;
+                targetHeading = 243;
                 following = true;
                 runCollect = false;
                 built = building.built;
                 collection.queueCommand(collection.preCollectNoRotate(45));
             }
 
-            if (odometry.Heading() > 232 && odometry.Heading() < 252 && odometry.Y() < 140 && !firstSpike){
-                collection.angle = 45;
-                collection.targetPointWithExtendo(spikeThree);
-            }
+//            if (odometry.Heading() > 234 && odometry.Heading() < 256 && odometry.Y() < 140 && !firstSpike){
+//                collection.angle = 45;
+//                collection.targetPointWithExtendo(spikeThree);
+//            }
 
             if (collection.getCurrentCommand() == collection.defaultCommand && !following && runCollect){
 
@@ -533,10 +589,12 @@ public class Spec_Full extends OpModeEX {
 
                 built = building.built;
 
+                collection.setTargeting(Collection.targetingTypes.slower);
+
             }
 
             //point to target for collection
-            Vector2D targetExtendoPoint = new Vector2D(329.5, 1.5);
+            Vector2D targetExtendoPoint = new Vector2D(332, 3.5);
             Vector2D pidTarget = new Vector2D(290, 141);
 
             if (cycleState == CycleState.obs_collect) {
@@ -564,7 +622,6 @@ public class Spec_Full extends OpModeEX {
 
                     //reset delivery gripper to transfer position
                     delivery.griperRotateSev.setPosition(90);
-
                 }
 
                 /**
@@ -578,7 +635,7 @@ public class Spec_Full extends OpModeEX {
                     PIDToPoint = false;
 
                     // Queue collection and transfer
-                    collection.angle = 90;
+                    collection.angle = 70;
 
                     collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
                     collection.queueCommand(collection.collect);
@@ -641,11 +698,11 @@ public class Spec_Full extends OpModeEX {
                     clipped = false;
                     ranPreClip = false;
 
-                    targetHeading = 345;
+                    targetHeading = 338;
                 }
 
                 if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
-                    delivery.griperRotateSev.setPosition(10);
+                    delivery.griperRotateSev.setPosition(0);
                     delivery.queueCommand(delivery.preClipBackAuto);
                     ranPreClip = true;
                 }
@@ -655,32 +712,32 @@ public class Spec_Full extends OpModeEX {
 //                    follow.finishPath();
 //                }
 
-                if (follow.isFinished() && delivery.fourbarState == Delivery.fourBarState.preClip){
+                if (follow.isFinished(3, 3) && delivery.fourbarState == Delivery.fourBarState.preClip){
                     delivery.queueCommand(delivery.clipBack);
                     delivery.queueCommand(delivery.releaseClip);
                     clipped = true;
                 }
 
                 if (state == targetState){
-                    if (follow.isFinished() && delivery.getSlidePositionCM() < 5 && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.transfer) {
+                    if (clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                         state = autoState.finished;
                         built = building.notBuilt;
                         cycleBuilt = building.notBuilt;
                         System.out.println("finished: " + state.name());
                     }
                 }else{
-                    if (follow.isFinished() && clipped && delivery.getCurrentCommand() != delivery.preClipFront && delivery.fourbarState == Delivery.fourBarState.clip) {
+                    if (clipped && delivery.getGripperState() == Delivery.gripper.drop) {
                         state = autoState.next(state);
                         built = building.notBuilt;
                         cycleBuilt = building.notBuilt;
-                        collection.setSlideTarget(28);
+                        collection.setSlideTarget(30);
                         follow.setExtendoHeading(false);
                         System.out.println("incremented state: " + state.name());
                     }
                 }
 
             }
-        } else {
+        } else if (state != autoState.park && state != autoState.finished) {
 
             if (built == building.notBuilt) {
 
@@ -696,10 +753,30 @@ public class Spec_Full extends OpModeEX {
 
             fullCycleOld();
 
+        }else {
+            if (built == building.notBuilt) {
+                collection.overrideCurrent(true, collection.stow);
+                delivery.overrideCurrent(true, delivery.stow);
+                delivery.runReset();
+
+                targetHeading = 180;
+
+                follow.setPath(paths.returnPath("park"));
+
+                following = true;
+
+                built = building.built;
+
+            }
+
+            if (follow.isFinished(6, 6)){
+                state = autoState.finished;
+            }
+
         }
 
         if (state == autoState.finished) {
-//            requestOpModeStop();
+            requestOpModeStop();
         }
 
         odometry.queueCommand(odometry.updateLineBased);
@@ -792,6 +869,7 @@ public class Spec_Full extends OpModeEX {
 
                 //build state set
                 cycleBuilt = building.built;
+                collection.setTargeting(Collection.targetingTypes.normal);
 
                 //reset booleans
                 following = true;
@@ -800,7 +878,7 @@ public class Spec_Full extends OpModeEX {
                 retryCollection = false;
 
                 //set target heading
-                targetHeading = 306;
+                targetHeading = 307;
 
                 follow.setPath(paths.returnPath("collectObservationZone"));
 
@@ -819,10 +897,12 @@ public class Spec_Full extends OpModeEX {
             /**
              * run collection commands
              * */
-            if (!retryCollection && error(collectObservationZonePoint.getX(), odometry.X()) < 5 && error(collectObservationZonePoint.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 5 && !collectSample){
+            if (!retryCollection && error(collectObservationZonePoint.getX(), odometry.X()) < 5 && error(collectObservationZonePoint.getY(), odometry.Y()) < 5 && Math.abs(odometry.Heading() - targetHeading) < 7 && !collectSample && (Math.abs(odometry.getXVelocity()) + Math.abs(odometry.getYVelocity())) < 80){
 
                 // Reset booleans
                 collectSample = true;
+                following = false;
+                headingOverride = true;
 
                 // Queue collection and transfer
                 collection.angle = 90;
@@ -849,7 +929,7 @@ public class Spec_Full extends OpModeEX {
 
             }
 
-            if (retryCollection && collection.getCurrentCommand() == collection.returnDefaultCommand() && retryTimer.milliseconds() > 1000 && !collectSample){
+            if (retryCollection && collection.getCurrentCommand() == collection.returnDefaultCommand() && retryTimer.milliseconds() > 900 && !collectSample){
                 collection.queueCommand(collection.extendoTargetPoint(targetExtendoPoint));
 
                 collection.queueCommand(collection.collect);
@@ -886,11 +966,11 @@ public class Spec_Full extends OpModeEX {
                 clipped = false;
                 ranPreClip = false;
 
-                targetHeading = 350;
+                targetHeading = 335;
             }
 
             if (!ranPreClip && collection.getCurrentCommand() == collection.defaultCommand && collection.slidesReset.isPressed() && !clipped && delivery.fourbarState == Delivery.fourBarState.transfer){
-                delivery.griperRotateSev.setPosition(10);
+                delivery.griperRotateSev.setPosition(0);
                 delivery.queueCommand(delivery.preClipBackAuto);
                 ranPreClip = true;
             }
@@ -908,7 +988,7 @@ public class Spec_Full extends OpModeEX {
 
             if (state == targetState){
                 if (clipped && delivery.getGripperState() == Delivery.gripper.drop) {
-                    state = autoState.finished;
+                    state = autoState.park;
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
                     System.out.println("finished: " + state.name());
@@ -918,7 +998,7 @@ public class Spec_Full extends OpModeEX {
                     state = autoState.next(state);
                     built = building.notBuilt;
                     cycleBuilt = building.notBuilt;
-                    collection.setSlideTarget(28);
+                    collection.setSlideTarget(32);
                     follow.setExtendoHeading(false);
                     System.out.println("incremented state: " + state.name());
                 }

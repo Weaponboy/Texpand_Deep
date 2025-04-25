@@ -31,11 +31,13 @@ public abstract class OpModeEX extends OpMode {
 
     public Hang hang = new Hang(this);
 
+    boolean updateLimelightTime = false;
+
     private final Scheduler scheduler = new Scheduler(this, new SubSystem[] {limelight, collection, delivery, driveBase, odometry, hang});
 
     List<LynxModule> allHubs;
 
-    ElapsedTime autoTime = new ElapsedTime();
+    public ElapsedTime autoTime = new ElapsedTime();
 
     ElapsedTime timer = new ElapsedTime();
     double lastTime;
@@ -57,9 +59,11 @@ public abstract class OpModeEX extends OpMode {
     public void init() {
 
         allHubs = hardwareMap.getAll(LynxModule.class);
+
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+
         timer.reset();
         scheduler.init();
         initEX();
@@ -79,6 +83,8 @@ public abstract class OpModeEX extends OpMode {
             hub.clearBulkCache();
         }
 
+        limelight.setOdoTime();
+
         lastGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
 
@@ -92,23 +98,18 @@ public abstract class OpModeEX extends OpMode {
         hang.setSlideposition(delivery.getSlidePositionCM());
 
         //This might be taking up time??
+//        if (!updateLimelightTime){
+//            limelight.updateTimeStamp();
+//            updateLimelightTime = true;
+//        }else {
+//        }
+
         limelight.updatePythonInputs(odometry.X(), odometry.Y(), odometry.Heading(), delivery.getSlidePositionCM(), odometry.getXVelocity(), odometry.getYVelocity());
+
         collection.updateDelivery(delivery);
 
         scheduler.execute();
         loopEX();
-
-        if (delivery.transferFailed){
-            collection.clearQueue();
-
-            collection.queueCommand(collection.retryTransfer);
-
-            collection.queueCommand(delivery.closeGripper);
-
-            collection.queueCommand(collection.openGripper);
-
-            delivery.transferFailed = false;
-        }
 
 //        System.out.println("collection slides: " + collection.horizontalMotor.getCurrentDraw());
 //        System.out.println("delivery slide 1: " + delivery.slideMotor.getCurrentDraw());
@@ -120,7 +121,7 @@ public abstract class OpModeEX extends OpMode {
 //        System.out.println("Left back: " + driveBase.LB.getCurrentDraw());
 
         loopTime = timer.milliseconds() - lastTime;
-        System.out.println("loop time: " +loopTime);
+        System.out.println("loop time: " + loopTime);
     }
 
     /**
