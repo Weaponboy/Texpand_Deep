@@ -61,7 +61,7 @@ public class Teleop extends OpModeEX {
         }
     }
 
-    boolean Red = false;
+    boolean Red = true;
     ElapsedTime pullUpTimer = new ElapsedTime();
     teleopState teleState = teleopState.sample;
 
@@ -72,21 +72,23 @@ public class Teleop extends OpModeEX {
 //        collection.setTransferType(Collection.tranfer.highTele);
     }
 
-//    @Override
-//    public void init_loop() {
-//        if (gamepad1.dpad_right){
-//            Red = true;
-//        }
-//
-//        if (gamepad1.dpad_left){
-//            Red = false;
-//        }
-//
-//        telemetry.addData("Vision targeting red", Red);
-//        telemetry.update();
-//
-//        super.init_loop();
-//    }
+    @Override
+    public void init_loop() {
+        if (gamepad1.dpad_right){
+            Red = true;
+            limelight.setTargetColor(Limelight.color.red);
+        }
+
+        if (gamepad1.dpad_left){
+            Red = false;
+            limelight.setTargetColor(Limelight.color.blue);
+        }
+
+        telemetry.addData("Vision targeting red", Red);
+        telemetry.update();
+
+        super.init_loop();
+    }
 
     @Override
     public void loopEX() {

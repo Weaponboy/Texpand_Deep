@@ -26,7 +26,7 @@ public class Limelight extends SubSystem {
         isGettingResults = gettingResults;
     }
 
-    boolean isGettingResults = true;
+    public boolean isGettingResults = true;
     double offset = 0;
 
     public ElapsedTime MovementTimer = new ElapsedTime();
@@ -99,7 +99,7 @@ public class Limelight extends SubSystem {
         return allianceColor;
     }
 
-    public void collectColoredSamples (boolean collecting) {
+    public void collectColoredSamples(boolean collecting) {
         this.allianceColor = collecting;
         allianceColorInt = allianceColor ? 1 : 0;
     }
@@ -119,7 +119,7 @@ public class Limelight extends SubSystem {
         }
     }
 
-    boolean returningData = false;
+    public boolean returningData = false;
 
     public LLResult result;
 

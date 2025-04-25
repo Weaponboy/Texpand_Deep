@@ -121,7 +121,7 @@ public abstract class OpModeEX extends OpMode {
 //        System.out.println("Left back: " + driveBase.LB.getCurrentDraw());
 
         loopTime = timer.milliseconds() - lastTime;
-//        System.out.println("loop time: " +loopTime);
+        System.out.println("loop time: " + loopTime);
     }
 
     /**

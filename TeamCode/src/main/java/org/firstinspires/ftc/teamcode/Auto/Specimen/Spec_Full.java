@@ -25,11 +25,11 @@ public class Spec_Full extends OpModeEX {
     ElapsedTime retryTimer = new ElapsedTime();
 
     private final sectionBuilder[] preloadDelivery = {
-            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 192))
+            () -> paths.addPoints(new Vector2D(339, 160), new Vector2D(255, 190))
     };
 
     private final sectionBuilder[] deliverSubSample = {
-            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198), new Vector2D(309, 137))
+            () -> paths.addPoints(new Vector2D(252, 192), new Vector2D(300,198), new Vector2D(304, 137))
     };
 
     private final sectionBuilder[] spikeMarks1 = {
@@ -146,11 +146,11 @@ public class Spec_Full extends OpModeEX {
     visionPreload visionStates = visionPreload.driving;
     ElapsedTime detectionTimer = new ElapsedTime();
 
-    boolean Red = false;
+    boolean Red = true;
 
-    Vector2D spikeOne = new Vector2D(246,55);
-    Vector2D spikeTwo = new Vector2D(246,29);
-    Vector2D spikeThree = new Vector2D(246,4.5);
+    Vector2D spikeOne = new Vector2D(245,55);
+    Vector2D spikeTwo = new Vector2D(245,29);
+    Vector2D spikeThree = new Vector2D(245,4.5);
 
     ElapsedTime obsDropTimer = new ElapsedTime();
 
@@ -158,7 +158,6 @@ public class Spec_Full extends OpModeEX {
     public void initEX() {
 
         delivery.setGripperState(Delivery.gripper.grab);
-
         odometry.startPosition(342.5, 164, 180);
 
         paths.addNewPath("preloadPath");
@@ -206,6 +205,7 @@ public class Spec_Full extends OpModeEX {
         follow.setPath(paths.returnPath("preloadPath"));
 
         collection.setOpenWide(false);
+        collection.disableOutOfRangeDetection = true;
 
     }
 
@@ -227,6 +227,12 @@ public class Spec_Full extends OpModeEX {
 
     @Override
     public void loopEX() {
+
+        System.out.println("X " + odometry.X());
+        System.out.println("Y " + odometry.Y());
+
+        System.out.println("X velocity " + odometry.getXVelocity());
+        System.out.println("Y velocity" + odometry.getYVelocity());
 
         if (state == autoState.preload) {
 
@@ -321,7 +327,7 @@ public class Spec_Full extends OpModeEX {
                         delivery.queueCommand(delivery.clipFront);
                         clipped = true;
 
-                        visionStates = visionPreload.doneFailed;
+                        visionStates = visionPreload.doneGotOne;
                         busyDetecting = false;
                     }
 

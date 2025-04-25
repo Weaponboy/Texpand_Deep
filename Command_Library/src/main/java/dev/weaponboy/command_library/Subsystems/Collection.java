@@ -33,6 +33,8 @@ public class Collection extends SubSystem {
     double abortTime = 0;
     boolean transferToFar = false;
 
+    public boolean disableOutOfRangeDetection = false;
+
     // slides
     public MotorEx horizontalMotor = new MotorEx();
     double extendoPower = 0;
@@ -217,7 +219,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 192;
+    double mainPivotTransferAutoSpike = 195;
     double secondPivotTransferAutoSpike = 161;
 
     /**
@@ -275,11 +277,11 @@ public class Collection extends SubSystem {
     public Vector2D targetPositionManuel = new Vector2D(clawOffsetFromSlides, clawOffsetFromSlides);
 
     /**gripper positions*/
-    double gripperDrop = 86;
-    double gripperGrab = 31;
+    double gripperDrop = 88;
+    double gripperGrab = 57;
     double gripperHangGrab = 94;
     double gripperSlightRelease = 40;
-    double gripperOpenFull = 100;
+    double gripperOpenFull = 98;
 
     public void setOpenWide(boolean openWide) {
         this.openWide = openWide;
@@ -377,8 +379,9 @@ public class Collection extends SubSystem {
 //        portal = builder.build();
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
+
         //positive = left from the top
-        griperRotate.setOffset(20);
+        griperRotate.setOffset(25);
         griperRotate.setPosition(135);
 
         setClawsState(clawState.drop);
@@ -1210,7 +1213,7 @@ public class Collection extends SubSystem {
 //                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
                 }
 
-                if ((runSet || abortTimer.milliseconds() > 100) && newSlideTarget == 18763){
+                if ((runSet || abortTimer.milliseconds() > 100) && newSlideTarget == 18763 && !disableOutOfRangeDetection){
                     exitTargeting = true;
                     clearQueue();
                     System.out.println("Out of range excited targeting");
@@ -2692,8 +2695,8 @@ public class Collection extends SubSystem {
 
         double finalXTarget = oldX+incrementVertical;
 
-        if (finalXTarget > 68){
-            finalXTarget = 68;
+        if (finalXTarget > 70){
+            finalXTarget = 70;
         }
 
         targetPositionManuel = new Vector2D(finalXTarget, oldY+incrementHorizontal);
@@ -2753,8 +2756,8 @@ public class Collection extends SubSystem {
 //        System.out.println("errors.gety(): " + targetPosition.getY());
 //        System.out.println("errors.getx(): " + (targetPosition.getX()));
 //
-        System.out.println("errors.getY(): " + errors.getY());
-        System.out.println("errors.getX(): " + errors.getX());
+//        System.out.println("errors.getY(): " + errors.getY());
+//        System.out.println("errors.getX(): " + errors.getX());
 
         targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides + errors.getY());
 

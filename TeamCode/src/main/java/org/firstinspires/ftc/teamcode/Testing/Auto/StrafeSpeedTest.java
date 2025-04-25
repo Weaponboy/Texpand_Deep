@@ -10,10 +10,10 @@ import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
-@Autonomous(name = "Drive_Speed_Test", group = "Testing")
-public class DriveSpeedTest extends OpModeEX {
+@Autonomous(name = "Strafe_Speed_Test", group = "Testing")
+public class StrafeSpeedTest extends OpModeEX {
 
-    double targetHeading;
+    double targetHeading = 90;
     pathsManager paths = new pathsManager();
     follower follow = new follower();
 
@@ -27,7 +27,7 @@ public class DriveSpeedTest extends OpModeEX {
 
     @Override
     public void initEX() {
-        odometry.startPosition(0,0,0);
+        odometry.startPosition(0,0,90);
 
         paths.addNewPath("line");
         paths.buildPath(straightLine, 225);

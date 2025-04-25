@@ -62,7 +62,7 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public double highBasket = 60;
-    public final double autoHighBasket = 62;
+    public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25.5;
@@ -78,10 +78,9 @@ public class Delivery extends SubSystem {
         this.slideDisabledForHang = slideDisabledForHang;
     }
 
-
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 108;
+    public double gripperDrop = 96;
     double gripperGrab = 48;
     double gripperSlightRelease = 80;
 
@@ -397,7 +396,12 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
-                    Deposit.execute();
+                    if (lowBucket){
+                        mainPivot.setPosition(mainPivotDepo);
+                        secondPivot.setPosition(secondDepo + 15);
+                    }else {
+                        Deposit.execute();
+                    }
                 }
 
                 if (fourbarState == fourBarState.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
@@ -442,7 +446,7 @@ public class Delivery extends SubSystem {
                     dropTimer.reset();
 
                     fourBarTimer.reset();
-                    transferWaitTime = 100;
+                    transferWaitTime = 160;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
                 }
@@ -462,7 +466,7 @@ public class Delivery extends SubSystem {
    public Command closeGripper = new LambdaCommand(
            () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 50;
+                transferWaitTime = 150;
            },
            () -> {
                gripperState = gripper.grab;
@@ -484,10 +488,10 @@ public class Delivery extends SubSystem {
     public Command closeGripperSpike = new LambdaCommand(
             () -> {
                 fourBarTimer.reset();
-                mainPivot.setPosition(mainPivotSpikeTransfer - 13);
-                secondPivot.setPosition(secondSpikeTransfer - 7);
+                mainPivot.setPosition(mainPivotSpikeTransfer - 15);
+                secondPivot.setPosition(secondSpikeTransfer - 8);
 //                slideSetPoint(getSlidePositionCM() - 0.8);
-                transferWaitTime = 140;
+                transferWaitTime = 220;
             },
             () -> {
                 if (fourBarTimer.milliseconds() > 100){
@@ -511,7 +515,7 @@ public class Delivery extends SubSystem {
     public Command closeGripperSpec = new LambdaCommand(
             () -> {
                 fourBarTimer.reset();
-                transferWaitTime = 100;
+                transferWaitTime = 150;
             },
             () -> {
                 gripperState = gripper.grab;
@@ -1047,6 +1051,13 @@ public class Delivery extends SubSystem {
 
     public double getSlidePositionCM(){
         return (((double) (slideMotor.getCurrentPosition() + slideMotor2.getCurrentPosition()) /2) * profile.CMPerTick)-1;
+    }
+
+    public void disableServos(){
+        griperSev.disableServo();
+        griperRotateSev.disableServo();
+        mainPivot.disableServo();
+        secondPivot.disableServo();
     }
 }
 
