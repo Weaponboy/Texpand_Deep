@@ -21,6 +21,8 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+//    android.buildFeatures.buildConfig true
 }
 
 dependencies {

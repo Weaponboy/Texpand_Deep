@@ -68,7 +68,7 @@ public class Delivery extends SubSystem {
     public final double highChamberFront = 25.5;
     public final double highChamberBack = 8.2;
 
-    public final double spikeTransferHeight = 13.8;
+    public final double spikeTransferHeight = 14.4;
 
     public final double chamberCollectScanPosition = 25.5;
 
@@ -80,8 +80,8 @@ public class Delivery extends SubSystem {
 
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 96;
-    double gripperGrab = 48;
+    public double gripperDrop = 100;
+    double gripperGrab = 58;
     double gripperSlightRelease = 80;
 
     /**

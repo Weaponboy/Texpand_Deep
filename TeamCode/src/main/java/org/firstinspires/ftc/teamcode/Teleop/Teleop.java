@@ -68,7 +68,7 @@ public class Teleop extends OpModeEX {
     @Override
     public void initEX() {
         odometry.startPosition(82.5,100,0);
-        collection.manualAngle = 0;
+        collection.manualAngle = 0; 
 //        collection.setTransferType(Collection.tranfer.highTele);
     }
 
@@ -98,10 +98,13 @@ public class Teleop extends OpModeEX {
                 collection.setOpenWide(true);
 
                 if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && !chamberCollect){
+                    driveBase.strafeExtra = 1.1;
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.25, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.38));
                 }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && chamberCollect){
+                    driveBase.strafeExtra = 1.1;
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.45, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.48));
                 }else {
+                    driveBase.strafeExtra = 1.2;
                     driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y, (gamepad1.left_trigger - gamepad1.right_trigger) * 0.65, -gamepad1.right_stick_x*1));
                 }
 
