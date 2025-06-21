@@ -21,7 +21,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-//    android.buildFeatures.buildConfig true
+    buildFeatures {
+        buildConfig true // <-- Add or uncomment this line
+    }
 
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }
