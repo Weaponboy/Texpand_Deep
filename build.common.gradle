@@ -109,9 +109,11 @@ android {
     packagingOptions {
         pickFirst '**/*.so'
     }
+
     ndkVersion '21.3.6528147'
 }
 
 repositories {
+
 }
 
