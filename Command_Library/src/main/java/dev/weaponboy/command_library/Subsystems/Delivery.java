@@ -81,8 +81,8 @@ public class Delivery extends SubSystem {
     boolean slideDisabledForHang = false;
 
     public double gripperDrop = 100;
-    double gripperGrab = 58;
-    double gripperSlightRelease = 80;
+    double gripperGrab = 54;
+    double gripperSlightRelease = 65;
 
     /**
      * servo time per degrees
