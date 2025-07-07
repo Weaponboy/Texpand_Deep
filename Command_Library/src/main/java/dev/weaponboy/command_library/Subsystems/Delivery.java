@@ -61,7 +61,7 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public double highBasket = 60;
+    public double highBasket = 64;
     public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
@@ -83,6 +83,7 @@ public class Delivery extends SubSystem {
     public double gripperDrop = 100;
     double gripperGrab = 54;
     double gripperSlightRelease = 65;
+    double gripperTightGrab = 48;
 
     /**
      * servo time per degrees
@@ -120,7 +121,8 @@ public class Delivery extends SubSystem {
      * */
     double mainPivotDepo = 94;
     double secondDepo = 228;
-    double gripperDepo = gripperGrab;
+    double gripperDepo = 40;
+
 
     /**
      * Bucket deposit position values
@@ -191,7 +193,8 @@ public class Delivery extends SubSystem {
     public enum gripper{
         drop,
         grab,
-        slightRelease
+        slightRelease,
+        tightGrab
     }
 
     public gripper getGripperState() {
@@ -264,7 +267,6 @@ public class Delivery extends SubSystem {
             () -> {
                 mainPivot.setPosition(mainPivotDepo);
                 secondPivot.setPosition(secondDepo);
-                griperSev.setPosition(gripperDepo);
             }
     );
 
@@ -379,15 +381,15 @@ public class Delivery extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*1.5, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
-
                     if (lowBucket){
                         mainPivot.setPosition(mainPivotDepo);
                         secondPivot.setPosition(secondDepo + 15);
                     }else {
                         Deposit.execute();
+                        gripperState = gripper.tightGrab;
                     }
 
-                }else if (fourbarState == fourBarState.basketDeposit && gripperState == gripper.grab) {
+                }else if (fourbarState == fourBarState.basketDeposit && (gripperState == gripper.tightGrab)) {
 
                     gripperState = gripper.drop;
 
@@ -985,6 +987,8 @@ public class Delivery extends SubSystem {
             griperSev.setPosition(gripperDrop);
         } else if (gripperState == gripper.slightRelease) {
             griperSev.setPosition(gripperSlightRelease);
+        }else if (gripperState == gripper.tightGrab) {
+            griperSev.setPosition(gripperTightGrab);
         }
 
         if (!slideDisabledForHang){

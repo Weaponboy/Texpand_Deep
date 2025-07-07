@@ -219,7 +219,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 195;
+    double mainPivotTransferAutoSpike = 190;
     double secondPivotTransferAutoSpike = 161;
 
     /**
