@@ -732,12 +732,11 @@ public class Teleop extends OpModeEX {
         if (current.back && !last.back){
             delivery.setSpikeTransfer(true);
             delivery.clearQueue();
-            delivery.queueCommand(delivery.spike);
+            delivery.queueCommand(delivery.stow);
             delivery.slideSetPoint(delivery.spikeTransferHeight);
             delivery.slides = Delivery.slideState.moving;
-//            delivery.slides = Delivery.slideState.moving;
             collection.overrideCurrent(true, collection.stow);
-//            delivery.runReset();
+            delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
             if (!chamberCollect){
                 collection.targetPositionManuel = new Vector2D(15, 20);
