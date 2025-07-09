@@ -364,10 +364,12 @@ public class Delivery extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotTransfer)*2.5, Math.abs(secondPivot.getPositionDegrees()-secondTransfer)*2.5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.transfer;
+
                     if (spikeTransfer){
                         slideSetPoint(spikeTransferHeight);
                     } else{
                         slideSetPoint(0);
+                        runReset();
                     }
 
                     slides = Delivery.slideState.moving;
@@ -1043,13 +1045,13 @@ public class Delivery extends SubSystem {
     public void runReset(){
         slideTarget = 0;
         resettingSlides = true;
-        slidePower = -0.7;
+        slidePower = -1;
     }
 
     public void runResetHold(){
         slideTarget = 0;
         resettingSlides = true;
-        slidePower = -0.7;
+        slidePower = -1;
 //        hold = true;
     }
 
