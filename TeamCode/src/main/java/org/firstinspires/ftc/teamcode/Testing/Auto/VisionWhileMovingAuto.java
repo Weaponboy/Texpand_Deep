@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Testing.Auto;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+//import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -149,8 +148,8 @@ public class VisionWhileMovingAuto extends OpModeEX {
             () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(220, 280), new Vector2D(326, 335)),
     };
 
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+//    FtcDashboard dashboard = FtcDashboard.getInstance();
+//    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     @Override
     public void initEX() {

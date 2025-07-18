@@ -11,7 +11,8 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        // Note for FTC Teams: Do not modify this yourself.
+        classpath 'com.android.tools.build:gradle:8.7.0'
     }
 }
 
@@ -21,7 +22,7 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-            maven { url 'https://jitpack.io' }
+        maven { url 'https://jitpack.io' }
     }
 }
 

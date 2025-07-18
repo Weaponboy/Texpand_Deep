@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+//import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,7 +10,6 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
-import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
@@ -36,9 +35,9 @@ public class SampleTeleop extends OpModeEX {
     boolean chamberColect = false;
     boolean tranfer = false;
 
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-
-    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+//    FtcDashboard dashboard = FtcDashboard.getInstance();
+//
+//    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
     boolean queueCollection = false;
 
     boolean busyDetecting = false;

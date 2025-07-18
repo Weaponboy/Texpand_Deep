@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Testing.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import dev.weaponboy.command_library.Hardware.ServoDegrees;

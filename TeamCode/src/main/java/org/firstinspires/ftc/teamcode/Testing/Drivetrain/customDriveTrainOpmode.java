@@ -5,9 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Hardware.MotorEx;
-import dev.weaponboy.command_library.Subsystems.DriveBase;
 
 @TeleOp(name = "Drive_Only", group = "Testing")
 public class customDriveTrainOpmode extends OpMode {
