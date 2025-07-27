@@ -367,7 +367,7 @@ public class Collection extends SubSystem {
 
         turret.setPosition(167.5);
 
-        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 270);
+        griperRotate.setRange(new PwmControl.PwmRange(500, 2500), 180);
         gripServo.setRange(180);
 
 //        closeAim = getOpModeEX().hardwareMap.get(WebcamName.class, "webcam");
@@ -381,8 +381,8 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         //positive = left from the top
-        griperRotate.setOffset(25);
-        griperRotate.setPosition(135);
+        griperRotate.setOffset(0);
+        griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);
         gripServo.setPosition(gripperDrop);
@@ -2729,13 +2729,17 @@ public class Collection extends SubSystem {
 
         turretTargetPosition = 77.5 + angle;
 
-        parallelAngle = 135 + (turretTargetPosition - turretTransferPosition);
+        if (targetPositionManuel.getY() < clawOffsetFromSlides){
+            parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);
+        }else {
+            parallelAngle = 90 - (turretTargetPosition - turretTransferPosition);
+        }
 
         double perAngle = 0;
 
-        if (parallelAngle > 135){
+        if (parallelAngle > 90){
             perAngle = parallelAngle - manualAngle;
-        }else {
+        }else if (parallelAngle < 90){
             perAngle = parallelAngle + manualAngle;
         }
 
@@ -2768,15 +2772,18 @@ public class Collection extends SubSystem {
         }else{
 
             double angle = Math.toDegrees((Math.acos(errors.getY()) / clawOffsetFromSlides));
+
             double realAngle;
 
             double perAngle = 0;
 
-            angle = Math.toDegrees((Math.acos(errors.getY() / clawOffsetFromSlides)));
-
             double turretPosition = 77.5 + angle;
 
-            parallelAngle = 135 + (turretPosition - turretTransferPosition);
+            if (errors.getY() < clawOffsetFromSlides){
+                parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);
+            }else {
+                parallelAngle = 90 - (turretTargetPosition - turretTransferPosition);
+            }
 
             double hypotSquared = (clawOffsetFromSlides * clawOffsetFromSlides) - (Math.abs(errors.getY()) * Math.abs(errors.getY()));
 
@@ -2795,7 +2802,7 @@ public class Collection extends SubSystem {
                 turretTargetPosition = turretPosition;
 
                 if(angleRecheck){
-                    if (parallelAngle > 135){
+                    if (parallelAngle > 90){
                         goPositive= true;
                     }else{
                         goPositive= false;
@@ -2803,17 +2810,17 @@ public class Collection extends SubSystem {
                 }
 
                 if (goPositive){
-                    perAngle = parallelAngle + 90;
+                    perAngle = parallelAngle - 90;
 //                    System.out.println("perAngle positive: " + perAngle);
                 }else{
-                    perAngle = parallelAngle - 90;
+                    perAngle = parallelAngle + 90;
 //                    System.out.println("perAngle negitive: " + perAngle);
                 }
 
                 realAngle = perAngle - this.angle;
 
                 if(angleRecheck){
-                    if (realAngle >= 270){
+                    if (realAngle >= 180){
                         goNegative = true;
                         over = true;
                     } else if (realAngle <= 0) {
