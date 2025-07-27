@@ -8,11 +8,9 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.command_library.Subsystems.Limelight;
-import dev.weaponboy.command_library.Subsystems.Odometry;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;
 import dev.weaponboy.nexus_pathing.PathGeneration.pathsManager;
-import dev.weaponboy.nexus_pathing.PathingUtility.PathingPower;
 import dev.weaponboy.nexus_pathing.PathingUtility.RobotPower;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.Follower.follower;
 import dev.weaponboy.nexus_pathing.PathGeneration.commands.sectionBuilder;

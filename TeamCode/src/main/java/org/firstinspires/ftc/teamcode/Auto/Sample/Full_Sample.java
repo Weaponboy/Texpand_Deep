@@ -153,16 +153,16 @@ public class Full_Sample extends OpModeEX {
     };
 
     private final sectionBuilder[] subDeposit = new sectionBuilder[]{
-            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(220, 265), new Vector2D(330, 328)),
+            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(220, 265), new Vector2D(330, 329)),
     };
 
 //    private final sectionBuilder[] subDepositSecond = new sectionBuilder[]{
 //            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(225, 260), new Vector2D(323.5, 318)),
 //    };
 
-    Vector2D spikeOneTarget = new Vector2D(242, 302.5);
-    Vector2D spikeTwoTarget = new Vector2D(240, 327);
-    Vector2D spikeThreeTarget = new Vector2D(240, 352.5);
+    Vector2D spikeOneTarget = new Vector2D(243.2, 301.7);
+    Vector2D spikeTwoTarget = new Vector2D(240, 329);
+    Vector2D spikeThreeTarget = new Vector2D(240, 354.5);
 
     @Override
     public void initEX() {
@@ -520,7 +520,7 @@ public class Full_Sample extends OpModeEX {
             } else if (CycleState == cycleState.basketDrob) {
 
                 if (PIDToPoint) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(316.5, 343), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(314, 343), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();
@@ -606,7 +606,7 @@ public class Full_Sample extends OpModeEX {
                 }
 
                 if (PIDToPoint) {
-                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(315, 343), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
+                    PathingPower power = follow.pidToPoint(new Vector2D(odometry.X(), odometry.Y()), new Vector2D(314, 343), odometry.Heading(), odometry.getXVelocity(), odometry.getYVelocity());
                     powerPID = new Vector2D(power.getVertical(), power.getHorizontal());
                 } else {
                     powerPID = new Vector2D();

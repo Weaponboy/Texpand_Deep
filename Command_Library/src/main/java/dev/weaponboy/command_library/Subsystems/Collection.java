@@ -195,7 +195,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferSlam = 186;
+    double mainPivotTransferSlam = 184;
     double secondPivotTransferSlam = 132;
 
     /**
@@ -219,7 +219,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 195;
+    double mainPivotTransferAutoSpike = 190;
     double secondPivotTransferAutoSpike = 161;
 
     /**
@@ -277,11 +277,11 @@ public class Collection extends SubSystem {
     public Vector2D targetPositionManuel = new Vector2D(clawOffsetFromSlides, clawOffsetFromSlides);
 
     /**gripper positions*/
-    double gripperDrop = 88;
+    double gripperDrop = 92;
     double gripperGrab = 57;
     double gripperHangGrab = 94;
     double gripperSlightRelease = 40;
-    double gripperOpenFull = 98;
+    double gripperOpenFull = 105;
 
     public void setOpenWide(boolean openWide) {
         this.openWide = openWide;

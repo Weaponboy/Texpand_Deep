@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
-import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 

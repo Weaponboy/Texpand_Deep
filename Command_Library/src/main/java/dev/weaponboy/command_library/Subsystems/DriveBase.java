@@ -21,8 +21,9 @@ public class DriveBase extends SubSystem {
     public MotorEx RB = new MotorEx();
     public MotorEx LB = new MotorEx();
 
-    PIDController headingPID =new PIDController(0.025,0,0.0003);
+    PIDController headingPID = new PIDController(0.025,0,0.0003);
     public IMU imu;
+    public double strafeExtra = 1.2;
 
     double vertikal ;
     double turn ;
@@ -52,6 +53,7 @@ public class DriveBase extends SubSystem {
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         LB.setDirection(DcMotorSimple.Direction.REVERSE);
     }
+
     public double headindingLockMotorPower (double headingError){
         if (headingError < -180) {
             headingError = (360 + headingError);
@@ -60,6 +62,7 @@ public class DriveBase extends SubSystem {
         }
         return headingPID.calculate(headingError);
     }
+
     @Override
     public void execute() {
         executeEX();
@@ -87,10 +90,10 @@ public class DriveBase extends SubSystem {
             () -> {
                 double denominator = Math.max(1, Math.abs(vertikal)+Math.abs(strafe)+Math.abs(turn));
 
-                LF.update((vertikal-(strafe*1.2)-turn)/denominator);
-                RF.update((vertikal+(strafe*1.2)+turn)/denominator);
-                LB.update((vertikal+strafe-turn)/denominator);
-                RB.update((vertikal-strafe+turn)/denominator);
+                LF.update((vertikal-(strafe)-turn)/denominator);
+                RF.update((vertikal+(strafe)+turn)/denominator);
+                LB.update((vertikal+(strafe*strafeExtra)-turn)/denominator);
+                RB.update((vertikal-(strafe*strafeExtra)+turn)/denominator);
 
 //                System.out.println("vertikal power" + vertikal);
 //                System.out.println("Left front power" + LF.getPower());
