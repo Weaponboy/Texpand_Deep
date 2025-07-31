@@ -189,7 +189,9 @@ public class Teleop extends OpModeEX {
                  * Collect code
                  * */
                 if ((currentGamepad1.right_bumper && !lastGamepad1.right_bumper) && !transfer){
-
+                    delivery.setSpikeTransfer(true);
+                    delivery.clearQueue();
+                    delivery.queueCommand(delivery.spike);
                     collection.stopTargeting();
 
                     if(!collection.getFourBarState().equals(Collection.fourBar.preCollect) && collection.getCurrentCommand() == collection.defaultCommand && !collection.getFourBarState().equals(Collection.fourBar.collect)){
@@ -204,9 +206,7 @@ public class Teleop extends OpModeEX {
 
                         delivery.setGripperState(Delivery.gripper.drop);
 
-                        delivery.setSpikeTransfer(true);
-                        delivery.clearQueue();
-                        delivery.queueCommand(delivery.spike);
+
 //                        delivery.runReset();
 
                         delivery.griperRotateSev.setPosition(90);
@@ -313,7 +313,7 @@ public class Teleop extends OpModeEX {
                     pozSet = true;
                 }
 
-                if (flipOutDepo && delivery.getSlidePositionCM() > 15){
+                if (flipOutDepo && delivery.getSlidePositionCM() > 25){
                     delivery.queueCommand(delivery.deposit);
                     delivery.griperRotateSev.setPosition(45);
 
