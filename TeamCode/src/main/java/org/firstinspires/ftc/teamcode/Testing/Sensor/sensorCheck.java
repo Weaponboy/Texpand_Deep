@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Testing.Sensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import dev.weaponboy.command_library.Hardware.DistanceSensor;
@@ -16,6 +17,9 @@ public class sensorCheck extends OpMode {
 
     public TouchSensor deliveryReset;
     public TouchSensor collectionReset;
+
+    public MotorEx slideMotor = new MotorEx();
+    public MotorEx slideMotor2 = new MotorEx();
 
     public DistanceSensor backLeft = new DistanceSensor();
     public DistanceSensor backRight = new DistanceSensor();
@@ -41,6 +45,15 @@ public class sensorCheck extends OpMode {
 
         horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         horizontalMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        slideMotor.initMotor("slideMotor", hardwareMap);
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor2.initMotor("slideMotor2", hardwareMap);
+        slideMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
@@ -54,6 +67,8 @@ public class sensorCheck extends OpMode {
         telemetry.addData("depo claw sensor", depoTouch.isPressed());
         telemetry.addData("backLeft", backLeft.getPosition());
         telemetry.addData("backRight", backRight.getPosition());
+        telemetry.addData("slide right motor", slideMotor2.getCurrentPosition());
+        telemetry.addData("slide left motor", slideMotor.getCurrentPosition());
         telemetry.addData("right", right.getPosition());
         telemetry.update();
 

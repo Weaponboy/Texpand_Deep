@@ -160,9 +160,9 @@ public class Full_Sample extends OpModeEX {
 //            () -> paths.addPoints(new Vector2D(200, 232), new Vector2D(225, 260), new Vector2D(323.5, 318)),
 //    };
 
-    Vector2D spikeOneTarget = new Vector2D(243.2, 301.7);
-    Vector2D spikeTwoTarget = new Vector2D(240, 329);
-    Vector2D spikeThreeTarget = new Vector2D(240, 354.5);
+    Vector2D spikeOneTarget = new Vector2D(243.2, 296.5);
+    Vector2D spikeTwoTarget = new Vector2D(240, 322);
+    Vector2D spikeThreeTarget = new Vector2D(240, 347);
 
     @Override
     public void initEX() {
