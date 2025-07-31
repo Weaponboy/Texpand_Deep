@@ -227,13 +227,13 @@ public class Full_Sample extends OpModeEX {
             scanSpeed = 60;
         }
 
-        telemetry.addData("Toggle collection coloured samples", "a = false, y = true");
+        telemetry.addData("Collect colors: ", "A and Y");
         telemetry.addData("Vision targeting coloured samples", limelight.getAllianceSamples());
-
-        telemetry.addData("Set alliance color", "d_pad_right = Red, d_pad_left = Blue");
-        telemetry.addData("targeting red samples", limelight.isAllianceColor());
-
-        telemetry.addData("Collection approach angle", "y = safe, y = normal");
+        telemetry.addLine();
+        telemetry.addData("Alliance color: ", "d_right = R, d_left = B");
+        telemetry.addData("Targeting red samples: ", limelight.isAllianceColor());
+        telemetry.addLine();
+        telemetry.addData("Collection approach angle", "x = safe, b = normal");
         telemetry.update();
 
         super.init_loop();
@@ -779,7 +779,7 @@ public class Full_Sample extends OpModeEX {
 
             if (cycleBuilt == building.notBuilt){
 
-                collection.setTransferType(Collection.tranfer.overHeadTransfer);
+                collection.setTransferType(Collection.tranfer.subCycles);
 
                 //set enum states
                 cycleBuilt = building.built;
@@ -1012,7 +1012,7 @@ public class Full_Sample extends OpModeEX {
                      * */
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                        collection.queueCommand(collection.transfer(Collection.tranfer.overHeadTransfer));
+                        collection.queueCommand(collection.transfer(Collection.tranfer.subCycles));
 
                         autoQueued = true;
                     }
@@ -1111,7 +1111,7 @@ public class Full_Sample extends OpModeEX {
 
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                        collection.queueCommand(collection.transfer(Collection.tranfer.overHeadTransfer));
+                        collection.queueCommand(collection.transfer(Collection.tranfer.subCycles));
 
                         autoQueued = true;
 

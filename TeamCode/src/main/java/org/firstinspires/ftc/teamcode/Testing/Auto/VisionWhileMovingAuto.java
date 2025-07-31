@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Testing.Auto;
 //import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
@@ -454,7 +452,7 @@ public class VisionWhileMovingAuto extends OpModeEX {
                      * */
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                        collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                        collection.queueCommand(collection.transfer(Collection.tranfer.subCycles));
 
                         autoQueued = true;
                     }
@@ -510,7 +508,7 @@ public class VisionWhileMovingAuto extends OpModeEX {
 
                     if (collection.getFourBarState() == Collection.fourBar.collect && collect && !autoQueued){
 
-                        collection.queueCommand(collection.transfer(Collection.tranfer.auto));
+                        collection.queueCommand(collection.transfer(Collection.tranfer.subCycles));
 
                         autoQueued = true;
 
