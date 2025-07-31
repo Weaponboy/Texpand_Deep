@@ -18,6 +18,12 @@ apply from: '../build.dependencies.gradle'
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+    }
+
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
@@ -27,5 +33,6 @@ dependencies {
     implementation project(':FtcRobotController')
     implementation project(path: ':Command_Library')
     implementation project(path: ':Vision')
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 //    implementation 'com.acmerobotics.dashboard:dashboard:0.4.14'
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')}

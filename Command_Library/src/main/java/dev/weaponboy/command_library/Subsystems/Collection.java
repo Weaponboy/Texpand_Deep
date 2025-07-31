@@ -143,14 +143,14 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotTransferAuto = 188;
+    double mainPivotTransferAuto = 192;
     double secondPivotTransferAuto = 132;
 
     /**
      * stowed position values
      * */
-    double mainPivotTransferAutoSpike = 190;
-    double secondPivotTransferAutoSpike = 161;
+    double mainPivotTransferAutoSpike = 195;
+    double secondPivotTransferAutoSpike = 155;
 
     /**
      * stowed position values
@@ -1064,11 +1064,11 @@ public class Collection extends SubSystem {
 
                 } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
 
-                    double turretTime = Math.abs( turret.getPositionDegrees()-turretTransferPosition)*0.4;
+                    double turretTime = Math.abs(turretPosition.getPosition()-turretTransferPosition)*0.4;
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*2.2);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*1.8);
                     fourBarTargetState = fourBar.transferUp;
 
                     keepTargeting = false;
@@ -1349,7 +1349,7 @@ public class Collection extends SubSystem {
 
         turretTargetPosition = 77.5 + angle;
 
-        if (targetPositionManuel.getY() < clawOffsetFromSlides){
+        if (targetPositionManuel.getY() <= clawOffsetFromSlides){
             parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);
         }else {
             parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);

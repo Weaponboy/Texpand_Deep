@@ -61,11 +61,11 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public double highBasket = 68;
+    public double highBasket = 61;
     public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
-    public final double spikeTransferHeight = 14;
+    public final double spikeTransferHeight = 14.6;
 
     public final double chamberCollectScanPosition = 25.5;
 
@@ -77,10 +77,10 @@ public class Delivery extends SubSystem {
 
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 80;
-    double gripperGrab = 40;
+    public double gripperDrop = 65;
+    double gripperGrab = 42;
     double gripperSlightRelease = 65;
-    double gripperTightGrab = 30;
+    double gripperTightGrab = 38;
 
     /**
      * servo time per degrees
