@@ -45,6 +45,7 @@ public class Collection extends SubSystem {
     }
 
     // 1.8 is safe speed
+    // 1.8 is safe speed
     public double spikeTime = 1.9;
 
     boolean spikeDriving = false;
@@ -140,7 +141,7 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 110;
+    double mainPivotPreCollect = 115;
     double secondPivotPreCollect = 314;
 
     /**
