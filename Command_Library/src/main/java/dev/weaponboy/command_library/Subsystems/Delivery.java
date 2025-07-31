@@ -61,14 +61,14 @@ public class Delivery extends SubSystem {
 
     public TouchSensor clawSensor;
 
-    public double highBasket = 64;
+    public double highBasket = 68;
     public final double autoHighBasket = 61;
     public final double lowBasket = 20;
 
     public final double highChamberFront = 25.5;
     public final double highChamberBack = 8.2;
 
-    public final double spikeTransferHeight = 13.5;
+    public final double spikeTransferHeight = 12.5;
 
     public final double chamberCollectScanPosition = 25.5;
 
@@ -80,10 +80,10 @@ public class Delivery extends SubSystem {
 
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 100;
-    double gripperGrab = 54;
+    public double gripperDrop = 80;
+    double gripperGrab = 40;
     double gripperSlightRelease = 65;
-    double gripperTightGrab = 48;
+    double gripperTightGrab = 30;
 
     /**
      * servo time per degrees
@@ -884,7 +884,7 @@ public class Delivery extends SubSystem {
 
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setOffset(-15);
+        griperSev.setOffset(-16);
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 
