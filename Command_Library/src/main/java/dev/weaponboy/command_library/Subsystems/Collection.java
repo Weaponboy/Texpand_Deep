@@ -150,13 +150,13 @@ public class Collection extends SubSystem {
      * stowed position values
      * */
     double mainPivotTransferAutoSpike = 195;
-    double secondPivotTransferAutoSpike = 155;
+    double secondPivotTransferAutoSpike = 152;
 
     /**
      * stowed position values
      * */
     double mainPivotTransferAutoSpikeDriving = 200;
-    double secondPivotTransferAutoSpikeDriving = 154;
+    double secondPivotTransferAutoSpikeDriving = 150;
 
 //    /**
 //     * stowed position values
@@ -303,7 +303,7 @@ public class Collection extends SubSystem {
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
-        //positive = left from the top
+        //positive = left from the top+
         griperRotate.setOffset(-8);
         griperRotate.setPosition(90);
 
@@ -1357,9 +1357,9 @@ public class Collection extends SubSystem {
 
         double perAngle = 0;
 
-        if (parallelAngle > 90){
+        if (parallelAngle >= 90){
             perAngle = parallelAngle - manualAngle;
-        }else if (parallelAngle < 90){
+        }else if (parallelAngle <= 90){
             perAngle = parallelAngle + manualAngle;
         }
 
@@ -1392,7 +1392,7 @@ public class Collection extends SubSystem {
             return 18763;
         }else{
 
-            double angle = Math.toDegrees((Math.acos(errors.getY()) / clawOffsetFromSlides));
+            double angle = Math.toDegrees((Math.acos(errors.getY() / clawOffsetFromSlides)));
 
             double realAngle;
 
@@ -1400,7 +1400,7 @@ public class Collection extends SubSystem {
 
             double turretPosition = 77.5 + angle;
 
-            parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);
+            parallelAngle = 90 + (turretPosition - turretTransferPosition);
 
 //            if (errors.getY() < clawOffsetFromSlides){
 //                parallelAngle = 90 + (turretTargetPosition - turretTransferPosition);
@@ -1468,7 +1468,7 @@ public class Collection extends SubSystem {
 
 //                manualAngle = realAngle;
 //                System.out.println("Turret target: " + turretPosition);
-//                System.out.println("Slide target: " + returnTarget);
+                System.out.println("Slide target: " + returnTarget);
 
                 return returnTarget;
 

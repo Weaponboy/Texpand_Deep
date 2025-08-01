@@ -260,7 +260,7 @@ public class Teleop extends OpModeEX {
                 slideResetCounter++;
             }
 
-            if (slideResetCounter == 3){
+            if (slideResetCounter == 2){
                 slideResetCounter = 0;
                 delivery.setSpikeTransfer(false);
             }
@@ -278,7 +278,6 @@ public class Teleop extends OpModeEX {
         if (queueCollection && collection.getCurrentCommand() == collection.defaultCommand && collection.getFourBarState() == Collection.fourBar.collect){
 
             collection.queueCommand(collection.transfer);
-
             firstDrop = true;
             queueCollection = false;
 
@@ -294,7 +293,7 @@ public class Teleop extends OpModeEX {
 
                 delivery.clearQueue();
                 delivery.queueCommand(delivery.spike);
-                delivery.runReset();
+//                delivery.runReset();
 
                 queueCollection = true;
                 busyDetecting = false;
@@ -312,11 +311,15 @@ public class Teleop extends OpModeEX {
             collectChamberTransfer = true;
         }
 
-        System.out.println("SlideMotor 1" + delivery.slideMotor.getCurrentPosition());
-        System.out.println("SlideMotor 2" + delivery.slideMotor2.getCurrentPosition());
-        System.out.println("collection 2" + collection.horizontalMotor.getCurrentPosition());
-        System.out.println("x velo" + odometry.getXVelocity());
-        System.out.println("y velo" + odometry.getYVelocity());
+//        System.out.println("SlideMotor 1" + delivery.slideMotor.getCurrentPosition());
+//        System.out.println("SlideMotor 2" + delivery.slideMotor2.getCurrentPosition());
+//        System.out.println("collection 2" + collection.horizontalMotor.getCurrentPosition());
+//        System.out.println("x velo" + odometry.getXVelocity());
+//        System.out.println("y velo" + odometry.getYVelocity());
+
+        System.out.println("Delivery current command default: " + (delivery.getCurrentCommand() == delivery.returnDefaultCommand()));
+        System.out.println("Delivery current command spike: " + (delivery.getCurrentCommand() == delivery.spike));
+
 
         telemetry.addData("loop time ", loopTime);
         telemetry.addData("horizontal slides ", collection.getSlidePositionCM());
