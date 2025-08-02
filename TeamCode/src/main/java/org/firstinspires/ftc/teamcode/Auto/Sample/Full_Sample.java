@@ -857,7 +857,6 @@ public class Full_Sample extends OpModeEX {
 //                        System.out.println("Set angle of approach" + debuggingTimer.milliseconds());
                     }
 
-
                     /**
                      * Run the vision scan when the robot comes to a stop
                      * */

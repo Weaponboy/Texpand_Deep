@@ -54,10 +54,10 @@ public class Teleop extends OpModeEX {
         collection.setOpenWide(true);
 
         if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && !chamberCollect){
-            driveBase.strafeExtra = 1.1;
+            driveBase.strafeExtra = 1.08;
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.25, (gamepad1.left_trigger - gamepad1.right_trigger)*0.2, -gamepad1.right_stick_x*0.38));
         }else if((collection.getFourBarState() == Collection.fourBar.preCollect || collection.getFourBarState() == Collection.fourBar.collect) && chamberCollect){
-            driveBase.strafeExtra = 1.1;
+            driveBase.strafeExtra = 1.08;
             driveBase.queueCommand(driveBase.drivePowers(gamepad1.right_stick_y*0.45, (gamepad1.left_trigger - gamepad1.right_trigger)*0.3, -gamepad1.right_stick_x*0.48));
         }else {
             driveBase.strafeExtra = 1.2;
@@ -76,13 +76,13 @@ public class Teleop extends OpModeEX {
             delivery.slideSetPoint(delivery.highBasket);
         }
 
-        if (currentGamepad2.a && !lastGamepad2.a){
-            collection.manualAngle = 90;
-        }
-
         if (currentGamepad2.left_stick_y > 0){
             delivery.highBasket -= 1;
             delivery.slideSetPoint(delivery.highBasket);
+        }
+
+        if (currentGamepad2.a && !lastGamepad2.a){
+            collection.manualAngle = 90;
         }
 
         if (gamepad2.right_stick_y < 0){
