@@ -112,8 +112,8 @@ public class Collection extends SubSystem {
     /**
      * preCollect position values
      * */
-    double mainPivotPreCollect = 112;
-    double secondPivotPreCollect = 314;
+    double mainPivotPreCollect = 118;
+    double secondPivotPreCollect = 310;
 
     /**
      * preCollect position values
@@ -200,7 +200,7 @@ public class Collection extends SubSystem {
     public Vector2D targetPositionManuel = new Vector2D(clawOffsetFromSlides, clawOffsetFromSlides);
 
     /**gripper positions*/
-    double gripperDrop = 92;
+    double gripperDrop = 94;
     double gripperGrab = 57;
     double gripperHangGrab = 94;
     double gripperSlightRelease = 40;
@@ -303,8 +303,8 @@ public class Collection extends SubSystem {
 
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
-        //positive = left from the top +
-        griperRotate.setOffset(2);
+        // positive = left from the top +
+        griperRotate.setOffset(9);
         griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);
@@ -432,7 +432,7 @@ public class Collection extends SubSystem {
 
     private final Command prePreCollect = new Execute(
             () -> {
-                fourBarMainPivot.setPosition(mainPivotPreCollect+30);
+                fourBarMainPivot.setPosition(mainPivotPreCollect+20);
                 fourBarSecondPivot.setPosition(secondPivotPreCollect);
             }
     );
@@ -893,7 +893,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferAutoSpike)*1.8);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferAutoSpike)*1);
 //                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*spikeTime);
                     fourBarTargetState = fourBar.transferUp;
 

@@ -69,16 +69,22 @@ public class Teleop extends OpModeEX {
         toggleTransferRetry(currentGamepad2, lastGamepad2);
         hang(currentGamepad2, lastGamepad2);
 
-        if (currentGamepad2.left_stick_y < 0){
+        if (currentGamepad2.left_stick_y < -0.5){
             if (delivery.highBasket < 64){
                 delivery.highBasket += 1;
             }
             delivery.slideSetPoint(delivery.highBasket);
         }
 
-        if (currentGamepad2.left_stick_y > 0){
+        if (currentGamepad2.left_stick_y > 0.5){
             delivery.highBasket -= 1;
             delivery.slideSetPoint(delivery.highBasket);
+        }
+
+        if (currentGamepad2.left_stick_x < -0.5){
+            delivery.secondPivot.setPosition(delivery.secondPivot.getPositionDegrees() + 5);
+        }else if (currentGamepad2.left_stick_x > 0.5){
+            delivery.secondPivot.setPosition(delivery.secondPivot.getPositionDegrees() - 5);
         }
 
         if (currentGamepad2.a && !lastGamepad2.a){
@@ -331,6 +337,7 @@ public class Teleop extends OpModeEX {
         telemetry.addData("collection claw boolean ", collection.isOpenWide());
         telemetry.addData("claw collection state ", collection.getClawsState());
         telemetry.addData("Deposit collection state ", delivery.getGripperState());
+        telemetry.addData("Deposit second position", delivery.secondPivot.getPositionDegrees());
 
         telemetry.addData("Hang left", hang.hang1Left.getPosition());
         telemetry.addData("Hang right", hang.hang1Right.getPosition());

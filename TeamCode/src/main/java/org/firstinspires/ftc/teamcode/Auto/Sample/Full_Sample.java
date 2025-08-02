@@ -1208,7 +1208,7 @@ public class Full_Sample extends OpModeEX {
 
             if (state == targetState){
 
-                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(18,18)) {
+                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 52 - 4 && follow.isFinished(19,19)) {
 
                     delivery.queueCommand(delivery.depositAuto);
 
