@@ -53,11 +53,24 @@ public class sensorCheck extends OpMode {
         slideMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
     public void loop() {
+
+
+        if (gamepad1.a){
+            slideMotor.update(0.5);
+        }else {
+            slideMotor.update(0);
+        }
+
+        if (gamepad1.b){
+            slideMotor2.update(0.5);
+        }else {
+            slideMotor2.update(0);
+        }
 
         telemetry.addData("collection slides position", horizontalMotor.getCurrentPosition());
         telemetry.addData("collection slides position in CM", (horizontalMotor.getCurrentPosition()*ticksPerCM));
@@ -67,6 +80,7 @@ public class sensorCheck extends OpMode {
         telemetry.addData("depo claw sensor", depoTouch.isPressed());
         telemetry.addData("backLeft", backLeft.getPosition());
         telemetry.addData("backRight", backRight.getPosition());
+        telemetry.addData("side sensor", right.getPosition());
         telemetry.addData("slide right motor", slideMotor2.getCurrentPosition());
         telemetry.addData("slide left motor", slideMotor.getCurrentPosition());
         telemetry.addData("right", right.getPosition());

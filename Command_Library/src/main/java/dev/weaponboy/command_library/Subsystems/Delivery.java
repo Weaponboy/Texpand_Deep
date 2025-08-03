@@ -6,6 +6,7 @@ import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.CommandLibrary.Subsystem.SubSystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -25,8 +26,8 @@ public class Delivery extends SubSystem {
     public double slideTarget = 0;
     double slidePower = 0;
 
-    public MotorEx slideMotor = new MotorEx();
-    public MotorEx slideMotor2 = new MotorEx();
+    public DcMotorEx slideMotor;
+    public DcMotorEx slideMotor2;
 
     boolean resettingSlides = false;
 
@@ -270,9 +271,11 @@ public class Delivery extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*1.5, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.5);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
+
                     if (lowBucket){
                         mainPivot.setPosition(mainPivotDepo);
                         secondPivot.setPosition(secondDepo + 15);
+                        gripperState = gripper.tightGrab;
                     }else {
                         Deposit.execute();
                         gripperState = gripper.tightGrab;
@@ -370,6 +373,22 @@ public class Delivery extends SubSystem {
                 fourBarTimer.reset();
                 mainPivot.setPosition(mainPivotSpikeTransfer - 15);
                 secondPivot.setPosition(secondSpikeTransfer - 8);
+//                slideSetPoint(getSlidePositionCM() - 0.8);
+                transferWaitTime = 180;
+            },
+            () -> {
+                if (fourBarTimer.milliseconds() > 100){
+                    gripperState = gripper.grab;
+                }
+            },
+            () -> fourBarTimer.milliseconds() > transferWaitTime
+    );
+
+    public Command closeGripperSpikeSpike = new LambdaCommand(
+            () -> {
+                fourBarTimer.reset();
+                mainPivot.setPosition(mainPivotSpikeTransfer - 8);
+                secondPivot.setPosition(secondSpikeTransfer - 7);
 //                slideSetPoint(getSlidePositionCM() - 0.8);
                 transferWaitTime = 180;
             },
@@ -518,10 +537,10 @@ public class Delivery extends SubSystem {
     @Override
     public void init() {
 
-        slideMotor.initMotor("slideMotor", getOpModeEX().hardwareMap);
+        slideMotor = getOpModeEX().hardwareMap.get(DcMotorEx.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slideMotor2.initMotor("slideMotor2", getOpModeEX().hardwareMap);
+        slideMotor2 = getOpModeEX().hardwareMap.get(DcMotorEx.class, "slideMotor2");
         slideMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -538,7 +557,7 @@ public class Delivery extends SubSystem {
         mainPivot.setRange(335);
         secondPivot.setRange(335);
 
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         griperSev.setOffset(-16);
         griperSev.setPosition(gripperGrab);
@@ -621,8 +640,8 @@ public class Delivery extends SubSystem {
         }
 
         if (!slideDisabledForHang){
-            slideMotor.update(Range.clip(slidePower, -0.7, 1));
-            slideMotor2.update(Range.clip(slidePower, -0.7, 1));
+            slideMotor.setPower(Range.clip(slidePower, -0.8, 1));
+            slideMotor2.setPower(Range.clip(slidePower, -0.8, 1));
         }
 
     }
@@ -667,7 +686,7 @@ public class Delivery extends SubSystem {
     }
 
     public double getSlidePositionCM(){
-        return (((double) (slideMotor.getCurrentPosition() + slideMotor2.getCurrentPosition()) /2) * profile.CMPerTick)-1;
+        return (((double) (slideMotor.getCurrentPosition() + slideMotor2.getCurrentPosition()) /2) * profile.CMPerTick);
     }
 
     public void disableServos(){

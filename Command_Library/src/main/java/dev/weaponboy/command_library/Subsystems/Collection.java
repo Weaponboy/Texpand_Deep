@@ -304,7 +304,7 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         // positive = left from the top +
-        griperRotate.setOffset(9);
+        griperRotate.setOffset(4);
         griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);
@@ -711,9 +711,7 @@ public class Collection extends SubSystem {
     );
 
     public Command StowForHang = new LambdaCommand(
-            () -> {
-                fourBarState = fourBar.preCollect;
-            },
+            () -> {fourBarState = fourBar.preCollect;},
             () -> {
 
                 if (fourBarState == fourBar.preCollect){
@@ -786,7 +784,7 @@ public class Collection extends SubSystem {
 
                 angleRecheck = true;
                 runSet = false;
-                abortTime = 1000;
+                abortTime = 800;
             },
             () -> {
 
@@ -797,16 +795,17 @@ public class Collection extends SubSystem {
 
                 if (newSlideTarget != 18763){
                     setSlideTarget(newSlideTarget);
+
 //                    System.out.println("RAN SET IN EXTENDO TARGETING" + runSet);
                     runSet = true;
                 }
 
                 if (targeting == targetingTypes.spike){
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 5 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 5 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || abortTimer.milliseconds() > abortTime;
                 }else if (targeting == targetingTypes.normal){
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 3 && Math.abs(horizontalMotor.getVelocity()) < 120 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 8 || abortTimer.milliseconds() > abortTime;
                 } else if (targeting == targetingTypes.slower) {
-                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.5 && Math.abs(horizontalMotor.getVelocity()) < 45 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 4 || !runSet && abortTimer.milliseconds() > abortTime;
+                    exitTargeting = runSet && Math.abs(getSlideTarget() - getSlidePositionCM()) < 1.8 && Math.abs(horizontalMotor.getVelocity()) < 45 && Math.abs(turret.getPositionDegrees() - turretPosition.getPosition()) < 6 || abortTimer.milliseconds() > abortTime;
 
 //                    System.out.println("Slides" + (Math.abs(getSlideTarget() - getSlidePositionCM()) < 2 && Math.abs(horizontalMotor.getVelocity()) < 60));
 //                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
@@ -893,7 +892,7 @@ public class Collection extends SubSystem {
 
                     fourBarTimer.reset();
                     fourBarState = fourBar.transferringStates;
-                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferAutoSpike)*1);
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferAutoSpike)*1.55);
 //                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*1, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotTransferSlam + turretTime)*spikeTime);
                     fourBarTargetState = fourBar.transferUp;
 
@@ -941,7 +940,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> (fourBarState == fourBar.transferUp && slidesReset.isPressed()) || cancelTransfer
+            () -> (fourBarState == fourBar.transferUp) || cancelTransfer
     );
 
     public Command subTransfer = new LambdaCommand(
@@ -1063,7 +1062,7 @@ public class Collection extends SubSystem {
 
                     abortTimer.reset();
 
-                } else if (!cancelTransfer && fourBarState == fourBar.collect && clawsState == clawState.grab) {
+                } else if (!cancelTransfer && (fourBarState == fourBar.collect || fourBarState == fourBar.stowedChamber) && clawsState == clawState.grab) {
 
                     double turretTime = Math.abs(turretPosition.getPosition()-turretTransferPosition)*0.4;
 
@@ -1209,7 +1208,7 @@ public class Collection extends SubSystem {
                     case spike:
                         queueCommand(spikeTransfer);
 
-                        queueCommand(delivery.closeGripperSpike);
+                        queueCommand(delivery.closeGripperSpikeSpike);
 
                         queueCommand(openGripperRetryTeleHigh);
                         break;
