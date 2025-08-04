@@ -246,7 +246,7 @@ public class Teleop extends OpModeEX {
         /**
          * Deposit code
          * */
-        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18){
+        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18 && hangState == hangStates.waiting){
             flipOutDepo = true;
             drive = true;
 
@@ -260,7 +260,7 @@ public class Teleop extends OpModeEX {
 
             rotateTimer.reset();
 
-        }else if ((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) && (delivery.getSlidePositionCM() > 50 || (delivery.isLowBucket() && delivery.getSlidePositionCM() > 16)) && !(collection.getFourBarState() == Collection.fourBar.preCollect)){
+        }else if ((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) && (delivery.getSlidePositionCM() > 50 || (delivery.isLowBucket() && delivery.getSlidePositionCM() > 16)) && !(collection.getFourBarState() == Collection.fourBar.preCollect) && hangState == hangStates.waiting){
 
             if (delivery.getGripperState() == Delivery.gripper.drop && !delivery.isLowBucket()){
                 slideResetCounter++;
@@ -342,6 +342,7 @@ public class Teleop extends OpModeEX {
         telemetry.addData("Hang left", hang.hang1Left.getPosition());
         telemetry.addData("Hang right", hang.hang1Right.getPosition());
 
+        telemetry.addData("collection default", collection.getCurrentCommand() == collection.returnDefaultCommand());
         telemetry.addData("delivery default", delivery.getCurrentCommand() == delivery.returnDefaultCommand());
 
         if (limelight.getTargetPoint() != null){
@@ -359,15 +360,26 @@ public class Teleop extends OpModeEX {
             delivery.queueCommand(delivery.stow);
             delivery.slideSetPoint(delivery.spikeTransferHeight);
             delivery.slides = Delivery.slideState.moving;
-            collection.overrideCurrent(true, collection.stow);
+
+            if (hangState == hangStates.waiting){
+                collection.overrideCurrent(true, collection.stow);
+                if (!chamberCollect){
+                    collection.targetPositionManuel = new Vector2D(15, 20);
+                    collection.armEndPointIncrement(0,0,false);
+                }
+            }else {
+                collection.setHangHold(false);
+//                collection.Stowed.execute();
+//                collection.fourBarSecondPivot
+//                collection.clearQueue();
+                collection.queueCommand(collection.stowAfterHang);
+            }
+
             delivery.runReset();
             delivery.setGripperState(Delivery.gripper.drop);
-            if (!chamberCollect){
-                collection.targetPositionManuel = new Vector2D(15, 20);
-                collection.armEndPointIncrement(0,0,false);
-            }
             firstDrop = true;
             delivery.griperRotateSev.setPosition(90);
+            hangState = hangStates.waiting;
         }
     }
     public void hang (Gamepad current, Gamepad last){

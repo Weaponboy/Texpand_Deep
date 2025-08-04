@@ -289,13 +289,13 @@ public class Full_Sample extends OpModeEX {
                 delivery.queueCommand(delivery.depositAuto);
             }
 
-            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 56 && ((Math.abs(odometry.X() - 322)) < 5.5 && Math.abs((odometry.Y() - 330)) < 5.5)) {
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && drop && delivery.getSlidePositionCM() > 56 && ((Math.abs(odometry.X() - 322)) < 6.5 && Math.abs((odometry.Y() - 330)) < 6.5)) {
                 delivery.queueCommand(delivery.depositAuto);
 //                PIDToPoint = false;
                 drop = false;
             }
 
-            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop) {
+            if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && (delivery.getGripperState() == Delivery.gripper.drop)) {
                 if (state == targetState) {
                     state = autoState.finished;
                 } else {
@@ -1222,11 +1222,11 @@ public class Full_Sample extends OpModeEX {
                     dropTimerDriving.reset();
                 }
 
-                if (!pathing && !drop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop && !ended){
+                if (!pathing && !drop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && (delivery.getGripperState() == Delivery.gripper.drop) && !ended){
                     follow.setPath(paths.returnPath("spikeTwo"));
                     pathing = true;
                     stop = false;
-                } else if (!stop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.drop && odometry.X() < 310) {
+                } else if (!stop && delivery.fourbarState == Delivery.fourBarState.basketDeposit && (delivery.getGripperState() == Delivery.gripper.drop ) && odometry.X() < 310) {
                     stop = true;
                     delivery.queueCommand(delivery.depositAuto);
                 }

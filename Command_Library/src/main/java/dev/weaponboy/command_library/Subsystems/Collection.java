@@ -485,6 +485,13 @@ public class Collection extends SubSystem {
             }
     );
 
+    public final Command StowedAfterHang = new Execute(
+            () -> {
+                fourBarMainPivot.setPosition(mainPivotStow);
+                fourBarSecondPivot.setPosition(secondPivotStow-100);
+            }
+    );
+
     public Command transferNoSave(tranfer transferType){
         resetTransfer = true;
         transferTypeSaved = this.transferType;
@@ -577,7 +584,8 @@ public class Collection extends SubSystem {
 
     public final Command retryHighTele = new LambdaCommand(
             () -> {
-                TransferAutoSpike.execute();
+                fourBarSecondPivot.setPosition(secondPivotTransferAutoSpike - 15);
+                fourBarMainPivot.setPosition(mainPivotTransferAutoSpike - 5);
                 setClawsState(clawState.grab);
                 WaitForTranferDrop.reset();
 
@@ -722,7 +730,7 @@ public class Collection extends SubSystem {
                     transferWaitTime = Math.max(Math.abs(fourBarMainPivot.getPositionDegrees()-mainPivotStow)*2, Math.abs(fourBarSecondPivot.getPositionDegrees()-secondPivotStow)*3);
 
                     Stowed.execute();
-                    gripServo.setPosition(gripperGrab + 10);
+                    gripServo.setPosition(gripperGrab+2);
                     griperRotate.setPosition(45);
 
                 } else if (fourBarState == fourBar.transferInt) {
@@ -761,7 +769,7 @@ public class Collection extends SubSystem {
                 }
 
             },
-            () -> false
+            () -> fourBarState == fourBar.stowed
     );
 
     public Command preCollectNoWait = new LambdaCommand(
@@ -1175,6 +1183,41 @@ public class Collection extends SubSystem {
 
             },
             () -> fourBarState == fourBar.stowedChamber && slideTarget == 0 || cancelTransfer
+    );
+
+
+    public Command stowAfterHang = new LambdaCommand(
+            () -> {
+                fourBarTimer.reset();
+                transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotStow)*microRoboticTime);
+                fourBarState = fourBar.transferringStates;
+                fourBarTargetState = fourBar.stowedChamber;
+                clawsState = clawState.grab;
+
+//                Stowed.execute();
+                griperRotate.setPosition(rotateTransfer);
+                turret.setPosition(44);
+                StowedAfterHang.execute();
+            },
+            () -> {
+
+                if (fourBarState == fourBar.stowedChamber){
+                    fourBarTimer.reset();
+                    transferWaitTime = Math.max(Math.abs(griperRotate.getPositionDegrees()-rotateTransfer)*microRoboticTime, Math.abs(fourBarSecondPivot.getPositionDegrees()- secondPivotStow)*microRoboticTime);
+                    fourBarState = fourBar.transferringStates;
+                    fourBarTargetState = fourBar.preClipLow;
+
+                    Stowed.execute();
+                    griperRotate.setPosition(rotateTransfer);
+                    turret.setPosition(turretTransferPosition);
+                }
+
+                if (fourBarState == fourBar.transferringStates && fourBarTimer.milliseconds() > transferWaitTime){
+                    fourBarState = fourBarTargetState;
+                }
+
+            },
+            () -> fourBarState == fourBar.preClipLow
     );
 
     public Command stow = new LambdaCommand(
