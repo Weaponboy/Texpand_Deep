@@ -9,9 +9,6 @@ buildscript {
         mavenCentral()
         google()
         maven { url 'https://jitpack.io' }
-        maven {
-            url = "https://mymaven.bylazar.com/releases"
-        }
     }
     dependencies {
         // Note for FTC Teams: Do not modify this yourself.
@@ -26,9 +23,6 @@ allprojects {
         mavenCentral()
         google()
         maven { url 'https://jitpack.io' }
-        maven {
-            url = "https://mymaven.bylazar.com/releases"
-        }
     }
 }
 
