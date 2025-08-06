@@ -105,7 +105,7 @@ public class Hang extends SubSystem {
         hang1.setPosition(0.5);
         hang2.setPosition(0.5);
 
-        hangPower2.setDirection(DcMotorSimple.Direction.REVERSE);
+        hangPower.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public boolean getServoActive() {
