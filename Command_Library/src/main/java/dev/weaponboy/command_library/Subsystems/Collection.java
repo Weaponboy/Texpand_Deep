@@ -613,7 +613,7 @@ public class Collection extends SubSystem {
                     setClawsState(clawState.drop);
                     transferSuccessful = true;
                     abortTimer.reset();
-                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful){
+                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && breakBeam.isPressed()){
                     clearQueue();
 
                     queueCommand(delivery.openGripper);
@@ -627,6 +627,10 @@ public class Collection extends SubSystem {
                     queueCommand(openGripper);
 
                     cancelTransfer = true;
+                } else if (delivery.getGripperState() == Delivery.gripper.grab && delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && !breakBeam.isPressed()) {
+                    setClawsState(clawState.drop);
+                    transferSuccessful = true;
+                    abortTimer.reset();
                 }
 
                 if (transferSuccessful && abortTimer.milliseconds() > 100){
