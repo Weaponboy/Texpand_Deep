@@ -124,7 +124,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotStow = 165;
+    double mainPivotStow = 175;
     double secondPivotStow = 152;
     public double turretTransferPosition = 167.5;
 
@@ -556,7 +556,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 60
+            () -> fourBarTimer.milliseconds() > 100
     );
 
     public final Command retryHighTeleFirst = new LambdaCommand(

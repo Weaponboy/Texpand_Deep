@@ -78,7 +78,7 @@ public class Delivery extends SubSystem {
 
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 65;
+    public double gripperDrop = 68;
     double gripperGrab = 42;
     double gripperSlightRelease = 65;
     double gripperTightGrab = 38;
@@ -560,7 +560,7 @@ public class Delivery extends SubSystem {
 
         slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setOffset(-16);
+        griperSev.setOffset(-8);
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 
