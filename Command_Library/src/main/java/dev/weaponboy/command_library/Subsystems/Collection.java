@@ -627,7 +627,7 @@ public class Collection extends SubSystem {
                     queueCommand(openGripper);
 
                     cancelTransfer = true;
-                } else if (delivery.getGripperState() == Delivery.gripper.grab && delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && !breakBeam.isPressed()) {
+                } else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && !breakBeam.isPressed()) {
                     setClawsState(clawState.drop);
                     transferSuccessful = true;
                     abortTimer.reset();

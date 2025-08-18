@@ -66,7 +66,7 @@ public class Delivery extends SubSystem {
     public final double autoHighBasket = 60.5;
     public final double lowBasket = 20;
 
-    public final double spikeTransferHeight = 16;
+    public final double spikeTransferHeight = 16.5;
 
     public final double chamberCollectScanPosition = 25.5;
 
