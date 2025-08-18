@@ -66,7 +66,7 @@ public class Delivery extends SubSystem {
     public final double autoHighBasket = 60.5;
     public final double lowBasket = 20;
 
-    public final double spikeTransferHeight = 15.6;
+    public final double spikeTransferHeight = 16.5;
 
     public final double chamberCollectScanPosition = 25.5;
 
@@ -78,7 +78,7 @@ public class Delivery extends SubSystem {
 
     boolean slideDisabledForHang = false;
 
-    public double gripperDrop = 65;
+    public double gripperDrop = 68;
     double gripperGrab = 42;
     double gripperSlightRelease = 65;
     double gripperTightGrab = 38;
@@ -556,11 +556,12 @@ public class Delivery extends SubSystem {
         griperSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         griperRotateSev.setRange(new PwmControl.PwmRange(500, 2500),180);
         mainPivot.setRange(335);
+        secondPivot.setOffset(3);
         secondPivot.setRange(335);
 
         slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        griperSev.setOffset(-16);
+        griperSev.setOffset(-8);
         griperSev.setPosition(gripperGrab);
         setGripperState(gripper.grab);
 

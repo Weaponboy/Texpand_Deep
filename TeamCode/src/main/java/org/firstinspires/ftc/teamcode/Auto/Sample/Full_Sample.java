@@ -438,7 +438,7 @@ public class Full_Sample extends OpModeEX {
                     autoQueued = true;
                 }
 
-                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab) {
+                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.tightGrab) {
                     delivery.queueCommand(delivery.depositAuto);
                     state = autoState.spikeTwo;
                     built = building.notBuilt;
@@ -562,7 +562,7 @@ public class Full_Sample extends OpModeEX {
                     autoQueued = true;
                 }
 
-                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab) {
+                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.tightGrab) {
                     delivery.queueCommand(delivery.depositAuto);
                     state = autoState.spikeThree;
                     built = building.notBuilt;
@@ -687,7 +687,7 @@ public class Full_Sample extends OpModeEX {
 //                    autoQueued = true;
 //                }
 
-                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.grab) {
+                if (delivery.fourbarState == Delivery.fourBarState.basketDeposit && delivery.getGripperState() == Delivery.gripper.tightGrab) {
                     delivery.queueCommand(delivery.depositAuto);
                     state = autoState.one;
                     built = building.notBuilt;

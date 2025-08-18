@@ -124,7 +124,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotStow = 165;
+    double mainPivotStow = 175;
     double secondPivotStow = 152;
     public double turretTransferPosition = 167.5;
 
@@ -304,7 +304,7 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         // positive = left from the top +
-        griperRotate.setOffset(4);
+        griperRotate.setOffset(-1);
         griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);
@@ -556,7 +556,7 @@ public class Collection extends SubSystem {
             },
             () -> {
             },
-            () -> fourBarTimer.milliseconds() > 60
+            () -> fourBarTimer.milliseconds() > 100
     );
 
     public final Command retryHighTeleFirst = new LambdaCommand(
@@ -613,7 +613,7 @@ public class Collection extends SubSystem {
                     setClawsState(clawState.drop);
                     transferSuccessful = true;
                     abortTimer.reset();
-                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful){
+                }else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && breakBeam.isPressed()){
                     clearQueue();
 
                     queueCommand(delivery.openGripper);
@@ -627,6 +627,10 @@ public class Collection extends SubSystem {
                     queueCommand(openGripper);
 
                     cancelTransfer = true;
+                } else if (delivery.getGripperState() == Delivery.gripper.grab && !delivery.clawSensor.isPressed() && abortTimer.milliseconds() > 200 && !transferSuccessful && !breakBeam.isPressed()) {
+                    setClawsState(clawState.drop);
+                    transferSuccessful = true;
+                    abortTimer.reset();
                 }
 
                 if (transferSuccessful && abortTimer.milliseconds() > 100){
