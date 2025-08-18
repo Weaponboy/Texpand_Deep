@@ -304,7 +304,7 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         // positive = left from the top +
-        griperRotate.setOffset(4);
+        griperRotate.setOffset(-1);
         griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);
