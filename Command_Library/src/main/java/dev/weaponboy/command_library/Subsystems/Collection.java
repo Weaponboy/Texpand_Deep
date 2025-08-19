@@ -124,7 +124,7 @@ public class Collection extends SubSystem {
     /**
      * stowed position values
      * */
-    double mainPivotStow = 175;
+    double mainPivotStow = 180;
     double secondPivotStow = 152;
     public double turretTransferPosition = 167.5;
 
@@ -304,7 +304,7 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         // positive = left from the top +
-        griperRotate.setOffset(-1);
+        griperRotate.setOffset(9);
         griperRotate.setPosition(90);
 
         setClawsState(clawState.drop);

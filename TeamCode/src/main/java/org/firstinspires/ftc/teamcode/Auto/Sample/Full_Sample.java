@@ -168,7 +168,7 @@ public class Full_Sample extends OpModeEX {
     public void initEX() {
 
 //        odometry.startPosition(344, 282, 270);
-        odometry.startPosition(335.5, 299, 225);
+        odometry.startPosition(335.5, 292, 225);
 
 //        paths.addNewPath("preloadPath");
 //        paths.buildPath(preloadPath);
