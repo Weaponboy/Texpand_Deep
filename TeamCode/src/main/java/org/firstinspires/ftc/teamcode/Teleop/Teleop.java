@@ -17,6 +17,7 @@ public class Teleop extends OpModeEX {
     boolean autoDepo = false;
     boolean drive = false;
     boolean chamberCollect = false;
+    boolean specCollect = false;
     boolean transfer = false;
     boolean clip_and_collect = false;
     boolean collectChamberTransfer = false;
@@ -114,6 +115,16 @@ public class Teleop extends OpModeEX {
             gamepad2.rumble(100);
         }
 
+        if (!specCollect && currentGamepad2.dpad_up && !lastGamepad2.dpad_up){
+            specCollect = true;
+            gamepad1.rumble(300);
+            gamepad2.rumble(300);
+        }else  if (specCollect && currentGamepad2.dpad_up && !lastGamepad2.dpad_up){
+            specCollect = false;
+            gamepad1.rumble(100);
+            gamepad2.rumble(100);
+        }
+
         if (slide_set_point == 30 && currentGamepad2.dpad_left && !lastGamepad2.dpad_left){
             slide_set_point = 48;
             gamepad1.rumble(300);
@@ -165,15 +176,22 @@ public class Teleop extends OpModeEX {
 
             }else if (collection.getFourBarState().equals(Collection.fourBar.preCollect)){
 
-                if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberCollect) {
+                if(specCollect){
                     collection.queueCommand(collection.collect);
                     delivery.setGripperState(Delivery.gripper.drop);
-                    collection.queueCommand(collection.transfer(Collection.tranfer.teleop));
+                    collection.queueCommand(collection.transfer(Collection.tranfer.specimenSampleCollect));
                     collection.manualAngle = 0;
-                }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberCollect){
-                    collection.queueCommand(collection.collect);
-                    delivery.setGripperState(Delivery.gripper.drop);
-                    collection.queueCommand(collection.transferNoSave(Collection.tranfer.underChamberCycle));
+                }else {
+                    if(collection.getFourBarState() == Collection.fourBar.preCollect && !chamberCollect) {
+                        collection.queueCommand(collection.collect);
+                        delivery.setGripperState(Delivery.gripper.drop);
+                        collection.queueCommand(collection.transfer(Collection.tranfer.teleop));
+                        collection.manualAngle = 0;
+                    }else if (collection.getFourBarState() == Collection.fourBar.preCollect && chamberCollect){
+                        collection.queueCommand(collection.collect);
+                        delivery.setGripperState(Delivery.gripper.drop);
+                        collection.queueCommand(collection.transferNoSave(Collection.tranfer.underChamberCycle));
+                    }
                 }
 
                 firstDrop = true;
@@ -234,7 +252,24 @@ public class Teleop extends OpModeEX {
         /**
          * Deposit code
          * */
-        if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18 && hangState == hangStates.waiting && delivery.clawSensor.isPressed()){
+
+        if (specCollect){
+
+            if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getFourBarState() == Collection.fourBar.stowedChamber){
+
+                collection.setSlideTarget(54);
+                collection.queueCommand(collection.observationDrop);
+
+            }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && collection.getSlidePositionCM() > 0 && collection.getClawsState() == Collection.clawState.grab){
+                collection.setClawsState(Collection.clawState.drop);
+
+                collection.overrideCurrent(true, collection.stow);
+                if (!chamberCollect){
+                    collection.targetPositionManuel = new Vector2D(15, 20);
+                    collection.armEndPointIncrement(0,0,false);
+                }
+            }
+        }else if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18 && hangState == hangStates.waiting && delivery.clawSensor.isPressed() && collection.transferSuccessful){
             flipOutDepo = true;
             drive = true;
 

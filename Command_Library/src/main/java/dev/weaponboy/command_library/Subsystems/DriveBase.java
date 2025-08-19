@@ -23,7 +23,7 @@ public class DriveBase extends SubSystem {
 
     PIDController headingPID = new PIDController(0.025,0,0.0003);
     public IMU imu;
-    public double strafeExtra = 1.2;
+    public double strafeExtra = 1.28;
 
     double vertikal ;
     double turn ;
