@@ -264,11 +264,26 @@ public class Teleop extends OpModeEX {
                 collection.setClawsState(Collection.clawState.drop);
 
                 collection.overrideCurrent(true, collection.stow);
+
                 if (!chamberCollect){
                     collection.targetPositionManuel = new Vector2D(15, 20);
                     collection.armEndPointIncrement(0,0,false);
                 }
+            }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+
+                /**
+                 * collection rotate
+                 * */
+                if (collection.manualAngle < 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
+                    collection.manualAngle = 90;
+                    updateRotate = true;
+                }else if (collection.manualAngle > 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
+                    collection.manualAngle = 0;
+                    updateRotate = true;
+                }
+
             }
+
         }else if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18 && hangState == hangStates.waiting && delivery.clawSensor.isPressed() && collection.transferSuccessful){
             flipOutDepo = true;
             drive = true;
@@ -293,12 +308,11 @@ public class Teleop extends OpModeEX {
             }
 
             delivery.queueCommand(delivery.deposit);
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() < 20){
 
             /**
              * collection rotate
              * */
-
             if (collection.manualAngle < 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
                 collection.manualAngle = 90;
                 updateRotate = true;
