@@ -713,7 +713,7 @@ public class Full_Sample extends OpModeEX {
 
         if (pathing) {
 
-            odometry.queueCommand(odometry.updateLineBased);
+            odometry.queueCommand(odometry.update);
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
 
             driveBase.queueCommand(driveBase.drivePowers(currentPower));

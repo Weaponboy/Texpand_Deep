@@ -2,8 +2,12 @@ package dev.weaponboy.command_library.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import java.util.ArrayList;
 
+import dev.weaponboy.command_library.Subsystems.GoBildaPinpointDriver.Register;
 import dev.weaponboy.command_library.CommandLibrary.Commands.Command;
 import dev.weaponboy.command_library.CommandLibrary.Commands.LambdaCommand;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
@@ -13,78 +17,99 @@ import dev.weaponboy.command_library.Hardware.SensorReadings;
 
 public class Odometry extends SubSystem {
 
-    DistanceSensor backLeft = new DistanceSensor();
-    DistanceSensor backRight = new DistanceSensor();
-    DistanceSensor right = new DistanceSensor();
+    GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
 
-    ArrayList<SensorReadings> sensorReadings = new ArrayList<>();
+    double oldTime = 0;
+
+    Register[] onlyPosition = {
+            Register.DEVICE_STATUS,
+            Register.X_POSITION,
+            Register.Y_POSITION,
+            Register.H_ORIENTATION,
+            Register.X_VELOCITY,
+            Register.Y_VELOCITY,
+    };
 
     DcMotorEx leftPod;
     DcMotorEx rightPod;
     DcMotorEx backPod;
 
     double X, Y, Heading;
-    int startHeading;
-    public double otherHeading;
+    double startX, startY, startHeading;
 
-    double lastRightPod, lastLeftPod, lastBackPod;
-    public double currentRightPod, currentLeftPod, currentBackPod;
-    public double rightPodPos, leftPodPos, backPodPos;
-
-    double podTicks = 2000;
-    double wheelRadius = 2.4;
-    double trackWidth = 24.2;
-    double backPodOffset = 9.8;
-
-    double ticksPerCM = ((2.0 * Math.PI) * wheelRadius)/podTicks;
-    double cmPerDegreeX = (double) (2) / 360;
-    double cmPerDegreeY = ((2.0 * Math.PI) * backPodOffset) / 360;
-
-    double currentXVelocity = 0;
-    double currentYVelocity = 0;
-
-    boolean sampleReset = true;
-
-    public boolean isRunningDistanceSensorReset() {
-        return runningDistanceSensorReset;
-    }
-
-    public void runDistanceSensorReset(boolean sampleReset) {
-        runningDistanceSensorReset = true;
-        this.sampleReset = sampleReset;
-        resetCounter = 0;
-        sensorReadings.clear();
-    }
-
-    boolean runningDistanceSensorReset = false;
-    int resetCounter = 0;
+    double XVelocity = 0;
+    double YVelocity = 0;
 
     public Odometry(OpModeEX opModeEX) {
-        registerSubsystem(opModeEX, updateLineBased);
+        registerSubsystem(opModeEX, update);
     }
 
     public void startPosition(double X, double Y, int Heading){
         this.X = X;
         this.Y = Y;
-        this.startHeading = Heading;
         this.Heading = Math.toRadians(Heading);
     }
 
     @Override
     public void init() {
-        leftPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RB");
-        rightPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "RF");
-        backPod = getOpModeEX().hardwareMap.get(DcMotorEx.class, "LF");
+        /*
+         * Initialize the hardware variables. Note that the strings used here must correspond
+         * to the names assigned during the robot configuration step on the DS or RC devices.
+         */
+        odo = getOpModeEX().hardwareMap.get(GoBildaPinpointDriver.class,"odo");
 
-        backRight.init(getOpModeEX().hardwareMap, "backRight");
-        backLeft.init(getOpModeEX().hardwareMap, "backLeft");
+        //Here we set the bulk read scope we created earlier.
+        odo.setBulkReadScope(onlyPosition);
 
-        backRight.setOffset(-180);
-        backLeft.setOffset(-180);
+        /*
+         Another new feature to the Pinpoint is on-device error detection. This allows the device
+         to ensure that the most recent read hasn't been corrupted. We use CRC8 error detection
+         which is a lightweight, and accurate option. The sending device does a polynomial division
+         on the contents of the transmission, and sends the result of that calculation along with
+         the data. The receiving device then repeats that calculation and compares it. If the two
+         results do not match, then the previous read of that data is repeated, and a
+         "FAULT_BAD_READ" flag is thrown.
+         */
+        odo.setErrorDetectionType(GoBildaPinpointDriver.ErrorDetectionType.CRC);
 
-        right.init(getOpModeEX().hardwareMap, "right");
+        /*
+        Set the odometry pod positions relative to the point that the odometry computer tracks around.
+        The X pod offset refers to how far sideways from the tracking point the
+        X (forward) odometry pod is. Left of the center is a positive number,
+        right of center is a negative number. the Y pod offset refers to how far forwards from
+        the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
+        backwards is a negative number.
+         */
+        odo.setOffsets(-84.0, -168.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 
-        right.setOffset(-200);
+        /*
+        Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
+        the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
+        If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
+        number of ticks per mm of your odometry pod.
+         */
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        //odo.setEncoderResolution(13.26291192, DistanceUnit.MM);
+
+
+        /*
+        Set the direction that each of the two odometry pods count. The X (forward) pod should
+        increase when you move the robot forward. And the Y (strafe) pod should increase when
+        you move the robot to the left.
+         */
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+
+        /*
+        Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
+        The IMU will automatically calibrate when first powered on, but recalibrating before running
+        the robot is a good idea to ensure that the calibration is "good".
+        resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
+        This is recommended before you run your autonomous, as a bad initial calibration can cause
+        an incorrect starting value for x, y, and heading.
+         */
+        //odo.recalibrateIMU();
+        odo.resetPosAndIMU();
     }
 
     public double headingError(double targetHeading){
@@ -93,74 +118,7 @@ public class Odometry extends SubSystem {
 
     @Override
     public void execute() {
-
         executeEX();
-        updateVelocity();
-
-        if (runningDistanceSensorReset){
-
-            resetCounter++;
-            sensorReadings.add(new SensorReadings(backRight.getPosition(), backLeft.getPosition(), right.getPosition()));
-
-//            System.out.println(sensorReadings.size());
-//            System.out.println(resetCounter);
-
-            if (resetCounter > 20){
-
-                runningDistanceSensorReset = false;
-                SensorReadings averaged;
-
-                double backRight = 0;
-                double backLeft = 0;
-                double right = 0;
-
-                for (SensorReadings reading: sensorReadings){
-                    backRight += reading.getSen1();
-                    backLeft += reading.getSen2();
-                    right += reading.getSen3();
-
-//                    System.out.println(reading.getSen1());
-//                    System.out.println(reading.getSen2());
-//                    System.out.println(reading.getSen3());
-                }
-
-                averaged = new SensorReadings((backRight/resetCounter)*0.1, (backLeft/resetCounter)*0.1, (right/resetCounter)*0.1);
-
-//                System.out.println("Avg sen 1: " + averaged.getSen1());
-//                System.out.println("Avg sen 2: " + averaged.getSen2());
-//                System.out.println("Avg sen 3: " + averaged.getSen3());
-
-                final double distanceFromRobotCenterToSensor = 11;
-                final double distanceBetweenSensors = 13.2;
-
-                double readingDifference = averaged.getSen2() - averaged.getSen1();
-
-                double headingError = Math.atan(readingDifference / distanceBetweenSensors);
-
-                double newHeading;
-                double newY;
-                double newX;
-
-                if (sampleReset){
-                    newHeading = 180 + Math.toDegrees(headingError);
-
-                    newY = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
-                    newX = 360 - (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
-                }else{
-                    newHeading = 90 + Math.toDegrees(headingError);
-
-                    newX = 360 - (Math.cos(Math.abs(headingError))*(averaged.getSen3() + distanceFromRobotCenterToSensor));
-                    newY = (((averaged.getSen1() + averaged.getSen2())/2) + 17.5);
-                }
-
-
-
-                X = newX;
-                Y = newY;
-                Heading = Math.toRadians(newHeading);
-
-            }
-        }
     }
 
     public double X (){
@@ -176,30 +134,32 @@ public class Odometry extends SubSystem {
     }
 
     public double getYVelocity(){
-        return currentYVelocity;
+        return YVelocity;
     }
 
     public double getXVelocity(){
-        return currentXVelocity;
-    }
-
-    public void updateVelocity(){
-        double RRXError = ticksPerCM * ((-rightPod.getVelocity()+(-leftPod.getVelocity()))/2);
-        double RRYError = ticksPerCM * -backPod.getVelocity();
-
-//        currentXVelocity = RRXError;
-//        currentYVelocity = RRYError;
-
-        currentXVelocity = RRXError * Math.cos(Heading) - RRYError * Math.sin(Heading);
-        currentYVelocity = RRXError * Math.sin(Heading) + RRYError * Math.cos(Heading);
-
+        return XVelocity;
     }
 
     public LambdaCommand update = new LambdaCommand(
             () -> {},
             () -> {
-                //need to code this
-                //prob some constant accel loc code
+
+                odo.update();
+
+                XVelocity = odo.getVelX(DistanceUnit.CM);
+                YVelocity = odo.getVelY(DistanceUnit.CM);
+
+                Heading = startHeading + odo.getHeading(AngleUnit.DEGREES);
+
+//                if (Math.toDegrees(Heading) < 0){
+//                    Heading = Math.toRadians(360 - Math.toDegrees(Heading));
+//                } else if (Math.toDegrees(Heading) > 360) {
+//                    Heading = Math.toRadians(Math.toDegrees(Heading) - 360);
+//                }
+
+                X = startX + odo.getPosX(DistanceUnit.CM);
+                Y = startY + odo.getPosY(DistanceUnit.CM);
             },
             () -> false
     );
@@ -208,59 +168,11 @@ public class Odometry extends SubSystem {
         Y += offset;
     }
 
-    public LambdaCommand updateLineBased = new LambdaCommand(
-            () -> {},
-            () -> {
-
-//                System.out.println("execute odometry update line based");
-
-                lastBackPod = currentBackPod;
-                lastLeftPod = currentLeftPod;
-                lastRightPod = currentRightPod;
-
-                currentBackPod = -backPod.getCurrentPosition();
-                currentLeftPod = -leftPod.getCurrentPosition();
-                currentRightPod = -rightPod.getCurrentPosition();
-
-                double deltaRight = currentRightPod - lastRightPod;
-                double deltaLeft = currentLeftPod - lastLeftPod;
-                double deltaBack = currentBackPod - lastBackPod;
-
-                double deltaHeading = (ticksPerCM * (deltaRight - deltaLeft)) / (trackWidth+0.22);
-                Heading += deltaHeading;
-
-                if (Math.toDegrees(Heading) < 0){
-                    Heading = Math.toRadians(360 - Math.toDegrees(Heading));
-                } else if (Math.toDegrees(Heading) > 360) {
-                    Heading = Math.toRadians(Math.toDegrees(Heading) - 360);
-                }
-
-                double deltaX = ((((deltaRight+deltaLeft)*ticksPerCM)/2)) + (Math.toDegrees(deltaHeading) * cmPerDegreeX);
-                double deltaY = (ticksPerCM * deltaBack) - (Math.toDegrees(deltaHeading) * cmPerDegreeY);
-
-//                X += deltaX;
-//                Y += deltaY;
-
-                X += deltaX * Math.cos(Heading) - deltaY * Math.sin(Heading);
-                Y += deltaX * Math.sin(Heading) + deltaY * Math.cos(Heading);
-
-                //4165 back pod 180
-
-//                updatePodReadings();
-//                leftPod.update(0);
-//                rightPod.update(0);
-//                backPod.update(0);
-
-//                System.out.println(Math.abs(rightPod.getTimeCompleted() - leftPod.getTimeCompleted())/1000000);
-
-            },
-            () -> true
-    );
-
     public Command resetPosition(double X, double Y, int Heading){
-        this.X = X;
-        this.Y = Y;
+        this.X = startX;
+        this.Y = startY;
         startHeading = Heading;
+        odo.resetPosAndIMU();
         return resetPosition;
     }
 
@@ -271,12 +183,6 @@ public class Odometry extends SubSystem {
             },
             () -> false
     );
-
-    private void updatePodReadings(){
-//        leftPod.updatePosition();
-//        rightPod.updatePosition();
-//        backPod.updatePosition();
-    }
 
 
 }

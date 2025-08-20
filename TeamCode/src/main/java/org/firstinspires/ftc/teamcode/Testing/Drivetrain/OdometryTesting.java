@@ -17,20 +17,12 @@ public class OdometryTesting extends OpModeEX {
 
     @Override
     public void loopEX() {
-        odometry.queueCommand(odometry.updateLineBased);
+        odometry.queueCommand(odometry.update);
 
-        if (gamepad1.a){
-            odometry.runDistanceSensorReset(false);
-        }
 
         telemetry.addData("x", odometry.X());
         telemetry.addData("y",odometry.Y());
         telemetry.addData("heading", odometry.Heading());
-
-        telemetry.addData("BackPod", odometry.currentBackPod);
-        telemetry.addData("LeftPod", odometry.currentLeftPod);
-        telemetry.addData("RightPod", odometry.currentRightPod);
-
         telemetry.addData("loopTime", loopTime);
 
         telemetry.update();

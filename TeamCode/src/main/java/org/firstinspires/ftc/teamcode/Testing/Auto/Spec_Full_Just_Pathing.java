@@ -297,7 +297,7 @@ public class Spec_Full_Just_Pathing extends OpModeEX {
             requestOpModeStop();
         }
 
-        odometry.queueCommand(odometry.updateLineBased);
+        odometry.queueCommand(odometry.update);
 
         if (following) {
             RobotPower currentPower = follow.followPathAuto(targetHeading, odometry.Heading(), odometry.X(), odometry.Y(), odometry.getXVelocity(), odometry.getYVelocity());
