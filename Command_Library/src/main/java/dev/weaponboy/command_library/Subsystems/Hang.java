@@ -198,7 +198,7 @@ public class Hang extends SubSystem {
                 queueCommand(hang);
             },
             () -> {
-                PTO.setPosition(90);
+                PTO.setPosition(80);
                 hangPower.update(0.2);
                 engage = true;
                 servoActive = true;

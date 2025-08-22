@@ -332,16 +332,17 @@ public class Delivery extends SubSystem {
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
-                    DepositAuto.execute();
+                    mainPivot.setPosition(mainPivotDepo - 16);
+                    secondPivot.setPosition(secondDepo + 8);
                     gripperState = gripper.tightGrab;
 
                 }else if (fourbarState == fourBarState.basketDeposit && (gripperState == gripper.grab || gripperState == gripper.tightGrab)) {
-                    secondPivot.setPosition(258);
+                    secondPivot.setPosition(260);
                     drop = true;
                     dropTimer.reset();
 
                     fourBarTimer.reset();
-                    transferWaitTime = 160;
+                    transferWaitTime = 200;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
                 }

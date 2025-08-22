@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
+import dev.weaponboy.command_library.Subsystems.Limelight;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @TeleOp(name = "Full_Teleop", group = "AAAAAAt the top")
@@ -46,10 +47,34 @@ public class Teleop extends OpModeEX {
         odometry.startPosition(82.5,100,0);
         collection.manualAngle = 0; 
         collection.setTransferType(Collection.tranfer.teleop);
+        collection.transferSuccessful = true;
+        collection.setInitClosed(true);
+        limelight.setAuto(true);
+        limelight.setTargetColor(Limelight.color.yellow);
+//        collection.init();
+
+        if (collection.isInitClosed()){
+            collection.setClawsState(Collection.clawState.grab);
+            collection.gripServo.setPosition(collection.gripperGrab);
+        }else {
+            collection.setClawsState(Collection.clawState.drop);
+            collection.gripServo.setPosition(collection.gripperDrop);
+        }
     }
 
     @Override
     public void loopEX() {
+
+        if(collection.isInitClosed() && collection.getClawsState() == Collection.clawState.grab && collection.breakBeam.isPressed()){
+            delivery.setSpikeTransfer(true);
+            delivery.clearQueue();
+            delivery.queueCommand(delivery.spike);
+            collection.queueCommand(collection.transferNoSave(Collection.tranfer.initTransfer));
+            collection.setInitClosed(false);
+        } else if (collection.isInitClosed() && collection.getClawsState() == Collection.clawState.grab && !collection.breakBeam.isPressed()) {
+            collection.setClawsState(Collection.clawState.drop);
+            collection.setInitClosed(false);
+        }
 
         collection.setOpenWide(true);
 
