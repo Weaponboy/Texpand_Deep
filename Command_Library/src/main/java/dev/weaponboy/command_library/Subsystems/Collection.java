@@ -40,6 +40,13 @@ public class Collection extends SubSystem {
     double abortTime = 0;
     boolean transferToFar = false;
 
+    public void setDisableTurretForFlip(boolean disableTurretForFlip) {
+        this.disableTurretForFlip = disableTurretForFlip;
+        turretTimer.reset();
+    }
+
+    boolean disableTurretForFlip = false;
+
     public boolean disableOutOfRangeDetection = false;
 
     // slides
@@ -54,6 +61,8 @@ public class Collection extends SubSystem {
     // 1.8 is safe speed
     public double spikeTime = 1.9;
     boolean spikeDriving = false;
+
+    ElapsedTime turretTimer = new ElapsedTime();
 
     //servos
     public ServoDegrees fourBarMainPivot = new ServoDegrees();
@@ -315,7 +324,7 @@ public class Collection extends SubSystem {
         griperRotate.setDirection(Servo.Direction.REVERSE);
 
         // positive = left from the top +
-        griperRotate.setOffset(13);
+        griperRotate.setOffset(-18);
         griperRotate.setPosition(90);
 
         Stowed.execute();
@@ -863,10 +872,10 @@ public class Collection extends SubSystem {
 //                    System.out.println("Turret" + (Math.abs(turretTargetPosition - turretPosition.getPosition()) < 6));
                 }
 
-                if ((runSet || abortTimer.milliseconds() > 100) && newSlideTarget == 18763 && !disableOutOfRangeDetection){
+                if ((runSet || abortTimer.milliseconds() > 100) && newSlideTarget == 18763 && !disableOutOfRangeDetection && targeting == targetingTypes.slower){
                     exitTargeting = true;
                     clearQueue();
-//                    System.out.println("Out of range excited targeting");
+                    System.out.println("Out of range excited targeting");
                 }
 
             },
@@ -1587,7 +1596,12 @@ public class Collection extends SubSystem {
 
                 targetPositionManuel = new Vector2D(errors.getX() - robotLength, clawOffsetFromSlides - errors.getY());
 
-                turret.setPosition(turretPosition);
+                if (disableTurretForFlip && turretTimer.milliseconds() > 200){
+                    turret.setPosition(turretPosition);
+                    disableTurretForFlip = false;
+                }else if (!disableTurretForFlip){
+                    turret.setPosition(turretPosition);
+                }
 
                 turretTargetPosition = turretPosition;
 

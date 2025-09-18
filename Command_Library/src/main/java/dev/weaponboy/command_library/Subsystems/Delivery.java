@@ -63,7 +63,7 @@ public class Delivery extends SubSystem {
     public TouchSensor clawSensor;
 
     public double highBasket = 61;
-    public final double autoHighBasket = 60.5;
+    public final double autoHighBasket = 60;
     public final double lowBasket = 20;
 
     public final double spikeTransferHeight = 16.6;
@@ -328,7 +328,7 @@ public class Delivery extends SubSystem {
                 } else if (fourbarState == fourBarState.transfer && slideMotor.getCurrentPosition() > 150) {
 
                     fourBarTimer.reset();
-                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees()-mainPivotDepo)*2, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.6);
+                    transferWaitTime = Math.max(Math.abs(mainPivot.getPositionDegrees() - (mainPivotDepo - 16))*2.1, Math.abs(secondPivot.getPositionDegrees()-secondDepo)*1.7);
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
 
@@ -342,7 +342,7 @@ public class Delivery extends SubSystem {
                     dropTimer.reset();
 
                     fourBarTimer.reset();
-                    transferWaitTime = 200;
+                    transferWaitTime = 250;
                     fourbarState = fourBarState.transferringStates;
                     fourBarTargetState = fourBarState.basketDeposit;
                 }
