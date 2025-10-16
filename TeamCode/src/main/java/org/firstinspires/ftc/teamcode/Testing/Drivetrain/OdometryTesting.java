@@ -12,7 +12,9 @@ public class OdometryTesting extends OpModeEX {
 
 //        odometry.startPosition(342.5, 164, 180);
 
-        odometry.startPosition(0, 0, 0);
+//        odometry.startPosition(0, 0, 0);
+
+        odometry.startPosition(335.5, 292, 225);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.weaponboy.command_library.CommandLibrary.OpmodeEX.OpModeEX;
 import dev.weaponboy.command_library.Subsystems.Collection;
 import dev.weaponboy.command_library.Subsystems.Delivery;
+import dev.weaponboy.command_library.Subsystems.Limelight;
 import dev.weaponboy.nexus_pathing.RobotUtilities.Vector2D;
 
 @TeleOp(name = "Full_Teleop", group = "AAAAAAt the top")
@@ -46,10 +47,34 @@ public class Teleop extends OpModeEX {
         odometry.startPosition(82.5,100,0);
         collection.manualAngle = 0; 
         collection.setTransferType(Collection.tranfer.teleop);
+        collection.transferSuccessful = true;
+        collection.setInitClosed(true);
+        limelight.setAuto(true);
+        limelight.setTargetColor(Limelight.color.yellow);
+//        collection.init();
+
+        if (collection.isInitClosed()){
+            collection.setClawsState(Collection.clawState.grab);
+            collection.gripServo.setPosition(collection.gripperGrab);
+        }else {
+            collection.setClawsState(Collection.clawState.drop);
+            collection.gripServo.setPosition(collection.gripperDrop);
+        }
     }
 
     @Override
     public void loopEX() {
+
+        if(collection.isInitClosed() && collection.getClawsState() == Collection.clawState.grab && collection.breakBeam.isPressed()){
+            delivery.setSpikeTransfer(true);
+            delivery.clearQueue();
+            delivery.queueCommand(delivery.spike);
+            collection.queueCommand(collection.transferNoSave(Collection.tranfer.initTransfer));
+            collection.setInitClosed(false);
+        } else if (collection.isInitClosed() && collection.getClawsState() == Collection.clawState.grab && !collection.breakBeam.isPressed()) {
+            collection.setClawsState(Collection.clawState.drop);
+            collection.setInitClosed(false);
+        }
 
         collection.setOpenWide(true);
 
@@ -264,11 +289,26 @@ public class Teleop extends OpModeEX {
                 collection.setClawsState(Collection.clawState.drop);
 
                 collection.overrideCurrent(true, collection.stow);
+
                 if (!chamberCollect){
                     collection.targetPositionManuel = new Vector2D(15, 20);
                     collection.armEndPointIncrement(0,0,false);
                 }
+            }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+
+                /**
+                 * collection rotate
+                 * */
+                if (collection.manualAngle < 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
+                    collection.manualAngle = 90;
+                    updateRotate = true;
+                }else if (collection.manualAngle > 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
+                    collection.manualAngle = 0;
+                    updateRotate = true;
+                }
+
             }
+
         }else if (((currentGamepad1.left_bumper && !lastGamepad1.left_bumper) || autoDepo) && (delivery.getGripperState() == Delivery.gripper.grab || delivery.getGripperState() == Delivery.gripper.tightGrab) && collection.getCurrentCommand() == collection.returnDefaultCommand() && delivery.fourbarState == Delivery.fourBarState.transfer && delivery.getSlidePositionCM() < 18 && hangState == hangStates.waiting && delivery.clawSensor.isPressed() && collection.transferSuccessful){
             flipOutDepo = true;
             drive = true;
@@ -293,12 +333,11 @@ public class Teleop extends OpModeEX {
             }
 
             delivery.queueCommand(delivery.deposit);
-        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper){
+        }else if (currentGamepad1.left_bumper && !lastGamepad1.left_bumper && delivery.getSlidePositionCM() < 20){
 
             /**
              * collection rotate
              * */
-
             if (collection.manualAngle < 45 && (collection.getFourBarState() != Collection.fourBar.stowed)){
                 collection.manualAngle = 90;
                 updateRotate = true;
